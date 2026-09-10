@@ -114,6 +114,65 @@ def in_ellipse(x, y, e):
     return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1.0
 
 
+# ---- deterministic world-space value noise ---------------------------------
+# Sampled from WORLD coordinates (not chunk-local) so terrain patches continue
+# seamlessly across chunk borders instead of showing a hard seam at every
+# 1024 px boundary.
+
+def _hash2(ix, iy, seed):
+    n = (ix * 374761393 + iy * 668265263 + seed * 1442695040888963407) & 0xFFFFFFFFFFFF
+    n = (n ^ (n >> 13)) * 1274126177 & 0xFFFFFFFFFFFF
+    return ((n ^ (n >> 16)) & 0xFFFFFF) / float(0xFFFFFF)
+
+
+def value_noise(x, y, scale, seed=1337):
+    """Smooth bilinear value noise in [0, 1], continuous over world space."""
+    fx, fy = x / scale, y / scale
+    ix, iy = math.floor(fx), math.floor(fy)
+    tx, ty = fx - ix, fy - iy
+    sx = tx * tx * (3 - 2 * tx)
+    sy = ty * ty * (3 - 2 * ty)
+    n00 = _hash2(ix, iy, seed)
+    n10 = _hash2(ix + 1, iy, seed)
+    n01 = _hash2(ix, iy + 1, seed)
+    n11 = _hash2(ix + 1, iy + 1, seed)
+    a = n00 + (n10 - n00) * sx
+    b = n01 + (n11 - n01) * sx
+    return a + (b - a) * sy
+
+
+def ground_gid(biome, wx, wy):
+    """Clustered ground variation.
+
+    ground_a and ground_b are subtle tone variants, so broad noise patches read
+    as natural terrain rather than as a checkerboard. The `deco` sprite is kept
+    rare (~4%) so it stays a detail instead of a repeating icon grid.
+    """
+    broad = value_noise(wx, wy, 300.0, seed=11)
+    detail = value_noise(wx, wy, 110.0, seed=23)
+    v = broad * 0.75 + detail * 0.25
+    if v < 0.52:
+        return gid(biome, 0)
+    if value_noise(wx, wy, 58.0, seed=37) > 0.96:
+        return gid(biome, 6)          # rare deco fleck
+    return gid(biome, 1)
+
+
+def path_distance(wx, wy):
+    """Distance in world px from (wx, wy) to the nearest road centreline."""
+    best = 1e9
+    for x0, y0, x1, y1, _ in PATHS:
+        dx, dy = x1 - x0, y1 - y0
+        seg2 = dx * dx + dy * dy
+        if seg2 == 0:
+            t = 0.0
+        else:
+            t = max(0.0, min(1.0, ((wx - x0) * dx + (wy - y0) * dy) / seg2))
+        px, py = x0 + t * dx, y0 + t * dy
+        best = min(best, math.hypot(wx - px, wy - py))
+    return best
+
+
 def build_chunk(cx, cy):
     biome = biome_of(cx, cy)
     rng = random.Random((cx * 73856093) ^ (cy * 19349663))
@@ -128,19 +187,18 @@ def build_chunk(cx, cy):
     def world(tx, ty):
         return ox + tx * TILE + TILE / 2, oy + ty * TILE + TILE / 2
 
-    # 1) scattered ground texture + deco
+    # 1) clustered ground texture + deco flecks (noise-driven, seamless).
+    #    NOTE: the discarded rng.random() call keeps the RNG stream byte-identical
+    #    to the previous per-tile-random generator, so every downstream feature
+    #    (tree clusters, boulders, lava pools, enemy spawners) lands on exactly
+    #    the same tile as before. This change is purely cosmetic.
     for ty in range(GRID):
         for tx in range(GRID):
             wx, wy = world(tx, ty)
             if in_ellipse(wx, wy, POND) or in_ellipse(wx, wy, FROST_LAKE):
                 continue
-            r = rng.random()
-            if r < 0.30:
-                set_tile(tx, ty, gid(biome, 0))
-            elif r < 0.55:
-                set_tile(tx, ty, gid(biome, 1))
-            elif r < 0.60:
-                set_tile(tx, ty, gid(biome, 6))
+            rng.random()
+            set_tile(tx, ty, ground_gid(biome, wx, wy))
 
     # 2) biome features (obstacles / hazards)
     if biome == 0:  # meadow tree clusters
@@ -217,23 +275,34 @@ def build_chunk(cx, cy):
                     set_tile(tx, ty, gid(2, 5))
                     solids_stamp.add((tx, ty))
 
-    # 5) paths (carve solids, stamp path tiles)
-    for x0, y0, x1, y1, _ in PATHS:
-        for ty in range(GRID):
-            for tx in range(GRID):
-                wx, wy = world(tx, ty)
-                if (min(x0, x1) <= wx <= max(x0, x1)) and (min(y0, y1) <= wy <= max(y0, y1)):
-                    set_tile(tx, ty, gid(biome, 2))
-                    solids_stamp.discard((tx, ty))
-
-    # 6) clearings: remove solids inside them (keep ground/path)
+    # 5) roads. The carve region is deliberately the FULL path bounding box —
+    #    identical to the original generator, so traversal is unchanged — while
+    #    the painted track is narrower with a noise-perturbed edge, so roads
+    #    read as roads instead of as a paved rectangle.
     for ty in range(GRID):
         for tx in range(GRID):
-            if (tx, ty) in solids_stamp:
-                wx, wy = world(tx, ty)
-                if in_clearing(wx, wy):
-                    grid[ty * GRID + tx] = gid(biome, 0)
+            wx, wy = world(tx, ty)
+            for x0, y0, x1, y1, _ in PATHS:
+                if (min(x0, x1) <= wx <= max(x0, x1)) and (min(y0, y1) <= wy <= max(y0, y1)):
                     solids_stamp.discard((tx, ty))
+                    break
+    for ty in range(GRID):
+        for tx in range(GRID):
+            wx, wy = world(tx, ty)
+            wobble = (value_noise(wx, wy, 70.0, seed=71) - 0.5) * 15.0
+            if path_distance(wx, wy) + wobble < 30.0:
+                set_tile(tx, ty, gid(biome, 2))
+
+    # 6) clearings: remove solids and keep the plaza floor open (roads survive)
+    for ty in range(GRID):
+        for tx in range(GRID):
+            wx, wy = world(tx, ty)
+            if not in_clearing(wx, wy):
+                continue
+            solids_stamp.discard((tx, ty))
+            g = grid[ty * GRID + tx]
+            if g and ((g - 1) % 8) in (3, 4, 5, 6):
+                grid[ty * GRID + tx] = gid(biome, 0)
 
     # 7) objects for this chunk (world -> chunk-local coords)
     objects = []

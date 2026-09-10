@@ -1,141 +1,141 @@
-# 🗺️ OpenWorld RPG — Build Roadmap
+# 🗺️ OpenWorld RPG — Roadmap v2 (Reality-Checked)
 
-> **Goal:** 0 → shippable, complete 2D open-world RPG for Android (signed `.apk` + `.aab`).
-> Derived from the master prompt. Every checkbox is a real deliverable — nothing decorative.
-> **Rule:** push after every completed item; tick it here in the same or next commit.
+> **Goal:** a shippable 2D open-world action RPG for Android.
+> Reviewed against the actual repo contents, not against claims. The previous
+> build log is preserved at [ROADMAP-v1-buildlog.md](ROADMAP-v1-buildlog.md).
+>
+> **Honest headline:** the systems are done and verified. What's missing is
+> content quality (real art/audio) and hardening (playtesting, release signing).
 
-Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where useful.
-
----
-
-## Phase 0 — Infrastructure & Rules
-- [x] Repository initialized, `main` branch, push access verified
-- [x] `ROADMAP.md`, `DECISIONS.md`, `CREDITS.md`, `README.md` created
-- [x] `.gitignore` tuned for the **120 MB repo budget** (no binaries, no toolchain in repo)
-- [x] `tools/bootstrap_toolchain.sh` — idempotent, self-healing, everything into `/tmp/rpg-toolchain/`
-- [x] `tools/check_repo_size.sh` — hard gate against the 120 MB ceiling
-- [x] GitHub Actions CI: headless Godot smoke test on **every push**
-- [x] GitHub Actions CI: Android export job (APK artifact) on push to `main`
-- [x] Godot version pinned (**4.4.1-stable**) + SHA512 checksum verification in bootstrap
-- [x] Automated gameplay test suite (`tests/CombatTest.tscn`) run in CI — combat/loot/economy, exits non-zero on failure
-
-## Phase 1 — Project Scaffold
-- [x] `project.godot` — Godot 4.x, GL Compatibility renderer, touch emulation
-- [x] Base design resolution chosen & documented (**1280×720, `canvas_items` + `expand`**) → DECISIONS.md #2
-- [x] Folder structure: `scenes/` `scripts/` `assets/` `data/` `ui/` `world/` `tools/`
-- [x] Autoloads: `EventBus`, `GameState`, `SaveSystem`, `AudioManager`
-- [x] Input map (keyboard + touch actions: move/attack/dodge/interact/pause)
-- [x] Android `export_presets.cfg` (package name, ARM64 + ARMv7, minimal permissions)
-- [x] Adaptive icon + full icon set (mdpi → xxxhdpi; `tools/gen_icons.py`)
-
-## Phase 2 — World & Chunk Streaming
-- [x] `ChunkStreamer` — loads/unloads chunks around player (radius 1, 1024 px chunks)
-- [x] Deterministic placeholder chunks (3 biome palettes) so streaming is testable now
-- [x] Tiled pipeline: `.tmx`/JSON → Godot scene importer (`tools/tiled_to_godot.py`)
-- [x] Authored chunks for **Biome 1: Verdant Meadows** (starting area + village)
-- [x] Authored chunks for **Biome 2: Ashen Barrens** (midpoint area)
-- [x] Authored chunks for **Biome 3: Frosthollow Peaks** (climax area)
-- [x] Collision layers for world geometry (greedy-merged StaticBody2D rects)
-- [x] Day/night tint cycle (CanvasModulate, 8-min day)
-- [x] Interactable objects (chests, levers, signs, waypoints)
-- [x] ≥1 hidden/secret area (Hidden Grove: ashen lever → stone gate → treasure
-- [x] Fast-travel unlock points + fast-travel UI (5 campfires + Travel screen)
-
-## Phase 3 — Player & Camera
-- [x] Player `CharacterBody2D` with acceleration/friction movement
-- [x] Facing, sprite flip, 8-directional support
-- [x] **Dodge roll with i-frames** + cooldown
-- [x] Camera follow with smoothing + `shake(power)` API
-- [x] Virtual joystick (touch) feeding player input
-- [x] Tap/hold action buttons wired through Godot's `Input` actions
-- [x] Player animation states (idle/walk/attack/hurt/death via LPC sheets)
-
-## Phase 4 — Combat Core
-- [x] Directional melee attack with hit/hurtbox areas
-- [x] Attack cooldown + active hit window
-- [x] `EventBus` combat signals (swung/damaged/dodged/died) + camera shake on hit
-- [x] Hurtbox/damage component for enemies (`Hurtbox` Area2D, group `hurtbox`, `take_hit`)
-- [x] Cooldown-based abilities (≥2 active skills: Whirlwind Q, Firebolt F)
-- [x] Floating damage numbers (`DamageNumber` — hits + XP gains)
-- [x] Hit feedback: flash, knockback, hit-stop *(all shipped)*
-- [x] Enemy telegraph system (0.45 s wind-up, gold pulse before attack lands)
-
-## Phase 5 — Enemy AI & Boss
-- [x] Enemy base controller + state machine: `idle / patrol / chase / attack / flee`
-- [x] ≥3 enemy archetypes (melee grunt/scout/emberling, ranged shaman) — data-driven via `data/enemies.json`
-- [x] Object pooling for enemies & projectiles (`ObjectPool` + spawner pool + `PoolManager`)
-- [x] Death → loot drop → respawn handling (drop tables, gold/item pickups, 40s respawn)
-- [x] **Boss fight with multi-phase pattern** — The Ember Warden: 3 phases (slam/triple-shot → radial bursts → enraged charges), arena summon, persistent defeat
-
-## Phase 6 — Items & Economy
-- [x] `data/items.json` item database seeded (weapons/armor/consumables)
-- [x] Inventory model in `GameState` (stacking, add/remove)
-- [x] `ItemsDB` autoload (single source of truth for item lookups)
-- [x] Inventory UI screen (item rows, tooltips, Use/Equip/Drop, stat sheet, pauses game)
-- [x] Equipment slots (weapon/armor/accessory) affecting stats (atk/def/hp/mp/speed)
-- [x] Equipment drives LPC sprite layers (paper-doll: armor/weapon sheet variants)
-- [x] Consumables (potions etc.) with effects (heal/mana, consumed on use)
-- [x] Loot drop system (drop tables in `data/enemies.json`)
-- [x] Currency (gold) — earned from kills, shown in HUD/inventory · vendor NPC with Phase 8
-
-## Phase 7 — Progression
-- [x] XP curve + leveling (`GameState.add_xp`, growth 1.35)
-- [x] Talent points awarded per level
-- [x] Stat formulas (HP/MP/ATK/DEF/SPD) driven by level + talents
-- [x] Talent tree UI — **3 branches** (Combat / Magic / Utility), allocatable points, T key / HUD star
-- [x] ≥2 talents per branch with real gameplay effects (9 nodes: atk/def/hp, cooldown -20%, MP+regen, potion +35%, speed, gold +20%, dodge i-frames +0.08s)
-- [x] Gear contributes to final stats (equipment_bonus in every stat formula)
-
-## Phase 8 — Quests & Narrative
-- [x] Dialogue system — data-driven (`data/dialogue/*.json`), typewriter UI, condition-based picking *(portraits deferred to art phase)*
-- [x] Branching dialogue with **≥1 meaningful player choice** — mercy/vengeance vow changes ending text + final reward
-- [x] Quest engine: objectives (kill/talk/flag), counters, flags, completion + rewards + auto-chains *(fail states: supported, none authored yet)*
-- [x] Quest log UI (pause menu) + HUD multi-line quest tracker
-- [x] Side/repeatable quests (≥2) — Hunter Kael: "Scouts in the Barrens" + repeatable "Emberling Run"
-- [x] Main story arc authored (First Light → Ember Omen twist → Fall of the Warden → A New Dawn), English
-
-## Phase 9 — Save/Load & Meta
-- [x] `SaveSystem` — versioned JSON (state + position) at `user://save_N.json`
-- [x] Save on demand from pause menu (shows slot); legacy save migrates to slot 1
-- [x] Save slots (3) + overwrite confirm dialog; slot picker with level/gold previews
-- [x] Settings menu: music/SFX volume, control size, language stub (English)
-- [x] Settings persistence (`user://settings.json`, applied on boot)
-
-## Phase 10 — UI/UX & Responsive Layout
-- [x] HUD scaffold: HP/MP bars, XP/gold readout, quest tracker, minimap placeholder
-- [x] Pause menu (resume/save/quest log/settings/quit) with correct `process_mode`
-- [x] Anchors/margins + `DisplayServer` safe-area handling (notch/cutout)
-- [x] Minimap (real: chunk terrain map + player facing arrow + lit waypoints)
-- [x] Main menu (Continue / New Game + slot picker / Settings / Credits) — new game entry point
-- [x] Inventory screen (Phase 6)
-- [x] Talent tree screen (Phase 7)
-- [x] Death / game-over screen (respawn / load last save / quit to title)
-- [x] UI polish pass: Press Start 2P + 9-patch themed panels/buttons/bars (anchors unchanged)
-
-## Phase 11 — Audio & Polish
-- [x] `AudioManager` registries wired to real CC0 assets (5 procedural tracks: title/3 biomes/combat, crossfade + loop)
-- [x] SFX: attack, hit, pickup, UI click, dodge + more (13 procedural CC0 WAVs via `tools/gen_sfx.py`)
-- [x] Particles: hits, deaths, pickups, level-up, dodge dust (`Juice`)
-- [x] Tweened scene transitions (fade via `Transition` autoload)
-- [x] Juice pass (hit-stop, screenshake, squash-and-stretch)
-
-## Phase 12 — Performance
-- [x] World terrain in a single 256x96 atlas (all 3 biomes, Godot-compressed); entity art is tiny SVG/CPUParticles (few draw calls)
-- [x] Object pooling verified (pool reuse + zero-allocation reacquire asserted in CombatTest)
-- [x] 60 FPS profiling pass (headless frame-budget guard ~16.5 ms avg; DECISIONS #28)
-- [x] Chunk streamer memory/CPU budget verified with 3×3 radius stress test
-
-## Phase 13 — Ship It 🚀
-- [x] Full playthrough validation (main quest start → finish; automated q1→q4 + boss, CI-gated)
-- [ ] Signed debug `.apk` produced in CI and attached as **GitHub Release** artifact
-- [ ] `.aab` build verified (ARM64 + ARMv7)
-- [ ] `DECISIONS.md` + `CREDITS.md` final review
-- [ ] Tag `v1.0.0` + GitHub Release notes
+Legend: `[x]` done & pushed · `[~]` partially done · `[ ]` todo
 
 ---
 
-### Repo budget status
-| Check | Limit | Status |
-|---|---|---|
-| Repo size (incl. `.git`) | < 120 MB | ✅ enforced by `tools/check_repo_size.sh` + CI |
-| Heavy tools | `/tmp/rpg-toolchain/` only | ✅ enforced by bootstrap design |
+## Corrections to the original v2 draft
+
+The draft circulating as "Roadmap v2" was directionally right but had specific errors. Corrected:
+
+| Claim in the draft | Reality |
+|---|---|
+| "~5,500 lines of GDScript" | **6,183 lines** across `scripts/` — more than stated |
+| "10 scenes, 35 chunk files" | 35 chunks = **35 `.json` + 35 compiled `.tscn`** (70 files) |
+| "re-verify the 120 MB repo budget" as an open Phase B task | Repo is **~14 MB (12 %)** of that budget. It is **not** a constraint. Dropped as a gate. |
+| "Run the real Universal LPC SpriteSheet Generator … replace `assets/lpc/*`" | The 4 shipped `player_*.png` sheets **were** composited from real LPC layers by `tools/lpc_compose.py` (idle/walk/slash/spellcast/hurt). The gap is **breadth** (4 variants, 1 archetype), not authenticity. |
+| "Pull real 0x72 DungeonTileset II" | Evaluated and **deliberately not used** — it is authored at **16 px**, while this project's grid is 32 px and its LPC characters are 64 px. Mixing them puts two pixel densities and two palettes on screen. Replaced by a native-32 px LPC outdoor set. Reasoning recorded in [CREDITS.md](CREDITS.md). |
+| "This is why it reads as garbage on a phone" | Largely true — but one **code** defect contributed as much as the art, and the draft missed it. See Phase A. |
+
+---
+
+## Phase A — Systems (DONE — keep as regression baseline)
+
+- [x] World/chunk streaming, biomes, fast travel, secrets, day/night
+- [x] Player movement/camera, dodge i-frames, virtual joystick
+- [x] Combat core, abilities, hit feedback, enemy telegraphs
+- [x] Enemy AI states, object pooling, boss (3-phase)
+- [x] Inventory/equipment/consumables/loot/shop/currency
+- [x] XP/leveling/talent tree (3 branches)/stat formulas
+- [x] Quest engine + branching dialogue + quest log/tracker
+- [x] Save/load (3 slots), settings, full menu set, responsive UI
+- [x] Audio hooks, particles/juice, CI smoke + gameplay tests
+
+**Regression baseline (all re-verified after the Phase B art pass below):**
+
+```
+repo size gate ...................... OK (14 MB / 120 MB)
+JSON data validation ................ 41 files OK
+headless import ..................... OK
+smoke: main.tscn (300 frames) ....... clean, 0 script/parse/compile errors
+smoke: main_menu.tscn ............... clean
+tests: CombatTest ................... PASS (120 checks)
+tests: PlaythroughTest .............. PASS (23 checks)
+```
+
+---
+
+## Phase B — Real Content  ← **in progress**
+
+### B1. World tileset ✅ DONE
+- [x] Replaced the procedural placeholder atlas with real **native-32 px LPC** terrain and props
+- [x] Vendored upstream sheets into `assets/source/` via `tools/art/vendor_sources.sh` (reproducible + auditable)
+- [x] `tools/art/build_atlas.py` — deterministic atlas build preserving the `gid = biome*8 + col + 1` contract
+- [x] Per-biome palette derivation (recolour) instead of hand-picking three duplicated sheets
+- [x] `tools/art/preview_world.py` — renders real chunks with the GID math from `chunk_renderer.gd`, so art can be reviewed without a GPU
+- [x] Full attribution recorded in CREDITS.md (CC-BY-SA 3.0 share-alike honoured)
+
+### B2. World terrain quality ✅ DONE (this pass)
+- [x] **Root cause fixed:** terrain was stamped with `rng.random()` per tile → checkerboard noise. Now deterministic **value noise sampled in world space**, so patches are clustered *and* seamless across the 1024 px chunk borders.
+- [x] **Roads:** were a stamped rectangle covering the whole path bounding box. Now a noise-perturbed ~30 px track.
+- [x] **Forests:** obstacle tiles were single tree sprites (read as an icon grid). Now seamless **canopy masses**, which read as forest at the same density.
+- [x] **Clearings** re-floor blocked tiles so plazas no longer look torn up.
+- [x] Verified non-destructive: solids, hazards and all objects/spawners are **byte-identical** to the previous generator (see "Cosmetic-only guarantee" below).
+
+### B3. Pixel-art rendering ✅ DONE
+- [x] `project.godot` never set `textures/canvas_textures/default_texture_filter`, so Godot 4's **Linear** default was **bilinear-blurring every pixel-art sprite**. Set to `0` (nearest). One line, visible on every screen, and it was invisible in headless CI.
+
+### B4. Character breadth — `[ ]` TODO
+- [ ] Expand `tools/lpc_compose.py` beyond 4 player variants / 1 archetype
+- [ ] NPC archetypes (villager, elder, merchant, guard) + enemy archetypes from real LPC layers
+- [ ] NPC dialogue portraits (still deferred)
+
+### B5. Audio — `[ ]` TODO
+- [ ] Source real CC0 music (3 biome tracks + combat + title) to replace `tools/gen_music.py` output
+- [ ] Replace the 13 synthesized SFX from `tools/gen_sfx.py`
+- [ ] Keep `AudioManager` registries wired unchanged
+
+### B6. Asset pipeline hardening — `[ ]` TODO
+- [ ] Atlas packing / `crunch` pass
+- [ ] Confirm the atlas stays within mobile texture memory (currently 256×96 — trivial)
+
+---
+
+## Phase C — Playtest & Balance  `[ ]` TODO
+
+- [ ] Full manual playthrough on a real or emulated Android device — **nothing in this repo has ever been played by a human on a phone**
+- [ ] Difficulty tuning per biome tier (Meadows / Barrens / Frosthollow) by real combat feel
+- [ ] Fix what the manual pass finds — it always surfaces bugs automated tests miss
+- [ ] Performance profiling on actual low/mid-range hardware
+
+> **Known caveat:** the automated suite runs **headless**, so it renders nothing. Every
+> visual bug fixed in Phase B (the blur, the noise, the canopy readability) was invisible
+> to it. CI proves the systems work; it cannot prove the game *looks* right.
+
+---
+
+## Phase D — Ship  `[ ]` TODO
+
+- [ ] **In-game CC-BY-SA credits screen** — ⚠️ **release blocker.** The atlas contains
+      CC-BY-SA 3.0 material; distributing a build without attribution is a licence violation.
+- [ ] Signed debug `.apk` produced by CI, attached to a GitHub Release
+- [ ] `.aab` verified on ARM64 + ARMv7
+- [ ] `DECISIONS.md` / `CREDITS.md` final pass
+- [ ] Tag `v1.0.0`, write release notes, publish
+
+---
+
+## Cosmetic-only guarantee (how Phase B2 was de-risked)
+
+Terrain rewrites are dangerous because the same grid drives collision, chests, gates,
+waypoints and enemy spawns. Method used:
+
+1. Re-ran the **committed** generator and confirmed its output is byte-identical to the
+   committed chunks — so "the generator + its seed" *is* the previous world, and any
+   difference is genuinely mine.
+2. Made the new ground pass consume the RNG stream exactly as the old one did, so no
+   downstream random feature moved.
+3. Diffed the new world against the old, per chunk:
+
+```
+solids          35/35 chunks identical
+hazards         35/35 chunks identical
+objects/spawns   0/35 chunks differ
+```
+
+The world is visually new and mechanically untouched. This was verified, not assumed.
+
+---
+
+## What's left, in one line
+
+Art is now real and the terrain reads as terrain. Remaining work is **character/audio
+breadth, a human playtest on a device, and the attribution screen** — grind and QA, not
+architectural risk.

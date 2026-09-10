@@ -4,10 +4,12 @@ A complete, polished **2D open-world action RPG for Android**, built with **Godo
 combat with dodge i-frames, a chunk-streamed seamless world with 3 biomes, talent trees, quests
 with branching dialogue, loot, shops, and full save/load. Built to ship: signed APK/AAB from CI.
 
-> 📍 Status: **v1.0 feature-complete** — see [ROADMAP.md](ROADMAP.md) for the live checklist
-> (ticked after every pushed subsystem), [DECISIONS.md](DECISIONS.md) for design decisions,
-> and [CREDITS.md](CREDITS.md) for third-party licenses. Signed APK/AAB are produced by the
-> `release` workflow on `v*` tags and attached to the GitHub Release.
+> 📍 Status: **feature-complete, not yet shippable.** All game systems are built and covered
+> by CI, and the world now uses a real 32 px LPC tileset — but character/audio breadth is
+> unfinished, the game has never been played by a human on a device, and the CC-BY-SA credits
+> screen does not exist yet (a release blocker). See [ROADMAP.md](ROADMAP.md) for the honest
+> current state, [DECISIONS.md](DECISIONS.md) for design decisions, and [CREDITS.md](CREDITS.md)
+> for third-party licenses. Signed APK/AAB are produced by the `release` workflow on `v*` tags.
 
 ## Quick facts
 
@@ -32,19 +34,25 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 - **Story** — 4-part main questline with branching, consequential dialogue, side and
   repeatable quests, tracked objectives, data-driven JSON dialogue.
 - **Meta** — 3 save slots, settings (volume/joystick/language stub), main menu with slot
-  picker, pause, death and fast-travel screens; procedural CC0 music + SFX.
+  picker, pause, death and fast-travel screens. *Music + SFX are still synthesised
+  placeholders (`tools/gen_music.py`, `tools/gen_sfx.py`) — real CC0 audio is Phase B5.*
 - **Controls** — keyboard or touch: left virtual joystick; right buttons for attack,
   dodge, interact and the two abilities (with live cooldown readouts).
 
 ## Repository layout
 
 ```
-scenes/    Godot scenes (main, player, later: enemies, ui screens)
+scenes/    Godot scenes (main, player, enemies, ui screens)
 scripts/   GDScript: autoloads/, player/, world/, ui/
-assets/    final compressed art only (placeholder SVGs for now)
+assets/    game-ready art & audio
+  source/  vendored upstream sheets (reproducible atlas inputs, see CREDITS.md)
+  tiles/   atlas.png — built by tools/art/build_atlas.py
+  lpc/     composited character sheets (tools/lpc_compose.py)
 data/      JSON game data (items, dialogue, quests)
-world/     authored chunk scenes (chunk_X_Y.tscn)
+world/     authored chunk scenes (chunk_X_Y.tscn + .json)
 tools/     bootstrap_toolchain.sh, check_repo_size.sh
+  art/     build_atlas.py, preview_world.py, vendor_sources.sh
+  worldgen/ build_world.py (Tiled JSON), make_tileset.py (legacy, superseded)
 .github/   CI workflows (smoke test + Android export)
 ```
 

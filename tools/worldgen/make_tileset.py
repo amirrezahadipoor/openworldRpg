@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
-"""Procedurally renders the world tile atlas (pure stdlib, deterministic).
+"""DEPRECATED — superseded by tools/art/build_atlas.py (Phase B art pass).
 
-Layout: 8 columns x 3 biome rows, 32 px tiles (256 x 96 PNG).
-Columns:
-  0 ground_a   1 ground_b   2 path       3 hazard (solid)
-  4 obstacle (solid)        5 wall/cliff (solid)   6 deco (walkable)
-  7 shore/edge
-Rows (biomes): 0 Verdant Meadows, 1 Ashen Barrens, 2 Frosthollow Peaks.
-GID convention shared with the converter + ChunkStreamer:
-  gid = biome * 8 + col + 1   (0 = empty -> renderer base color)
+This script renders flat-colour placeholder tiles and will OVERWRITE the real
+LPC atlas at assets/tiles/atlas.png. It is kept only as the historical source of
+the original placeholder palette. Do not run it unless you intend to revert the
+art pass; it refuses to run without --force for that reason.
+
+Use instead:
+    bash tools/art/vendor_sources.sh      # fetch upstream LPC sheets
+    python3 tools/art/build_atlas.py      # build the real atlas
+    python3 tools/art/preview_world.py    # preview real chunks
+
+Original layout (unchanged, still the contract the renderer relies on):
+  Layout: 8 columns x 3 biome rows, 32 px tiles (256 x 96 PNG).
+  Columns:
+    0 ground_a   1 ground_b   2 path       3 hazard (solid)
+    4 obstacle (solid)        5 wall/cliff (solid)   6 deco (walkable)
+    7 shore/edge
+  Rows (biomes): 0 Verdant Meadows, 1 Ashen Barrens, 2 Frosthollow Peaks.
+  GID convention shared with the converter + ChunkStreamer:
+    gid = biome * 8 + col + 1   (0 = empty -> renderer base color)
 """
 import struct
 import zlib
@@ -212,4 +223,12 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+
+    if "--force" not in sys.argv:
+        sys.exit(
+            "refusing to run: this would overwrite the real LPC atlas with placeholder art.\n"
+            "  use tools/art/build_atlas.py instead, or pass --force to revert deliberately."
+        )
+    print("!! reverting assets/tiles/atlas.png to placeholder art")
     main()
