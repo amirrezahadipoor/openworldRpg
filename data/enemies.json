@@ -1,0 +1,59 @@
+{
+  "_comment": "Enemy archetype database (data-driven, not hardcoded). behavior: melee | ranged. drops.gold = [min,max], drops.items = [ [item_id, chance], ... ].",
+  "archetypes": {
+    "grunt": {
+      "display_name": "Slime Grunt",
+      "max_hp": 30.0,
+      "move_speed": 95.0,
+      "contact_damage": 8.0,
+      "chase_radius": 300.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.2,
+      "xp_reward": 18,
+      "body_color": [0.78, 0.28, 0.28],
+      "behavior": "melee",
+      "drops": { "gold": [2, 6], "items": [["health_potion", 0.35]] }
+    },
+    "scout": {
+      "display_name": "Barrens Scout",
+      "max_hp": 20.0,
+      "move_speed": 180.0,
+      "contact_damage": 6.0,
+      "chase_radius": 380.0,
+      "attack_radius": 48.0,
+      "attack_cooldown": 0.9,
+      "xp_reward": 22,
+      "body_color": [0.85, 0.62, 0.2],
+      "behavior": "melee",
+      "drops": { "gold": [3, 8], "items": [["mana_potion", 0.3]] }
+    },
+    "shaman": {
+      "display_name": "Frost Shaman",
+      "max_hp": 26.0,
+      "move_speed": 82.0,
+      "contact_damage": 5.0,
+      "chase_radius": 420.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 2.0,
+      "xp_reward": 30,
+      "body_color": [0.35, 0.62, 0.85],
+      "behavior": "ranged",
+      "projectile_damage": 10.0,
+      "projectile_speed": 240.0,
+      "drops": { "gold": [4, 10], "items": [["mana_potion", 0.5]] }
+    },
+    "emberling": {
+      "display_name": "Emberling",
+      "max_hp": 14.0,
+      "move_speed": 220.0,
+      "contact_damage": 4.0,
+      "chase_radius": 360.0,
+      "attack_radius": 40.0,
+      "attack_cooldown": 0.7,
+      "xp_reward": 14,
+      "body_color": [0.95, 0.45, 0.2],
+      "behavior": "melee",
+      "drops": { "gold": [1, 4], "items": [["health_potion", 0.2]] }
+    }
+  }
+}

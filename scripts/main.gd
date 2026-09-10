@@ -13,7 +13,6 @@ var streamer: ChunkStreamer
 func _ready() -> void:
 	_build_world()
 	_build_player()
-	_build_enemies()
 	_build_camera()
 	_build_ui()
 
@@ -42,17 +41,6 @@ func _build_player() -> void:
 	add_child(player)
 	player.global_position = SPAWN_POINT
 	streamer.set_target(player)
-
-
-func _build_enemies() -> void:
-	# Temporary combat sandbox around spawn until chunk spawning lands.
-	var scene: PackedScene = load("res://scenes/enemies/enemy.tscn")
-	var spots := [Vector2(780, 430), Vector2(310, 720), Vector2(660, 820)]
-	for s in spots:
-		var e: Enemy = scene.instantiate()
-		e.name = "Enemy_%s" % str(s)
-		add_child(e)
-		e.global_position = s
 
 
 func _build_camera() -> void:

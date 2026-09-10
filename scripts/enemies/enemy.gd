@@ -1,28 +1,39 @@
 class_name Enemy
 extends CharacterBody2D
-## Base enemy: full FSM (idle / patrol / chase / attack / flee), telegraphed
-## attacks, hurtbox in group "hurtbox" (hit by the player's attack area),
-## XP reward + EventBus notifications on hurt/death.
+## Enemy — data-driven from data/enemies.json archetypes (EnemyDB).
+## FSM: idle / patrol / chase / attack / flee. Telegraphed attacks (gold
+## pulse wind-up). melee = contact lunge; ranged = pooled projectile.
+## On death: XP + loot drops (gold/items), then recycled into the spawner's
+## ObjectPool (no queue_free) for respawn reuse.
 
 enum State { IDLE, PATROL, CHASE, ATTACK, FLEE, DEAD }
 
-@export var max_hp := 30.0
-@export var move_speed := 95.0
-@export var contact_damage := 8.0
-@export var chase_radius := 300.0
-@export var attack_radius := 56.0
-@export var xp_reward := 18
-@export var body_color := Color(0.78, 0.28, 0.28)
+signal recycled(enemy: Enemy)
 
 const TELEGRAPH_TIME := 0.45
 const FLEE_TIME := 1.6
 const FLEE_THRESHOLD := 0.25
 
-var hp: float
+var archetype := "grunt"
+
+var hp := 30.0
+var max_hp := 30.0
+var move_speed := 95.0
+var contact_damage := 8.0
+var chase_radius := 300.0
+var attack_radius := 56.0
+var attack_cooldown := 1.2
+var xp_reward := 18
+var behavior := "melee"
+var projectile_damage := 0.0
+var projectile_speed := 240.0
+var body_color := Color(0.78, 0.28, 0.28)
+
 var state: State = State.IDLE
 
 var _player: Player
 var _state_time := 0.0
+var _attack_cd := 0.0
 var _patrol_target := Vector2.ZERO
 var _origin := Vector2.ZERO
 
@@ -30,9 +41,6 @@ var _origin := Vector2.ZERO
 
 
 func _ready() -> void:
-	hp = max_hp
-	_origin = global_position
-	sprite.modulate = body_color
 	add_to_group("enemies")
 
 
@@ -40,6 +48,7 @@ func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 	_state_time += delta
+	_attack_cd = maxf(_attack_cd - delta, 0.0)
 	_player = _find_player()
 
 	var to_player := (_player.global_position - global_position) if _player else Vector2.ZERO
@@ -66,23 +75,33 @@ func _physics_process(delta: float) -> void:
 		State.CHASE:
 			if _player == null:
 				_change_state(State.IDLE)
-			elif dist < attack_radius:
+			elif dist < attack_radius and _attack_cd <= 0.0:
 				_change_state(State.ATTACK)
 			elif dist > chase_radius * 1.6:
 				_change_state(State.IDLE)
 			else:
-				velocity = velocity.move_toward(to_player.normalized() * move_speed, 700.0 * delta)
+				var desired := move_speed
+				if behavior == "ranged" and dist < attack_radius * 0.5:
+					desired = -move_speed * 0.7  # keep distance while casting
+				velocity = velocity.move_toward(to_player.normalized() * desired, 700.0 * delta)
 
 		State.ATTACK:
 			velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
-			# Telegraph: pulse red while winding up so the player can dodge.
 			var pulse := 0.5 + 0.5 * sin(_state_time * 24.0)
 			sprite.modulate = body_color.lerp(Color(1.0, 0.85, 0.2), pulse)
 			if _state_time >= TELEGRAPH_TIME:
 				sprite.modulate = body_color
-				if _player and dist < attack_radius + 18.0:
-					_player.take_hit(contact_damage, to_player.normalized())
-				_change_state(State.IDLE)
+				_attack_cd = attack_cooldown
+				if _player:
+					if behavior == "ranged":
+						PoolManager.spawn_projectile(
+							global_position, to_player.normalized(),
+							projectile_damage, projectile_speed, body_color.lightened(0.2)
+						)
+						AudioManager.play_sfx("enemy_cast")
+					elif dist < attack_radius + 18.0:
+						_player.take_hit(contact_damage, to_player.normalized())
+				_change_state(State.CHASE)
 
 		State.FLEE:
 			if _player:
@@ -91,6 +110,41 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.CHASE if _player else State.IDLE)
 
 	move_and_slide()
+
+
+func setup_archetype(id: String, power_scale: float = 1.0) -> void:
+	## (Re)configure from EnemyDB — used on spawn AND on pool reuse.
+	archetype = id
+	var cfg := EnemyDB.get_archetype(id)
+	if cfg.is_empty():
+		push_error("Enemy: unknown archetype '%s'" % id)
+	max_hp = float(cfg.get("max_hp", 30.0)) * power_scale
+	move_speed = float(cfg.get("move_speed", 95.0))
+	contact_damage = float(cfg.get("contact_damage", 8.0)) * power_scale
+	chase_radius = float(cfg.get("chase_radius", 300.0))
+	attack_radius = float(cfg.get("attack_radius", 56.0))
+	attack_cooldown = float(cfg.get("attack_cooldown", 1.2))
+	xp_reward = int(int(cfg.get("xp_reward", 18)) * power_scale)
+	behavior = String(cfg.get("behavior", "melee"))
+	projectile_damage = float(cfg.get("projectile_damage", 0.0)) * power_scale
+	projectile_speed = float(cfg.get("projectile_speed", 240.0))
+	var c: Array = cfg.get("body_color", [0.78, 0.28, 0.28])
+	body_color = Color(float(c[0]), float(c[1]), float(c[2]))
+
+	hp = max_hp
+	state = State.IDLE
+	_state_time = 0.0
+	_attack_cd = 0.0
+	velocity = Vector2.ZERO
+	_origin = global_position
+	sprite.modulate = body_color
+	modulate.a = 1.0
+	scale = Vector2.ONE
+	show()
+	set_physics_process(true)
+	for child in get_children():
+		if child is CollisionShape2D:
+			child.set_deferred("disabled", false)
 
 
 func _change_state(s: State) -> void:
@@ -113,7 +167,7 @@ func take_hit(amount: float, dir: Vector2) -> void:
 	if state == State.DEAD:
 		return
 	hp -= amount
-	velocity += dir * 160.0  # knockback
+	velocity += dir * 160.0
 	sprite.modulate = Color(1.5, 1.5, 1.5)
 	var tw := create_tween()
 	tw.tween_property(sprite, "modulate", body_color, 0.18)
@@ -126,13 +180,39 @@ func take_hit(amount: float, dir: Vector2) -> void:
 
 func _die() -> void:
 	_change_state(State.DEAD)
-	EventBus.enemy_died.emit(self)
-	GameState.add_xp(xp_reward)
 	set_physics_process(false)
 	for child in get_children():
 		if child is CollisionShape2D:
 			child.set_deferred("disabled", true)
+	_drop_loot()
+	EventBus.enemy_died.emit(self)
+	GameState.add_xp(xp_reward)
 	var tw := create_tween()
 	tw.tween_property(self, "scale", Vector2(0.1, 0.1), 0.3)
 	tw.parallel().tween_property(self, "modulate:a", 0.0, 0.3)
-	tw.tween_callback(queue_free)
+	tw.tween_callback(func() -> void: recycled.emit(self))
+
+
+func _drop_loot() -> void:
+	var drops := EnemyDB.roll_drops(archetype)
+	var host := get_parent()
+	if host == null:
+		return
+	var scene: PackedScene = load("res://scenes/world/pickup.tscn")
+	var gold: int = drops["gold"]
+	if gold > 0:
+		var g: Pickup = scene.instantiate()
+		host.add_child(g)
+		g.global_position = global_position + Vector2(randf_range(-12.0, 12.0), randf_range(-12.0, 12.0))
+		g.setup_gold(gold)
+	for item_id in drops["items"]:
+		var p: Pickup = scene.instantiate()
+		host.add_child(p)
+		p.global_position = global_position + Vector2(randf_range(-16.0, 16.0), randf_range(-16.0, 16.0))
+		p.setup_item(String(item_id))
+
+
+func on_pool_release() -> void:
+	state = State.DEAD
+	set_physics_process(false)
+	hide()

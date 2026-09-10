@@ -71,6 +71,24 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#16 — Local headless gate before every push** · 2026-09-10
+Started running `godot --headless --import` + a 400-frame smoke run locally
+before pushing, because the first CI smoke gate exited 0 despite script
+errors (process exit code is not a reliable health signal). CI now also
+greps the smoke log and fails on any `SCRIPT ERROR`/`Parse Error`. This
+caught a real `min()`-vs-`minf()` type-inference bug and a `get_name()`
+clash with `Node.get_name()` before they shipped.
+
+**#15 — Data-driven enemies + pooled loot** · 2026-09-10
+Enemy archetypes live in `data/enemies.json` (melee grunt/scout/emberling,
+ranged shaman) and are applied via `Enemy.setup_archetype()`, so adding an
+enemy is data-edit, not code. Ranged attacks reuse a prewarmed projectile
+pool (`PoolManager`, 16 nodes); spawner deaths recycle enemy nodes into an
+`ObjectPool` and respawn each slot after 40s. Loot is rolled from per-archetype
+drop tables into gold/item `Pickup` nodes with player magnet. Difficulty tiers
+by biome: power_scale 1.0 / 1.6 / 2.4 (Meadows / Barrens / Frosthollow).
+Spawn chunk (0,0) deliberately has no spawners — safe starting area.
+
 **#14 — Enemy design baseline** · 2026-09-10
 Single `Enemy` base class with FSM (idle/patrol/chase/attack/flee), exported
 stat knobs (hp/speed/damage/radii/xp/color) so archetypes are configured, not

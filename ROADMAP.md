@@ -61,19 +61,20 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 
 ## Phase 5 — Enemy AI & Boss
 - [x] Enemy base controller + state machine: `idle / patrol / chase / attack / flee`
-- [ ] ≥3 enemy archetypes (melee, ranged, fast)
-- [ ] Object pooling for enemies & projectiles
-- [ ] Death → loot drop → respawn handling
+- [x] ≥3 enemy archetypes (melee grunt/scout/emberling, ranged shaman) — data-driven via `data/enemies.json`
+- [x] Object pooling for enemies & projectiles (`ObjectPool` + spawner pool + `PoolManager`)
+- [x] Death → loot drop → respawn handling (drop tables, gold/item pickups, 40s respawn)
 - [ ] **Boss fight with multi-phase pattern** (≥2 distinct phases)
 
 ## Phase 6 — Items & Economy
 - [x] `data/items.json` item database seeded (weapons/armor/consumables)
 - [x] Inventory model in `GameState` (stacking, add/remove)
+- [x] `ItemsDB` autoload (single source of truth for item lookups)
 - [ ] Inventory UI screen (grid, tooltips, use/equip/drop)
 - [ ] Equipment slots (weapon/armor/accessory) affecting stats
 - [ ] Equipment drives LPC sprite layers (paper-doll)
 - [ ] Consumables (potions etc.) with effects
-- [ ] Loot drop system (drop tables)
+- [x] Loot drop system (drop tables in `data/enemies.json`)
 - [ ] Currency (gold) + vendor/shop NPC
 
 ## Phase 7 — Progression

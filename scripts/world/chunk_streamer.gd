@@ -99,7 +99,38 @@ func _build_placeholder_chunk(key: Vector2i) -> Node2D:
 	tag.position = Vector2(12, 8)
 	tag.add_theme_color_override("font_color", Color(1, 1, 1, 0.25))
 	root.add_child(tag)
+
+	# Enemy spawners (skip the spawn chunk so the starting area is safe).
+	if key != Vector2i.ZERO:
+		_populate_enemies(root, rng, biome)
 	return root
+
+
+func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> void:
+	## Biome tiering: harder archetypes + power_scale the deeper you go
+	## (difficulty curve — DECISIONS.md #7).
+	var table: Array
+	var power := 1.0
+	match biome:
+		0:
+			table = ["grunt", "emberling"]
+			power = 1.0
+		1:
+			table = ["scout", "grunt"]
+			power = 1.6
+		_:
+			table = ["shaman", "scout"]
+			power = 2.4
+	for i in rng.randi_range(1, 2):
+		var spawner := EnemySpawner.new()
+		spawner.archetype = table[rng.randi_range(0, table.size() - 1)]
+		spawner.count = rng.randi_range(1, 2)
+		spawner.power_scale = power
+		spawner.position = Vector2(
+			rng.randf_range(128.0, CHUNK_SIZE - 128.0),
+			rng.randf_range(128.0, CHUNK_SIZE - 128.0)
+		)
+		root.add_child(spawner)
 
 
 func _circle_polygon(radius: float, sides: int = 8) -> PackedVector2Array:
