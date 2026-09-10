@@ -31,10 +31,15 @@ func _process(delta: float) -> void:
 
 
 func _build_scenery() -> void:
-	# Ground patch
+	# Ground patch — real dirt TILES from the atlas rather than a flat brown
+	# disc. A 24-gon of solid colour read as a hard-edged mud circle on screen;
+	# tiling the dirt tile gives a trodden clearing that matches the world art.
 	var ground := Polygon2D.new()
-	ground.polygon = _circle_poly(170.0, 24)
-	ground.color = Color(0.30, 0.26, 0.20, 0.9)
+	ground.polygon = _circle_poly(168.0, 48, 15.0)
+	ground.texture = load("res://assets/tiles/props/camp_ground.png")
+	ground.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	ground.uv = ground.polygon                   # world-pixel UVs -> tiles every 32 px
+	ground.color = Color(1, 1, 1, 1)
 	ground.z_index = -8
 	add_child(ground)
 
@@ -55,8 +60,8 @@ func _build_scenery() -> void:
 	_fire_light = PointLight2D.new()
 	_fire_light.texture = load("res://assets/placeholder/light.svg")
 	_fire_light.color = Color(1.0, 0.72, 0.38)
-	_fire_light.energy = 1.0
-	_fire_light.texture_scale = 4.2
+	_fire_light.energy = 0.85
+	_fire_light.texture_scale = 2.6   # was 4.2: a ~270 px glow swallowed the camp
 	add_child(_fire_light)
 
 
@@ -84,6 +89,7 @@ func _spawn_npcs() -> void:
 	var elder: NPC = scene.instantiate()
 	elder.npc_id = "elder_rowan"
 	elder.display_name = "Elder Rowan"
+	elder.sprite_sheet = "res://assets/lpc/npc_elder.png"
 	elder.position = Vector2(-55, 55)
 	elder.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
 	add_child(elder)
@@ -93,7 +99,7 @@ func _spawn_npcs() -> void:
 	vendor.display_name = "Merchant Bram"
 	vendor.is_vendor = true
 	vendor.show_quest_marker = false
-	(vendor.get_node("Sprite") as Sprite2D).texture = load("res://assets/placeholder/vendor.svg")
+	vendor.sprite_sheet = "res://assets/lpc/npc_vendor.png"
 	vendor.position = Vector2(120, 65)
 	vendor.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
 	add_child(vendor)
@@ -101,6 +107,7 @@ func _spawn_npcs() -> void:
 	var kael: NPC = scene.instantiate()
 	kael.npc_id = "hunter_kael"
 	kael.display_name = "Hunter Kael"
+	kael.sprite_sheet = "res://assets/lpc/npc_hunter.png"
 	kael.modulate = Color(0.85, 0.95, 0.85)
 	kael.position = Vector2(215, 150)
 	kael.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
@@ -111,9 +118,14 @@ func get_vendor_stock() -> Array:
 	return MERCHANT_STOCK
 
 
-func _circle_poly(radius: float, sides: int) -> PackedVector2Array:
+func _circle_poly(radius: float, sides: int, wobble: float = 0.0) -> PackedVector2Array:
+	## `wobble` perturbs each vertex so a clearing reads as an organic trodden
+	## patch rather than a perfect disc with a hard-edged rim.
 	var pts := PackedVector2Array()
 	for i in sides:
 		var a := TAU * float(i) / float(sides)
-		pts.append(Vector2.from_angle(a) * radius)
+		var r := radius
+		if wobble > 0.0:
+			r += sin(a * 3.0 + 1.7) * wobble * 0.62 + sin(a * 7.0 + 4.1) * wobble * 0.38
+		pts.append(Vector2.from_angle(a) * r)
 	return pts

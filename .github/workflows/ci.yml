@@ -76,6 +76,42 @@ jobs:
           grep -q "AUDIO RESULT: PASS" audio.log || { echo "::error::audio integrity check failed"; exit 1; }
           echo "audio ✓"
 
+  visual-capture:
+    name: Visual capture (screenshot artifact)
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap toolchain (Godot editor only)
+        run: bash tools/bootstrap_toolchain.sh --editor
+
+      - name: Install virtual display + software GL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri
+
+      - name: Import project (headless)
+        run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
+
+      - name: Render the real game and capture PNGs
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          GALLIUM_DRIVER: llvmpipe
+        run: |
+          xvfb-run -a -s "-screen 0 1280x720x24" \
+            /tmp/rpg-toolchain/bin/godot --path . \
+            res://tools/art/capture_screenshot.tscn --resolution 1280x720 | tee shot.log
+          grep -q "SHOT 1 saved" shot.log || { echo "::error::screenshot capture failed"; exit 1; }
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: /tmp/rpg_shot_*.png
+          retention-days: 30
+
   android-export:
     name: Android debug APK (main only)
     runs-on: ubuntu-latest

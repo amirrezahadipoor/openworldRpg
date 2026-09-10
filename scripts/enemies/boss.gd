@@ -44,12 +44,18 @@ func take_hit(amount: float, dir: Vector2) -> void:
 
 
 func setup_archetype(id: String, power_scale: float = 1.0) -> void:
-	base_scale = Vector2(2.2, 2.2)
 	super.setup_archetype(id, power_scale)
+	base_scale = Vector2(2.2, 2.2)   # after super: it assigns base_scale itself
+	scale = base_scale
 	phase = 1
 	_attack_index = 0
 	_charge_timer = 0.0
 	telegraph_time = DEFAULT_TELEGRAPH
+
+
+func _phase_tint(c: Color) -> Color:
+	## Sprite2D.modulate multiplies; soften so the boss stays legible.
+	return c.lerp(Color(1, 1, 1), 0.45)
 
 
 func _enter_phase(p: int) -> void:
@@ -75,7 +81,7 @@ func _enter_phase(p: int) -> void:
 	# Transformation flash + shockwave ring feel.
 	sprite.modulate = Color(2.0, 2.0, 2.0)
 	var tw := create_tween()
-	tw.tween_property(sprite, "modulate", body_color, 0.6)
+	tw.tween_property(sprite, "modulate", _phase_tint(body_color), 0.6)
 	tw.parallel().tween_property(self, "scale", base_scale * 1.25, 0.15)
 	tw.tween_property(self, "scale", base_scale, 0.3)
 
@@ -133,7 +139,7 @@ func _radial_burst(count: int) -> void:
 func _start_charge(dir: Vector2) -> void:
 	_charge_dir = dir
 	_charge_timer = CHARGE_DURATION
-	sprite.modulate = Color(1.0, 0.3, 0.2)
+	sprite.modulate = _phase_tint(Color(1.0, 0.3, 0.2))
 
 
 func _process_charge(delta: float) -> void:
@@ -144,5 +150,5 @@ func _process_charge(delta: float) -> void:
 		_charge_timer = 0.0
 	move_and_slide()
 	if _charge_timer <= 0.0:
-		sprite.modulate = body_color
+		sprite.modulate = _phase_tint(body_color)
 		_change_state(State.IDLE)

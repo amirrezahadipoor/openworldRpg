@@ -14,6 +14,16 @@ const DEFAULT_TELEGRAPH := 0.45
 const FLEE_TIME := 1.6
 const FLEE_THRESHOLD := 0.25
 
+# Composed LPC sheet layout (tools/lpc_compose.py): 13 cols x 20 rows of 64 px
+# frames. Rows come in blocks of 4 directions, ordered n, w, s, e.
+#   anim block 0 idle · 1 walk · 2 slash (attack) · 3 spellcast · 4 hurt
+const SHEET_COLS := 13
+const SHEET_ROWS := 20
+const DIR_ROW := {"n": 0, "w": 1, "s": 2, "e": 3}
+const ANIM_FRAMES := {"idle": 2, "walk": 9, "slash": 6, "spellcast": 7, "hurt": 6}
+const ANIM_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, "hurt": 10.0}
+const ANIM_BLOCK := {"idle": 0, "walk": 1, "slash": 2, "spellcast": 3, "hurt": 4}
+
 var telegraph_time := DEFAULT_TELEGRAPH
 var base_scale := Vector2.ONE
 
@@ -35,12 +45,26 @@ var body_color := Color(0.78, 0.28, 0.28)
 var state: State = State.IDLE
 
 var _player: Player
+var _anim_name := "idle"
+var _anim_dir := "s"
+var _anim_frame := 0.0
+var _sheet_ready := false
 var _state_time := 0.0
 var _attack_cd := 0.0
 var _patrol_target := Vector2.ZERO
 var _origin := Vector2.ZERO
 
 @onready var sprite: Sprite2D = $Sprite
+
+
+func _tinted() -> Color:
+	## Archetype identity colour, softened toward white.
+	##
+	## Sprite2D.modulate MULTIPLIES, so tinting the (already dark) LPC sheets with
+	## the raw body_color crushed them to near-black silhouettes on a real render.
+	## Blending halfway to white keeps each archetype's hue readable while letting
+	## the sprite art show through.
+	return body_color.lerp(Color(1, 1, 1), 0.5)
 
 
 func _ready() -> void:
@@ -91,9 +115,9 @@ func _physics_process(delta: float) -> void:
 		State.ATTACK:
 			velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
 			var pulse := 0.5 + 0.5 * sin(_state_time * 24.0)
-			sprite.modulate = body_color.lerp(Color(1.0, 0.85, 0.2), pulse)
+			sprite.modulate = _tinted().lerp(Color(1.0, 0.85, 0.2), pulse)
 			if _state_time >= telegraph_time:
-				sprite.modulate = body_color
+				sprite.modulate = _tinted()
 				_attack_cd = attack_cooldown
 				_finish_attack(to_player, dist)
 				_change_state(State.CHASE)
@@ -105,6 +129,66 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.CHASE if _player else State.IDLE)
 
 	move_and_slide()
+	_update_anim(delta)
+
+
+func _update_anim(delta: float) -> void:
+	## Drive the composed LPC sheet directly (Sprite2D hframes/vframes), so an
+	## enemy needs no AnimatedSprite2D node and no per-enemy scene.
+	if not _sheet_ready:
+		return
+	var next := "idle"
+	if state == State.ATTACK:
+		next = "slash"
+	elif behavior == "ranged" and state == State.CHASE and _state_time < 0.35:
+		next = "spellcast"
+	elif velocity.length() > 6.0:
+		next = "walk"
+	if next != _anim_name:
+		_anim_name = next
+		_anim_frame = 0.0
+
+	# face the direction of travel; ranged enemies face the player while casting
+	var face := velocity
+	if next == "slash" or next == "spellcast":
+		if _player:
+			face = _player.global_position - global_position
+	if absf(face.x) > absf(face.y):
+		if absf(face.x) > 1.0:
+			_anim_dir = "e" if face.x > 0.0 else "w"
+	elif absf(face.y) > 1.0:
+		_anim_dir = "s" if face.y > 0.0 else "n"
+
+	var count: int = ANIM_FRAMES[_anim_name]
+	_anim_frame += delta * float(ANIM_FPS[_anim_name])
+	while _anim_frame >= float(count):
+		_anim_frame -= float(count)
+	var row: int = int(ANIM_BLOCK[_anim_name]) * 4 + int(DIR_ROW[_anim_dir])
+	sprite.frame = row * SHEET_COLS + int(_anim_frame)
+
+
+func _apply_sheet(path: String) -> void:
+	## Attach the archetype's composed LPC sheet, or clear back to the single
+	## placeholder sprite when an archetype has no art.
+	if path == "" or not ResourceLoader.exists(path):
+		_sheet_ready = false
+		sprite.hframes = 1
+		sprite.vframes = 1
+		sprite.frame = 0
+		return
+	var tex: Texture2D = load(path)
+	if tex == null:
+		_sheet_ready = false
+		return
+	sprite.texture = tex
+	sprite.hframes = SHEET_COLS
+	sprite.vframes = SHEET_ROWS
+	sprite.offset = Vector2(0, -10)   # LPC frames sit above the body pivot
+	_sheet_ready = true
+	_anim_name = "idle"
+	_anim_dir = "s"
+	_anim_frame = 0.0
+	sprite.frame = int(DIR_ROW["s"]) * SHEET_COLS
 
 
 func setup_archetype(id: String, power_scale: float = 1.0) -> void:
@@ -125,6 +209,8 @@ func setup_archetype(id: String, power_scale: float = 1.0) -> void:
 	projectile_speed = float(cfg.get("projectile_speed", 240.0))
 	var c: Array = cfg.get("body_color", [0.78, 0.28, 0.28])
 	body_color = Color(float(c[0]), float(c[1]), float(c[2]))
+	_apply_sheet(String(cfg.get("sheet", "")))
+	base_scale = Vector2.ONE * float(cfg.get("sprite_scale", 1.0))
 
 	hp = max_hp
 	state = State.IDLE
@@ -132,7 +218,7 @@ func setup_archetype(id: String, power_scale: float = 1.0) -> void:
 	_attack_cd = 0.0
 	velocity = Vector2.ZERO
 	_origin = global_position
-	sprite.modulate = body_color
+	sprite.modulate = _tinted()
 	modulate.a = 1.0
 	scale = base_scale
 	show()
@@ -180,7 +266,7 @@ func take_hit(amount: float, dir: Vector2) -> void:
 	AudioManager.play_sfx("hit")
 	sprite.modulate = Color(1.5, 1.5, 1.5)
 	var tw := create_tween()
-	tw.tween_property(sprite, "modulate", body_color, 0.18)
+	tw.tween_property(sprite, "modulate", _tinted(), 0.18)
 	EventBus.enemy_hurt.emit(self, amount, dir)
 	if hp <= 0.0:
 		_die()

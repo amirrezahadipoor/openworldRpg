@@ -22,7 +22,8 @@ The draft circulating as "Roadmap v2" was directionally right but had specific e
 | "re-verify the 120 MB repo budget" as an open Phase B task | Repo is **~14 MB (12 %)** of that budget. It is **not** a constraint. Dropped as a gate. |
 | "Run the real Universal LPC SpriteSheet Generator … replace `assets/lpc/*`" | The 4 shipped `player_*.png` sheets **were** composited from real LPC layers by `tools/lpc_compose.py` (idle/walk/slash/spellcast/hurt). The gap is **breadth** (4 variants, 1 archetype), not authenticity. |
 | "Pull real 0x72 DungeonTileset II" | Evaluated and **deliberately not used** — it is authored at **16 px**, while this project's grid is 32 px and its LPC characters are 64 px. Mixing them puts two pixel densities and two palettes on screen. Replaced by a native-32 px LPC outdoor set. Reasoning recorded in [CREDITS.md](CREDITS.md). |
-| "This is why it reads as garbage on a phone" | Largely true — but one **code** defect contributed as much as the art, and the draft missed it. See Phase A. |
+| "This is why it reads as garbage on a phone" | Largely true — but **two code defects contributed as much as the art**, and the draft missed both: pixel art was bilinear-blurred (no `default_texture_filter`), and terrain was generated with per-tile randomness (a literal checkerboard). |
+| "NPC portraits for dialogue (currently deferred)" | Still deferred, and worth saying why: portraits are a different art surface (large, face-on, expressive), not a slice of the isometric sprite sheets. Treat it as new art, not an integration task. |
 
 ---
 
@@ -38,16 +39,18 @@ The draft circulating as "Roadmap v2" was directionally right but had specific e
 - [x] Save/load (3 slots), settings, full menu set, responsive UI
 - [x] Audio hooks, particles/juice, CI smoke + gameplay tests
 
-**Regression baseline (all re-verified after the Phase B art pass below):**
+**Regression baseline (re-verified after every Phase B commit):**
 
 ```
-repo size gate ...................... OK (14 MB / 120 MB)
+repo size gate ...................... OK (~15 MB / 120 MB)
 JSON data validation ................ 41 files OK
-headless import ..................... OK
-smoke: main.tscn (300 frames) ....... clean, 0 script/parse/compile errors
+headless import ..................... OK, 0 script/parse/compile errors
+smoke: main.tscn (300 frames) ....... clean
 smoke: main_menu.tscn ............... clean
 tests: CombatTest ................... PASS (120 checks)
 tests: PlaythroughTest .............. PASS (23 checks)
+tests: AudioTest .................... PASS (35 checks)   [added in B5]
+visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
 ```
 
 ---
@@ -72,15 +75,36 @@ tests: PlaythroughTest .............. PASS (23 checks)
 ### B3. Pixel-art rendering ✅ DONE
 - [x] `project.godot` never set `textures/canvas_textures/default_texture_filter`, so Godot 4's **Linear** default was **bilinear-blurring every pixel-art sprite**. Set to `0` (nearest). One line, visible on every screen, and it was invisible in headless CI.
 
-### B4. Character breadth — `[ ]` TODO
-- [ ] Expand `tools/lpc_compose.py` beyond 4 player variants / 1 archetype
-- [ ] NPC archetypes (villager, elder, merchant, guard) + enemy archetypes from real LPC layers
-- [ ] NPC dialogue portraits (still deferred)
+### B4. Character breadth ✅ DONE
+- [x] `tools/lpc_compose.py` rewritten: 12 sheets from vendored LPC layers (was 4)
+- [x] NPCs: Elder Rowan (elderly head), Hunter Kael, Merchant Bram — each distinct, idle-animated
+- [x] Enemies: 5 distinct creatures (goblin / skeleton / orc / raider / shaman) replacing the
+      single `placeholder/enemy.svg` blob that every enemy and the boss used to render as
+- [x] Enemies animated from the composed sheet via `Sprite2D.hframes/vframes` — no new node
+      types, no per-enemy scenes; `slash` on attack, `spellcast` for casters, `walk`/`idle` by state
+- [x] Boss (Ember Warden) uses the orc sheet at 2.2× with per-phase colour tints
+- [ ] NPC dialogue portraits — **still deferred** (separate art surface, not a sprite-sheet slice)
 
-### B5. Audio — `[ ]` TODO
-- [ ] Source real CC0 music (3 biome tracks + combat + title) to replace `tools/gen_music.py` output
-- [ ] Replace the 13 synthesized SFX from `tools/gen_sfx.py`
-- [ ] Keep `AudioManager` registries wired unchanged
+### B7. Visual verification ✅ DONE (new capability)
+- [x] `tools/art/capture_screenshot.gd` — renders the **real game** under a virtual display and
+      saves PNGs; wired into CI as a job that uploads screenshots as build artifacts
+- [x] This immediately caught five defects that headless CI could never see:
+      bilinear blur, checkerboard terrain, canopy blocks reading as black rectangles, a
+      hard-edged mud circle for the camp floor, and enemies crushed to silhouettes by
+      `Sprite2D.modulate`
+
+### B5. Audio ✅ DONE
+- [x] Real score: 6 tracks by Avgvst ("Generic 8-bit JRPG Soundtrack", CC-BY) —
+      title + 3 biomes + combat + a new boss theme
+- [x] Real SFX: 13 clips from Kenney's RPG Audio / Interface Sounds / Impact Sounds (CC0)
+- [x] `tools/audio/vendor_audio.sh` vendors and renames to the registered ids
+- [x] `_loopify()` now handles `AudioStreamOggVorbis` (it only handled WAV, so an OGG score
+      would have played once and stopped instead of looping)
+- [x] **Fixed a silent bug:** `boss_arena.gd` asked for `combat_theme` / `biome_meadows`,
+      neither of which was ever registered — so the boss fight had **no music at all**.
+      `AudioManager` no-ops on unknown ids by design, so it failed with no error anywhere.
+- [x] `tests/AudioTest.tscn` adds a regression test for exactly this: every literal id passed
+      to `play_music`/`play_sfx` anywhere in `scripts/` must be registered
 
 ### B6. Asset pipeline hardening — `[ ]` TODO
 - [ ] Atlas packing / `crunch` pass
@@ -101,10 +125,12 @@ tests: PlaythroughTest .............. PASS (23 checks)
 
 ---
 
-## Phase D — Ship  `[ ]` TODO
+## Phase D — Ship  `[~]` IN PROGRESS
 
-- [ ] **In-game CC-BY-SA credits screen** — ⚠️ **release blocker.** The atlas contains
-      CC-BY-SA 3.0 material; distributing a build without attribution is a licence violation.
+- [x] **In-game credits screen** — done. It already existed, but its text claimed
+      *"World tiles, UI art, audio: this project (CC0)"*, which became false (and a
+      share-alike violation) once the real LPC atlas landed. Rewritten with complete
+      attribution for the tile set, characters, score and SFX, in a scroll container.
 - [ ] Signed debug `.apk` produced by CI, attached to a GitHub Release
 - [ ] `.aab` verified on ARM64 + ARMv7
 - [ ] `DECISIONS.md` / `CREDITS.md` final pass
@@ -136,6 +162,7 @@ The world is visually new and mechanically untouched. This was verified, not ass
 
 ## What's left, in one line
 
-Art is now real and the terrain reads as terrain. Remaining work is **character/audio
-breadth, a human playtest on a device, and the attribution screen** — grind and QA, not
-architectural risk.
+Phase B is done: the game now has a real 32 px LPC world, real characters and enemies,
+a real CC0/CC-BY score, a visual-capture harness, and shipped attribution. Remaining work
+is **Phase C (a human playtest on a device, difficulty tuning, perf profiling on real
+hardware) and Phase D (signed APK/AAB release)** — grind and QA, not architectural risk.

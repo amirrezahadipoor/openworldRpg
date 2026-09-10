@@ -65,6 +65,25 @@ violation) as soon as the real LPC atlas landed. Corrected in the Phase B5 pass.
 | Music — **superseded, see below** (was procedural `tools/gen_music.py`) | This project (synthesized) | CC0 | ❌ removed in Phase B5 |
 | SFX — **superseded, see below** (was procedural `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ❌ removed in Phase B5 |
 
+### Characters (Phase B3, extended in B4) — `assets/lpc/*.png`
+
+Composed from vendored LPC layer PNGs by `tools/lpc_compose.py`; the layers are
+fetched into `assets/source/lpc_layers/` by `tools/art/vendor_lpc_layers.sh`.
+
+| Sheets | Layers used | Licence |
+|---|---|---|
+| `player_*` (4 equipment variants) | body + head + eyes + hair + shirt + pants + boots + sword | CC-BY-SA 3.0 / GPL |
+| `npc_elder`, `npc_hunter`, `npc_vendor` | as above; elderly / gaunt / female heads | CC-BY-SA 3.0 / GPL |
+| `enemy_raider`, `enemy_shaman`, `enemy_goblin`, `enemy_skeleton`, `enemy_orc` | as above + goblin / skeleton / orc heads | CC-BY-SA 3.0 / GPL |
+
+Authors: the Liberated Pixel Cup contributors, via the Universal LPC Spritesheet
+Character Generator (generator GPL-3.0; art CC-BY-SA 3.0 / GPL). Credit list as
+published on the generator repository.
+
+> Note: `body/bodies/*` in that repository is **headless** — the head is a
+> separate layer under `head/heads/*`. Omitting it produces a headless sprite;
+> `tools/art/vendor_lpc_layers.sh` documents this so the mistake isn't repeated.
+
 ### Audio (Phase B5) — real score and SFX
 
 Vendored by `tools/audio/vendor_audio.sh`. Six tracks are committed (renamed to the ids

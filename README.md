@@ -11,6 +11,10 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 > current state, [DECISIONS.md](DECISIONS.md) for design decisions, and [CREDITS.md](CREDITS.md)
 > for third-party licenses. Signed APK/AAB are produced by the `release` workflow on `v*` tags.
 
+![OpenWorld RPG — the Verdant Meadows starting camp](docs/screenshot-meadows.png)
+
+*Real in-engine render (headless CI can't show this — see `tools/art/capture_screenshot.gd`).*
+
 ## Quick facts
 
 | | |

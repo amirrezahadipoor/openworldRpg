@@ -194,12 +194,13 @@ def build_recipes():
     sand = fill("lpc_terrain/sand.png")
 
     # ---- sprites (verified single-tile, self-contained) ----
-    # Obstacles are dense CANOPY MASKS, not single trees: the source canopy
-    # blocks are authored to tile seamlessly, so repeated solid tiles read as
-    # forest, whereas a one-tile tree sprite repeated reads as an icon grid.
-    tree_green = canopy("lpc_conifers.png", 0, 0)      # green forest canopy
-    tree_snow = canopy("lpc_conifers.png", 7, 0)       # snow-laden forest canopy
-    dead_thicket = canopy("lpc_trees_dead.png", 0, 2)  # bare canopy mass, greyed below
+    # Obstacles are single self-contained tree sprites. Dense canopy masks were
+    # tried first and rejected: in a real render a repeated 32 px canopy reads as
+    # a dark rectangle, not a forest. At the world's ~1.3% obstacle density a
+    # tree sprite reads as scattered woodland, which is what we want.
+    tree_green = tile("lpc_conifers.png", 2, 6)        # small green pine
+    tree_snow = tile("lpc_conifers.png", 9, 6)         # its snow-laden counterpart
+    dead_thicket = tile("lpc_trees_dead.png", 2, 0)    # bare dead scrub
     twigs = tile("lpc_trees_dead.png", 2, 0)         # bare twigs, reads as dead scrub
     rock_face = darkest_fill("lpc_forest_tiles.png") # rock/chasm face, recoloured per biome
     flowers = tile("lpc_forest_tiles.png", 0, 2)     # grass tile with scattered flowers
@@ -273,6 +274,17 @@ def main() -> None:
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     canvas.save(OUT, optimize=True)
     print(f"wrote {OUT} ({canvas.size[0]}x{canvas.size[1]}, {os.path.getsize(OUT)} bytes)")
+
+    # Standalone 32x32 tiles for code that needs a single tiling texture.
+    # (An AtlasTexture + texture_repeat repeats the WHOLE atlas, not one cell —
+    # verified the hard way — so these are emitted separately.)
+    props_dir = os.path.join(os.path.dirname(OUT), "props")
+    os.makedirs(props_dir, exist_ok=True)
+    for name, (col, row) in {"camp_ground": (2, 0)}.items():
+        cell = canvas.crop((col * TILE, row * TILE, col * TILE + TILE, row * TILE + TILE))
+        path = os.path.join(props_dir, name + ".png")
+        cell.save(path, optimize=True)
+        print(f"wrote {path} ({os.path.getsize(path)} bytes)")
 
 
 if __name__ == "__main__":
