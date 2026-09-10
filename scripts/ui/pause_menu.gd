@@ -99,10 +99,10 @@ func _save() -> void:
 func _quit_to_save() -> void:
 	get_tree().paused = false
 	GameState.pending_load = true  # reload the game scene from the slot save
-	get_tree().change_scene_to_file("res://scenes/main.tscn")
+	Transition.go_to("res://scenes/main.tscn")
 
 
 func _quit_to_title() -> void:
 	get_tree().paused = false
 	GameState.pending_load = false
-	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
+	Transition.go_to("res://scenes/menus/main_menu.tscn")

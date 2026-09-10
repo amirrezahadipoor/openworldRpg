@@ -164,6 +164,17 @@ func _start_dodge(move: Vector2) -> void:
 	_dodge_cd = DODGE_COOLDOWN
 	EventBus.player_dodged.emit(self)
 	AudioManager.play_sfx("dodge")
+	_squash(Vector2(1.25, 0.72))
+
+
+## Squash-and-stretch juice: snap the sprite to a scale then tween back.
+func _squash(target: Vector2) -> void:
+	if sprite == null:
+		return
+	sprite.scale = target
+	var tw := create_tween()
+	tw.tween_property(sprite, "scale", Vector2.ONE, 0.22) \
+		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 ## Called by enemy hitboxes / hazards.
@@ -173,5 +184,6 @@ func take_hit(amount: float, _dir: Vector2) -> void:
 	var dmg := maxf(1.0, amount - GameState.defense() * 0.5)
 	GameState.hp = clampf(GameState.hp - dmg, 0.0, GameState.max_hp())
 	EventBus.player_damaged.emit(dmg)
+	_squash(Vector2(0.8, 1.22))
 	if GameState.hp <= 0.0:
 		EventBus.player_died.emit()

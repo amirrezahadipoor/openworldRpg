@@ -58,6 +58,10 @@ func _build_world() -> void:
 	day_night.name = "DayNight"
 	add_child(day_night)
 
+	var juice := Juice.new()
+	juice.name = "Juice"
+	world.add_child(juice)
+
 	var arena: BossArena = (load(BOSS_ARENA_SCENE) as PackedScene).instantiate()
 	arena.name = "BossArena"
 	world.add_child(arena)
@@ -91,7 +95,7 @@ func _build_ui() -> void:
 	var hud := HUD.new()
 	hud.name = "HUD"
 	add_child(hud)
-	hud.setup(player)
+	hud.setup(player, streamer)
 	hud_ref = hud
 	hud.bag_pressed.connect(func() -> void: inventory_ui.toggle())
 	hud.talents_pressed.connect(func() -> void: talent_ui.toggle())
@@ -174,6 +178,7 @@ func _on_enemy_died(enemy: Node) -> void:
 	if enemy is Node2D:
 		DamageNumber.spawn(self, (enemy as Node2D).global_position + Vector2(0, -34), "+%d XP" % (enemy as Enemy).xp_reward, Color(0.55, 0.95, 0.55))
 	camera.shake(0.2)
+	_hit_stop(0.05)
 
 
 func _on_npc_interacted(npc: NPC) -> void:
@@ -291,6 +296,23 @@ func _on_boss_defeated() -> void:
 
 func _on_boss_phase(_phase: int) -> void:
 	camera.shake(0.5)
+	_hit_stop(0.09)
+
+
+var _hit_stop_busy := false
+
+
+func _hit_stop(duration: float) -> void:
+	## Brief time-scale dip for impact feel. Guarded so overlapping hits don't
+	## fight over Engine.time_scale.
+	if _hit_stop_busy:
+		return
+	_hit_stop_busy = true
+	Engine.time_scale = 0.35
+	get_tree().create_timer(duration, true, false, true).timeout.connect(func() -> void:
+		Engine.time_scale = 1.0
+		_hit_stop_busy = false
+	)
 
 
 func _on_player_died() -> void:
@@ -309,10 +331,12 @@ func _on_respawn() -> void:
 
 
 func _on_load_last() -> void:
+	get_tree().paused = false
 	GameState.pending_load = true
-	get_tree().change_scene_to_file("res://scenes/main.tscn")
+	Transition.go_to("res://scenes/main.tscn")
 
 
 func _on_quit_title() -> void:
+	get_tree().paused = false
 	GameState.pending_load = false
-	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
+	Transition.go_to("res://scenes/menus/main_menu.tscn")

@@ -416,6 +416,12 @@ func _test_world() -> void:
 	check(main_node.day_night != null and main_node.day_night.canvas != null,
 		"day/night CanvasModulate active")
 
+	# Real minimap samples authored terrain.
+	var mm = main_node.get_node("HUD").minimap
+	check(mm != null, "HUD has real minimap")
+	var sample: Color = mm._sample(Vector2(700, 330))
+	check(sample.a > 0.01, "minimap samples terrain color at spawn")
+
 	# World flags (chests/levers/waypoints) survive save/load.
 	var had_flag := bool(GameState.quest_flags.get("chest_test_chest_opened", false))
 	check(had_flag, "chest flag set before save")

@@ -71,6 +71,18 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#26 — Minimap + juice layer + transitions** · 2026-09-10
+Minimap is a real terrain map, not a placeholder: a `Minimap` Control redraws at 3 Hz by
+sampling the live `ChunkStreamer` tile grids (72×72 cells over ~2300 px), coloring by tile
+column (path/hazard/obstacle/wall/ground per biome) with a deterministic palette fallback for
+placeholder chunks, then overlays lit waypoints and a player facing arrow. It reads the same
+authored data as the renderer — zero duplicated map info. Juice: a `Juice` node listens to
+`EventBus` and emits self-freeing `CPUParticles2D` bursts (hit sparks, death puff, level-up
+fountain, dodge dust, pickup sparkle); kill and boss-phase trigger a guarded `_hit_stop`
+time-scale dip; player dodge/hurt squash-and-stretch the sprite. Scene changes route through a
+`Transition` autoload (CanvasLayer 100) doing fade-out → `change_scene_to_file` → fade-in, so
+every menu/game swap is tweened.
+
 **#25 — Authored world: Tiled pipeline + interactables + fast travel** · 2026-09-10
 The world is a hand-authored 7×5 chunk grid (35 chunks, 1024 px, 32 px tiles) shipped as
 canonical **Tiled JSON maps** (`world/chunks/chunk_X_Y.json`, openable in Tiled 1.11) compiled

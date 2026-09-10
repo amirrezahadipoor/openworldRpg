@@ -25,6 +25,7 @@ PoolManager="*res://scripts/autoload/pool_manager.gd"
 SaveSystem="*res://scripts/autoload/save_system.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 SettingsManager="*res://scripts/autoload/settings_manager.gd"
+Transition="*res://scripts/autoload/transition.gd"
 
 [display]
 

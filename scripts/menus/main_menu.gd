@@ -264,7 +264,7 @@ func _on_slot_chosen(slot: int) -> void:
 			return
 		GameState.current_slot = slot
 		GameState.pending_load = true
-		get_tree().change_scene_to_file(GAME_SCENE)
+		Transition.go_to(GAME_SCENE)
 	else:
 		if SaveSystem.has_save(slot):
 			_show_overwrite_confirm(slot)
@@ -273,10 +273,10 @@ func _on_slot_chosen(slot: int) -> void:
 
 
 func _start_new_game(slot: int) -> void:
-	GameState.current_slot = slot
-	GameState.reset()
-	GameState.pending_load = false
-	get_tree().change_scene_to_file(GAME_SCENE)
+		GameState.current_slot = slot
+		GameState.reset()
+		GameState.pending_load = false
+		Transition.go_to(GAME_SCENE)
 
 
 func _show_overwrite_confirm(slot: int) -> void:

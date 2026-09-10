@@ -31,6 +31,10 @@ func set_target(t: Node2D) -> void:
 	_update()
 
 
+func get_loaded_chunk(key: Vector2i) -> Node:
+	return _loaded.get(key, null)
+
+
 func _update() -> void:
 	var cx := int(floorf(follow_target.global_position.x / float(CHUNK_SIZE)))
 	var cy := int(floorf(follow_target.global_position.y / float(CHUNK_SIZE)))

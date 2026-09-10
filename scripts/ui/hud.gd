@@ -9,18 +9,21 @@ signal bag_pressed
 signal talents_pressed
 
 var player: Player
+var streamer: ChunkStreamer
 
 var hp_bar: ProgressBar
 var mp_bar: ProgressBar
 var info_label: Label
 var quest_label: Label
 var joystick: VirtualJoystick
+var minimap: Minimap
 var _whirl_btn: ActionButton
 var _bolt_btn: ActionButton
 
 
-func setup(p: Player) -> void:
+func setup(p: Player, s: ChunkStreamer = null) -> void:
 	player = p
+	streamer = s
 	_build_top_left()
 	_build_top_right()
 	_build_touch_controls()
@@ -137,28 +140,16 @@ func _build_top_right() -> void:
 	quest_label.offset_bottom = 130.0
 	add_child(quest_label)
 
-	var minimap := Panel.new()
-	var mm_bg := StyleBoxFlat.new()
-	mm_bg.bg_color = Color(0.05, 0.06, 0.08, 0.6)
-	mm_bg.set_corner_radius_all(6)
-	minimap.add_theme_stylebox_override("panel", mm_bg)
-	minimap.custom_minimum_size = Vector2(130, 130)
+	minimap = Minimap.new()
+	minimap.custom_minimum_size = Vector2(140, 140)
 	minimap.anchor_left = 1.0
 	minimap.anchor_right = 1.0
-	minimap.offset_left = -146.0 - m.x
+	minimap.offset_left = -156.0 - m.x
 	minimap.offset_top = 64.0 + m.y
 	minimap.offset_right = -16.0 - m.x
-	minimap.offset_bottom = 194.0 + m.y
+	minimap.offset_bottom = 204.0 + m.y
+	minimap.setup(player, streamer)
 	add_child(minimap)
-
-	var mm_label := Label.new()
-	mm_label.text = "minimap\n(phase 10)"
-	mm_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	mm_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.3))
-	mm_label.add_theme_font_size_override("font_size", 12)
-	mm_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	mm_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	minimap.add_child(mm_label)
 
 
 func _build_touch_controls() -> void:

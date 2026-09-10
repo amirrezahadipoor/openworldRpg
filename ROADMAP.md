@@ -57,7 +57,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Hurtbox/damage component for enemies (`Hurtbox` Area2D, group `hurtbox`, `take_hit`)
 - [x] Cooldown-based abilities (≥2 active skills: Whirlwind Q, Firebolt F)
 - [x] Floating damage numbers (`DamageNumber` — hits + XP gains)
-- [x] Hit feedback: flash, knockback, hit-stop *(flash + knockback + screenshake; hit-stop later)*
+- [x] Hit feedback: flash, knockback, hit-stop *(all shipped)*
 - [x] Enemy telegraph system (0.45 s wind-up, gold pulse before attack lands)
 
 ## Phase 5 — Enemy AI & Boss
@@ -105,7 +105,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] HUD scaffold: HP/MP bars, XP/gold readout, quest tracker, minimap placeholder
 - [x] Pause menu (resume/save/quest log/settings/quit) with correct `process_mode`
 - [x] Anchors/margins + `DisplayServer` safe-area handling (notch/cutout)
-- [ ] Minimap (real: chunk map + player arrow + POIs)
+- [x] Minimap (real: chunk terrain map + player facing arrow + lit waypoints)
 - [x] Main menu (Continue / New Game + slot picker / Settings / Credits) — new game entry point
 - [x] Inventory screen (Phase 6)
 - [x] Talent tree screen (Phase 7)
@@ -115,9 +115,9 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 ## Phase 11 — Audio & Polish
 - [ ] `AudioManager` registries wired to real CC0 assets (music per biome + combat theme)
 - [x] SFX: attack, hit, pickup, UI click, dodge + more (13 procedural CC0 WAVs via `tools/gen_sfx.py`)
-- [ ] Particles: hits, spells, pickups, level-up
-- [ ] Tweened scene transitions (fade)
-- [ ] Juice pass (hit-stop, screenshake tuning, squash)
+- [x] Particles: hits, deaths, pickups, level-up, dodge dust (`Juice`)
+- [x] Tweened scene transitions (fade via `Transition` autoload)
+- [x] Juice pass (hit-stop, screenshake, squash-and-stretch)
 
 ## Phase 12 — Performance
 - [ ] Atlas all sprites (crunch or Godot import) — single atlas per biome
