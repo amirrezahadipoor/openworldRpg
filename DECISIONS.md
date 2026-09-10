@@ -646,3 +646,18 @@ baselines against that. It also asserts the boss kill with `max_hp * 2.0` instea
 of a literal `99,999`, which stopped being lethal the moment the Warden's pool went
 from 5,200 to 144,308 — a flat damage number in a test is a hidden coupling to the
 data it is testing.
+
+**#48 — The honest release: v0.3.0 pre-release, and the v1.0.0 ghost dealt with (Phase G)** · 2026-09-11
+`release` run 34531514544 built and published **v0.3.0** — signed APK, AAB and a
+side-loadable debug APK — as a pre-release, carrying the whole Phase F content
+pass. Separately, the repository still had the accidental **v1.0.0** release from
+the old hardcoded-version workflow bug: not a draft, not a pre-release, sitting
+there as the project's "Latest release" and reading to any visitor as a shipped
+game. It is now marked as a pre-release with a note explaining how it came to
+exist, which is what it always should have been — the workflow fix stopped new
+ones being fabricated, but nobody went back for that one.
+
+README, `PLAYTEST.md` and the release body were rewritten in the same pass: the
+old text still sold the game short by two phases ("audio placeholders", "credits
+screen does not exist yet", "difficulty untuned"), which is a different failure
+than overclaiming but a failure of the same document.
