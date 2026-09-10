@@ -40,6 +40,12 @@ jobs:
           fi
           echo "smoke run clean ✓"
 
+      - name: Automated gameplay tests (combat / loot / economy)
+        run: |
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/CombatTest.tscn | tee tests.log
+          grep -q "TEST RESULT: PASS" tests.log || { echo "::error::gameplay tests failed"; exit 1; }
+          echo "gameplay tests ✓"
+
   android-export:
     name: Android debug APK (main only)
     runs-on: ubuntu-latest

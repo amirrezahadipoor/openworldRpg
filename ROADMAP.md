@@ -16,7 +16,8 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] `tools/check_repo_size.sh` — hard gate against the 120 MB ceiling
 - [x] GitHub Actions CI: headless Godot smoke test on **every push**
 - [x] GitHub Actions CI: Android export job (APK artifact) on push to `main`
-- [x] Godot version pinned (**4.4.1-stable**) + SHA256 verification in bootstrap
+- [x] Godot version pinned (**4.4.1-stable**) + SHA512 checksum verification in bootstrap
+- [x] Automated gameplay test suite (`tests/CombatTest.tscn`) run in CI — combat/loot/economy, exits non-zero on failure
 
 ## Phase 1 — Project Scaffold
 - [x] `project.godot` — Godot 4.x, GL Compatibility renderer, touch emulation

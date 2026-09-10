@@ -71,6 +71,13 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#17 — Gameplay test harness** · 2026-09-10
+`tests/CombatTest.tscn` is a normal scene (autoloads active) that asserts real
+behavior headlessly: enemy death → XP + loot pickups, gold pickup collection,
+and potion stacking/removal. It quits with exit 1 on any failure, and CI runs
+it after the smoke test. Test code is excluded from shipped APKs via
+`exclude_filter="tests/*"`. New systems get a matching test before merge.
+
 **#16 — Local headless gate before every push** · 2026-09-10
 Started running `godot --headless --import` + a 400-frame smoke run locally
 before pushing, because the first CI smoke gate exited 0 despite script
