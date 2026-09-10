@@ -3,6 +3,7 @@ extends Node
 ## Language is a stub (English-only build per DECISIONS #4).
 
 const SETTINGS_PATH := "user://settings.json"
+const THEME_PATH := "res://ui/theme.tres"
 
 var music_volume := 1.0
 var sfx_volume := 1.0
@@ -11,6 +12,11 @@ var language := "en"
 
 
 func _ready() -> void:
+	# Project-wide themed look (Phase 10 polish). Applied from code so the
+	# theme resource never blocks the very first import pass.
+	var t := load(THEME_PATH)
+	if t is Theme:
+		get_tree().root.theme = t
 	load_settings()
 	apply()
 

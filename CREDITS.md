@@ -34,4 +34,5 @@ license-verified before commit and logged below.
 ## Fonts
 | Font | Author | License | Status |
 |---|---|---|---|
-| UI font (TBD — e.g. a CC0/OFL pixel font) | — | OFL/CC0 | ⬜ pending Phase 10 |
+| Press Start 2P (UI default theme) | CodeMan38 | OFL-1.1 | ✅ in repo (`assets/fonts/PressStart2P.ttf`, via google/fonts) |
+| UI 9-patch frames (panel9/button9, `tools/gen_ui_assets.py`) | This project | CC0 | ✅ in repo (`assets/ui/`) |

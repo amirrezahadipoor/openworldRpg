@@ -110,7 +110,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Inventory screen (Phase 6)
 - [x] Talent tree screen (Phase 7)
 - [x] Death / game-over screen (respawn / load last save / quit to title)
-- [ ] UI polish pass: fonts, 9-patch panels, consistent theme across 720p→1440p+ & 16:9→20:9
+- [x] UI polish pass: Press Start 2P + 9-patch themed panels/buttons/bars (anchors unchanged)
 
 ## Phase 11 — Audio & Polish
 - [x] `AudioManager` registries wired to real CC0 assets (5 procedural tracks: title/3 biomes/combat, crossfade + loop)
