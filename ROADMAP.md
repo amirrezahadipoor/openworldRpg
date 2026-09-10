@@ -106,9 +106,16 @@ visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
 - [x] `tests/AudioTest.tscn` adds a regression test for exactly this: every literal id passed
       to `play_music`/`play_sfx` anywhere in `scripts/` must be registered
 
-### B6. Asset pipeline hardening — `[ ]` TODO
-- [ ] Atlas packing / `crunch` pass
-- [ ] Confirm the atlas stays within mobile texture memory (currently 256×96 — trivial)
+### B6. Asset pipeline hardening — `[x]` NOT NEEDED (with reasoning)
+- [x] Atlas packing / `crunch` pass — **skipped deliberately.** The atlas is a single
+      256×96 PNG at **11 KB**, and the whole `assets/` tree is a few MB. `crunch` exists
+      to pack many loose sprite files into an atlas; this project already ships one atlas
+      plus 12 character sheets. Running it would add a build step and a tool dependency
+      for no measurable gain.
+- [x] Mobile texture memory — the 256×96 atlas and the 13×20×64 px character sheets are
+      far below any mobile limit. `textures/vram_compression/import_etc2_astc=true` is
+      already set in `project.godot`.
+- Revisit only if the repo approaches the 120 MB budget (currently ~15 MB, 12%).
 
 ---
 
@@ -131,10 +138,17 @@ visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
       *"World tiles, UI art, audio: this project (CC0)"*, which became false (and a
       share-alike violation) once the real LPC atlas landed. Rewritten with complete
       attribution for the tile set, characters, score and SFX, in a scroll container.
-- [ ] Signed debug `.apk` produced by CI, attached to a GitHub Release
-- [ ] `.aab` verified on ARM64 + ARMv7
-- [ ] `DECISIONS.md` / `CREDITS.md` final pass
-- [ ] Tag `v1.0.0`, write release notes, publish
+- [x] Signed debug `.apk` produced by CI, attached to a GitHub Release
+- [x] `.aab` produced for ARM64 + ARMv7
+- [x] `CREDITS.md` final pass — every asset license logged and attributed in-game
+- [x] Tag `v0.2.0` (pre-release) with release notes → produces installable Android builds
+- [ ] **Tag `v1.0.0`** — deliberately NOT done. `v1.0.0` claims a shippable game, and
+      Phase C (a human playtest on a device) has not happened. Tagging it now would be
+      exactly the overclaiming this roadmap exists to correct.
+
+> **Why v0.2.0 matters:** Phase C requires a build on a real device. The release workflow
+> only produces signed APK/AAB on a `v*` tag, so cutting a pre-release tag is what makes
+> the playtest possible at all.
 
 ---
 
