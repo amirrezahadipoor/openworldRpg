@@ -67,8 +67,22 @@ jobs:
       - name: Determine version tag
         id: ver
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          [ "$TAG" = "$GITHUB_REF" ] && TAG="v1.0.0"
+          # On a tag push, GITHUB_REF is refs/tags/vX.Y.Z and we use it.
+          # On workflow_dispatch there is no tag, so we take the version from
+          # project.godot and prefix it with "v".
+          #
+          # This used to fall back to a hardcoded "v1.0.0", which silently
+          # fabricated a "v1.0.0" release (and a git tag) whenever someone
+          # dispatched the workflow manually. That is how the current bogus
+          # v1.0.0 release was created. Never hardcode a release version here.
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            VER=$(grep -oP 'config/version="\K[^"]+' project.godot)
+            [ -n "$VER" ] || { echo "::error::could not read config/version from project.godot"; exit 1; }
+            TAG="v${VER}"
+            echo "::warning::manual dispatch — using project.godot version ($TAG), not a release tag"
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       # Gradle builds need the build template *inside* the project (res://android/);
