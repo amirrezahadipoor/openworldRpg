@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Headless smoke test (every push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repo size budget gate (<= 120 MB)
+        run: bash tools/check_repo_size.sh
+
+      - name: Bootstrap toolchain (Godot editor only)
+        run: bash tools/bootstrap_toolchain.sh --editor
+
+      - name: Godot version
+        run: /tmp/rpg-toolchain/bin/godot --version
+
+      - name: Import project (headless)
+        run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
+
+      - name: Headless smoke run — 300 frames of main scene
+        run: timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://scenes/main.tscn --quit-after 300
+
+  android-export:
+    name: Android debug APK (main only)
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Bootstrap toolchain (editor + export templates)
+        run: bash tools/bootstrap_toolchain.sh --editor --templates
+
+      - name: Create debug keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$HOME/debug.keystore" \
+            -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Point Godot editor settings at the Android SDK + debug keystore
+        run: |
+          SDK_DIR="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          mkdir -p "$HOME/.config/godot"
+          cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path="$SDK_DIR"
+          export/android/java_sdk_path="$JAVA_HOME"
+          export/android/debug_keystore="$HOME/debug.keystore"
+          export/android/debug_keystore_user="androiddebugkey"
+          export/android/debug_keystore_pass="android"
+          EOF
+          sed -i "s|keystore/debug=\"\"|keystore/debug=\"$HOME/debug.keystore\"|" export_presets.cfg
+          sed -i 's|keystore/debug_user=""|keystore/debug_user="androiddebugkey"|' export_presets.cfg
+          sed -i 's|keystore/debug_password=""|keystore/debug_password="android"|' export_presets.cfg
+
+      - name: Import project (headless)
+        run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
+
+      - name: Export debug APK (ARM64 + ARMv7)
+        run: |
+          mkdir -p build
+          /tmp/rpg-toolchain/bin/godot --headless --path . --export-debug "Android" build/OpenWorldRPG-debug.apk
+          ls -lh build/
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: build/*.apk
+          retention-days: 30
