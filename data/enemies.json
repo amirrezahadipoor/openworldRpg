@@ -33,6 +33,7 @@
         100
       ],
       "archetypes": [
+        "rime_stalker",
         "revenant",
         "troll",
         "archon",
@@ -76,6 +77,7 @@
         0.28
       ],
       "behavior": "melee",
+      "pattern": "melee",
       "floor_multiplier": 0.11,
       "balance": {
         "level": 4,
@@ -119,8 +121,7 @@
           "mythical": 0,
           "legendary": 0
         }
-      },
-      "pattern": "melee"
+      }
     },
     "emberling": {
       "display_name": "Emberling",
@@ -143,6 +144,7 @@
         0.2
       ],
       "behavior": "melee",
+      "pattern": "skirmish",
       "floor_multiplier": 0.09,
       "balance": {
         "level": 4,
@@ -186,8 +188,7 @@
           "mythical": 0,
           "legendary": 0
         }
-      },
-      "pattern": "skirmish"
+      }
     },
     "meadow_wolf": {
       "display_name": "Meadow Wolf",
@@ -210,6 +211,7 @@
         0.4
       ],
       "behavior": "melee",
+      "pattern": "skirmish",
       "floor_multiplier": 0.1,
       "balance": {
         "level": 6,
@@ -257,8 +259,7 @@
           "mythical": 0,
           "legendary": 0
         }
-      },
-      "pattern": "skirmish"
+      }
     },
     "scout": {
       "display_name": "Barrens Scout",
@@ -281,6 +282,7 @@
         0.2
       ],
       "behavior": "melee",
+      "pattern": "skirmish",
       "floor_multiplier": 0.12,
       "balance": {
         "level": 14,
@@ -336,8 +338,7 @@
           "mythical": 0,
           "legendary": 0
         }
-      },
-      "pattern": "skirmish"
+      }
     },
     "husk": {
       "display_name": "Rotting Husk",
@@ -360,6 +361,7 @@
         0.4
       ],
       "behavior": "melee",
+      "pattern": "melee",
       "floor_multiplier": 0.13,
       "balance": {
         "level": 16,
@@ -423,8 +425,7 @@
           "mythical": 0,
           "legendary": 0
         }
-      },
-      "pattern": "melee"
+      }
     },
     "shaman": {
       "display_name": "Frost Shaman",
@@ -447,6 +448,7 @@
         0.85
       ],
       "behavior": "ranged",
+      "pattern": "caster",
       "projectile_damage": 52.5,
       "projectile_speed": 276.0,
       "floor_multiplier": 0.1,
@@ -500,8 +502,7 @@
           "mythical": 1,
           "legendary": 0
         }
-      },
-      "pattern": "caster"
+      }
     },
     "lizard": {
       "display_name": "Slag Lizard",
@@ -524,6 +525,7 @@
         0.35
       ],
       "behavior": "melee",
+      "pattern": "skirmish",
       "floor_multiplier": 0.14,
       "balance": {
         "level": 32,
@@ -575,8 +577,7 @@
           "mythical": 1,
           "legendary": 0
         }
-      },
-      "pattern": "skirmish"
+      }
     },
     "raider_brute": {
       "display_name": "Raider Brute",
@@ -599,6 +600,7 @@
         0.22
       ],
       "behavior": "melee",
+      "pattern": "charger",
       "floor_multiplier": 0.15,
       "balance": {
         "level": 34,
@@ -650,8 +652,7 @@
           "mythical": 1,
           "legendary": 0
         }
-      },
-      "pattern": "charger"
+      }
     },
     "minotaur": {
       "display_name": "Ash Minotaur",
@@ -661,32 +662,33 @@
         40,
         65
       ],
-      "max_hp": 555.0,
+      "max_hp": 601.0,
       "move_speed": 120.0,
-      "contact_damage": 113.8,
+      "contact_damage": 119.8,
       "chase_radius": 460.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.95,
-      "xp_reward": 2324,
+      "xp_reward": 2473,
       "body_color": [
         0.6,
         0.35,
         0.25
       ],
       "behavior": "melee",
+      "pattern": "charger",
       "floor_multiplier": 0.16,
       "balance": {
         "level": 52,
         "lifesteal_on_gear": false,
         "swings": 4.0,
-        "survival": 11.9
+        "survival": 11.0
       },
       "sheet": "res://assets/lpc/enemy_minotaur.png",
       "sprite_scale": 1.45,
       "drops": {
         "gold": [
-          578,
-          963
+          649,
+          1082
         ],
         "items": [
           [
@@ -725,8 +727,7 @@
           "mythical": 4,
           "legendary": 0.2
         }
-      },
-      "pattern": "charger"
+      }
     },
     "legion": {
       "display_name": "Choir Legionnaire",
@@ -736,32 +737,33 @@
         45,
         68
       ],
-      "max_hp": 649.0,
+      "max_hp": 703.0,
       "move_speed": 100.0,
-      "contact_damage": 136.8,
+      "contact_damage": 144.0,
       "chase_radius": 460.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.95,
-      "xp_reward": 2892,
+      "xp_reward": 3078,
       "body_color": [
         0.55,
         0.5,
         0.62
       ],
       "behavior": "melee",
+      "pattern": "melee",
       "floor_multiplier": 0.17,
       "balance": {
         "level": 56,
         "lifesteal_on_gear": false,
         "swings": 4.0,
-        "survival": 10.3
+        "survival": 9.5
       },
       "sheet": "res://assets/lpc/enemy_legion.png",
       "sprite_scale": 1.25,
       "drops": {
         "gold": [
-          799,
-          1332
+          898,
+          1496
         ],
         "items": [
           [
@@ -796,8 +798,7 @@
           "mythical": 4,
           "legendary": 0.2
         }
-      },
-      "pattern": "melee"
+      }
     },
     "revenant": {
       "display_name": "Frost Revenant",
@@ -820,6 +821,7 @@
         0.92
       ],
       "behavior": "ranged",
+      "pattern": "caster",
       "projectile_damage": 165.2,
       "projectile_speed": 300.0,
       "floor_multiplier": 0.16,
@@ -877,8 +879,78 @@
           "mythical": 8,
           "legendary": 1
         }
+      }
+    },
+    "rime_stalker": {
+      "display_name": "Rime Stalker",
+      "tier": 4,
+      "biome": "frost",
+      "level_band": [
+        38,
+        62
+      ],
+      "max_hp": 470.0,
+      "move_speed": 196.0,
+      "contact_damage": 104.4,
+      "chase_radius": 460.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 0.95,
+      "xp_reward": 1866,
+      "body_color": [
+        0.68,
+        0.78,
+        0.88
+      ],
+      "behavior": "melee",
+      "pattern": "skirmish",
+      "floor_multiplier": 0.14,
+      "balance": {
+        "level": 50,
+        "lifesteal_on_gear": false,
+        "swings": 4.0,
+        "survival": 13.0
       },
-      "pattern": "caster"
+      "sheet": "res://assets/lpc/enemy_wolf.png",
+      "sprite_scale": 1.05,
+      "drops": {
+        "gold": [
+          408,
+          680
+        ],
+        "items": [
+          [
+            "frost_pelt",
+            0.45
+          ],
+          [
+            "chilled_greater_potion",
+            0.15
+          ],
+          [
+            "bone_fragment",
+            0.35
+          ],
+          [
+            "greater_health_potion",
+            0.18
+          ],
+          [
+            "greater_mana_potion",
+            0.15
+          ],
+          [
+            "elixir_of_iron",
+            0.1
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 55,
+          "rare": 20,
+          "mythical": 4,
+          "legendary": 0.2
+        }
+      }
     },
     "troll": {
       "display_name": "Rime Troll",
@@ -901,6 +973,7 @@
         0.66
       ],
       "behavior": "melee",
+      "pattern": "charger",
       "floor_multiplier": 0.18,
       "balance": {
         "level": 78,
@@ -952,8 +1025,7 @@
           "mythical": 8,
           "legendary": 1
         }
-      },
-      "pattern": "charger"
+      }
     },
     "archon": {
       "display_name": "Ashen Archon",
@@ -976,6 +1048,7 @@
         0.3
       ],
       "behavior": "ranged",
+      "pattern": "caster",
       "projectile_damage": 252.2,
       "projectile_speed": 312.0,
       "floor_multiplier": 0.15,
@@ -1029,8 +1102,7 @@
           "mythical": 15,
           "legendary": 2.5
         }
-      },
-      "pattern": "caster"
+      }
     },
     "ashen_herald": {
       "display_name": "Ashen Herald",
@@ -1053,6 +1125,7 @@
         0.35
       ],
       "behavior": "melee",
+      "pattern": "charger",
       "floor_multiplier": 0.16,
       "balance": {
         "level": 94,
@@ -1104,8 +1177,7 @@
           "mythical": 15,
           "legendary": 2.5
         }
-      },
-      "pattern": "charger"
+      }
     },
     "goblin_king": {
       "display_name": "Skarn the Goblin King",
@@ -1128,6 +1200,7 @@
         0.3
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.05,
       "balance": {
         "level": 8,
@@ -1212,8 +1285,7 @@
           "mythical": 20,
           "legendary": 3.0
         }
-      },
-      "pattern": "boss"
+      }
     },
     "slag_wraith": {
       "display_name": "The Slag Wraith",
@@ -1236,6 +1308,7 @@
         0.35
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.1,
       "balance": {
         "level": 20,
@@ -1312,8 +1385,7 @@
           "mythical": 30,
           "legendary": 4.5
         }
-      },
-      "pattern": "boss"
+      }
     },
     "bone_titan": {
       "display_name": "The Bone Titan",
@@ -1336,6 +1408,7 @@
         0.62
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.11,
       "balance": {
         "level": 58,
@@ -1408,8 +1481,7 @@
           "mythical": 50,
           "legendary": 7.5
         }
-      },
-      "pattern": "boss"
+      }
     },
     "frost_giant": {
       "display_name": "Jorunn the Frost Giant",
@@ -1432,6 +1504,7 @@
         0.95
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.12,
       "balance": {
         "level": 60,
@@ -1508,8 +1581,7 @@
           "mythical": 50,
           "legendary": 7.5
         }
-      },
-      "pattern": "boss"
+      }
     },
     "choir_priest": {
       "display_name": "High Priest Cindral",
@@ -1532,6 +1604,7 @@
         0.55
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.13,
       "balance": {
         "level": 76,
@@ -1612,8 +1685,7 @@
           "mythical": 50,
           "legendary": 7.5
         }
-      },
-      "pattern": "boss"
+      }
     },
     "ember_warden": {
       "display_name": "The Ember Warden",
@@ -1636,6 +1708,7 @@
         0.15
       ],
       "behavior": "boss",
+      "pattern": "boss",
       "floor_multiplier": 0.0,
       "balance": {
         "level": 92,
@@ -1690,8 +1763,7 @@
           "mythical": 100,
           "legendary": 25
         }
-      },
-      "pattern": "boss"
+      }
     }
   }
 }

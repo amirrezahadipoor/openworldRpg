@@ -100,14 +100,14 @@ text = "A mile of road where nothing has been allowed to grow. The silence has a
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(668, 425)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "troll"
 count = 1
 power_scale = 2.4
 
 [node name="o12" type="Node2D" parent="Objects"]
 position = Vector2(271, 672)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "archon"
 count = 2
 power_scale = 2.4
 

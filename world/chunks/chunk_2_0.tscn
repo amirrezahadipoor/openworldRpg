@@ -154,14 +154,14 @@ item_id = "traveler_ring"
 [node name="o17" type="Node2D" parent="Objects"]
 position = Vector2(149, 418)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "troll"
 count = 2
 power_scale = 2.4
 
 [node name="o18" type="Node2D" parent="Objects"]
 position = Vector2(919, 872)
 script = ExtResource("s_spawner")
-archetype = "shaman"
-count = 2
+archetype = "ashen_herald"
+count = 1
 power_scale = 2.4
 

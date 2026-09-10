@@ -86,14 +86,14 @@ shape = SubResource("col_8")
 [node name="o10" type="Node2D" parent="Objects"]
 position = Vector2(714, 281)
 script = ExtResource("s_spawner")
-archetype = "scout"
-count = 1
+archetype = "ashen_herald"
+count = 2
 power_scale = 2.4
 
 [node name="o11" type="Node2D" parent="Objects"]
-position = Vector2(184, 156)
+position = Vector2(234, 184)
 script = ExtResource("s_spawner")
-archetype = "shaman"
-count = 2
+archetype = "rime_stalker"
+count = 1
 power_scale = 2.4
 

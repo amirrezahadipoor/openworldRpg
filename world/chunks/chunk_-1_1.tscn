@@ -156,14 +156,14 @@ text = "There is a rope still over the branch, cut rather than untied. Nobody in
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(336, 912)
 script = ExtResource("s_spawner")
-archetype = "emberling"
+archetype = "meadow_wolf"
 count = 2
 power_scale = 1.0
 
 [node name="o12" type="Node2D" parent="Objects"]
 position = Vector2(879, 284)
 script = ExtResource("s_spawner")
-archetype = "emberling"
+archetype = "husk"
 count = 1
 power_scale = 1.0
 

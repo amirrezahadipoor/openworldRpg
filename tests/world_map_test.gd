@@ -27,6 +27,7 @@ func _ready() -> void:
 	_test_biome_geography()
 	_test_micro_locations()
 	await _test_dungeon_vaults()
+	_test_overworld_spawners()
 	_report()
 
 
@@ -318,3 +319,60 @@ func _test_dungeon_vaults() -> void:
 			boss_levers += 1
 	check(boss_levers == 0, "boss floors have no vault")
 	host.queue_free()
+
+
+func _test_overworld_spawners() -> void:
+	## The overworld used to bake two monster names per biome into the world
+	## generator, so ten of the fourteen roster monsters never appeared on the
+	## map at all (v3 audit §25). The generator now reads the roster's own
+	## `spawns` tables; this pins that down so it cannot quietly regress.
+	print("[world_map_test] overworld spawners come from the roster")
+	var roster: Dictionary = EnemyDB.spawns()
+	if roster.is_empty():
+		roster = _roster_spawns()
+	var allowed: Array = []
+	for biome in roster.keys():
+		for a in (roster[biome] as Dictionary).get("archetypes", []):
+			if not allowed.has(String(a)):
+				allowed.append(String(a))
+
+	var seen: Array = []
+	var out_of_table: Array = []
+	for cy in range(-3, 2):
+		for cx in range(-2, 5):
+			var board := _load_chunk(Vector2i(cx, cy))
+			if board.is_empty():
+				continue
+			for obj in (board["layers"][1] as Dictionary).get("objects", []):
+				if String(obj.get("type", "")) != "spawner":
+					continue
+				for prop in obj.get("properties", []):
+					if String(prop.get("name", "")) != "archetype":
+						continue
+					var a := String(prop.get("value", ""))
+					if not seen.has(a):
+						seen.append(a)
+					if not allowed.has(a):
+						out_of_table.append(a)
+	check(allowed.size() >= 14, "the roster lists at least fourteen field monsters (%d)" % allowed.size())
+	check(out_of_table.is_empty(), "no spawner uses a monster outside the roster tables %s" % str(out_of_table))
+	check(seen.size() >= 10, "the overworld actually spawns the roster's variety (%d kinds)" % seen.size())
+
+
+func _roster_spawns() -> Dictionary:
+	var f := FileAccess.open("res://data/enemies.json", FileAccess.READ)
+	if f == null:
+		return {}
+	var doc: Dictionary = JSON.parse_string(f.get_as_text()) as Dictionary
+	return doc.get("spawns", {}) if doc != null else {}
+
+
+func _load_chunk(key: Vector2i) -> Dictionary:
+	var path := "res://world/chunks/chunk_%d_%d.json" % [key.x, key.y]
+	if not FileAccess.file_exists(path):
+		return {}
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var doc: Dictionary = JSON.parse_string(f.get_as_text()) as Dictionary
+	return doc if doc != null else {}

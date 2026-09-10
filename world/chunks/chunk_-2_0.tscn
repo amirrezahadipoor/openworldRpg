@@ -310,7 +310,7 @@ gate_id = "secret_grove"
 [node name="o12" type="Node2D" parent="Objects"]
 position = Vector2(823, 679)
 script = ExtResource("s_spawner")
-archetype = "grunt"
+archetype = "emberling"
 count = 2
 power_scale = 1.0
 

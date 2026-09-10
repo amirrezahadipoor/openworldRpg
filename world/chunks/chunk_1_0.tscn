@@ -65,7 +65,7 @@ wp_name = "East Meadow Fire"
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(122, 419)
 script = ExtResource("s_spawner")
-archetype = "shaman"
+archetype = "revenant"
 count = 1
 power_scale = 2.4
 

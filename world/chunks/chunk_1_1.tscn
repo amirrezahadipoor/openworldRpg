@@ -190,7 +190,7 @@ text = "Only the foot survives, and the foot is one course of stone taller than 
 [node name="o12" type="Node2D" parent="Objects"]
 position = Vector2(174, 265)
 script = ExtResource("s_spawner")
-archetype = "emberling"
+archetype = "meadow_wolf"
 count = 1
 power_scale = 1.0
 

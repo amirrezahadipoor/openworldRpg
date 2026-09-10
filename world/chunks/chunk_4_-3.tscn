@@ -86,7 +86,7 @@ shape = SubResource("col_8")
 [node name="o10" type="Node2D" parent="Objects"]
 position = Vector2(785, 535)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "archon"
 count = 1
 power_scale = 2.4
 

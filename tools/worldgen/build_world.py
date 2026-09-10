@@ -314,6 +314,32 @@ def _paint_bank(grid, grid_n, world, biome, solids_stamp, ellipse):
             solids_stamp.discard((tx, ty))
 
 
+
+# --- roster-backed spawn tables --------------------------------------------
+# Read once: data/enemies.json is the roster's own source of truth for which
+# monsters belong to which biome and level band.
+_ROSTER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "..", "..", "data", "enemies.json")
+
+
+def roster_spawn_table(biome):
+    """Archetypes the roster says live in `biome`, weakest first.
+
+    Falls back to the old two-name lists only if the roster cannot be read, so a
+    generator run never produces an empty world.
+    """
+    try:
+        with open(_ROSTER_PATH) as f:
+            spawns = json.load(f)["spawns"][biome]["archetypes"]
+        if spawns:
+            return list(spawns)
+    except (OSError, KeyError, ValueError):
+        pass
+    return {"meadow": ["grunt", "emberling"],
+            "barrens": ["scout", "grunt"],
+            "frost": ["shaman", "scout"]}.get(biome, ["grunt"])
+
+
 def build_chunk(cx, cy):
     biome = biome_of(cx, cy)          # chunk ownership: music, ambience, spawn tables
     edge = edge_biome(cx, cy)         # kept for the chunk-level fallbacks below
@@ -532,9 +558,16 @@ def build_chunk(cx, cy):
             oid += 1
 
     # 8) enemy spawners (skip village, boss arena & immediate gate areas)
-    spawner_biomes = {0: (["grunt", "emberling"], 1.0),
-                      1: (["scout", "grunt"], 1.6),
-                      2: (["shaman", "scout"], 2.4)}
+    #
+    # The archetype tables come from the roster itself (data/enemies.json
+    # `spawns`), not from a list baked into this file. Until the v3 audit the
+    # overworld read two hardcoded names per biome, so ten of the fourteen
+    # monsters — wolves, husks, lizards, brutes, minotaurs, legionaries,
+    # revenants, trolls, archons and the Ashen Herald — existed in the data and
+    # never once appeared on the map. `power` stays a per-biome difficulty dial.
+    spawner_biomes = {0: (roster_spawn_table("meadow"), 1.0),
+                      1: (roster_spawn_table("barrens"), 1.6),
+                      2: (roster_spawn_table("frost"), 2.4)}
     if (cx, cy) not in ((0, 0), (2, -2)):
         table, power = spawner_biomes[biome]
         for _ in range(rng.randint(1, 2)):

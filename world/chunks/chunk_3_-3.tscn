@@ -163,7 +163,7 @@ text = "A gate in a wall that goes nowhere, closed from this side, with the keyh
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(554, 572)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "archon"
 count = 2
 power_scale = 2.4
 

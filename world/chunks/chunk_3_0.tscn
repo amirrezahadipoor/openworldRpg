@@ -73,7 +73,7 @@ item_id = "mana_potion"
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(880, 442)
 script = ExtResource("s_spawner")
-archetype = "scout"
+archetype = "shaman"
 count = 1
 power_scale = 1.6
 

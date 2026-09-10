@@ -196,6 +196,13 @@ MONSTERS = [
      [["frost_crystal", 0.45], ["rime_core", 0.15], ["hollow_relic", 0.06],
       ["greater_mana_potion", 0.35]],
      0.16, [0.62, 0.72, 0.92]),
+    # Frost's band opens at 38, but every frost monster used to start at 65 —
+    # so the whole low half of the biome was either empty or filled with stray
+    # meadow monsters. This is the road in: a wolf the cold got to.
+    ("rime_stalker", "Rime Stalker", 4, "frost", (38, 62), 120, 17, 196, 62, (10, 20),
+     "enemy_wolf", 1.05, "melee",
+     [["frost_pelt", 0.45], ["chilled_greater_potion", 0.15], ["bone_fragment", 0.35]],
+     0.14, [0.68, 0.78, 0.88]),
     ("troll", "Rime Troll", 5, "frost", (68, 88), 420, 34, 92, 185, (22, 42),
      "enemy_troll", 1.6, "melee",
      [["frost_crystal", 0.5], ["rime_core", 0.22], ["hollow_relic", 0.10],
@@ -269,6 +276,17 @@ BOSSES = [
 # roster so it can never drift out of sync.
 BIOME_LEVEL = {"meadow": (1, 22), "barrens": (8, 68), "frost": (38, 100)}
 
+# Archetype -> fight pattern (scripts/enemies/enemy.gd). Anything unlisted walks
+# straight at the player.
+PATTERNS = {
+    "meadow_wolf": "skirmish", "emberling": "skirmish", "scout": "skirmish",
+    "lizard": "skirmish", "rime_stalker": "skirmish",
+    "raider_brute": "charger", "minotaur": "charger", "troll": "charger",
+    "ashen_herald": "charger",
+    "shaman": "caster", "revenant": "caster", "archon": "caster",
+    "grunt": "melee", "husk": "melee", "legion": "melee",
+}
+
 
 def main() -> None:
     out = collections.OrderedDict()
@@ -296,6 +314,7 @@ def main() -> None:
 
     for (mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
          phases, items, floor_mult, color) in BOSSES:
+        PATTERNS.setdefault(mid, "boss")
         boss_table = rt(0, 100, 60 + tier * 12, 10 * tier, 1.5 * tier)
         if mid == "ember_warden":
             boss_table = rt(0, 0, 100, 100, 25)
@@ -389,6 +408,11 @@ def _entry(mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
     e["xp_reward"] = int(xp)
     e["body_color"] = color
     e["behavior"] = behaviour
+    # Movement/attack style. `behavior` says how it attacks (melee/ranged/boss);
+    # `pattern` says how it *carries itself* — see DECISIONS #54. Kept here so a
+    # roster regeneration cannot silently flatten every monster back into one
+    # brain, which is exactly what happened before the v2 audit caught it.
+    e["pattern"] = PATTERNS.get(mid, "melee")
     if behaviour == "ranged":
         e["projectile_damage"] = float(dmg)
         e["projectile_speed"] = 240.0 + tier * 12.0

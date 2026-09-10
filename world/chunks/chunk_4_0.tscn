@@ -107,7 +107,7 @@ text = "A shaft that breathes. Something down there has been keeping a fire goin
 [node name="o11" type="Node2D" parent="Objects"]
 position = Vector2(767, 162)
 script = ExtResource("s_spawner")
-archetype = "grunt"
+archetype = "lizard"
 count = 1
 power_scale = 1.6
 
