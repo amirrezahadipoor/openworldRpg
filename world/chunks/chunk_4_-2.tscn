@@ -1,0 +1,92 @@
+[gd_scene load_steps=12 format=3]
+[ext_resource type="Script" path="res://scripts/world/chunk_renderer.gd" id="r_renderer"]
+[ext_resource type="Texture2D" path="res://assets/tiles/atlas.png" id="r_atlas"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_spawner.gd" id="s_spawner"]
+
+[sub_resource type="RectangleShape2D" id="col_0"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_1"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_2"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_3"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_4"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_5"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_6"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_7"]
+size = Vector2(32, 32)
+
+[node name="chunk_4_-2" type="Node2D"]
+
+[node name="Renderer" type="Node2D" parent="."]
+script = ExtResource("r_renderer")
+grid_w = 32
+grid_h = 32
+tile_size = 32
+tiles = PackedInt32Array(18, 18, 18, 0, 0, 18, 0, 23, 17, 18, 0, 0, 17, 0, 17, 18, 0, 0, 0, 18, 17, 17, 0, 23, 0, 18, 0, 0, 0, 18, 0, 0, 18, 17, 0, 0, 17, 18, 0, 0, 17, 0, 0, 18, 18, 18, 18, 0, 0, 0, 0, 18, 18, 0, 18, 0, 17, 17, 17, 0, 17, 0, 0, 0, 23, 18, 17, 17, 0, 0, 18, 23, 0, 0, 0, 17, 17, 17, 23, 18, 18, 0, 18, 18, 17, 17, 18, 0, 18, 18, 18, 23, 0, 0, 18, 17, 0, 18, 18, 0, 0, 0, 21, 23, 0, 0, 17, 17, 0, 17, 18, 17, 18, 0, 17, 17, 18, 17, 17, 0, 0, 0, 17, 0, 0, 18, 0, 0, 0, 0, 0, 17, 0, 17, 18, 0, 18, 0, 18, 17, 0, 0, 18, 0, 0, 17, 17, 0, 0, 18, 0, 0, 18, 18, 17, 18, 17, 17, 23, 18, 18, 17, 17, 17, 18, 18, 0, 0, 18, 0, 23, 0, 17, 0, 17, 0, 0, 0, 0, 17, 0, 17, 23, 18, 18, 0, 18, 18, 0, 17, 0, 0, 18, 0, 17, 0, 0, 17, 0, 17, 0, 17, 0, 0, 17, 17, 0, 0, 18, 17, 21, 0, 0, 17, 0, 18, 18, 18, 17, 18, 0, 0, 0, 18, 18, 0, 18, 17, 17, 0, 17, 18, 0, 18, 18, 0, 17, 17, 0, 18, 17, 18, 0, 0, 0, 0, 0, 0, 18, 17, 0, 18, 17, 18, 18, 0, 0, 17, 0, 0, 18, 17, 0, 17, 0, 17, 0, 0, 17, 23, 18, 21, 17, 0, 18, 18, 0, 17, 17, 0, 0, 17, 18, 18, 18, 17, 0, 17, 23, 18, 18, 23, 17, 18, 23, 0, 0, 18, 0, 0, 0, 18, 17, 18, 21, 17, 0, 18, 17, 18, 0, 17, 17, 17, 0, 0, 0, 17, 18, 18, 0, 0, 17, 0, 0, 23, 18, 17, 18, 0, 18, 23, 17, 17, 18, 0, 0, 17, 0, 0, 0, 18, 23, 17, 0, 23, 0, 23, 0, 17, 18, 0, 0, 0, 0, 0, 0, 17, 0, 17, 18, 17, 18, 17, 17, 18, 0, 17, 18, 0, 17, 18, 23, 21, 17, 23, 0, 17, 17, 0, 18, 18, 0, 0, 18, 0, 18, 23, 0, 18, 18, 18, 17, 18, 17, 18, 23, 0, 0, 0, 18, 0, 0, 18, 18, 17, 0, 0, 18, 23, 17, 0, 0, 18, 0, 0, 17, 0, 0, 17, 17, 17, 18, 0, 0, 0, 17, 18, 0, 17, 18, 23, 17, 0, 18, 0, 17, 0, 0, 18, 0, 0, 0, 17, 18, 17, 18, 17, 0, 18, 17, 0, 0, 17, 18, 0, 17, 0, 0, 23, 23, 17, 18, 18, 0, 17, 17, 17, 18, 0, 17, 0, 18, 18, 0, 0, 17, 17, 0, 0, 17, 0, 18, 17, 0, 18, 17, 0, 18, 0, 0, 23, 0, 0, 21, 17, 17, 23, 17, 23, 17, 0, 0, 17, 23, 18, 0, 17, 23, 18, 18, 18, 0, 17, 0, 17, 18, 0, 18, 0, 18, 0, 17, 18, 0, 0, 17, 17, 0, 18, 18, 18, 0, 17, 0, 17, 0, 17, 0, 17, 0, 0, 0, 18, 17, 0, 17, 17, 17, 18, 18, 18, 18, 0, 18, 17, 17, 17, 17, 17, 17, 0, 0, 0, 18, 18, 17, 18, 0, 18, 18, 0, 17, 17, 17, 18, 17, 18, 18, 17, 17, 18, 17, 0, 0, 17, 18, 0, 17, 0, 18, 0, 0, 23, 17, 0, 17, 17, 17, 0, 17, 0, 18, 0, 0, 17, 17, 0, 0, 18, 17, 0, 17, 18, 18, 0, 18, 0, 17, 0, 18, 17, 0, 17, 0, 17, 17, 0, 18, 0, 0, 0, 18, 0, 0, 0, 18, 0, 17, 0, 0, 18, 23, 18, 17, 0, 0, 0, 18, 0, 0, 0, 0, 18, 0, 17, 17, 0, 0, 17, 17, 23, 23, 18, 23, 17, 17, 18, 23, 0, 17, 0, 17, 18, 18, 0, 17, 0, 0, 17, 17, 18, 0, 0, 0, 0, 17, 17, 18, 18, 17, 17, 0, 17, 0, 0, 0, 17, 21, 0, 0, 18, 17, 17, 0, 17, 0, 17, 0, 0, 17, 18, 17, 0, 0, 17, 0, 18, 0, 0, 18, 17, 17, 0, 18, 17, 0, 0, 0, 17, 0, 18, 0, 0, 18, 0, 18, 17, 23, 17, 0, 17, 18, 0, 0, 18, 18, 18, 0, 0, 18, 17, 17, 0, 17, 18, 0, 0, 0, 17, 0, 0, 0, 17, 0, 17, 0, 0, 23, 0, 0, 17, 0, 23, 0, 0, 0, 17, 18, 0, 18, 17, 0, 21, 18, 17, 23, 0, 17, 0, 0, 0, 18, 0, 0, 0, 0, 0, 18, 0, 0, 17, 18, 17, 0, 0, 0, 18, 17, 18, 17, 0, 0, 17, 17, 0, 18, 0, 17, 18, 0, 23, 17, 17, 17, 23, 17, 0, 18, 23, 0, 0, 17, 17, 18, 23, 17, 17, 0, 0, 0, 18, 0, 17, 0, 17, 0, 0, 17, 0, 17, 18, 18, 0, 17, 23, 17, 17, 17, 17, 17, 17, 17, 18, 18, 17, 17, 0, 17, 18, 0, 0, 18, 17, 23, 0, 0, 0, 17, 18, 17, 0, 0, 17, 17, 18, 0, 17, 18, 18, 17, 0, 0, 0, 18, 18, 18, 18, 0, 0, 18, 0, 17, 18, 17, 23, 0, 17, 17, 18, 17, 0, 17, 17, 23, 0, 0, 17, 17, 17, 0, 0, 0, 17, 0, 18, 23, 0, 18, 18, 0, 17, 18, 18, 0, 18, 0, 0, 0, 18, 17, 18, 17, 0, 18, 17, 0, 17, 18, 18, 17, 0, 0, 0, 0, 18, 0, 23, 0, 0, 17, 0, 18, 18, 0, 0, 23, 0, 0, 18, 18, 23, 17, 18, 17, 0, 0, 18, 0, 18, 17, 17, 18, 17, 18, 18, 23, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 17, 17, 17, 23, 0, 0, 18, 18, 18, 0, 0, 18, 0, 0, 17, 17, 17, 0, 23, 0, 18, 23, 23, 0, 17, 0)
+atlas = ExtResource("r_atlas")
+base_color = Color(0.55, 0.58, 0.64, 1)
+
+[node name="Solids" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Col0" type="CollisionShape2D" parent="Solids"]
+position = Vector2(208, 112)
+shape = SubResource("col_0")
+
+[node name="Col1" type="CollisionShape2D" parent="Solids"]
+position = Vector2(592, 208)
+shape = SubResource("col_1")
+
+[node name="Col2" type="CollisionShape2D" parent="Solids"]
+position = Vector2(496, 272)
+shape = SubResource("col_2")
+
+[node name="Col3" type="CollisionShape2D" parent="Solids"]
+position = Vector2(528, 304)
+shape = SubResource("col_3")
+
+[node name="Col4" type="CollisionShape2D" parent="Solids"]
+position = Vector2(688, 368)
+shape = SubResource("col_4")
+
+[node name="Col5" type="CollisionShape2D" parent="Solids"]
+position = Vector2(464, 496)
+shape = SubResource("col_5")
+
+[node name="Col6" type="CollisionShape2D" parent="Solids"]
+position = Vector2(848, 688)
+shape = SubResource("col_6")
+
+[node name="Col7" type="CollisionShape2D" parent="Solids"]
+position = Vector2(496, 784)
+shape = SubResource("col_7")
+
+[node name="Objects" type="Node2D" parent="."]
+
+[node name="o10" type="Node2D" parent="Objects"]
+position = Vector2(136, 199)
+script = ExtResource("s_spawner")
+archetype = "shaman"
+count = 1
+power_scale = 2.4
+
+[node name="o11" type="Node2D" parent="Objects"]
+position = Vector2(887, 279)
+script = ExtResource("s_spawner")
+archetype = "scout"
+count = 1
+power_scale = 2.4
+

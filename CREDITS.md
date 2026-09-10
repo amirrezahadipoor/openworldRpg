@@ -20,6 +20,8 @@ license-verified before commit and logged below.
 | Asset | Author | License | Status |
 |---|---|---|---|
 | Placeholder SVG sprites (player, icons) | This project | MIT / CC0 | ✅ in repo (`assets/placeholder/`) |
+| World tile atlas (procedural, `tools/worldgen/make_tileset.py`) | This project | CC0 | ✅ in repo (`assets/tiles/atlas.png`) |
+| Authored world maps (Tiled JSON, `tools/worldgen/build_world.py`) | This project | CC0 (content) | ✅ in repo (`world/chunks/*.json` + compiled `.tscn`) |
 | LPC character sheets (walk/attack/cast/hurt/death + equipment layers) | Liberated Pixel Cup contributors | CC-BY-SA-3.0 + GPL dual (verify per file) | ⬜ pending Phase 3/6 |
 | 0x72 DungeonTileset II | 0x72 (itch.io) | CC0 | ⬜ pending Phase 2 |
 | LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | ⬜ pending Phase 2 |

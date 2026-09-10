@@ -58,7 +58,7 @@ func reset() -> void:
 	equipment = {"weapon": "", "armor": "", "accessory": ""}
 	quests = {}
 	quest_progress = {}
-	quest_flags = {}
+	quest_flags = {"wp_camp": true}  # starting campfire is always lit
 	talents = {"combat": 0, "magic": 0, "utility": 0}
 	stats_changed.emit()
 

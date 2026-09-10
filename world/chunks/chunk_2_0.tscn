@@ -1,0 +1,85 @@
+[gd_scene load_steps=12 format=3]
+[ext_resource type="Script" path="res://scripts/world/chunk_renderer.gd" id="r_renderer"]
+[ext_resource type="Texture2D" path="res://assets/tiles/atlas.png" id="r_atlas"]
+[ext_resource type="Script" path="res://scripts/world/sign.gd" id="s_sign"]
+[ext_resource type="Script" path="res://scripts/world/lever.gd" id="s_lever"]
+[ext_resource type="Script" path="res://scripts/world/waypoint.gd" id="s_waypoint"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_spawner.gd" id="s_spawner"]
+
+[sub_resource type="RectangleShape2D" id="col_0"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_1"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_2"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_3"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_4"]
+size = Vector2(32, 32)
+
+[node name="chunk_2_0" type="Node2D"]
+
+[node name="Renderer" type="Node2D" parent="."]
+script = ExtResource("r_renderer")
+grid_w = 32
+grid_h = 32
+tile_size = 32
+tiles = PackedInt32Array(9, 0, 0, 9, 0, 0, 10, 10, 15, 9, 0, 0, 10, 10, 0, 9, 0, 0, 9, 0, 10, 15, 9, 9, 0, 9, 9, 9, 9, 9, 10, 10, 0, 0, 9, 10, 0, 15, 9, 10, 0, 10, 10, 0, 9, 9, 10, 0, 0, 15, 10, 0, 10, 10, 9, 0, 9, 0, 10, 0, 10, 0, 9, 0, 10, 0, 10, 0, 0, 10, 9, 0, 0, 9, 0, 9, 9, 0, 15, 10, 0, 10, 9, 10, 9, 10, 10, 9, 0, 10, 0, 10, 15, 9, 9, 0, 9, 0, 9, 0, 10, 15, 10, 10, 0, 9, 10, 10, 9, 10, 0, 0, 10, 9, 0, 10, 0, 9, 0, 9, 9, 9, 0, 0, 0, 0, 15, 9, 10, 0, 9, 0, 0, 9, 10, 0, 10, 0, 9, 0, 9, 9, 9, 10, 0, 0, 0, 15, 0, 9, 9, 9, 0, 0, 0, 0, 0, 9, 0, 0, 0, 9, 9, 10, 0, 10, 0, 10, 10, 0, 9, 0, 10, 0, 9, 0, 10, 0, 9, 9, 9, 0, 10, 0, 9, 0, 15, 0, 9, 0, 0, 15, 9, 9, 0, 0, 0, 10, 15, 9, 0, 0, 0, 9, 0, 9, 10, 10, 0, 9, 0, 10, 9, 10, 10, 10, 9, 10, 0, 0, 9, 0, 10, 9, 9, 9, 0, 0, 10, 9, 0, 15, 0, 0, 9, 10, 10, 0, 9, 10, 0, 9, 10, 0, 9, 0, 9, 9, 9, 0, 10, 0, 0, 9, 10, 0, 0, 10, 10, 9, 0, 10, 9, 0, 15, 9, 0, 10, 0, 10, 9, 0, 10, 9, 10, 9, 9, 9, 10, 9, 0, 0, 15, 10, 9, 0, 0, 0, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 0, 0, 9, 9, 0, 9, 0, 0, 0, 0, 9, 9, 0, 0, 9, 10, 0, 0, 0, 10, 9, 0, 0, 0, 10, 10, 9, 10, 9, 15, 0, 9, 9, 10, 0, 0, 9, 0, 9, 10, 10, 10, 9, 13, 13, 15, 0, 0, 15, 0, 9, 15, 0, 0, 0, 15, 0, 0, 0, 0, 10, 9, 10, 9, 10, 10, 0, 10, 0, 10, 9, 9, 10, 0, 9, 9, 9, 0, 10, 10, 10, 0, 10, 0, 9, 0, 10, 9, 10, 0, 10, 0, 0, 0, 15, 10, 0, 0, 10, 0, 10, 10, 0, 9, 9, 0, 0, 10, 0, 0, 0, 10, 0, 0, 15, 9, 0, 0, 0, 0, 9, 0, 0, 0, 9, 0, 0, 9, 0, 0, 10, 9, 15, 9, 9, 9, 9, 10, 10, 0, 10, 9, 0, 0, 0, 0, 0, 10, 0, 0, 15, 9, 10, 9, 9, 9, 9, 0, 0, 9, 9, 9, 0, 9, 10, 0, 9, 0, 10, 0, 10, 9, 0, 10, 9, 9, 9, 0, 9, 10, 10, 10, 0, 10, 0, 0, 10, 0, 0, 0, 10, 0, 10, 10, 9, 0, 0, 0, 15, 15, 0, 10, 0, 13, 13, 0, 10, 10, 9, 10, 9, 0, 9, 10, 0, 15, 0, 0, 9, 9, 0, 9, 0, 0, 0, 9, 9, 10, 15, 10, 0, 0, 10, 0, 9, 0, 0, 9, 0, 10, 10, 9, 9, 0, 15, 0, 0, 0, 0, 10, 0, 9, 10, 9, 10, 9, 0, 0, 0, 10, 0, 9, 10, 0, 10, 0, 0, 10, 0, 9, 10, 15, 9, 9, 9, 0, 0, 9, 0, 10, 10, 10, 10, 9, 9, 10, 9, 10, 9, 0, 10, 0, 9, 0, 9, 0, 0, 9, 15, 10, 10, 0, 10, 0, 9, 0, 13, 13, 9, 0, 9, 0, 0, 9, 0, 9, 10, 9, 0, 10, 10, 9, 0, 0, 9, 0, 0, 0, 0, 15, 9, 9, 0, 10, 9, 0, 0, 10, 0, 15, 0, 0, 0, 0, 0, 0, 9, 9, 10, 0, 13, 0, 9, 0, 9, 0, 15, 9, 10, 9, 10, 0, 0, 0, 10, 0, 15, 10, 0, 0, 0, 0, 9, 9, 15, 15, 10, 0, 9, 9, 9, 0, 0, 9, 9, 9, 0, 10, 9, 0, 15, 9, 10, 0, 9, 0, 0, 9, 0, 0, 9, 9, 0, 0, 9, 9, 0, 0, 10, 10, 0, 9, 0, 10, 0, 9, 9, 0, 10, 0, 9, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 9, 0, 0, 9, 0, 9, 0, 9, 10, 10, 0, 9, 9, 0, 10, 10, 0, 10, 0, 9, 9, 0, 0, 9, 9, 10, 10, 0, 15, 0, 15, 0, 0, 10, 9, 0, 10, 0, 9, 0, 0, 0, 0, 13, 9, 9, 10, 0, 9, 0, 0, 10, 9, 0, 9, 0, 10, 10, 9, 0, 9, 0, 0, 10, 10, 0, 10, 0, 15, 0, 0, 9, 0, 10, 0, 9, 0, 15, 9, 15, 9, 0, 9, 0, 10, 0, 0, 0, 9, 10, 0, 0, 10, 9, 0, 10, 10, 9, 10, 0, 0, 0, 9, 10, 0, 10, 9, 10, 9, 9, 9, 10, 0, 0, 9, 9, 9, 10, 9, 0, 0, 0, 9, 0, 0, 0, 9, 9, 0, 9, 9, 0, 10, 0, 9, 10, 0, 9, 0, 9, 0, 9, 0, 0, 9, 0, 9, 10, 9, 0, 9, 9, 9, 0, 15, 9, 10, 10, 0, 0, 0, 9, 9, 10, 10, 10, 10, 0, 0, 9, 0, 10, 0, 0, 10, 9, 0, 9, 0, 9, 9, 9, 15, 0, 9, 0, 0, 10, 0, 0, 0, 10, 10, 9, 9, 0, 0, 0, 10, 10, 10, 9, 9, 10, 0, 0, 9, 10, 9, 9, 0, 0, 10, 0, 9, 10, 0, 9, 0, 0, 10, 0, 9, 0, 0, 0, 0, 10, 9, 0, 10, 0, 0, 0, 9, 10, 10, 9, 9)
+atlas = ExtResource("r_atlas")
+base_color = Color(0.46, 0.4, 0.3, 1)
+
+[node name="Solids" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Col0" type="CollisionShape2D" parent="Solids"]
+position = Vector2(384, 400)
+shape = SubResource("col_0")
+
+[node name="Col1" type="CollisionShape2D" parent="Solids"]
+position = Vector2(384, 560)
+shape = SubResource("col_1")
+
+[node name="Col2" type="CollisionShape2D" parent="Solids"]
+position = Vector2(608, 656)
+shape = SubResource("col_2")
+
+[node name="Col3" type="CollisionShape2D" parent="Solids"]
+position = Vector2(976, 688)
+shape = SubResource("col_3")
+
+[node name="Col4" type="CollisionShape2D" parent="Solids"]
+position = Vector2(912, 816)
+shape = SubResource("col_4")
+
+[node name="Objects" type="Node2D" parent="."]
+
+[node name="o10" type="Area2D" parent="Objects"]
+position = Vector2(512, 130)
+script = ExtResource("s_sign")
+title = "Ashen Barrens"
+text = "Scorched by the Warden's breath. Only ember-touched things still live out east."
+
+[node name="o11" type="Area2D" parent="Objects"]
+position = Vector2(202, 780)
+script = ExtResource("s_lever")
+lever_id = "lever_ashen"
+gate_id = "secret_grove"
+
+[node name="o12" type="Area2D" parent="Objects"]
+position = Vector2(852, 400)
+script = ExtResource("s_waypoint")
+wp_id = "wp_barrens"
+wp_name = "Ashen Camp"
+
+[node name="o13" type="Node2D" parent="Objects"]
+position = Vector2(216, 673)
+script = ExtResource("s_spawner")
+archetype = "scout"
+count = 1
+power_scale = 1.6
+

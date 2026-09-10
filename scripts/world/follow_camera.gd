@@ -26,3 +26,11 @@ func _process(delta: float) -> void:
 
 func shake(power: float) -> void:
 	_shake = clampf(_shake + power, 0.0, 1.0)
+
+
+## Instantly re-center (used after fast travel).
+func snap() -> void:
+	if target != null:
+		global_position = target.global_position
+		_shake = 0.0
+		offset = Vector2.ZERO

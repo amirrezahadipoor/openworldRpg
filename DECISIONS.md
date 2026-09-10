@@ -71,6 +71,21 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#25 — Authored world: Tiled pipeline + interactables + fast travel** · 2026-09-10
+The world is a hand-authored 7×5 chunk grid (35 chunks, 1024 px, 32 px tiles) shipped as
+canonical **Tiled JSON maps** (`world/chunks/chunk_X_Y.json`, openable in Tiled 1.11) compiled
+to `.tscn` by `tools/tiled_to_godot.py` — the compiler emits a `ChunkRenderer` (packed GID grid
+drawn from one 256×96 procedural atlas, `tools/worldgen/make_tileset.py`, 21 KB), greedy-merged
+`StaticBody2D` collision (hazard/obstacle/wall tiles), and typed object nodes (chest/sign/lever/
+waypoint/gate/spawner). `build_world.py` regenerates all maps deterministically. Biomes: Verdant
+Meadows (village + pond), Ashen Barrens (lava, rocks), Frosthollow Peaks (pines, ice lake); a
+mountain wall with two gates separates north/south. All world state (opened chests, pulled levers,
+lit waypoints) persists in `GameState.quest_flags` → zero save-format changes. Camp campfire is
+the always-lit starting waypoint; 4 more unlock in the world; travel UI lists lit fires and
+teleports + camera-snaps. Secret: a lever in the Barrens opens a stone gate sealing a Hidden
+Grove chest (traveler_ring). `DayNight` (CanvasModulate, 480 s cycle) provides the tint cycle.
+`ChunkStreamer` loads authored scenes when present, placeholders otherwise (fallback retained).
+
 **#24 — Cooldown abilities + procedural SFX pipeline** · 2026-09-10
 Two active skills complete Phase 4: **Whirlwind** (Q, 10 MP, 4 s CD — 1.4× ATK to all
 enemies within 95 px, spin tween) and **Firebolt** (F, 12 MP, 2.2 s CD — friendly pooled

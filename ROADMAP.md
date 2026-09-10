@@ -31,15 +31,15 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 ## Phase 2 — World & Chunk Streaming
 - [x] `ChunkStreamer` — loads/unloads chunks around player (radius 1, 1024 px chunks)
 - [x] Deterministic placeholder chunks (3 biome palettes) so streaming is testable now
-- [ ] Tiled pipeline: `.tmx`/JSON → Godot scene importer (`tools/` converter)
-- [ ] Authored chunks for **Biome 1: Verdant Meadows** (starting area + village)
-- [ ] Authored chunks for **Biome 2: Ashen Barrens** (midpoint area)
-- [ ] Authored chunks for **Biome 3: Frosthollow Peaks** (climax area)
-- [ ] Collision layers for world geometry
-- [ ] Day/night tint cycle (or region-based lighting variation)
-- [ ] Interactable objects (chests, levers, signs)
-- [ ] ≥1 hidden/secret area
-- [ ] Fast-travel unlock points + fast-travel UI
+- [x] Tiled pipeline: `.tmx`/JSON → Godot scene importer (`tools/tiled_to_godot.py`)
+- [x] Authored chunks for **Biome 1: Verdant Meadows** (starting area + village)
+- [x] Authored chunks for **Biome 2: Ashen Barrens** (midpoint area)
+- [x] Authored chunks for **Biome 3: Frosthollow Peaks** (climax area)
+- [x] Collision layers for world geometry (greedy-merged StaticBody2D rects)
+- [x] Day/night tint cycle (CanvasModulate, 8-min day)
+- [x] Interactable objects (chests, levers, signs, waypoints)
+- [x] ≥1 hidden/secret area (Hidden Grove: ashen lever → stone gate → treasure
+- [x] Fast-travel unlock points + fast-travel UI (5 campfires + Travel screen)
 
 ## Phase 3 — Player & Camera
 - [x] Player `CharacterBody2D` with acceleration/friction movement

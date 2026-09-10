@@ -15,6 +15,13 @@ var _t := 0.0
 func _ready() -> void:
 	_build_scenery()
 	_spawn_npcs()
+	# The camp fire is the starting fast-travel waypoint (auto-unlocked at
+	# spawn via GameState defaults for new games).
+	var wp := Waypoint.new()
+	wp.wp_id = "camp"
+	wp.wp_name = "Hazelwood Camp"
+	wp.position = Vector2(-10, 34)
+	add_child(wp)
 
 
 func _process(delta: float) -> void:

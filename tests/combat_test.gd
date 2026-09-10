@@ -43,6 +43,8 @@ func _ready() -> void:
 
 	await _test_abilities()
 
+	await _test_world()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -252,7 +254,8 @@ func _test_save_slots() -> void:
 	check(GameState.gold == 777, "gold restored from slot 2")
 	GameState.reset()
 	check(GameState.gold == 50 and GameState.level == 1, "reset yields fresh state")
-	check(GameState.quests.is_empty() and GameState.quest_flags.is_empty(), "reset clears story state")
+	check(GameState.quests.is_empty() and GameState.quest_flags.size() == 1 \
+		and bool(GameState.quest_flags.get("wp_camp", false)), "reset clears story state (keeps camp waypoint)")
 
 
 func _test_abilities() -> void:
@@ -316,6 +319,112 @@ func _test_abilities() -> void:
 	player.cast_whirlwind()
 	check(GameState.mp == 0.0, "cannot cast whirlwind without MP")
 	GameState.mp = GameState.max_mp()
+
+
+func _test_world() -> void:
+	print("[combat_test] authored world + interactables")
+	# Clear stale standalone players from earlier sections, then boot the real
+	# game scene (streamer, camp, day/night, dialogue, travel) as the harness.
+	for p in get_tree().get_nodes_in_group("player"):
+		p.queue_free()
+	await get_tree().physics_frame
+	var main_node = (load("res://scenes/main.tscn") as PackedScene).instantiate()
+	add_child(main_node)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var player = main_node.get_node("Player")
+
+	# Authored chunk pipeline active (Tiled JSON -> .tscn).
+	check(ResourceLoader.exists("res://world/chunks/chunk_0_0.tscn"),
+		"authored chunk scene exists (Tiled pipeline)")
+	var chunk: Node = null
+	for child in main_node.get_node("World/ChunkStreamer").get_children():
+		if String(child.name) == "chunk_0_0":
+			chunk = child
+	check(chunk != null, "chunk (0,0) streamed from authored scene")
+	if chunk != null:
+		var renderer := chunk.get_node("Renderer") as ChunkRenderer
+		check(renderer.tiles.size() == 1024, "chunk tile grid populated (32x32)")
+		check(chunk.get_node("Solids").get_child_count() > 0, "chunk has collision rects")
+		var found_sign := false
+		for o in chunk.get_node("Objects").get_children():
+			if o is Sign:
+				found_sign = true
+		check(found_sign, "authored sign present in village chunk")
+
+	# Chest lifecycle: closed -> loot + flag -> idempotent.
+	var chest := Chest.new()
+	chest.chest_id = "test_chest"
+	chest.gold = 25
+	chest.item_id = "health_potion"
+	add_child(chest)
+	chest.global_position = player.global_position + Vector2(-400, -400)
+	check(not chest.is_opened(), "chest starts closed")
+	chest._on_interact()
+	check(chest.is_opened(), "chest opened after interact")
+	check(bool(GameState.quest_flags.get("chest_test_chest_opened", false)), "chest flag persisted")
+	chest._on_interact()
+	check(chest.is_opened(), "second interact idempotent")
+
+	# Lever opens matching gate.
+	var lever := Lever.new()
+	lever.lever_id = "t"
+	lever.gate_id = "tg"
+	add_child(lever)
+	lever.position = Vector2(-600, -600)
+	var gate := SecretGate.new()
+	gate.gate_id = "tg"
+	add_child(gate)
+	gate.position = Vector2(-620, -600)
+	await get_tree().physics_frame
+	lever._on_interact()
+	await get_tree().process_frame
+	check(bool(GameState.quest_flags.get("gate_tg_open", false)), "lever sets gate flag")
+	await get_tree().create_timer(0.9).timeout  # fade-out tween then queue_free
+	check(not is_instance_valid(gate) or gate.is_queued_for_deletion(), "gate removed after lever")
+
+	# Waypoint unlock + registry + names.
+	var wp := Waypoint.new()
+	wp.wp_id = "t_wp"
+	wp.wp_name = "Test Fire"
+	add_child(wp)
+	wp.position = Vector2(-700, -700)
+	await get_tree().physics_frame
+	check(Waypoint.registry.has("t_wp"), "waypoint registered position")
+	check(not wp.is_unlocked(), "waypoint locked before lighting")
+	wp._on_interact()
+	check(wp.is_unlocked(), "waypoint unlocked after lighting")
+	check(String(Waypoint.names.get("t_wp", "")) == "Test Fire", "waypoint name registered")
+	if main_node.travel_ui.visible:
+		main_node.travel_ui.close()
+
+	# Fast travel teleports the player (camp waypoint is lit by default).
+	var before: Vector2 = player.global_position
+	main_node._on_travel_to("camp")
+	check(player.global_position.distance_to(before) > 100.0, "fast travel teleports player")
+
+	# Sign routes into the dialogue box.
+	var sign := Sign.new()
+	sign.title = "Test"
+	sign.text = "hello"
+	add_child(sign)
+	main_node._on_world_interacted(sign)
+	check(main_node.dialogue_box.visible, "sign opens dialogue box")
+	main_node.dialogue_box._finish()
+
+	# Day/night cycle running.
+	check(main_node.day_night != null and main_node.day_night.canvas != null,
+		"day/night CanvasModulate active")
+
+	# World flags (chests/levers/waypoints) survive save/load.
+	var had_flag := bool(GameState.quest_flags.get("chest_test_chest_opened", false))
+	check(had_flag, "chest flag set before save")
+	check(SaveSystem.save_game(player), "save with world flags")
+	GameState.reset()
+	check(not GameState.quest_flags.has("chest_test_chest_opened"), "reset clears world flags")
+	check(SaveSystem.load_game(player), "load restores save")
+	check(bool(GameState.quest_flags.get("chest_test_chest_opened", false)),
+		"chest flag restored from save")
 
 
 func _test_boss_phases_and_death() -> void:

@@ -34,6 +34,8 @@ signal boss_defeated
 signal chunk_loaded(chunk_key: Vector2i)
 signal chunk_unloaded(chunk_key: Vector2i)
 signal interactable_used(node: Node)
+signal gate_opened(gate_id: String)
+signal world_interacted(node: Node)
 
 # --- Meta ---
 signal game_saved

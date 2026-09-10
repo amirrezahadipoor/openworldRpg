@@ -6,10 +6,10 @@ extends Node2D
 const ENEMY_SCENE := "res://scenes/enemies/enemy.tscn"
 const RESPAWN_TIME := 40.0
 
-var archetype := "grunt"
-var count := 2
-var spread := 180.0
-var power_scale := 1.0
+@export var archetype := "grunt"
+@export var count := 2
+@export var spread := 180.0
+@export var power_scale := 1.0
 
 var _pool: ObjectPool
 var _slots: Array = []

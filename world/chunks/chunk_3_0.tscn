@@ -1,0 +1,79 @@
+[gd_scene load_steps=11 format=3]
+[ext_resource type="Script" path="res://scripts/world/chunk_renderer.gd" id="r_renderer"]
+[ext_resource type="Texture2D" path="res://assets/tiles/atlas.png" id="r_atlas"]
+[ext_resource type="Script" path="res://scripts/world/chest.gd" id="s_chest"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_spawner.gd" id="s_spawner"]
+
+[sub_resource type="RectangleShape2D" id="col_0"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_1"]
+size = Vector2(96, 96)
+
+[sub_resource type="RectangleShape2D" id="col_2"]
+size = Vector2(96, 64)
+
+[sub_resource type="RectangleShape2D" id="col_3"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_4"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_5"]
+size = Vector2(64, 32)
+
+[node name="chunk_3_0" type="Node2D"]
+
+[node name="Renderer" type="Node2D" parent="."]
+script = ExtResource("r_renderer")
+grid_w = 32
+grid_h = 32
+tile_size = 32
+tiles = PackedInt32Array(9, 0, 10, 0, 10, 10, 10, 9, 10, 10, 10, 10, 0, 10, 0, 10, 0, 15, 9, 15, 10, 10, 0, 10, 0, 10, 10, 10, 0, 10, 0, 9, 9, 10, 15, 10, 0, 0, 0, 0, 0, 10, 0, 0, 9, 15, 0, 9, 9, 0, 0, 0, 10, 9, 0, 10, 10, 10, 9, 9, 9, 0, 0, 9, 15, 0, 10, 0, 0, 0, 0, 0, 9, 10, 0, 0, 13, 13, 0, 9, 15, 0, 9, 10, 10, 9, 9, 9, 9, 10, 0, 9, 10, 0, 10, 9, 0, 10, 9, 0, 10, 15, 10, 0, 0, 10, 9, 0, 15, 0, 10, 10, 0, 10, 9, 9, 10, 9, 0, 9, 0, 9, 10, 9, 9, 0, 10, 0, 0, 15, 9, 9, 0, 9, 0, 0, 0, 9, 10, 10, 0, 9, 9, 10, 10, 10, 10, 0, 9, 10, 9, 0, 9, 0, 9, 0, 9, 0, 9, 0, 10, 9, 0, 0, 0, 0, 9, 0, 10, 9, 0, 10, 0, 9, 0, 9, 10, 0, 15, 10, 0, 0, 10, 10, 0, 0, 10, 9, 0, 9, 9, 9, 10, 9, 9, 10, 10, 9, 9, 9, 9, 9, 10, 10, 10, 0, 0, 0, 0, 0, 10, 10, 15, 9, 0, 0, 9, 10, 0, 10, 10, 0, 9, 0, 0, 0, 10, 9, 9, 0, 10, 9, 9, 10, 9, 10, 9, 0, 0, 9, 0, 9, 10, 0, 10, 0, 9, 10, 0, 10, 0, 0, 0, 15, 0, 0, 9, 10, 9, 9, 15, 0, 9, 10, 9, 10, 10, 15, 0, 15, 0, 0, 15, 10, 0, 0, 10, 10, 15, 9, 9, 15, 12, 12, 12, 10, 9, 10, 11, 15, 10, 9, 0, 10, 10, 9, 10, 10, 9, 9, 10, 9, 0, 0, 9, 0, 9, 10, 9, 0, 9, 9, 0, 10, 12, 12, 12, 0, 10, 10, 11, 0, 9, 9, 9, 0, 0, 0, 0, 10, 9, 10, 10, 0, 9, 9, 0, 9, 12, 12, 12, 10, 9, 0, 9, 10, 12, 12, 12, 0, 15, 0, 0, 0, 10, 10, 10, 9, 9, 0, 0, 9, 9, 0, 9, 13, 13, 9, 9, 15, 12, 12, 12, 0, 0, 15, 10, 10, 9, 0, 10, 0, 0, 9, 15, 9, 10, 0, 10, 9, 0, 0, 10, 9, 9, 10, 10, 0, 9, 0, 0, 10, 0, 10, 12, 9, 0, 0, 9, 9, 9, 0, 10, 15, 15, 0, 9, 10, 0, 10, 9, 0, 0, 0, 0, 10, 0, 10, 10, 0, 0, 9, 0, 9, 9, 0, 10, 9, 9, 0, 0, 0, 10, 9, 10, 0, 10, 10, 10, 10, 10, 0, 10, 0, 10, 0, 0, 0, 0, 0, 10, 0, 0, 9, 10, 0, 9, 0, 9, 9, 0, 0, 9, 9, 10, 0, 10, 0, 9, 0, 10, 10, 9, 0, 9, 9, 9, 9, 9, 10, 9, 10, 10, 0, 9, 15, 0, 0, 0, 0, 0, 10, 9, 9, 10, 9, 10, 0, 9, 0, 10, 10, 0, 10, 10, 10, 10, 9, 10, 9, 10, 9, 9, 0, 0, 9, 10, 0, 0, 0, 9, 0, 9, 0, 10, 10, 9, 0, 9, 9, 10, 10, 9, 9, 15, 10, 9, 0, 0, 0, 0, 0, 10, 10, 10, 10, 0, 0, 10, 10, 9, 10, 9, 10, 10, 0, 9, 9, 0, 10, 10, 0, 9, 9, 10, 0, 9, 15, 9, 0, 0, 0, 9, 10, 0, 0, 9, 0, 9, 9, 10, 15, 9, 9, 15, 9, 0, 9, 9, 10, 0, 0, 10, 0, 0, 15, 9, 0, 15, 9, 0, 0, 10, 0, 9, 0, 0, 9, 9, 9, 10, 0, 10, 0, 0, 15, 0, 9, 10, 15, 0, 0, 9, 10, 0, 9, 0, 9, 10, 0, 0, 9, 0, 10, 0, 15, 10, 0, 15, 0, 0, 0, 9, 9, 9, 0, 0, 9, 9, 9, 0, 0, 0, 10, 0, 9, 0, 10, 0, 9, 10, 9, 10, 9, 9, 0, 10, 9, 0, 0, 9, 9, 0, 15, 0, 10, 10, 0, 9, 9, 9, 0, 10, 0, 0, 15, 10, 0, 10, 10, 10, 0, 9, 10, 0, 0, 0, 0, 9, 10, 0, 0, 9, 10, 0, 10, 0, 0, 9, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 10, 10, 9, 10, 9, 9, 10, 15, 0, 10, 0, 10, 10, 9, 9, 15, 9, 10, 9, 0, 10, 0, 0, 10, 10, 0, 10, 9, 9, 9, 9, 9, 15, 0, 9, 10, 0, 0, 15, 0, 10, 0, 10, 0, 9, 0, 10, 10, 0, 10, 0, 9, 0, 9, 0, 0, 10, 9, 0, 10, 9, 0, 0, 10, 0, 0, 10, 0, 0, 0, 0, 10, 13, 13, 10, 10, 0, 9, 0, 10, 10, 9, 10, 9, 10, 10, 0, 9, 0, 15, 9, 0, 9, 0, 9, 0, 0, 0, 15, 0, 0, 9, 0, 10, 10, 0, 0, 0, 9, 9, 0, 0, 0, 10, 10, 10, 9, 10, 10, 10, 9, 9, 9, 0, 0, 10, 0, 10, 0, 9, 0, 9, 9, 9, 10, 9, 0, 10, 9, 9, 10, 9, 10, 9, 0, 0, 9, 0, 0, 0, 10, 0, 9, 0, 0, 0, 9, 9, 10, 9, 0, 10, 0, 0, 0, 9, 10, 0, 10, 9, 0, 0, 9, 0, 0, 9, 9, 10, 0, 0, 9, 0, 15, 9, 9, 9, 10, 10, 0, 9, 9, 10, 9, 0, 0, 9, 15, 9, 10, 9, 0, 10, 10, 0, 10, 9, 0, 0, 0, 9, 9, 9, 15, 9, 0, 9, 0, 10, 0, 0, 9, 10, 10, 10, 9, 9, 10, 0, 10, 10, 0, 0, 9, 9, 0, 0, 15, 0, 0, 0, 0, 10, 10, 0, 10, 0, 10, 0, 0, 9, 0, 0, 0, 0, 15, 9, 0, 0, 9, 10, 10, 15, 9, 0, 9, 9, 10, 9, 0, 9, 15, 9, 9, 0, 10, 9, 9, 9, 9, 9, 0, 0, 9, 10, 0, 9, 0, 0, 9, 9, 10)
+atlas = ExtResource("r_atlas")
+base_color = Color(0.46, 0.4, 0.3, 1)
+
+[node name="Solids" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Col0" type="CollisionShape2D" parent="Solids"]
+position = Vector2(416, 80)
+shape = SubResource("col_0")
+
+[node name="Col1" type="CollisionShape2D" parent="Solids"]
+position = Vector2(880, 304)
+shape = SubResource("col_1")
+
+[node name="Col2" type="CollisionShape2D" parent="Solids"]
+position = Vector2(624, 352)
+shape = SubResource("col_2")
+
+[node name="Col3" type="CollisionShape2D" parent="Solids"]
+position = Vector2(448, 368)
+shape = SubResource("col_3")
+
+[node name="Col4" type="CollisionShape2D" parent="Solids"]
+position = Vector2(656, 400)
+shape = SubResource("col_4")
+
+[node name="Col5" type="CollisionShape2D" parent="Solids"]
+position = Vector2(192, 816)
+shape = SubResource("col_5")
+
+[node name="Objects" type="Node2D" parent="."]
+
+[node name="o10" type="Area2D" parent="Objects"]
+position = Vector2(428, 760)
+script = ExtResource("s_chest")
+chest_id = "chest_barrens"
+gold = 80
+item_id = "mana_potion"
+
+[node name="o11" type="Node2D" parent="Objects"]
+position = Vector2(880, 442)
+script = ExtResource("s_spawner")
+archetype = "scout"
+count = 1
+power_scale = 1.6
+

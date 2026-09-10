@@ -16,7 +16,9 @@ var inventory_ui: InventoryScreen
 var talent_ui: TalentScreen
 var dialogue_box: DialogueBox
 var shop_ui: ShopScreen
+var travel_ui: TravelScreen
 var camp: Camp
+var day_night: DayNight
 
 
 func _ready() -> void:
@@ -31,6 +33,7 @@ func _ready() -> void:
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.boss_defeated.connect(_on_boss_defeated)
 	EventBus.boss_phase_changed.connect(_on_boss_phase)
+	EventBus.world_interacted.connect(_on_world_interacted)
 	EventBus.quest_started.connect(func(_q: String) -> void: _refresh_quest_ui())
 	EventBus.quest_updated.connect(func(_q: String) -> void: _refresh_quest_ui())
 	EventBus.quest_completed.connect(_on_quest_completed)
@@ -50,6 +53,10 @@ func _build_world() -> void:
 	streamer = ChunkStreamer.new()
 	streamer.name = "ChunkStreamer"
 	world.add_child(streamer)
+
+	day_night = DayNight.new()
+	day_night.name = "DayNight"
+	add_child(day_night)
 
 	var arena: BossArena = (load(BOSS_ARENA_SCENE) as PackedScene).instantiate()
 	arena.name = "BossArena"
@@ -105,6 +112,11 @@ func _build_ui() -> void:
 	shop_ui = ShopScreen.new()
 	shop_ui.name = "ShopScreen"
 	add_child(shop_ui)
+
+	travel_ui = TravelScreen.new()
+	travel_ui.name = "TravelScreen"
+	add_child(travel_ui)
+	travel_ui.travel_to.connect(_on_travel_to)
 
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
@@ -172,6 +184,29 @@ func _on_npc_interacted(npc: NPC) -> void:
 	if d.is_empty():
 		return
 	dialogue_box.start(d)
+
+
+func _on_world_interacted(node: Node) -> void:
+	if node is Sign:
+		var sign := node as Sign
+		dialogue_box.start({
+			"start": "root",
+			"nodes": {
+				"root": {"speaker": sign.title, "text": sign.text, "choices": []},
+			},
+		})
+	elif node is Waypoint:
+		travel_ui.open((node as Waypoint).wp_id)
+
+
+func _on_travel_to(wp_id: String) -> void:
+	if not Waypoint.registry.has(wp_id):
+		return
+	player.global_position = (Waypoint.registry[wp_id] as Vector2) + Vector2(0, 42)
+	player.velocity = Vector2.ZERO
+	camera.snap()
+	streamer.set_target(player)
+	AudioManager.play_sfx("dodge")
 
 
 func _refresh_quest_ui() -> void:
