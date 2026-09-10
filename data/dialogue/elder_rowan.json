@@ -247,7 +247,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian — corrupted by my old mistake.",
+          "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian \u2014 corrupted by my old mistake.",
           "next": "2"
         },
         "2": {
@@ -258,7 +258,46 @@
         "3": {
           "speaker": "Elder Rowan",
           "text": "Take this ring, traveler. It belonged to the Warden in better days. May it carry you far.",
-          "next": ""
+          "next": "4"
+        },
+        "4": {
+          "speaker": "Elder Rowan",
+          "text": "What do we do with what the Warden told you? Say it and it becomes a thing the valley has to carry. Keep it and it stays a thing you carry alone.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Bury it. Let the valley heal without it.",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "answer_buried"
+                }
+              ]
+            },
+            {
+              "text": "I will carry it. Somebody should know.",
+              "next": "6",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "answer_carried"
+                }
+              ]
+            }
+          ]
+        },
+        "5": {
+          "speaker": "Elder Rowan",
+          "text": "Then it goes in the burn, deep enough that the next person has to dig for it. Some answers are only useful to the person who earns them.",
+          "next": "",
+          "choices": []
+        },
+        "6": {
+          "speaker": "Elder Rowan",
+          "text": "Then carry it, and let the road hear it. Better a hard thing said out loud than a hard thing kept in a pocket.",
+          "next": "",
+          "choices": []
         }
       },
       "start": "1",
@@ -287,7 +326,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "It is done. You burned the corruption out root and branch — just as you swore.",
+          "text": "It is done. You burned the corruption out root and branch \u2014 just as you swore.",
           "next": "2"
         },
         "2": {
@@ -298,7 +337,46 @@
         "3": {
           "speaker": "Elder Rowan",
           "text": "Take this blade. It has waited long for a hand steady enough to wield it.",
-          "next": ""
+          "next": "4"
+        },
+        "4": {
+          "speaker": "Elder Rowan",
+          "text": "What do we do with what the Warden told you? Say it and it becomes a thing the valley has to carry. Keep it and it stays a thing you carry alone.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Bury it. Let the valley heal without it.",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "answer_buried"
+                }
+              ]
+            },
+            {
+              "text": "I will carry it. Somebody should know.",
+              "next": "6",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "answer_carried"
+                }
+              ]
+            }
+          ]
+        },
+        "5": {
+          "speaker": "Elder Rowan",
+          "text": "Then it goes in the burn, deep enough that the next person has to dig for it. Some answers are only useful to the person who earns them.",
+          "next": "",
+          "choices": []
+        },
+        "6": {
+          "speaker": "Elder Rowan",
+          "text": "Then carry it, and let the road hear it. Better a hard thing said out loud than a hard thing kept in a pocket.",
+          "next": "",
+          "choices": []
         }
       },
       "start": "1",
@@ -324,7 +402,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes — that's your window to roll aside.",
+          "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes \u2014 that's your window to roll aside.",
           "next": ""
         }
       },
@@ -418,7 +496,7 @@
         },
         "2": {
           "speaker": "Elder Rowan",
-          "text": "Go. See it with your own eyes. Then come back to me — you deserve the truth of it.",
+          "text": "Go. See it with your own eyes. Then come back to me \u2014 you deserve the truth of it.",
           "next": ""
         }
       },
@@ -438,7 +516,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "You've done it — the camp can breathe again. You fight like someone the road has sharpened.",
+          "text": "You've done it \u2014 the camp can breathe again. You fight like someone the road has sharpened.",
           "next": "2"
         },
         "2": {
@@ -466,7 +544,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge — that's your cue to roll aside.",
+          "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge \u2014 that's your cue to roll aside.",
           "next": ""
         }
       },
@@ -479,7 +557,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "Ah — a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.",
+          "text": "Ah \u2014 a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.",
           "next": "2"
         },
         "2": {
@@ -503,12 +581,12 @@
         },
         "3b": {
           "speaker": "Elder Rowan",
-          "text": "Fair. Coin, then — and my thanks when it's done. We take care of those who take care of us.",
+          "text": "Fair. Coin, then \u2014 and my thanks when it's done. We take care of those who take care of us.",
           "next": "4"
         },
         "4": {
           "speaker": "Elder Rowan",
-          "text": "They prowl just outside the firelight. And traveler — roll aside when they glow. They always lunge after.",
+          "text": "They prowl just outside the firelight. And traveler \u2014 roll aside when they glow. They always lunge after.",
           "next": ""
         }
       },
@@ -527,7 +605,7 @@
       "when": []
     },
     {
-      "text": "Millhaven has stood through three winters like this one. Stand, or fall — that is all the world asks.",
+      "text": "Millhaven has stood through three winters like this one. Stand, or fall \u2014 that is all the world asks.",
       "when": []
     },
     {

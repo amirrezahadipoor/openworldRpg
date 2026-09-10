@@ -4,32 +4,56 @@
     "goblin_king": {
       "name": "Skarn the Crowned",
       "intro": "You brought a sword to a court.",
-      "defeat": "The crown rolls. Nobody picks it up."
+      "defeat": "The crown rolls. Nobody picks it up.",
+      "phases": [
+        "The crown is a loan, and the court is a rumour. Neither of them can be killed, boy.",
+        "Good! Now the ledger is even. Whoever walks out of this room keeps the chair."
+      ]
     },
     "slag_wraith": {
       "name": "The Slag Wraith",
       "intro": "Heat without a body. It says your name in furnace-tongue.",
-      "defeat": "It cools into a shape like a person, and then into slag."
+      "defeat": "It cools into a shape like a person, and then into slag.",
+      "phases": [
+        "You are cooling me. I do not remember agreeing to be cooled.",
+        "Every ladder in this works was built by a man who promised he would be out by dark."
+      ]
     },
     "bone_titan": {
       "name": "The Bone Titan",
       "intro": "It stands up out of the crypt floor, still counting.",
-      "defeat": "Ten thousand ribs come apart and stay apart."
+      "defeat": "Ten thousand ribs come apart and stay apart.",
+      "phases": [
+        "One more. That is all I was ever asked for: one more, and then the count is done.",
+        "The shelves are full of people who counted better than you."
+      ]
     },
     "frost_giant": {
       "name": "Hrim, the Rimevault's Keeper",
       "intro": "Warm blood on my floor. In this vault that is a debt.",
-      "defeat": "The vault keeps its cold, and you keep your life."
+      "defeat": "The vault keeps its cold, and you keep your life.",
+      "phases": [
+        "Debt accrues. In this vault it accrues faster than anywhere warm.",
+        "I kept this door for eleven hundred winters. I will be allowed to dislike you."
+      ]
     },
     "choir_priest": {
       "name": "Cantor Vail",
       "intro": "Sing with us, vessel. The Choir is only ever short one voice.",
-      "defeat": "The hymn stops mid-word. The silence after is enormous."
+      "defeat": "The hymn stops mid-word. The silence after is enormous.",
+      "phases": [
+        "The harmony does not want your sword, vessel. It wants your breath, and it will take the second.",
+        "Listen: the whole valley is a throat, and I am only the part that says the words."
+      ]
     },
     "ember_warden": {
       "name": "The Ember Warden",
       "intro": "I kept the fire so it would not spread. You kept walking toward it.",
-      "defeat": "The Warden lets go, and the fire it held goes with it."
+      "defeat": "The Warden lets go, and the fire it held goes with it.",
+      "phases": [
+        "I was put here to guard. Do not mistake my patience for a cage.",
+        "Then we will find out whether you can carry what you came up here to take."
+      ]
     }
   }
 }

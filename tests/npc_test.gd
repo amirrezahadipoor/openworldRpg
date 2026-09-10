@@ -24,6 +24,7 @@ func _ready() -> void:
 	_test_schedule()
 	await _test_states()
 	await _test_flee()
+	_test_conversation_depth()
 	_report()
 
 
@@ -157,3 +158,81 @@ func _spawn_npc(id: String, at: Vector2) -> NPC:
 func _phys_frames(n: int) -> void:
 	for i in n:
 		await get_tree().physics_frame
+
+func _test_conversation_depth() -> void:
+	print("[npc_test] conversation depth: choices, and every NPC has something to say")
+	var dialogue_dir := DirAccess.open("res://data/dialogue")
+	if dialogue_dir == null:
+		check(false, "data/dialogue is readable")
+		return
+
+	# Every NPC file must end in a fallback the player can always reach, or talking
+	# to someone between quests is a dead end (that was the audit's complaint).
+	var npc_ids := []
+	for id in NPCController.roster().keys():
+		npc_ids.append(String(id))
+	var with_fallback := 0
+	var choices := 0
+	var empty_files := []
+	var flag_actions := 0
+	for id in npc_ids:
+		var path := "res://data/dialogue/%s.json" % id
+		if not FileAccess.file_exists(path):
+			empty_files.append(id)
+			continue
+		var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+		var entries: Array = doc.get("dialogues", [])
+		if entries.is_empty():
+			empty_files.append(id)
+			continue
+		var last: Dictionary = entries[entries.size() - 1]
+		var req: Dictionary = last.get("requires", {})
+		if req.is_empty():
+			with_fallback += 1
+		for e in entries:
+			for node in (e.get("nodes", {}) as Dictionary).values():
+				for c in (node.get("choices", []) as Array):
+					choices += 1
+					for a in (c.get("actions", []) as Array):
+						if String(a.get("action", "")) == "set_flag":
+							flag_actions += 1
+	check(empty_files.is_empty(), "every NPC has a dialogue tree (missing: %s)" % str(empty_files))
+	check(with_fallback == npc_ids.size(),
+		"every NPC has an unconditional fallback entry (%d/%d)" % [with_fallback, npc_ids.size()])
+	check(choices >= 30, "conversation offers real choices (%d)" % choices)
+	check(flag_actions >= 20, "choices record what the player said (%d set_flag actions)" % flag_actions)
+
+	# Bosses: an introduction, a defeat line and a taunt per phase change.
+	var bosses: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/boss_lines.json")).get("bosses", {})
+	var enemies: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/enemies.json")).get("archetypes", {})
+	var boss_ids := []
+	for id in enemies:
+		if String((enemies[id] as Dictionary).get("behavior", "")) == "boss":
+			boss_ids.append(String(id))
+	check(boss_ids.size() >= 6, "the roster names six bosses (%d)" % boss_ids.size())
+	var voiced := 0
+	for id in boss_ids:
+		var b: Dictionary = bosses.get(id, {})
+		if String(b.get("intro", "")) != "" and String(b.get("defeat", "")) != "" \
+				and (b.get("phases", []) as Array).size() >= 2:
+			voiced += 1
+	check(voiced == boss_ids.size(),
+		"every boss speaks (intro + taunt per phase + defeat): %d/%d" % [voiced, boss_ids.size()])
+
+	# The game's last conversation must actually branch, and the epilogue reads it.
+	var rowan: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/dialogue/elder_rowan.json"))
+	var ending_choices := 0
+	for e in rowan.get("dialogues", []):
+		if String(e.get("id", "")).begins_with("elder_q4_end"):
+			for node in (e.get("nodes", {}) as Dictionary).values():
+				for c in (node.get("choices", []) as Array):
+					for a in (c.get("actions", []) as Array):
+						if String(a.get("flag", "")) in ["answer_buried", "answer_carried"]:
+							ending_choices += 1
+	check(ending_choices >= 2, "the final conversation in the game branches (%d endings-flagged choices)" % ending_choices)
+	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
+	check(main_src.contains("answer_buried") and main_src.contains("answer_carried"),
+		"the epilogue reads the player's last decision")

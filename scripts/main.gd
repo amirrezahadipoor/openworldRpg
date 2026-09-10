@@ -531,6 +531,14 @@ func _epilogue_text() -> String:
 	rows.append("Millhaven burned behind you before you were half the fighter you are now, and the road has been a road to somewhere ever since."
 		if burned else
 		"Hazelwood Camp still keeps its fire, and Rowan still asks what you saw out there.")
+	if bool(GameState.quest_flags.get("answer_buried", false)):
+		rows.append("You buried what the Warden said in the burn, and the valley has one less thing to argue about.")
+	elif bool(GameState.quest_flags.get("answer_carried", false)):
+		rows.append("You carried what the Warden said back down the road, and told it to anyone who would listen.")
+	if bool(GameState.quest_flags.get("protect_mireille", false)):
+		rows.append("Mireille is alive, and still refuses to be thanked. The Choir's ledgers name her as missing.")
+	elif bool(GameState.quest_flags.get("expose_mireille", false)):
+		rows.append("Mireille answers for what she did, in a room she cannot leave, and asks for nothing.")
 	rows.append("You have walked into %d of the valley's towns and come back out of %d of its dungeons."
 		% [_towns_visited(), _dungeons_entered()])
 	rows.append("The road east is open. If the Choir comes back it will find the valley already awake.")
@@ -586,10 +594,18 @@ func _on_boss_defeated() -> void:
 	camera.shake(0.9)
 
 
-func _on_boss_phase(_phase: int) -> void:
+func _on_boss_phase(phase: int) -> void:
+	## The antagonist speaks mid-fight, not only at the door: every boss carries a
+	## taunt per phase change in data/boss_lines.json.
 	_boss_active = true
 	camera.shake(0.5)
 	_hit_stop(0.09)
+	var lines: Array = (_boss_lines.get(_boss_id, {}) as Dictionary).get("phases", [])
+	var idx := phase - 2      # phase 2 is the first change
+	if idx >= 0 and idx < lines.size():
+		AudioManager.play_sfx("boss_roar")
+		if hud_ref != null:
+			hud_ref.show_toast(String(lines[idx]))
 
 
 var _hit_stop_busy := false
