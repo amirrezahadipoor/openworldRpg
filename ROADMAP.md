@@ -20,7 +20,7 @@ The draft circulating as "Roadmap v2" was directionally right but had specific e
 | "~5,500 lines of GDScript" | **6,183 lines** across `scripts/` — more than stated |
 | "10 scenes, 35 chunk files" | 35 chunks = **35 `.json` + 35 compiled `.tscn`** (70 files) |
 | "re-verify the 120 MB repo budget" as an open Phase B task | Repo is **~14 MB (12 %)** of that budget. It is **not** a constraint. Dropped as a gate. |
-| "Run the real Universal LPC SpriteSheet Generator … replace `assets/lpc/*`" | The 4 shipped `player_*.png` sheets **were** composited from real LPC layers by `tools/lpc_compose.py` (idle/walk/slash/spellcast/hurt). The gap is **breadth** (4 variants, 1 archetype), not authenticity. |
+| "Run the real Universal LPC SpriteSheet Generator … replace `assets/lpc/*`" | The 4 shipped `player_*.png` sheets **were** composited from real LPC layers by `tools/lpc_compose.py` — but they were **HEADLESS**: `body/bodies/*` in the LPC generator omits the head, which is a separate layer under `head/heads/*`, and the original composer never added it. The player — the most visible sprite in the game — was rendering with hair floating above a headless torso, in the shipped v1.0.0 APK. Fixed in B4; `lpc_compose.py` now refuses to build an archetype with no head layer. |
 | "Pull real 0x72 DungeonTileset II" | Evaluated and **deliberately not used** — it is authored at **16 px**, while this project's grid is 32 px and its LPC characters are 64 px. Mixing them puts two pixel densities and two palettes on screen. Replaced by a native-32 px LPC outdoor set. Reasoning recorded in [CREDITS.md](CREDITS.md). |
 | "This is why it reads as garbage on a phone" | Largely true — but **two code defects contributed as much as the art**, and the draft missed both: pixel art was bilinear-blurred (no `default_texture_filter`), and terrain was generated with per-tile randomness (a literal checkerboard). |
 | "NPC portraits for dialogue (currently deferred)" | Still deferred, and worth saying why: portraits are a different art surface (large, face-on, expressive), not a slice of the isometric sprite sheets. Treat it as new art, not an integration task. |
@@ -83,6 +83,9 @@ visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
 - [x] Enemies animated from the composed sheet via `Sprite2D.hframes/vframes` — no new node
       types, no per-enemy scenes; `slash` on attack, `spellcast` for casters, `walk`/`idle` by state
 - [x] Boss (Ember Warden) uses the orc sheet at 2.2× with per-phase colour tints
+- [x] **Fixed: the player sprite was headless in the shipped build.** The head is a
+      separate LPC layer the original composer omitted. `lpc_compose.py` now asserts every
+      archetype includes a head layer (verified to fail when the layer is removed)
 - [ ] NPC dialogue portraits — **still deferred** (separate art surface, not a sprite-sheet slice)
 
 ### B7. Visual verification ✅ DONE (new capability)

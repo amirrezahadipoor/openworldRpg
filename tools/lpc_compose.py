@@ -109,6 +109,32 @@ def paste_frames(sheet: Image.Image, layer: Image.Image, frames: int, d_i: int,
         sheet.paste(crop, (f * W, row * H), crop)
 
 
+def assert_complete(name: str, layers: list[str]) -> None:
+    """Guard against the bug that shipped in the original player sprite.
+
+    body/bodies/* in the LPC generator is HEADLESS — the head is a separate
+    layer under head/heads/*. The original tools/lpc_compose.py omitted it, so
+    the player — the most visible character in the game — rendered with hair
+    floating above a headless torso. Headless CI could not see it; it was only
+    caught by rendering the real game (tools/art/capture_screenshot.gd).
+
+    Every archetype must therefore include a head layer, and a face-bearing one
+    must pair it with eyes, or the composite is wrong by construction.
+    """
+    has_head = any(l.startswith("head/heads/") for l in layers)
+    has_eyes = any("eyes/" in l for l in layers)
+    has_body = any("body/bodies/" in l for l in layers)
+    problems = []
+    if not has_body:
+        problems.append("no body layer")
+    if not has_head:
+        problems.append("NO HEAD LAYER (sprite would render headless)")
+    if has_head and not has_eyes and "skeleton" not in " ".join(layers):
+        problems.append("head without eyes layer")
+    if problems:
+        sys.exit(f"{name}: " + "; ".join(problems))
+
+
 def compose(layers: list[str], out_path: str) -> int:
     rows = len(ANIMS) * 4
     sheet = Image.new("RGBA", (COLS * W, rows * H), (0, 0, 0, 0))
@@ -151,6 +177,7 @@ def main() -> None:
 
     os.makedirs(OUT, exist_ok=True)
     for name in want:
+        assert_complete(name, ARCHETYPES[name])
         size = compose(ARCHETYPES[name], os.path.join(OUT, name + ".png"))
         print(f"  {name:24s} {size // 1024:4d} KB")
 

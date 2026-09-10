@@ -80,9 +80,12 @@ Authors: the Liberated Pixel Cup contributors, via the Universal LPC Spritesheet
 Character Generator (generator GPL-3.0; art CC-BY-SA 3.0 / GPL). Credit list as
 published on the generator repository.
 
-> Note: `body/bodies/*` in that repository is **headless** — the head is a
-> separate layer under `head/heads/*`. Omitting it produces a headless sprite;
-> `tools/art/vendor_lpc_layers.sh` documents this so the mistake isn't repeated.
+> **Important:** `body/bodies/*` in that repository is **headless** — the head is a
+> separate layer under `head/heads/*`, and a face-bearing head must be paired with an
+> `eyes/*` layer. The original version of `tools/lpc_compose.py` omitted both, so the
+> player sprite shipped with hair floating above a headless torso. The composer now
+> refuses to build any archetype without a head layer, and the mistake is documented in
+> both `tools/art/vendor_lpc_layers.sh` and `tools/lpc_compose.py`.
 
 ### Audio (Phase B5) — real score and SFX
 
