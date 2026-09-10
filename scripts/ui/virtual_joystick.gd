@@ -43,7 +43,7 @@ func _release() -> void:
 
 
 func _update(pos: Vector2) -> void:
-	var radius := min(size.x, size.y) * 0.42
+	var radius := minf(size.x, size.y) * 0.42
 	var vec := (pos - _base_center) / maxf(radius, 1.0)
 	if vec.length() > 1.0:
 		vec = vec.normalized()
@@ -53,7 +53,7 @@ func _update(pos: Vector2) -> void:
 
 
 func _draw() -> void:
-	var radius := min(size.x, size.y) * 0.42
+	var radius := minf(size.x, size.y) * 0.42
 	var center := _base_center if _touch_index != -1 else size * 0.5
 	draw_circle(center, radius, Color(1, 1, 1, 0.07))
 	draw_arc(center, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.22), 2.0)

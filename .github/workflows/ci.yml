@@ -30,8 +30,15 @@ jobs:
       - name: Import project (headless)
         run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
 
-      - name: Headless smoke run — 300 frames of main scene
-        run: timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://scenes/main.tscn --quit-after 300
+      - name: Headless smoke run — 300 frames of main scene (fails on ANY script error)
+        run: |
+          set -o pipefail
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://scenes/main.tscn --quit-after 300 | tee smoke.log
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error" smoke.log; then
+            echo "::error::Script errors detected in smoke run (see above)"
+            exit 1
+          fi
+          echo "smoke run clean ✓"
 
   android-export:
     name: Android debug APK (main only)

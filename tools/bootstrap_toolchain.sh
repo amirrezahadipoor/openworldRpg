@@ -46,9 +46,9 @@ fetch() { # fetch <url> <dest>
 }
 
 ensure_sha_sums() {
-  if [ ! -s "$DL/SHA256-SUMS.txt" ]; then
-    fetch "$BASE_URL/SHA256-SUMS.txt" "$DL/SHA256-SUMS.txt" || {
-      warn "SHA256-SUMS.txt unavailable — skipping checksum verification"
+  if [ ! -s "$DL/SHA512-SUMS.txt" ]; then
+    fetch "$BASE_URL/SHA512-SUMS.txt" "$DL/SHA512-SUMS.txt" || {
+      warn "SHA512-SUMS.txt unavailable — skipping checksum verification"
       return 1
     }
   fi
@@ -58,14 +58,14 @@ ensure_sha_sums() {
 verify_sha() { # verify_sha <file> <upstream-filename>
   local f="$1" name="$2" expected
   ensure_sha_sums || return 0
-  expected=$(awk -v n="$name" '$2 == "*"n || $2 == n {print $1}' "$DL/SHA256-SUMS.txt" | head -n1)
+  expected=$(awk -v n="$name" '$2 == "*"n || $2 == n {print $1}' "$DL/SHA512-SUMS.txt" | head -n1)
   if [ -z "$expected" ]; then warn "no checksum entry for $name"; return 0; fi
-  if ! ( cd "$(dirname "$f")" && echo "$expected  $(basename "$f")" | sha256sum -c - >/dev/null 2>&1 ); then
+  if ! ( cd "$(dirname "$f")" && echo "$expected  $(basename "$f")" | sha512sum -c - >/dev/null 2>&1 ); then
     warn "checksum MISMATCH for $name — removing corrupted download"
     rm -f "$f"
     return 1
   fi
-  log "sha256 ok: $name"
+  log "sha512 ok: $name"
   return 0
 }
 
