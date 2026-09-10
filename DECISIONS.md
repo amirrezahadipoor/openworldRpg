@@ -71,6 +71,17 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#18 — Boss design: The Ember Warden** · 2026-09-10
+Single-author boss reusing the Enemy base via `Boss extends Enemy` and an
+extracted `_finish_attack()` hook — no FSM duplication. Phases at 60%/25% HP:
+P1 melee slam + every-3rd triple shot → P2 speed-up + 8-way radial bursts
+(shorter telegraph) → P3 enraged 10-way radials + charge dashes (1.5× contact
+dmg). Transformations give 1.2 s i-frames so DPS can't skip phases. Arena is a
+fixed world position (BOSS_POS), summons on aggro proximity, defeat persists
+via `quest_flags["boss_defeated"]` (survives save/load). Boss never flees
+(`behavior=="boss"` guard in the flee check). Guaranteed drops: iron_sword +
+health_potion (+50% traveler_ring), 60–90 gold, 250 XP.
+
 **#17 — Gameplay test harness** · 2026-09-10
 `tests/CombatTest.tscn` is a normal scene (autoloads active) that asserts real
 behavior headlessly: enemy death → XP + loot pickups, gold pickup collection,

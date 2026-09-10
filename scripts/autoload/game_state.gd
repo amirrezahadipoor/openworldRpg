@@ -73,23 +73,81 @@ func spend_talent(branch: String) -> bool:
 # --- Final stats (level + talents; gear is added in Phase 7) ----------------
 
 func max_hp() -> float:
-	return base_hp + (level - 1) * 12.0 + int(talents["combat"]) * 8.0
+	return base_hp + (level - 1) * 12.0 + int(talents["combat"]) * 8.0 + equipment_bonus("hp")
 
 
 func max_mp() -> float:
-	return base_mp + (level - 1) * 6.0 + int(talents["magic"]) * 6.0
+	return base_mp + (level - 1) * 6.0 + int(talents["magic"]) * 6.0 + equipment_bonus("mp")
 
 
 func attack() -> float:
-	return base_attack + (level - 1) * 1.5 + int(talents["combat"]) * 2.0
+	return base_attack + (level - 1) * 1.5 + int(talents["combat"]) * 2.0 + equipment_bonus("atk")
 
 
 func defense() -> float:
-	return base_defense + (level - 1) * 1.0 + int(talents["combat"]) * 1.0
+	return base_defense + (level - 1) * 1.0 + int(talents["combat"]) * 1.0 + equipment_bonus("def")
 
 
 func move_speed() -> float:
-	return base_speed + int(talents["utility"]) * 8.0
+	return base_speed + int(talents["utility"]) * 8.0 + equipment_bonus("speed")
+
+
+func equipment_bonus(key: String) -> float:
+	var total := 0.0
+	for slot in equipment:
+		var id: String = equipment[slot]
+		if id == "":
+			continue
+		total += float(ItemsDB.get_item(id).get(key, 0))
+	return total
+
+
+# --- Equipment & consumables ---------------------------------------------------
+
+func equip(item_id: String) -> bool:
+	if int(inventory.get(item_id, 0)) < 1:
+		return false
+	var slot := ItemsDB.get_slot(item_id)
+	if slot == "" or not equipment.has(slot):
+		return false
+	var prev: String = equipment[slot]
+	remove_item(item_id, 1)
+	equipment[slot] = item_id
+	if prev != "":
+		add_item(prev, 1)
+	_clamp_pools()
+	stats_changed.emit()
+	return true
+
+
+func unequip(slot: String) -> bool:
+	if not equipment.has(slot) or equipment[slot] == "":
+		return false
+	var prev: String = equipment[slot]
+	equipment[slot] = ""
+	add_item(prev, 1)
+	_clamp_pools()
+	stats_changed.emit()
+	return true
+
+
+func use_item(item_id: String) -> bool:
+	if int(inventory.get(item_id, 0)) < 1:
+		return false
+	var it: Dictionary = ItemsDB.get_item(item_id)
+	if String(it.get("type", "")) != "consumable":
+		return false
+	var heal := float(it.get("heal", 0))
+	var mana := float(it.get("restore_mp", 0))
+	if heal > 0.0:
+		hp = clampf(hp + heal, 0.0, max_hp())
+		EventBus.player_healed.emit(heal)
+	if mana > 0.0:
+		mp = clampf(mp + mana, 0.0, max_mp())
+	remove_item(item_id, 1)
+	EventBus.item_used.emit(item_id)
+	AudioManager.play_sfx("item_use")
+	return true
 
 
 # --- Inventory ---------------------------------------------------------------

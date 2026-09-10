@@ -10,6 +10,7 @@ const BOSS_POS := Vector2(2700, -1500)
 var player: Player
 var camera: FollowCamera
 var streamer: ChunkStreamer
+var inventory_ui: InventoryScreen
 
 
 func _ready() -> void:
@@ -65,11 +66,32 @@ func _build_ui() -> void:
 	hud.name = "HUD"
 	add_child(hud)
 	hud.setup(player)
+	hud.bag_pressed.connect(func() -> void: inventory_ui.toggle())
+
+	inventory_ui = InventoryScreen.new()
+	inventory_ui.name = "InventoryScreen"
+	add_child(inventory_ui)
+	inventory_ui.drop_requested.connect(_on_drop_requested)
 
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.player = player
 	add_child(pause)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("inventory"):
+		inventory_ui.toggle()
+		get_viewport().set_input_as_handled()
+
+
+func _on_drop_requested(item_id: String) -> void:
+	if not GameState.remove_item(item_id, 1):
+		return
+	var p: Pickup = (load("res://scenes/world/pickup.tscn") as PackedScene).instantiate()
+	$World.add_child(p)
+	p.global_position = player.global_position + Vector2(36, 0)
+	p.setup_item(item_id)
 
 
 func _on_player_damaged(_amount: float) -> void:

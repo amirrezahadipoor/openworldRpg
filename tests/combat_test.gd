@@ -31,6 +31,10 @@ func _ready() -> void:
 
 	_test_consumable_inventory()
 
+	_test_equipment_stats()
+
+	_test_consumable_use()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -104,6 +108,36 @@ func _test_consumable_inventory() -> void:
 	check(int(GameState.inventory.get("health_potion", 0)) == before + 1, "potion stacked in inventory")
 	check(GameState.remove_item("health_potion", 1), "potion removable")
 	check(int(GameState.inventory.get("health_potion", 0)) == before, "stack restored after removal")
+
+
+func _test_equipment_stats() -> void:
+	print("[combat_test] equipment affects stats")
+	var atk_before := GameState.attack()
+	var def_before := GameState.defense()
+
+	GameState.add_item("short_sword", 1)
+	check(GameState.equip("short_sword"), "equipping short_sword succeeds")
+	check(GameState.equipment["weapon"] == "short_sword", "weapon slot filled")
+	check(GameState.attack() == atk_before + 4.0, "attack +4 from short_sword (was %.1f, now %.1f)" % [atk_before, GameState.attack()])
+
+	check(GameState.unequip("weapon"), "unequipping weapon succeeds")
+	check(GameState.attack() == atk_before, "attack restored after unequip")
+	check(int(GameState.inventory.get("short_sword", 0)) >= 1, "sword returned to inventory")
+
+	GameState.add_item("leather_armor", 1)
+	check(GameState.equip("leather_armor"), "equipping leather_armor succeeds")
+	check(GameState.defense() == def_before + 3.0, "defense +3 from leather_armor")
+	GameState.unequip("armor")  # restore baseline for later tests
+
+
+func _test_consumable_use() -> void:
+	print("[combat_test] consumable use")
+	GameState.hp = 10.0
+	GameState.add_item("health_potion", 1)
+	var before: int = int(GameState.inventory.get("health_potion", 0))
+	check(GameState.use_item("health_potion"), "using health_potion succeeds")
+	check(GameState.hp == 50.0, "healed 10 -> 50 (now %.0f)" % GameState.hp)
+	check(int(GameState.inventory.get("health_potion", 0)) == before - 1, "potion consumed")
 
 
 func _test_boss_phases_and_death() -> void:

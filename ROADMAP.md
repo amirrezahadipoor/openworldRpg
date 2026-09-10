@@ -65,7 +65,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] ≥3 enemy archetypes (melee grunt/scout/emberling, ranged shaman) — data-driven via `data/enemies.json`
 - [x] Object pooling for enemies & projectiles (`ObjectPool` + spawner pool + `PoolManager`)
 - [x] Death → loot drop → respawn handling (drop tables, gold/item pickups, 40s respawn)
-- [ ] **Boss fight with multi-phase pattern** (≥2 distinct phases)
+- [x] **Boss fight with multi-phase pattern** — The Ember Warden: 3 phases (slam/triple-shot → radial bursts → enraged charges), arena summon, persistent defeat
 
 ## Phase 6 — Items & Economy
 - [x] `data/items.json` item database seeded (weapons/armor/consumables)

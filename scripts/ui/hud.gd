@@ -5,6 +5,9 @@ extends CanvasLayer
 ## Fully anchor-based with safe-area offsets (DECISIONS.md #2) — scales from
 ## 720p phones to 1440p+ tablets and 16:9 → 20:9 aspects.
 
+signal bag_pressed
+signal talents_pressed
+
 var player: Player
 
 var hp_bar: ProgressBar
@@ -73,6 +76,27 @@ func _build_top_left() -> void:
 	box.add_child(hp_bar)
 	box.add_child(mp_bar)
 	box.add_child(info_label)
+
+	var btn_row := HBoxContainer.new()
+	btn_row.add_theme_constant_override("separation", 10)
+	var bag := TextureButton.new()
+	bag.texture_normal = _load_icon("icon_bag")
+	bag.custom_minimum_size = Vector2(46, 46)
+	bag.ignore_texture_size = true
+	bag.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	bag.modulate = Color(1, 1, 1, 0.85)
+	bag.pressed.connect(func() -> void: bag_pressed.emit())
+	var star := TextureButton.new()
+	star.texture_normal = _load_icon("icon_talent")
+	star.custom_minimum_size = Vector2(46, 46)
+	star.ignore_texture_size = true
+	star.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	star.modulate = Color(1, 1, 1, 0.85)
+	star.pressed.connect(func() -> void: talents_pressed.emit())
+	btn_row.add_child(bag)
+	btn_row.add_child(star)
+	box.add_child(btn_row)
+
 	add_child(box)
 
 
