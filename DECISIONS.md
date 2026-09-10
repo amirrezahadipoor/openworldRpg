@@ -78,6 +78,11 @@ APK and the Play-Store AAB from one run; a release keystore is generated per-run
 an auto-created GitHub Release plus a 90-day artifact. Tradeoff documented: per-run keys are
 fine for sideload/testing builds; a Play Store launch would rotate to a persistent upload key
 (Play App Signing makes that safe). Version 1.0.0 / code 1 shipped with the tag.
+Wiring notes: the committed preset carries empty `keystore/release*` lines that CI seds
+to the per-run keystore (Godot 4.4 has no editor-settings fallback for release keys,
+only `debug_*`); Gradle exports need the in-project build template, installed by riding
+`--install-android-build-template` on the APK export command (a standalone invocation
+never quits the editor loop); a side-loadable signed **debug** APK is attached too.
 
 **#28 — Performance strategy & validation** · 2026-09-10
 Low-end Android target: GL Compatibility renderer, one shared texture atlas for all world
