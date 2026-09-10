@@ -555,3 +555,19 @@ vault's lock — so exploring is not 40 instances of the same interaction.
   own respawn path (hide screen + emit `respawn_requested`) before walking to a
   secret, which is also why the streamer had silently frozen around the old
   position.
+
+**#43 — Validate the workflow with actionlint before pushing (Phase F6 hotfix)** · 2026-09-11
+Twice now a CI file has broken in a way `yaml.safe_load` cannot see: an unquoted
+colon in a step name (Phase E §1) and, here, a `name:`-only replacement that
+orphaned the following step's `run:` key into the previous step. Both parse as
+valid YAML and both are **silently fatal on GitHub** — a duplicate key or an
+unquoted colon makes the workflow invalid, so the push produces a run with **zero
+jobs** and no error anywhere a normal log check would look.
+
+`actionlint` catches both (`key "run" is duplicated in element of "steps"`). Any
+edit to `.github/workflows/*.yml` now gets:
+
+    actionlint .github/workflows/ci.yml && python3 -c "import yaml; yaml.safe_load(open('.github/workflows/ci.yml'))"
+
+before the push, and a run reporting `name = .github/workflows/ci.yml` with
+`jobs: 0` means *the file did not parse* — not "the tests failed".
