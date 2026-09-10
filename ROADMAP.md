@@ -142,9 +142,20 @@ visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
       share-alike violation) once the real LPC atlas landed. Rewritten with complete
       attribution for the tile set, characters, score and SFX, in a scroll container.
 - [x] Signed debug `.apk` produced by CI, attached to a GitHub Release
-- [x] `.aab` produced for ARM64 + ARMv7
+- [x] Fixed the release workflow **fabricating releases**: it hardcoded a `v1.0.0` fallback
+      for non-tag dispatches, which silently published a "v1.0.0" release (with APK/AAB)
+      from whatever was on `main`. That is why a v1.0.0 exists despite this roadmap listing
+      it as future work. Now derives the version from `project.godot` and never hardcodes.
+- [x] `.aab` **built** for ARM64 + ARMv7
+- [ ] `.aab` **verified on device** — building for an ABI is not the same as running on it.
+      Covered by Phase C.
 - [x] `CREDITS.md` final pass — every asset license logged and attributed in-game
-- [x] Tag `v0.2.0` (pre-release) with release notes → produces installable Android builds
+- [x] Tag `v0.2.0` (flagged **prerelease**) with release notes → installable Android builds
+      published: `.apk` 160 MB, `.aab` 58 MB, `-debug.apk` 172 MB
+- [ ] **APK size is too large** — a 160 MB debug/release APK for a 2D game is mostly
+      export-template weight and both ABIs. The 58 MB AAB is acceptable for Play, but the
+      APK should be trimmed (per-ABI splits, strip debug symbols, check whether the
+      export template is being embedded) before any wider distribution.
 - [ ] **Tag `v1.0.0`** — deliberately NOT done. `v1.0.0` claims a shippable game, and
       Phase C (a human playtest on a device) has not happened. Tagging it now would be
       exactly the overclaiming this roadmap exists to correct.

@@ -126,6 +126,10 @@ jobs:
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: "OpenWorld RPG ${{ steps.ver.outputs.tag }}"
+          # 0.x tags are pre-releases by definition. Without this, a v0.x build
+          # lands as the repository's "Latest release" and reads as a shipped
+          # game — which is how the accidental v1.0.0 ended up looking official.
+          prerelease: ${{ startsWith(steps.ver.outputs.tag, 'v0.') }}
           body: |
             Installable Android builds (ARM64 + ARMv7), signed.
 
