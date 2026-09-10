@@ -8,7 +8,7 @@
       "slot": "weapon",
       "atk": 3,
       "stack": 1,
-      "value": 24,
+      "value": 53,
       "desc": "A branch with ambitions."
     },
     "rusty_dagger": {
@@ -18,7 +18,7 @@
       "slot": "weapon",
       "atk": 4,
       "stack": 1,
-      "value": 28,
+      "value": 57,
       "desc": "Sharp enough for slimes. Barely."
     },
     "short_sword": {
@@ -28,7 +28,7 @@
       "slot": "weapon",
       "atk": 4,
       "stack": 1,
-      "value": 28,
+      "value": 57,
       "desc": "A trusty blade. Better than sharp words."
     },
     "hunting_knife": {
@@ -39,7 +39,7 @@
       "atk": 3,
       "crit": 0.05,
       "stack": 1,
-      "value": 28,
+      "value": 57,
       "desc": "Kael's spare. Good for skinning, fine for stabbing."
     },
     "farmers_pitchfork": {
@@ -49,7 +49,7 @@
       "slot": "weapon",
       "atk": 4,
       "stack": 1,
-      "value": 28,
+      "value": 57,
       "desc": "Millhaven issue. Smells of hay."
     },
     "miners_pick": {
@@ -60,7 +60,7 @@
       "atk": 3,
       "hp": 8,
       "stack": 1,
-      "value": 28,
+      "value": 57,
       "desc": "Kilnrest steel. Doubles as a climbing tool."
     },
     "cloth_tunic": {
@@ -71,7 +71,7 @@
       "def": 2,
       "hp": 8,
       "stack": 1,
-      "value": 22,
+      "value": 51,
       "desc": "Home-woven. Better than nothing."
     },
     "leather_armor": {
@@ -81,7 +81,7 @@
       "slot": "armor",
       "def": 3,
       "stack": 1,
-      "value": 22,
+      "value": 51,
       "desc": "Boiled leather. Smells like adventure."
     },
     "padded_hood": {
@@ -92,7 +92,7 @@
       "def": 2,
       "hp": 10,
       "stack": 1,
-      "value": 23,
+      "value": 52,
       "desc": "Keeps the ash out of your eyes."
     },
     "travelers_boots": {
@@ -103,7 +103,7 @@
       "def": 1,
       "speed": 6,
       "stack": 1,
-      "value": 25,
+      "value": 54,
       "desc": "Broken in by someone who never came back."
     },
     "copper_ring": {
@@ -113,7 +113,7 @@
       "slot": "accessory",
       "hp": 12,
       "stack": 1,
-      "value": 17,
+      "value": 46,
       "desc": "Warm to the touch for no good reason."
     },
     "simple_charm": {
@@ -123,7 +123,7 @@
       "slot": "accessory",
       "mp": 12,
       "stack": 1,
-      "value": 16,
+      "value": 45,
       "desc": "A knot of string and a prayer."
     },
     "wooden_talisman": {
@@ -134,7 +134,7 @@
       "def": 2,
       "hp": 6,
       "stack": 1,
-      "value": 21,
+      "value": 50,
       "desc": "Carved with a name worn smooth."
     },
     "health_potion": {
@@ -143,7 +143,7 @@
       "type": "consumable",
       "heal": 40,
       "stack": 10,
-      "value": 12,
+      "value": 14,
       "desc": "Restores 40 HP."
     },
     "mana_potion": {
@@ -152,7 +152,7 @@
       "type": "consumable",
       "restore_mp": 30,
       "stack": 10,
-      "value": 12,
+      "value": 14,
       "desc": "Restores 30 MP."
     },
     "bread": {
@@ -161,7 +161,7 @@
       "type": "consumable",
       "heal": 15,
       "stack": 10,
-      "value": 12,
+      "value": 14,
       "desc": "Restores 15 HP. Tastes like a kitchen."
     },
     "bandage": {
@@ -170,7 +170,7 @@
       "type": "consumable",
       "heal": 25,
       "stack": 10,
-      "value": 12,
+      "value": 14,
       "desc": "Stops the bleeding. Mostly."
     },
     "iron_sword": {
@@ -180,7 +180,7 @@
       "slot": "weapon",
       "atk": 8,
       "stack": 1,
-      "value": 78,
+      "value": 2965,
       "desc": "Forged in the Barrens. Keeps its edge."
     },
     "barrens_scimitar": {
@@ -191,7 +191,7 @@
       "atk": 7,
       "crit": 0.06,
       "stack": 1,
-      "value": 79,
+      "value": 2966,
       "desc": "Curved for salvage work. Works on people too."
     },
     "frost_hatchet": {
@@ -202,7 +202,7 @@
       "atk": 6,
       "speed": 5,
       "stack": 1,
-      "value": 78,
+      "value": 2965,
       "desc": "Chips ice and armor alike."
     },
     "wardens_spear": {
@@ -213,7 +213,7 @@
       "atk": 7,
       "def": 2,
       "stack": 1,
-      "value": 81,
+      "value": 2968,
       "desc": "Issued by the Citadel. Long reach, longer history."
     },
     "mill_hammer": {
@@ -224,7 +224,7 @@
       "atk": 7,
       "speed": -4,
       "stack": 1,
-      "value": 81,
+      "value": 2968,
       "desc": "Heavy. Slow. Final."
     },
     "scavengers_blade": {
@@ -235,7 +235,7 @@
       "atk": 6,
       "hp": 20,
       "stack": 1,
-      "value": 80,
+      "value": 2967,
       "desc": "Ground down from something larger."
     },
     "chain_vest": {
@@ -246,7 +246,7 @@
       "def": 6,
       "hp": 12,
       "stack": 1,
-      "value": 71,
+      "value": 2958,
       "desc": "Rings of Ashport salvage."
     },
     "hunters_cloak": {
@@ -257,7 +257,7 @@
       "def": 4,
       "speed": 8,
       "stack": 1,
-      "value": 72,
+      "value": 2959,
       "desc": "Grey as the ash road at dawn."
     },
     "frosthide_jerkin": {
@@ -268,7 +268,7 @@
       "def": 5,
       "hp": 20,
       "stack": 1,
-      "value": 72,
+      "value": 2959,
       "desc": "The hide still hates the cold."
     },
     "quilted_gambeson": {
@@ -278,7 +278,7 @@
       "slot": "armor",
       "def": 7,
       "stack": 1,
-      "value": 69,
+      "value": 2956,
       "desc": "Thirty layers of cloth. Surprisingly stubborn."
     },
     "ember_ward_pendant": {
@@ -289,7 +289,7 @@
       "def": 3,
       "mp": 20,
       "stack": 1,
-      "value": 62,
+      "value": 2949,
       "desc": "Keeps the heat off your neck."
     },
     "traveler_ring": {
@@ -299,7 +299,7 @@
       "slot": "accessory",
       "speed": 12,
       "stack": 1,
-      "value": 65,
+      "value": 2952,
       "desc": "Lightens the road ahead."
     },
     "scholars_lens": {
@@ -310,7 +310,7 @@
       "mp": 24,
       "mp_regen": 0.3,
       "stack": 1,
-      "value": 63,
+      "value": 2950,
       "desc": "Brother Ashe ground it himself."
     },
     "trappers_belt": {
@@ -320,7 +320,7 @@
       "slot": "accessory",
       "hp": 24,
       "stack": 1,
-      "value": 56,
+      "value": 2943,
       "desc": "Hooks for everything you'll ever need."
     },
     "greater_health_potion": {
@@ -329,7 +329,7 @@
       "type": "consumable",
       "heal": 90,
       "stack": 10,
-      "value": 45,
+      "value": 130,
       "desc": "Restores 90 HP."
     },
     "greater_mana_potion": {
@@ -338,7 +338,7 @@
       "type": "consumable",
       "restore_mp": 70,
       "stack": 10,
-      "value": 45,
+      "value": 130,
       "desc": "Restores 70 MP."
     },
     "elixir_of_haste": {
@@ -348,7 +348,7 @@
       "heal": 20,
       "restore_mp": 20,
       "stack": 10,
-      "value": 45,
+      "value": 130,
       "desc": "A short burst of speed for the long walk home."
     },
     "ashsteel_longsword": {
@@ -359,7 +359,7 @@
       "atk": 13,
       "crit": 0.07,
       "stack": 1,
-      "value": 220,
+      "value": 8038,
       "desc": "Quenched in slag. It remembers being slag."
     },
     "rimeguard_axe": {
@@ -370,7 +370,7 @@
       "atk": 12,
       "def": 3,
       "stack": 1,
-      "value": 220,
+      "value": 8038,
       "desc": "Cold enough to bite through whatever it hits."
     },
     "choirbane_mace": {
@@ -381,7 +381,7 @@
       "atk": 13,
       "hp": 20,
       "stack": 1,
-      "value": 224,
+      "value": 8042,
       "desc": "Made for breaking rites, and the ribcages that perform them."
     },
     "warden_steel_saber": {
@@ -392,7 +392,7 @@
       "atk": 11,
       "crit": 0.1,
       "stack": 1,
-      "value": 214,
+      "value": 8032,
       "desc": "Citadel-forged. The edge knows its business."
     },
     "leechthorn_dagger": {
@@ -403,7 +403,7 @@
       "atk": 8,
       "lifesteal": 0.04,
       "stack": 1,
-      "value": 205,
+      "value": 8023,
       "desc": "It drinks. You mend."
     },
     "emberglass_blade": {
@@ -414,7 +414,7 @@
       "atk": 12,
       "mp": 20,
       "stack": 1,
-      "value": 217,
+      "value": 8035,
       "desc": "Volcanic glass, still faintly warm."
     },
     "slaghide_cuirass": {
@@ -425,7 +425,7 @@
       "def": 10,
       "hp": 35,
       "stack": 1,
-      "value": 212,
+      "value": 8030,
       "desc": "Hide tanned in the Slagworks. Nothing chews through it."
     },
     "frostguard_plate": {
@@ -436,7 +436,7 @@
       "def": 12,
       "speed": -4,
       "stack": 1,
-      "value": 208,
+      "value": 8026,
       "desc": "Loud, cold, and worth it."
     },
     "cinderweave_robe": {
@@ -448,7 +448,7 @@
       "mp": 40,
       "mp_regen": 0.4,
       "stack": 1,
-      "value": 209,
+      "value": 8027,
       "desc": "Woven with thread that will not burn."
     },
     "nightsilhouette_cloak": {
@@ -459,7 +459,7 @@
       "def": 5,
       "speed": 16,
       "stack": 1,
-      "value": 204,
+      "value": 8022,
       "desc": "You are harder to see. That is the point."
     },
     "bloodbound_ring": {
@@ -470,7 +470,7 @@
       "hp": 20,
       "lifesteal": 0.05,
       "stack": 1,
-      "value": 185,
+      "value": 8003,
       "desc": "A promise between you and your own pulse."
     },
     "ashwalkers_torc": {
@@ -481,7 +481,7 @@
       "def": 4,
       "hp": 30,
       "stack": 1,
-      "value": 188,
+      "value": 8006,
       "desc": "Worn by everyone who walked the slag and came back."
     },
     "seers_eye": {
@@ -492,7 +492,7 @@
       "mp": 45,
       "mp_regen": 0.5,
       "stack": 1,
-      "value": 193,
+      "value": 8011,
       "desc": "It blinks when you are not looking."
     },
     "duelists_signet": {
@@ -503,7 +503,7 @@
       "atk": 3,
       "crit": 0.12,
       "stack": 1,
-      "value": 182,
+      "value": 8000,
       "desc": "Won, not bought."
     },
     "chilled_greater_potion": {
@@ -512,7 +512,7 @@
       "type": "consumable",
       "heal": 180,
       "stack": 10,
-      "value": 160,
+      "value": 874,
       "desc": "Restores 180 HP. Goes down cold."
     },
     "wardens_oath": {
@@ -524,7 +524,7 @@
       "def": 5,
       "crit": 0.08,
       "stack": 1,
-      "value": 628,
+      "value": 18009,
       "desc": "Sworn weapon of the Citadel. It has opinions."
     },
     "choir_sever": {
@@ -535,7 +535,7 @@
       "atk": 22,
       "hp": 30,
       "stack": 1,
-      "value": 627,
+      "value": 18008,
       "desc": "Built by someone who had heard enough singing."
     },
     "hollowfang": {
@@ -546,7 +546,7 @@
       "atk": 16,
       "lifesteal": 0.07,
       "stack": 1,
-      "value": 608,
+      "value": 17989,
       "desc": "The teeth of the Crypts, set in a hilt."
     },
     "rimevault_greatsword": {
@@ -557,7 +557,7 @@
       "atk": 23,
       "speed": -6,
       "stack": 1,
-      "value": 626,
+      "value": 18007,
       "desc": "Heavy as a closing door."
     },
     "emberheart_axe": {
@@ -569,7 +569,7 @@
       "mp": 40,
       "crit": 0.1,
       "stack": 1,
-      "value": 622,
+      "value": 18003,
       "desc": "The head is a coal that never went out."
     },
     "vein_drinker": {
@@ -580,7 +580,7 @@
       "atk": 15,
       "lifesteal": 0.09,
       "stack": 1,
-      "value": 610,
+      "value": 17991,
       "desc": "The Choir's own blade, turned around."
     },
     "monastery_aegis": {
@@ -591,7 +591,7 @@
       "def": 18,
       "hp": 60,
       "stack": 1,
-      "value": 612,
+      "value": 17993,
       "desc": "Half of it is rubble, and it still holds."
     },
     "vesselward_plate": {
@@ -603,7 +603,7 @@
       "hp": 70,
       "speed": -4,
       "stack": 1,
-      "value": 617,
+      "value": 17998,
       "desc": "Made to keep something in, originally."
     },
     "choir_shroud": {
@@ -615,7 +615,7 @@
       "mp": 70,
       "mp_regen": 0.7,
       "stack": 1,
-      "value": 604,
+      "value": 17985,
       "desc": "It hums if you stand too still."
     },
     "ashveil_mantle": {
@@ -627,7 +627,7 @@
       "hp": 30,
       "speed": 24,
       "stack": 1,
-      "value": 606,
+      "value": 17987,
       "desc": "You leave no tracks in the ash."
     },
     "heart_of_the_warden": {
@@ -638,7 +638,7 @@
       "def": 6,
       "hp": 80,
       "stack": 1,
-      "value": 580,
+      "value": 17961,
       "desc": "Still beating. Politely."
     },
     "vessel_splinter": {
@@ -649,7 +649,7 @@
       "mp": 80,
       "mp_regen": 0.8,
       "stack": 1,
-      "value": 576,
+      "value": 17957,
       "desc": "A shard of someone who was almost a god."
     },
     "bloodmoon_amulet": {
@@ -660,7 +660,7 @@
       "hp": 40,
       "lifesteal": 0.08,
       "stack": 1,
-      "value": 564,
+      "value": 17945,
       "desc": "Hangs heavy on the nights it matters."
     },
     "duskwarden_ring": {
@@ -671,7 +671,7 @@
       "atk": 6,
       "crit": 0.18,
       "stack": 1,
-      "value": 560,
+      "value": 17941,
       "desc": "Duelists retired on this ring's reputation alone."
     },
     "embers_of_millhaven": {
@@ -684,7 +684,7 @@
       "hp": 25,
       "crit": 0.1,
       "stack": 1,
-      "value": 1666,
+      "value": 27725,
       "desc": "Forged from what was left of the village. It is warm."
     },
     "worlds_end": {
@@ -696,7 +696,7 @@
       "hp": 40,
       "speed": -8,
       "stack": 1,
-      "value": 1667,
+      "value": 27726,
       "desc": "Somebody ended a war with this. Twice."
     },
     "sanguine_covenant": {
@@ -707,7 +707,7 @@
       "atk": 26,
       "lifesteal": 0.12,
       "stack": 1,
-      "value": 1646,
+      "value": 27705,
       "desc": "The pact is simple: it feeds, you live."
     },
     "lifedrinker_cleaver": {
@@ -719,7 +719,7 @@
       "hp": 40,
       "lifesteal": 0.1,
       "stack": 1,
-      "value": 1668,
+      "value": 27727,
       "desc": "Drawn from the Choir's own vault."
     },
     "skyrend_spear": {
@@ -730,7 +730,7 @@
       "atk": 29,
       "crit": 0.15,
       "stack": 1,
-      "value": 1634,
+      "value": 27693,
       "desc": "Cast down from the Citadel at something large."
     },
     "wardens_last_stand": {
@@ -741,7 +741,7 @@
       "def": 28,
       "hp": 110,
       "stack": 1,
-      "value": 1651,
+      "value": 27710,
       "desc": "The Citadel's last set. It fits you, which is strange."
     },
     "choirbreakers_regalia": {
@@ -753,7 +753,7 @@
       "hp": 90,
       "speed": 10,
       "stack": 1,
-      "value": 1637,
+      "value": 27696,
       "desc": "Worn by the one who finally said no."
     },
     "frosthollow_crown": {
@@ -765,7 +765,7 @@
       "mp": 90,
       "mp_regen": 1.0,
       "stack": 1,
-      "value": 1636,
+      "value": 27695,
       "desc": "Cold enough to be a defence."
     },
     "wrens_locket": {
@@ -777,7 +777,7 @@
       "hp": 100,
       "speed": 12,
       "stack": 1,
-      "value": 1604,
+      "value": 27663,
       "desc": "She threw it to you on the stairs."
     },
     "new_dawn_band": {
@@ -790,7 +790,7 @@
       "hp": 40,
       "mp": 40,
       "stack": 1,
-      "value": 1625,
+      "value": 27684,
       "desc": "Made from the ring that started all this."
     },
     "ashen_choir_heart": {
@@ -801,7 +801,7 @@
       "hp": 60,
       "lifesteal": 0.15,
       "stack": 1,
-      "value": 1575,
+      "value": 27634,
       "desc": "It never stopped singing. Now it sings for you."
     },
     "slime_gel": {
@@ -809,7 +809,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Sticky, faintly warm, sells fine."
     },
     "emberling_ember": {
@@ -817,7 +817,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "A coal that stays lit in your pocket."
     },
     "ash_shard": {
@@ -825,7 +825,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Sharpened volcanic glass. Everywhere out here."
     },
     "bone_fragment": {
@@ -833,7 +833,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Old. Longer than a person's."
     },
     "torn_cloth": {
@@ -841,7 +841,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Choir vestments, mostly. Ashport buys them."
     },
     "grain_sack": {
@@ -849,7 +849,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Oakstead's mill still turns."
     },
     "cave_moss": {
@@ -857,7 +857,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Glows faintly. Alchemists argue about why."
     },
     "scrap_iron": {
@@ -865,7 +865,7 @@
       "rarity": "common",
       "type": "material",
       "stack": 1,
-      "value": 12,
+      "value": 42,
       "desc": "Held together by rust and hope."
     },
     "goblin_fang": {
@@ -873,7 +873,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "Worn as a necklace by someone who no longer needs it."
     },
     "raider_insignia": {
@@ -881,7 +881,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "Barrens scouts wear these. Cinderhold pays for them."
     },
     "shaman_charm": {
@@ -889,7 +889,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "It hums when the Choir is near."
     },
     "frost_crystal": {
@@ -897,7 +897,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "Cold that does not melt."
     },
     "scorched_relic": {
@@ -905,7 +905,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "Somebody's act of faith, twice burned."
     },
     "fetid_gland": {
@@ -913,7 +913,7 @@
       "rarity": "uncommon",
       "type": "material",
       "stack": 1,
-      "value": 45,
+      "value": 390,
       "desc": "Sells better than it smells. Barely."
     },
     "choir_sigil": {
@@ -921,7 +921,7 @@
       "rarity": "rare",
       "type": "material",
       "stack": 1,
-      "value": 160,
+      "value": 2622,
       "desc": "Proof of rank in the Ashen Choir."
     },
     "warden_steel_ingot": {
@@ -929,7 +929,7 @@
       "rarity": "rare",
       "type": "material",
       "stack": 1,
-      "value": 160,
+      "value": 2622,
       "desc": "Skyreach alloy. Rationed for forty years."
     },
     "emberglass_shard": {
@@ -937,7 +937,7 @@
       "rarity": "rare",
       "type": "material",
       "stack": 1,
-      "value": 160,
+      "value": 2622,
       "desc": "Cut from the Slagworks' own floor."
     },
     "rime_core": {
@@ -945,7 +945,7 @@
       "rarity": "rare",
       "type": "material",
       "stack": 1,
-      "value": 160,
+      "value": 2622,
       "desc": "The heart of a thing that lived in the ice."
     },
     "hollow_relic": {
@@ -953,7 +953,7 @@
       "rarity": "mythical",
       "type": "material",
       "stack": 1,
-      "value": 520,
+      "value": 4863,
       "desc": "From the Crypts. It remembers your name."
     },
     "vessel_shard": {
@@ -961,7 +961,7 @@
       "rarity": "mythical",
       "type": "material",
       "stack": 1,
-      "value": 520,
+      "value": 4863,
       "desc": "A splinter of someone groomed to be a god."
     },
     "choir_ledger": {
@@ -969,7 +969,7 @@
       "rarity": "mythical",
       "type": "material",
       "stack": 1,
-      "value": 520,
+      "value": 4863,
       "desc": "Names, dates, and what was done to them."
     },
     "warden_core": {
@@ -977,7 +977,7 @@
       "rarity": "legendary",
       "type": "material",
       "stack": 1,
-      "value": 1500,
+      "value": 9726,
       "desc": "The Warden's binding, cut loose at last."
     },
     "first_flame": {
@@ -985,7 +985,7 @@
       "rarity": "legendary",
       "type": "material",
       "stack": 1,
-      "value": 1500,
+      "value": 9726,
       "desc": "Whatever lit the Slagworks. Still lit."
     },
     "bonecrusher_maul": {
@@ -996,7 +996,7 @@
       "atk": 3,
       "crit": 0.02,
       "stack": 1,
-      "value": 26,
+      "value": 55,
       "desc": "Crypt-issue. Blunt on purpose."
     },
     "slingshot": {
@@ -1007,7 +1007,7 @@
       "atk": 2,
       "speed": 3,
       "stack": 1,
-      "value": 25,
+      "value": 54,
       "desc": "For children, and for slimes."
     },
     "quilted_cap": {
@@ -1018,7 +1018,7 @@
       "def": 2,
       "hp": 6,
       "stack": 1,
-      "value": 21,
+      "value": 50,
       "desc": "Better than a bare head."
     },
     "hide_wraps": {
@@ -1028,7 +1028,7 @@
       "slot": "armor",
       "def": 2,
       "stack": 1,
-      "value": 19,
+      "value": 48,
       "desc": "Wrapped until the swelling went down."
     },
     "tin_ring": {
@@ -1039,7 +1039,7 @@
       "def": 1,
       "mp": 6,
       "stack": 1,
-      "value": 17,
+      "value": 46,
       "desc": "Worthless. Sentimental."
     },
     "dried_meat": {
@@ -1048,7 +1048,7 @@
       "type": "consumable",
       "heal": 20,
       "stack": 10,
-      "value": 12,
+      "value": 14,
       "desc": "Restores 20 HP. Chewy."
     },
     "scout_trappings": {
@@ -1059,7 +1059,7 @@
       "def": 4,
       "speed": 10,
       "stack": 1,
-      "value": 75,
+      "value": 2962,
       "desc": "Cut for running. You will run."
     },
     "shaman_wrap": {
@@ -1070,7 +1070,7 @@
       "def": 3,
       "mp": 22,
       "stack": 1,
-      "value": 63,
+      "value": 2950,
       "desc": "Frosthollow wool, blessed in a way you can't verify."
     },
     "dungeoneers_helm": {
@@ -1081,7 +1081,7 @@
       "def": 6,
       "hp": 8,
       "stack": 1,
-      "value": 69,
+      "value": 2956,
       "desc": "A lamp bracket, mostly."
     },
     "pickpockets_ring": {
@@ -1092,7 +1092,7 @@
       "speed": 9,
       "crit": 0.04,
       "stack": 1,
-      "value": 63,
+      "value": 2950,
       "desc": "Sized for someone else's finger."
     },
     "smugglers_satchel": {
@@ -1103,7 +1103,7 @@
       "hp": 18,
       "speed": 4,
       "stack": 1,
-      "value": 60,
+      "value": 2947,
       "desc": "False bottom, obviously."
     },
     "elixir_of_iron": {
@@ -1113,7 +1113,7 @@
       "heal": 40,
       "restore_mp": 40,
       "stack": 10,
-      "value": 45,
+      "value": 130,
       "desc": "Tastes like a forge. Restores 40 HP and 40 MP."
     },
     "warden_pike": {
@@ -1124,7 +1124,7 @@
       "atk": 12,
       "def": 4,
       "stack": 1,
-      "value": 224,
+      "value": 8042,
       "desc": "Formation weapon. One person can hold a stair."
     },
     "choir_stiletto": {
@@ -1135,7 +1135,7 @@
       "atk": 10,
       "crit": 0.13,
       "stack": 1,
-      "value": 212,
+      "value": 8030,
       "desc": "Made for a rite that required no noise."
     },
     "slagplate_greaves": {
@@ -1146,7 +1146,7 @@
       "def": 9,
       "hp": 25,
       "stack": 1,
-      "value": 203,
+      "value": 8021,
       "desc": "Walk through the slag. Slowly."
     },
     "archivists_spectacles": {
@@ -1157,7 +1157,7 @@
       "mp": 30,
       "mp_regen": 0.6,
       "stack": 1,
-      "value": 191,
+      "value": 8009,
       "desc": "Let you read what the Choir wanted forgotten."
     },
     "greater_elixir": {
@@ -1167,7 +1167,7 @@
       "heal": 150,
       "restore_mp": 90,
       "stack": 10,
-      "value": 160,
+      "value": 874,
       "desc": "Restores 150 HP and 90 MP."
     },
     "vessels_judgement": {
@@ -1179,7 +1179,7 @@
       "def": 5,
       "mp": 25,
       "stack": 1,
-      "value": 626,
+      "value": 18007,
       "desc": "It was meant for Wren. It answered to you."
     },
     "cryptwarden_shield": {
@@ -1190,7 +1190,7 @@
       "def": 20,
       "hp": 65,
       "stack": 1,
-      "value": 621,
+      "value": 18002,
       "desc": "The Crypts' own door, cut down to fit an arm."
     },
     "skyrunners_anklet": {
@@ -1201,7 +1201,7 @@
       "hp": 20,
       "speed": 30,
       "stack": 1,
-      "value": 580,
+      "value": 17961,
       "desc": "Citadel couriers wear these up the switchbacks."
     },
     "phoenix_elixir": {
@@ -1210,7 +1210,7 @@
       "type": "consumable",
       "heal": 320,
       "stack": 10,
-      "value": 520,
+      "value": 1621,
       "desc": "Restores 320 HP. Once it has saved you, it is gone."
     },
     "dawnbreaker": {
@@ -1222,7 +1222,7 @@
       "hp": 30,
       "crit": 0.14,
       "stack": 1,
-      "value": 1656,
+      "value": 27715,
       "desc": "It only rises once a day. You only need it once."
     },
     "aegis_of_millhaven": {
@@ -1233,7 +1233,7 @@
       "def": 26,
       "hp": 105,
       "stack": 1,
-      "value": 1642,
+      "value": 27701,
       "desc": "The camp's fire, and everyone who warmed at it."
     }
   },

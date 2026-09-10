@@ -4,6 +4,13 @@
 Design rules (checked by tests/monster_test.gd at runtime):
 
   * every archetype declares `tier` (1..6), `biome` and `level_band`
+  * Phase F7: hp, damage, xp and gold are DERIVED from the player power curve
+    (tools/player_model.py) evaluated at the middle of the archetype's own level
+    band, not hand-picked. The hand-written table below still decides each
+    monster's *relative* build inside its tier (a shaman is squishier than a
+    brute, a wolf is faster than a husk); the curve decides the absolute numbers,
+    so "how long does a fight take" and "how many kills is a level" are design
+    inputs instead of accidents.
   * placement is data-driven: biome spawn tables only reference archetypes whose
     band covers that biome's level range, and dungeon floors only reference
     archetypes within their depth band — no monster spawns outside its band
@@ -17,8 +24,81 @@ Design rules (checked by tests/monster_test.gd at runtime):
 import collections
 import json
 import os
+import statistics
+import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import player_model  # noqa: E402  (Phase F7: stats come from the power curve)
+
+
+def _roles(rows):
+    """Turn the authored table's hp/dmg/xp into within-tier *relative* weights.
+
+    The hand-written numbers were a design intent ("this one is beefy"), but they
+    were also the absolute truth, which is how the roster ended up dying in half a
+    swing. Keeping only the ratios preserves the intent and lets the curve set the
+    scale. Clamped so no single monster becomes an outlier by accident.
+    """
+    per = collections.defaultdict(lambda: {"hp": [], "dmg": [], "xp": [], "gold": []})
+    for r in rows:
+        tier = r[2]
+        per[tier]["hp"].append(float(r[5]))
+        per[tier]["dmg"].append(float(r[6]))
+        per[tier]["xp"].append(float(r[8]))
+        per[tier]["gold"].append(sum(r[9]) / 2.0)
+    out = {}
+    for r in rows:
+        tier = r[2]
+        med = {k: (statistics.median(v) if v else 1.0) for k, v in per[tier].items()}
+        rol = {
+            "hp": _clamp(float(r[5]) / max(0.01, med["hp"])),
+            "dmg": _clamp(float(r[6]) / max(0.01, med["dmg"])),
+            "xp": _clamp(float(r[8]) / max(0.01, med["xp"])),
+            "gold": _clamp((sum(r[9]) / 2.0) / max(0.01, med["gold"])),
+        }
+        out[r[0]] = rol
+    return out
+
+
+def _clamp(v, lo=0.7, hi=2.0):
+    ## Floor at 0.7: the authored table's squishiest roles (a 14-hp emberling, a
+    ## 26-hp shaman) were 0.45 of their tier's median, which put them under two
+    ## swings and near-unkillable-player territory — too far from the curve to
+    ## read as a fight at all. Ceiling at 2.0 keeps any one monster from being a
+    ## wall by accident. The 0.7-2.0 spread is what is left of "this one is
+    ## beefy, that one is a caster".
+    return max(lo, min(hi, v))
+
+
+def _field_stats(mid, tier, band, rol):
+    """The absolute numbers for one field monster."""
+    t = player_model.monster_targets(tier, band)
+    hp = t["hp"] * rol["hp"]
+    dmg = t["damage"] * rol["dmg"]
+    xp = t["xp"] * rol["xp"]
+    gold = xp * player_model.GOLD_PER_XP * rol["gold"]
+    return {
+        "hp": round(hp),
+        "dmg": round(dmg, 1),
+        "xp": int(round(xp)),
+        "gold": (int(round(gold * 0.75)), int(round(gold * 1.25))),
+        "target": t,
+    }
+
+
+def _boss_stats(mid, tier, band, rol):
+    """Bosses come straight off the ladder: seconds of reference-player damage,
+    and how many of the boss's hits the player is meant to survive."""
+    t = player_model.boss_targets(mid)
+    xp = player_model.xp_to_next(t["level"]) * 0.35
+    return {
+        "hp": round(t["hp"]),
+        "dmg": round(t["damage"], 1),
+        "xp": int(round(xp)),
+        "gold": (int(round(xp * 0.45)), int(round(xp * 0.70))),
+        "target": t,
+    }
 
 # Rarity weights for the bonus gear roll, per tier. Relative weights inside one
 # table; a table of all zeros means "this monster never drops bonus gear".
@@ -203,20 +283,26 @@ def main() -> None:
     )
     arch = collections.OrderedDict()
 
+    roles = _roles(MONSTERS)
     for (mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
          behaviour, items, floor_mult, color) in MONSTERS:
-        arch[mid] = _entry(mid, name, tier, biome, band, hp, dmg, speed, xp, gold,
-                           sheet, scale, behaviour, items, floor_mult, color,
-                           RARITY_BY_TIER[tier], boss=False, phases=[])
+        st = _field_stats(mid, tier, band, roles[mid])
+        arch[mid] = _entry(mid, name, tier, biome, band, st["hp"], st["dmg"], speed,
+                           st["xp"], st["gold"], sheet, scale, behaviour, items,
+                           floor_mult, color, RARITY_BY_TIER[tier], boss=False,
+                           phases=[],
+                           balance=_balance_note(tier, band, st, roles[mid]))
 
     for (mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
          phases, items, floor_mult, color) in BOSSES:
         boss_table = rt(0, 100, 60 + tier * 12, 10 * tier, 1.5 * tier)
         if mid == "ember_warden":
             boss_table = rt(0, 0, 100, 100, 25)
-        arch[mid] = _entry(mid, name, tier, biome, band, hp, dmg, speed, xp, gold,
-                           sheet, scale, "boss", items, floor_mult, color,
-                           boss_table, boss=True, phases=phases)
+        st = _boss_stats(mid, tier, band, None)
+        arch[mid] = _entry(mid, name, tier, biome, band, st["hp"], st["dmg"], speed,
+                           st["xp"], st["gold"], sheet, scale, "boss", items,
+                           floor_mult, color, boss_table, boss=True, phases=phases,
+                           balance=_balance_note(tier, band, st, None, boss=True))
 
     # --- spawn placement tables (biome -> archetypes whose band overlaps) ----
     spawns = collections.OrderedDict()
@@ -251,11 +337,43 @@ def main() -> None:
     for b, v in spawns.items():
         print("  %-8s L%02d-%02d: %s" % (b, v["level_band"][0], v["level_band"][1],
                                           ", ".join(v["archetypes"])))
-    print("  boss escalation (hp):", [arch[b]["max_hp"] for b in bosses])
+    print("  boss escalation (hp):", [int(arch[b]["max_hp"]) for b in bosses])
+    print("  derived from the player curve at each band's midpoint:")
+    for b, v in arch.items():
+        if v.get("boss"):
+            continue
+        bal = v["balance"]
+        print("    %-14s L%02d-%02d hp %6d  dmg %6.1f  xp %6d  (%.1f swings, %.1f hits "
+              "survived, %.0f kills/level)" % (
+                  b, v["level_band"][0], v["level_band"][1], int(v["max_hp"]),
+                  v["contact_damage"], v["xp_reward"], bal["swings"], bal["survival"],
+                  player_model.KILLS_PER_LEVEL[int(v["tier"])]))
+    for b in bosses:
+        bal = arch[b]["balance"]
+        print("    %-14s gate L%3d hp %6d  dmg %6.1f  (%.0f s fight, %.1f hits survived)" % (
+            b, arch[b]["level_band"][0], int(arch[b]["max_hp"]), arch[b]["contact_damage"],
+            bal["seconds"], bal["survival"]))
+
+
+def _balance_note(tier, band, st, rol, boss=False):
+    """The targets this entry was authored to hit, stored in the data so the
+    report and any future retune can see the intent, not just the result."""
+    p = st["target"]["player"]
+    note = collections.OrderedDict()
+    note["level"] = st["target"]["level"]
+    note["lifesteal_on_gear"] = False
+    if boss:
+        note["seconds"] = round(st["hp"] / max(1.0, p["dps"]), 1)
+        note["survival"] = round(p["hp"] / max(1.0, st["dmg"] - p["def"] * 0.5), 1)
+    else:
+        note["swings"] = round(st["target"]["hp"] / max(1.0, p["hit"]), 1)
+        note["survival"] = round(p["hp"] / max(1.0, st["dmg"] - p["def"] * 0.5), 1)
+    return note
 
 
 def _entry(mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
-           behaviour, items, floor_mult, color, rarity_table, boss, phases):
+           behaviour, items, floor_mult, color, rarity_table, boss, phases,
+           balance=None):
     e = collections.OrderedDict()
     e["display_name"] = name
     e["tier"] = tier
@@ -274,6 +392,8 @@ def _entry(mid, name, tier, biome, band, hp, dmg, speed, xp, gold, sheet, scale,
         e["projectile_damage"] = float(dmg)
         e["projectile_speed"] = 240.0 + tier * 12.0
     e["floor_multiplier"] = float(floor_mult)
+    if balance is not None:
+        e["balance"] = balance
     e["sheet"] = "res://assets/lpc/%s.png" % sheet
     e["sprite_scale"] = float(scale)
     if boss:

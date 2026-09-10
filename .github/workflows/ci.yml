@@ -109,6 +109,12 @@ jobs:
           grep -q "streaming a chunk builds the secrets that live in it" secrets.log || { echo "::error::secrets do not spawn in the world"; exit 1; }
           echo "world secrets ok"
 
+      - name: "Balance: economy + power pass stays inside its bands (Phase F7)"
+        run: |
+          python3 tools/balance_report.py --check | tee balance.log
+          grep -q "BALANCE CHECK: PASSED" balance.log || { echo "::error::balance targets outside their band"; exit 1; }
+          echo "balance ok"
+
       - name: Audio integrity (every play_music/play_sfx id is registered)
         run: |
           timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/AudioTest.tscn | tee audio.log

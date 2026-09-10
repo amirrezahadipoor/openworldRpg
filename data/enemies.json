@@ -63,13 +63,13 @@
         1,
         8
       ],
-      "max_hp": 30.0,
+      "max_hp": 92.0,
       "move_speed": 95.0,
-      "contact_damage": 8.0,
+      "contact_damage": 21.5,
       "chase_radius": 340.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.25,
-      "xp_reward": 18,
+      "xp_reward": 48,
       "body_color": [
         0.78,
         0.28,
@@ -77,12 +77,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.11,
+      "balance": {
+        "level": 4,
+        "lifesteal_on_gear": false,
+        "swings": 3.0,
+        "survival": 9.5
+      },
       "sheet": "res://assets/lpc/enemy_goblin.png",
       "sprite_scale": 1.0,
       "drops": {
         "gold": [
-          2,
-          6
+          13,
+          21
         ],
         "items": [
           [
@@ -123,13 +129,13 @@
         1,
         8
       ],
-      "max_hp": 14.0,
+      "max_hp": 47.0,
       "move_speed": 220.0,
-      "contact_damage": 4.0,
+      "contact_damage": 11.3,
       "chase_radius": 340.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.25,
-      "xp_reward": 14,
+      "xp_reward": 38,
       "body_color": [
         0.95,
         0.45,
@@ -137,12 +143,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.09,
+      "balance": {
+        "level": 4,
+        "lifesteal_on_gear": false,
+        "swings": 3.0,
+        "survival": 24.8
+      },
       "sheet": "res://assets/lpc/enemy_skeleton.png",
       "sprite_scale": 0.8,
       "drops": {
         "gold": [
-          1,
-          4
+          7,
+          12
         ],
         "items": [
           [
@@ -183,13 +195,13 @@
         3,
         10
       ],
-      "max_hp": 22.0,
+      "max_hp": 76.0,
       "move_speed": 185.0,
-      "contact_damage": 6.0,
+      "contact_damage": 18.9,
       "chase_radius": 340.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.25,
-      "xp_reward": 20,
+      "xp_reward": 112,
       "body_color": [
         0.62,
         0.55,
@@ -197,12 +209,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.1,
+      "balance": {
+        "level": 6,
+        "lifesteal_on_gear": false,
+        "swings": 3.0,
+        "survival": 14.0
+      },
       "sheet": "res://assets/lpc/enemy_wolf.png",
       "sprite_scale": 0.95,
       "drops": {
         "gold": [
-          3,
-          7
+          37,
+          61
         ],
         "items": [
           [
@@ -247,13 +265,13 @@
         8,
         20
       ],
-      "max_hp": 20.0,
+      "max_hp": 89.0,
       "move_speed": 180.0,
-      "contact_damage": 6.0,
+      "contact_damage": 28.6,
       "chase_radius": 380.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.15,
-      "xp_reward": 22,
+      "xp_reward": 373,
       "body_color": [
         0.85,
         0.62,
@@ -261,12 +279,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.12,
+      "balance": {
+        "level": 14,
+        "lifesteal_on_gear": false,
+        "swings": 3.4,
+        "survival": 18.6
+      },
       "sheet": "res://assets/lpc/enemy_raider.png",
       "sprite_scale": 1.0,
       "drops": {
         "gold": [
-          3,
-          8
+          80,
+          133
         ],
         "items": [
           [
@@ -311,13 +335,13 @@
         10,
         22
       ],
-      "max_hp": 46.0,
+      "max_hp": 231.0,
       "move_speed": 78.0,
-      "contact_damage": 9.0,
+      "contact_damage": 49.8,
       "chase_radius": 380.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.15,
-      "xp_reward": 30,
+      "xp_reward": 646,
       "body_color": [
         0.45,
         0.55,
@@ -325,12 +349,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.13,
+      "balance": {
+        "level": 16,
+        "lifesteal_on_gear": false,
+        "swings": 3.4,
+        "survival": 9.8
+      },
       "sheet": "res://assets/lpc/enemy_husk.png",
       "sprite_scale": 1.05,
       "drops": {
         "gold": [
-          5,
-          11
+          201,
+          335
         ],
         "items": [
           [
@@ -383,28 +413,34 @@
         20,
         40
       ],
-      "max_hp": 26.0,
+      "max_hp": 240.0,
       "move_speed": 82.0,
-      "contact_damage": 5.0,
+      "contact_damage": 52.5,
       "chase_radius": 420.0,
       "attack_radius": 320.0,
       "attack_cooldown": 1.05,
-      "xp_reward": 30,
+      "xp_reward": 971,
       "body_color": [
         0.35,
         0.62,
         0.85
       ],
       "behavior": "ranged",
-      "projectile_damage": 5.0,
+      "projectile_damage": 52.5,
       "projectile_speed": 276.0,
       "floor_multiplier": 0.1,
+      "balance": {
+        "level": 30,
+        "lifesteal_on_gear": false,
+        "swings": 3.6,
+        "survival": 22.6
+      },
       "sheet": "res://assets/lpc/enemy_shaman.png",
       "sprite_scale": 1.0,
       "drops": {
         "gold": [
-          4,
-          10
+          178,
+          297
         ],
         "items": [
           [
@@ -453,13 +489,13 @@
         22,
         42
       ],
-      "max_hp": 58.0,
+      "max_hp": 379.0,
       "move_speed": 140.0,
-      "contact_damage": 11.0,
+      "contact_damage": 78.0,
       "chase_radius": 420.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.05,
-      "xp_reward": 40,
+      "xp_reward": 1412,
       "body_color": [
         0.55,
         0.7,
@@ -467,12 +503,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.14,
+      "balance": {
+        "level": 32,
+        "lifesteal_on_gear": false,
+        "swings": 3.6,
+        "survival": 12.0
+      },
       "sheet": "res://assets/lpc/enemy_lizard.png",
       "sprite_scale": 1.1,
       "drops": {
         "gold": [
-          6,
-          14
+          371,
+          618
         ],
         "items": [
           [
@@ -521,13 +563,13 @@
         24,
         45
       ],
-      "max_hp": 90.0,
+      "max_hp": 608.0,
       "move_speed": 105.0,
-      "contact_damage": 14.0,
+      "contact_damage": 103.1,
       "chase_radius": 420.0,
       "attack_radius": 56.0,
       "attack_cooldown": 1.05,
-      "xp_reward": 48,
+      "xp_reward": 1838,
       "body_color": [
         0.72,
         0.4,
@@ -535,12 +577,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.15,
+      "balance": {
+        "level": 34,
+        "lifesteal_on_gear": false,
+        "swings": 3.6,
+        "survival": 8.4
+      },
       "sheet": "res://assets/lpc/enemy_raider.png",
       "sprite_scale": 1.3,
       "drops": {
         "gold": [
-          8,
-          16
+          579,
+          965
         ],
         "items": [
           [
@@ -589,13 +637,13 @@
         40,
         65
       ],
-      "max_hp": 150.0,
+      "max_hp": 555.0,
       "move_speed": 120.0,
-      "contact_damage": 19.0,
+      "contact_damage": 113.8,
       "chase_radius": 460.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.95,
-      "xp_reward": 78,
+      "xp_reward": 2324,
       "body_color": [
         0.6,
         0.35,
@@ -603,12 +651,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.16,
+      "balance": {
+        "level": 52,
+        "lifesteal_on_gear": false,
+        "swings": 4.0,
+        "survival": 11.9
+      },
       "sheet": "res://assets/lpc/enemy_minotaur.png",
       "sprite_scale": 1.45,
       "drops": {
         "gold": [
-          12,
-          24
+          578,
+          963
         ],
         "items": [
           [
@@ -657,13 +711,13 @@
         45,
         68
       ],
-      "max_hp": 175.0,
+      "max_hp": 649.0,
       "move_speed": 100.0,
-      "contact_damage": 21.0,
+      "contact_damage": 136.8,
       "chase_radius": 460.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.95,
-      "xp_reward": 88,
+      "xp_reward": 2892,
       "body_color": [
         0.55,
         0.5,
@@ -671,12 +725,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.17,
+      "balance": {
+        "level": 56,
+        "lifesteal_on_gear": false,
+        "swings": 4.0,
+        "survival": 10.3
+      },
       "sheet": "res://assets/lpc/enemy_legion.png",
       "sprite_scale": 1.25,
       "drops": {
         "gold": [
-          14,
-          26
+          799,
+          1332
         ],
         "items": [
           [
@@ -721,28 +781,34 @@
         65,
         85
       ],
-      "max_hp": 240.0,
+      "max_hp": 657.0,
       "move_speed": 115.0,
-      "contact_damage": 27.0,
+      "contact_damage": 165.2,
       "chase_radius": 500.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.85,
-      "xp_reward": 140,
+      "xp_reward": 3025,
       "body_color": [
         0.62,
         0.72,
         0.92
       ],
       "behavior": "ranged",
-      "projectile_damage": 27.0,
+      "projectile_damage": 165.2,
       "projectile_speed": 300.0,
       "floor_multiplier": 0.16,
+      "balance": {
+        "level": 75,
+        "lifesteal_on_gear": false,
+        "swings": 4.4,
+        "survival": 12.0
+      },
       "sheet": "res://assets/lpc/enemy_revenant.png",
       "sprite_scale": 1.3,
       "drops": {
         "gold": [
-          18,
-          34
+          712,
+          1187
         ],
         "items": [
           [
@@ -787,13 +853,13 @@
         68,
         88
       ],
-      "max_hp": 420.0,
+      "max_hp": 1176.0,
       "move_speed": 92.0,
-      "contact_damage": 34.0,
+      "contact_damage": 213.7,
       "chase_radius": 500.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.85,
-      "xp_reward": 185,
+      "xp_reward": 4185,
       "body_color": [
         0.48,
         0.58,
@@ -801,12 +867,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.18,
+      "balance": {
+        "level": 78,
+        "lifesteal_on_gear": false,
+        "swings": 4.4,
+        "survival": 8.6
+      },
       "sheet": "res://assets/lpc/enemy_troll.png",
       "sprite_scale": 1.6,
       "drops": {
         "gold": [
-          22,
-          42
+          1212,
+          2020
         ],
         "items": [
           [
@@ -847,28 +919,34 @@
         85,
         100
       ],
-      "max_hp": 520.0,
+      "max_hp": 1128.0,
       "move_speed": 130.0,
-      "contact_damage": 42.0,
+      "contact_damage": 252.2,
       "chase_radius": 540.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.75,
-      "xp_reward": 260,
+      "xp_reward": 3841,
       "body_color": [
         0.85,
         0.45,
         0.3
       ],
       "behavior": "ranged",
-      "projectile_damage": 42.0,
+      "projectile_damage": 252.2,
       "projectile_speed": 312.0,
       "floor_multiplier": 0.15,
+      "balance": {
+        "level": 92,
+        "lifesteal_on_gear": false,
+        "swings": 4.8,
+        "survival": 9.6
+      },
       "sheet": "res://assets/lpc/enemy_archon.png",
       "sprite_scale": 1.45,
       "drops": {
         "gold": [
-          30,
-          55
+          952,
+          1587
         ],
         "items": [
           [
@@ -917,13 +995,13 @@
         88,
         100
       ],
-      "max_hp": 600.0,
+      "max_hp": 1318.0,
       "move_speed": 118.0,
-      "contact_damage": 46.0,
+      "contact_damage": 280.0,
       "chase_radius": 540.0,
       "attack_radius": 56.0,
       "attack_cooldown": 0.75,
-      "xp_reward": 300,
+      "xp_reward": 4544,
       "body_color": [
         0.8,
         0.5,
@@ -931,12 +1009,18 @@
       ],
       "behavior": "melee",
       "floor_multiplier": 0.16,
+      "balance": {
+        "level": 94,
+        "lifesteal_on_gear": false,
+        "swings": 4.8,
+        "survival": 8.5
+      },
       "sheet": "res://assets/lpc/boss_ashen_herald.png",
       "sprite_scale": 1.5,
       "drops": {
         "gold": [
-          35,
-          60
+          1259,
+          2098
         ],
         "items": [
           [
@@ -985,13 +1069,13 @@
         8,
         14
       ],
-      "max_hp": 260.0,
+      "max_hp": 2995.0,
       "move_speed": 105.0,
-      "contact_damage": 12.0,
+      "contact_damage": 24.6,
       "chase_radius": 380.0,
       "attack_radius": 320.0,
       "attack_cooldown": 1.15,
-      "xp_reward": 180,
+      "xp_reward": 1182,
       "body_color": [
         0.45,
         0.72,
@@ -999,6 +1083,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.05,
+      "balance": {
+        "level": 8,
+        "lifesteal_on_gear": false,
+        "seconds": 28.0,
+        "survival": 14.0
+      },
       "sheet": "res://assets/lpc/boss_goblin_king.png",
       "sprite_scale": 1.7,
       "boss": true,
@@ -1028,8 +1118,8 @@
       "rarity_weight": 3,
       "drops": {
         "gold": [
-          40,
-          70
+          532,
+          828
         ],
         "items": [
           [
@@ -1078,13 +1168,13 @@
         20,
         28
       ],
-      "max_hp": 620.0,
+      "max_hp": 9253.0,
       "move_speed": 118.0,
-      "contact_damage": 20.0,
+      "contact_damage": 47.2,
       "chase_radius": 420.0,
       "attack_radius": 320.0,
       "attack_cooldown": 1.05,
-      "xp_reward": 420,
+      "xp_reward": 6152,
       "body_color": [
         0.7,
         0.4,
@@ -1092,6 +1182,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.1,
+      "balance": {
+        "level": 20,
+        "lifesteal_on_gear": false,
+        "seconds": 38.0,
+        "survival": 13.0
+      },
       "sheet": "res://assets/lpc/boss_slag_wraith.png",
       "sprite_scale": 1.9,
       "boss": true,
@@ -1121,8 +1217,8 @@
       "rarity_weight": 4,
       "drops": {
         "gold": [
-          80,
-          130
+          2768,
+          4306
         ],
         "items": [
           [
@@ -1171,13 +1267,13 @@
         58,
         72
       ],
-      "max_hp": 1400.0,
+      "max_hp": 44079.0,
       "move_speed": 88.0,
-      "contact_damage": 30.0,
+      "contact_damage": 125.8,
       "chase_radius": 500.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.85,
-      "xp_reward": 900,
+      "xp_reward": 24005,
       "body_color": [
         0.72,
         0.7,
@@ -1185,6 +1281,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.11,
+      "balance": {
+        "level": 58,
+        "lifesteal_on_gear": false,
+        "seconds": 50.0,
+        "survival": 12.0
+      },
       "sheet": "res://assets/lpc/boss_bone_titan.png",
       "sprite_scale": 2.1,
       "boss": true,
@@ -1214,8 +1316,8 @@
       "rarity_weight": 6,
       "drops": {
         "gold": [
-          140,
-          210
+          10802,
+          16804
         ],
         "items": [
           [
@@ -1252,13 +1354,13 @@
         60,
         72
       ],
-      "max_hp": 2600.0,
+      "max_hp": 55808.0,
       "move_speed": 96.0,
-      "contact_damage": 42.0,
+      "contact_damage": 136.6,
       "chase_radius": 500.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.85,
-      "xp_reward": 1700,
+      "xp_reward": 25106,
       "body_color": [
         0.6,
         0.78,
@@ -1266,6 +1368,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.12,
+      "balance": {
+        "level": 60,
+        "lifesteal_on_gear": false,
+        "seconds": 62.0,
+        "survival": 11.0
+      },
       "sheet": "res://assets/lpc/boss_frost_giant.png",
       "sprite_scale": 2.2,
       "boss": true,
@@ -1295,8 +1403,8 @@
       "rarity_weight": 6,
       "drops": {
         "gold": [
-          220,
-          320
+          11298,
+          17574
         ],
         "items": [
           [
@@ -1337,13 +1445,13 @@
         76,
         88
       ],
-      "max_hp": 3600.0,
+      "max_hp": 90038.0,
       "move_speed": 112.0,
-      "contact_damage": 50.0,
+      "contact_damage": 188.3,
       "chase_radius": 500.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.85,
-      "xp_reward": 2600,
+      "xp_reward": 32451,
       "body_color": [
         0.72,
         0.35,
@@ -1351,6 +1459,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.13,
+      "balance": {
+        "level": 76,
+        "lifesteal_on_gear": false,
+        "seconds": 76.0,
+        "survival": 10.0
+      },
       "sheet": "res://assets/lpc/boss_choir_priest.png",
       "sprite_scale": 2.0,
       "boss": true,
@@ -1380,8 +1494,8 @@
       "rarity_weight": 6,
       "drops": {
         "gold": [
-          300,
-          430
+          14603,
+          22716
         ],
         "items": [
           [
@@ -1426,13 +1540,13 @@
         92,
         100
       ],
-      "max_hp": 5200.0,
+      "max_hp": 144308.0,
       "move_speed": 128.0,
-      "contact_damage": 58.0,
+      "contact_damage": 264.2,
       "chase_radius": 540.0,
       "attack_radius": 320.0,
       "attack_cooldown": 0.75,
-      "xp_reward": 4200,
+      "xp_reward": 40532,
       "body_color": [
         0.9,
         0.35,
@@ -1440,6 +1554,12 @@
       ],
       "behavior": "boss",
       "floor_multiplier": 0.0,
+      "balance": {
+        "level": 92,
+        "lifesteal_on_gear": false,
+        "seconds": 100.0,
+        "survival": 9.0
+      },
       "sheet": "res://assets/lpc/enemy_orc.png",
       "sprite_scale": 1.7,
       "boss": true,
@@ -1447,8 +1567,8 @@
       "rarity_weight": 7,
       "drops": {
         "gold": [
-          400,
-          600
+          18240,
+          28373
         ],
         "items": [
           [

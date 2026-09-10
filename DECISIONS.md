@@ -571,3 +571,66 @@ edit to `.github/workflows/*.yml` now gets:
 
 before the push, and a run reporting `name = .github/workflows/ci.yml` with
 `jobs: 0` means *the file did not parse* — not "the tests failed".
+
+**#44 — The balance pass: derived monster stats, one scaling law, prices that follow income (Phase F7)** · 2026-09-11
+The pass was run against the whole shipped game with `tools/balance_report.py`,
+which reads every number out of the data and the .gd sources rather than taking
+anyone's word for it. It found the game far outside its own intent, and the fixes
+went into the generators, so the curves rebuild themselves.
+
+**Before → after** (measured at band midpoints, reference player = one talent point
+per level spent evenly, median item of the tier their level has unlocked):
+
+| measured | before | after | target |
+|---|---|---|---|
+| swings to kill a field monster | 0.4 – 6.2 | 1.9 – 5.6 | 2 – 8 |
+| monster hits the player survives | 27 – 633 | 8.5 – 25 | 5 – 30 |
+| kills per level (L5→L60) | 76 – 581 | 18 – 30 | 12 – 45 |
+| boss fight length | 2.8 – 10.8 s | 28 – 100 s | 25 – 120 s |
+| boss HP, weakest→strongest | 260 → 5,200 | 2,995 → 144,308 | escalating |
+| field monster HP / damage | 14–600 / 4–46 | 47–1,318 / 11–280 | tier ladder |
+| monster xp per kill | 14–300 | 38–4,544 | 12–45 kills/level |
+| legendary gear price | 1,637 | 27,701 | ≈1 level of income |
+| gear price step per rarity | 3.7x, 3.2x, 3.0x, 2.7x | any ≥1.5x | ≥1.25x |
+
+- **Monster stats are derived, not typed.** `tools/gen_enemies.py` still owns each
+  monster's *identity* — tier, biome, band, speed, behaviour, drops, sprite — and
+  keeps the authored table's *relative* roles inside a tier (shaman 0.7 of the
+  tier median, raider brute 2.0), but the absolute hp/damage/xp/gold now come from
+  `tools/player_model.py` evaluated at the archetype's band midpoint: hp so the
+  fight is a stated number of swings, damage so the player survives a stated
+  number of hits, xp so a level costs a stated number of kills. The old numbers
+  were authored once against a level-1 player and never revisited, which is how a
+  level-30 character ended up killing tier-3 monsters in 0.4 of a swing.
+- **One scaling law, not two.** `EnemyDB.band_power_scale()` is retired to a
+  documented no-op. It scaled every spawn in a biome by `1 + 0.022 * (biome_lo - 1)`,
+  i.e. barrens ×1.15 and frost ×1.81, *on top of* stats that are already band-scaled
+  — double-counting two entire regions and making "frost is harder" a data
+  accident rather than a band choice. `EnemySpawner.power_scale` still exists for
+  one-off tougher spawns.
+- **Prices follow income.** `tools/gen_items.py` priced gear off hand-picked
+  constants (12/45/160/520/1500) that were set when the xp curve was a tenth of its
+  size: by level 20 a player could afford the best item in the game, and gold
+  stopped mattering entirely. Now a tier's median price is a fraction (0.8) of one
+  level's kill income at the level that rarity unlocks, consumables cost about one
+  kill of their band, and materials cost a few kills — trophies, not treasure.
+  Common stays cheap on purpose (three kills at level 4): the first hour should be
+  able to buy a better club.
+- **The instrument is now a guard.** `tools/balance_report.py --check` exits
+  non-zero when any measured target leaves its band, and CI runs it. The numbers in
+  the report above were not written by hand; re-running the tool reproduces them.
+
+**#45 — Do not write `"…" % [list]` in Python (Phase F7 tooling)** · 2026-09-11
+The report crashed with `%d format: a real number is required, not list` on an
+expression whose arguments were all numbers. Cause: `"%d" % [7]` does **not**
+unpack — only a *tuple* does, so the list itself was handed to `%d`. Every
+`% [ … ]` in a format expression is a latent bug of this kind: one conversion
+silently takes the whole list, two or more raise. `tools/` is clean of the pattern
+now (checked with a grep pass), and the fix pass is recorded here because the same
+shape appeared in three different formatting sites in one file.
+
+**#46 — The workflow is not valid until actionlint says so (Phase F7 CI)** · 2026-09-11
+Applies #43 to every later workflow edit: the new balance step was inserted by
+splitting a step's `name:` line, which YAML accepts and GitHub rejects (a run named
+`.github/workflows/ci.yml` with zero jobs). `actionlint` caught it before the push,
+as intended. The rule now holds for all three workflow files.

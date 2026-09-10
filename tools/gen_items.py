@@ -16,8 +16,11 @@ tests/items_test.gd at runtime):
 import collections
 import json
 import os
+import sys
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import player_model  # noqa: E402  (Phase F7: prices come from the economy curve)
 
 WEIGHT = {"atk": 3.0, "def": 2.5, "hp": 0.35, "mp": 0.25,
           "speed": 1.2, "mp_regen": 25.0, "crit": 60.0, "lifesteal": 220.0}
@@ -331,10 +334,26 @@ def _consumable_effect(iid: str):
     return table.get(iid, (0, 0))
 
 
+## Phase F7: prices are derived, not hand-picked. A tier's median price is a
+## fraction of one level's kill income at the level that tier unlocks (see
+## tools/player_model.py), so the shelf always keeps up with what the player
+## earns; the stat term keeps the best-in-tier item more expensive than the
+## median, which is what makes the last few points of budget feel expensive.
+CONSUMABLE_TIER = {"common": 1, "uncommon": 2, "rare": 4, "mythical": 6,
+                   "legendary": 6}
+## Materials are trophies, not power: they price off the consumable curve of
+## their band, so hauling twenty of them is pocket money rather than a fortune,
+## and the quests that ask for them stay worth running.
+MATERIAL_MULT = {"common": 3, "uncommon": 3, "rare": 3, "mythical": 3, "legendary": 6}
+
+
 def _price(rarity: str, itype: str, stats: dict) -> int:
-    base = {"common": 12, "uncommon": 45, "rare": 160, "mythical": 520, "legendary": 1500}[rarity]
     if itype == "consumable":
-        return base
+        return player_model.consumable_price(CONSUMABLE_TIER.get(rarity, 1))
+    if itype == "material":
+        return player_model.consumable_price(CONSUMABLE_TIER.get(rarity, 1)) \
+            * MATERIAL_MULT.get(rarity, 3)
+    base = player_model.median_price(rarity)
     return base + int(weighted(stats) * 1.4)
 
 

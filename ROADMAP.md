@@ -140,12 +140,12 @@ with (several NPCs' catch-alls have no conditions at all). Goods quests use
 turned into a payout. `QuestManager._sync_flags()` also means a "reach X" step is
 already satisfied if you have been there — the same rule collect already used.
 
-### F6. Secrets `[ ]`
+### F6. Secrets `[x]`
 - Hidden caches, locked vaults, lever/gate puzzles, lore fragments, secret
   bosses, and off-map stashes — discoverable but never required.
 - Secrets are tracked as flags so they survive save/load and can be counted.
 
-### F7. Economy & power balance pass `[ ]`
+### F7. Economy & power balance pass `[x]`
 - Run only once F1–F6 are complete, against everything in the game at once.
 - Levers: item stat budgets vs the level curve, gold income vs shop prices and
   upgrade costs, XP income vs the 1–100 curve, monster/boss HP & damage vs
@@ -154,6 +154,39 @@ already satisfied if you have been there — the same rule collect already used.
 - Output: a documented before/after table in `DECISIONS.md`, plus a
   `tools/balance_report.py` that prints the numbers, so the balance is
   reproducible rather than asserted.
+
+**F7 done.** `tools/player_model.py` is the single source of the player power
+curve (read out of the .gd constants at import time, so it cannot drift), and
+`tools/balance_report.py` measures the shipped game against it. The pass found
+the game in bad shape and fixed it at the source rather than by taste:
+
+| measured | before | after | target |
+|---|---|---|---|
+| swings to kill (band midpoint) | 0.4 – 6.2 | **1.9 – 5.6** | 2 – 8 |
+| monster hits the player survives | 27 – 633 | **8.5 – 25** | 5 – 30 |
+| kills per level | 76 – 581 | **18 – 30** | 12 – 45 |
+| boss fight length | 2.8 – 10.8 s | **28 – 100 s** | 25 – 120 s |
+| boss HP (weakest → strongest) | 260 → 5,200 | **2,995 → 144,308** | escalating |
+| field monster HP / damage | 14–600 / 4–46 | **47–1,318 / 11–280** | ladder |
+| legendary item price | 1,637 | **27,701** | ≈1 level of income |
+| price jump per rarity | mixed | **every rarity ≥ 1.5x** | ≥ 1.25x |
+
+Three changes made this hold:
+
+1. **Monster stats are derived, not typed.** `tools/gen_enemies.py` keeps the
+   authored *relative* roles (a shaman is squishier than a brute) and takes the
+   absolute numbers from the power curve at each archetype's band midpoint, so
+   "how long is a fight" and "how many kills is a level" are design inputs.
+2. **One scaling law.** `EnemyDB.band_power_scale()` is retired (a documented
+   no-op): the old biome-wide multiplier ran barrens ×1.15 and frost ×1.81 on top
+   of stats that were already band-authored, double-counting whole regions.
+3. **Prices follow income.** `_price()` in `tools/gen_items.py` prices gear at a
+   fraction of one level's kill income at the tier's unlock level, consumables at
+   about one kill, and materials at a few — the old constants left the entire
+   catalogue affordable by level 20.
+
+`python3 tools/balance_report.py --check` now fails CI if any measured target
+leaves its band (DECISIONS #44/#45).
 
 ---
 

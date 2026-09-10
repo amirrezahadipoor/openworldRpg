@@ -105,12 +105,15 @@ func spawnable_band(biome: String) -> Array:
 	return ((_spawns.get(biome, {}) as Dictionary).get("level_band", [1, 100]))
 
 
-func band_power_scale(band: Array) -> float:
-	## Deeper-fields monsters are tougher: scale the archetype's own stats by how
-	## far into its band a biome sits. Keeps one archetype usable across a whole
-	## region without a second copy of it in the data.
-	var lo := float(band[0]) if band.size() == 2 else 1.0
-	return 1.0 + maxf(lo - 1.0, 0.0) * 0.022
+func band_power_scale(_band: Array) -> float:
+	## Phase F7: retired. The roster's hp/damage/xp are authored against the player
+	## power curve at the middle of each archetype's own level band
+	## (tools/player_model.py + tools/gen_enemies.py), so a second, biome-wide
+	## multiplier on top of that double-counted — barrens ran x1.15 and frost
+	## x1.81 hotter than the ladder they were balanced on. Kept as a named no-op so
+	## old call sites and saves read clearly; `EnemySpawner.power_scale` is still
+	## honoured for one-off tougher spawns.
+	return 1.0
 
 
 func monsters() -> Array:

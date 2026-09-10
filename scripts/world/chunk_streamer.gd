@@ -137,7 +137,6 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 	var table: Array = EnemyDB.spawn_table(biome_name)
 	if table.is_empty():
 		return
-	var band: Array = EnemyDB.spawnable_band(biome_name)
 	for i in rng.randi_range(1, 2):
 		var local := Vector2(
 			rng.randf_range(128.0, CHUNK_SIZE - 128.0),
@@ -159,7 +158,11 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 		var spawner := EnemySpawner.new()
 		spawner.archetype = String(table[rng.randi_range(0, table.size() - 1)])
 		spawner.count = rng.randi_range(1, 2)
-		spawner.power_scale = EnemyDB.band_power_scale(band)
+		# Phase F7: no blanket biome multiplier. Each archetype's stats are authored
+		# against the player curve at the middle of its own level band, so a second
+		# scale on top of that (barrens x1.15, frost x1.81) was double-counting and
+		# made whole regions harder than the ladder they were measured against.
+		spawner.power_scale = 1.0
 		spawner.position = local
 		root.add_child(spawner)
 
