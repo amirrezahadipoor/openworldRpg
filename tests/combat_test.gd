@@ -37,6 +37,8 @@ func _ready() -> void:
 
 	_test_talents()
 
+	_test_quests_and_dialogue()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -164,6 +166,72 @@ func _test_talents() -> void:
 	GameState.spend_talent("magic")
 	check(GameState.mp_regen_per_sec() == 0.6, "Clarity grants 0.6 MP/s")
 	check(GameState.potion_mult() == 1.0, "no potion bonus before Potent Brews")
+
+
+func _test_quests_and_dialogue() -> void:
+	print("[combat_test] quest flow + dialogue picking")
+	check(not QuestManager.is_active("q1_first_light"), "q1 inactive before start")
+	QuestManager.start_quest("q1_first_light")
+	check(QuestManager.is_active("q1_first_light"), "q1 started")
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q1_progress",
+		"elder reminds while kills pending")
+
+	var host := Node2D.new()
+	add_child(host)
+	for i in 3:
+		var e: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host.add_child(e)
+		e.global_position = Vector2(-2000, -2000)
+		e.setup_archetype("grunt")
+		e.take_hit(9999.0, Vector2.RIGHT)
+	check(QuestManager.objective_count("q1_first_light", "kill_grunts") == 3, "kill objective tracked 3/3")
+	check(bool(GameState.quest_flags.get("q1_first_light_kill_grunts", false)), "auto-flag on objective done")
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q1_report",
+		"report dialogue unlocked after kills")
+
+	var gold_before := GameState.gold
+	QuestManager.complete_objective("q1_first_light", "report_elder")
+	check(QuestManager.is_done("q1_first_light"), "q1 completed")
+	check(QuestManager.is_active("q2_ember_omen"), "q2 auto-started")
+	check(GameState.gold == gold_before + 40, "q1 gold reward (+40)")
+	check(int(GameState.inventory.get("short_sword", 0)) >= 1, "q1 item reward delivered")
+
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q2_brief", "q2 briefing dialogue")
+	QuestManager.register_flag("saw_warden_ring")
+	check(QuestManager.objective_count("q2_ember_omen", "reach_ring") == 1, "ring flag completes objective")
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q2_choice",
+		"branching choice dialogue unlocked")
+
+	QuestManager.register_flag("vow_mercy")  # simulate the player's choice
+	QuestManager.complete_objective("q2_ember_omen", "confront_truth")
+	check(QuestManager.is_active("q3_warden_fall"), "q3 started after the truth")
+
+	QuestManager.register_flag("boss_defeated")
+	check(QuestManager.is_active("q4_new_dawn"), "q4 started after boss falls")
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q4_end_mercy",
+		"mercy ending picked via choice flag")
+	QuestManager.complete_objective("q4_new_dawn", "final_words")
+	check(QuestManager.is_done("q4_new_dawn"), "main questline complete")
+	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_after_end", "post-game dialogue")
+	check(bool(GameState.quest_flags.get("vow_mercy", false)), "meaningful choice flag persisted")
+
+	# Side + repeatable quests
+	QuestManager.start_quest("s_emberling_run")
+	check(QuestManager.is_active("s_emberling_run"), "repeatable side quest started")
+	var host2 := Node2D.new()
+	add_child(host2)
+	for i in 4:
+		var e: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host2.add_child(e)
+		e.global_position = Vector2(-2400, -2400)
+		e.setup_archetype("emberling")
+		e.take_hit(9999.0, Vector2.RIGHT)
+	check(QuestManager.objective_count("s_emberling_run", "kill_emberlings") == 4, "repeatable kill objective 4/4")
+	QuestManager.complete_objective("s_emberling_run", "report_kael_run")
+	check(not GameState.quests.has("s_emberling_run"), "repeatable quest fully reset after completion")
+	QuestManager.start_quest("s_emberling_run")
+	check(QuestManager.is_active("s_emberling_run"), "repeatable quest can be re-accepted")
+	check(QuestManager.marker_for("hunter_kael"), "marker shown for pending talk objective")
 
 
 func _test_boss_phases_and_death() -> void:

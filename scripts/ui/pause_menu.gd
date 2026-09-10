@@ -1,7 +1,9 @@
 class_name PauseMenu
 extends CanvasLayer
-## Pause overlay: resume / save / restart-from-save.
+## Pause overlay: resume / save / quest log / restart-from-save.
 ## Stays interactive while the tree is paused (PROCESS_MODE_ALWAYS).
+
+signal quest_log_requested
 
 var player: Node2D
 
@@ -65,6 +67,7 @@ func _build() -> void:
 
 	box.add_child(_button("Resume", func() -> void: toggle()))
 	box.add_child(_button("Save Game", func() -> void: _save()))
+	box.add_child(_button("Quest Log", func() -> void: quest_log_requested.emit()))
 	box.add_child(_button("Quit to Last Save", func() -> void: _quit_to_save()))
 
 	_status = Label.new()

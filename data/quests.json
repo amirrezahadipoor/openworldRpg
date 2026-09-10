@@ -1,0 +1,64 @@
+{
+  "_comment": "Quest definitions. Objective types: kill (archetype), talk (npc_id), flag (quest_flags key). complete_via for kill/flag is automatic; talk completes when QuestManager.mark_talk(npc) is called. 'next' auto-starts the follow-up quest.",
+  "quests": {
+    "q1_first_light": {
+      "name": "First Light",
+      "desc": "Slimes are creeping too close to the camp. Thin them out.",
+      "objectives": [
+        { "id": "kill_grunts", "type": "kill", "target": "grunt", "count": 3, "desc": "Slay the slimes near camp" },
+        { "id": "report_elder", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Report back to Elder Rowan" }
+      ],
+      "reward": { "xp": 60, "gold": 40, "items": ["short_sword"] },
+      "next": "q2_ember_omen"
+    },
+    "q2_ember_omen": {
+      "name": "The Ember Omen",
+      "desc": "A scorched ring burns in the northeast. Investigate it, then return to the Elder.",
+      "objectives": [
+        { "id": "reach_ring", "type": "flag", "target": "saw_warden_ring", "count": 1, "desc": "Reach the scorched ring" },
+        { "id": "confront_truth", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Confront Elder Rowan" }
+      ],
+      "reward": { "xp": 90, "gold": 60, "items": ["health_potion"] },
+      "next": "q3_warden_fall"
+    },
+    "q3_warden_fall": {
+      "name": "Fall of the Warden",
+      "desc": "The Ember Warden must be destroyed. Find it at the scorched ring.",
+      "objectives": [
+        { "id": "boss_down", "type": "flag", "target": "boss_defeated", "count": 1, "desc": "Defeat the Ember Warden" }
+      ],
+      "reward": { "xp": 200, "gold": 120, "items": ["mana_potion"] },
+      "next": "q4_new_dawn"
+    },
+    "q4_new_dawn": {
+      "name": "A New Dawn",
+      "desc": "Return to Elder Rowan with the news.",
+      "objectives": [
+        { "id": "final_words", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Speak with Elder Rowan" }
+      ],
+      "reward": { "xp": 120, "gold": 100, "items": [] },
+      "next": ""
+    },
+    "s_cull_scouts": {
+      "name": "Scouts in the Barrens",
+      "desc": "Hunter Kael wants the fast ones thinned out before they raid the camp.",
+      "objectives": [
+        { "id": "kill_scouts", "type": "kill", "target": "scout", "count": 3, "desc": "Hunt Barrens Scouts" },
+        { "id": "report_kael", "type": "talk", "target": "hunter_kael", "count": 1, "desc": "Report to Hunter Kael" }
+      ],
+      "reward": { "xp": 80, "gold": 60, "items": ["health_potion"] },
+      "next": ""
+    },
+    "s_emberling_run": {
+      "name": "Emberling Run",
+      "desc": "Emberlings keep crawling out of the ash. Kael pays per cull — again and again.",
+      "repeatable": true,
+      "objectives": [
+        { "id": "kill_emberlings", "type": "kill", "target": "emberling", "count": 4, "desc": "Cull Emberlings" },
+        { "id": "report_kael_run", "type": "talk", "target": "hunter_kael", "count": 1, "desc": "Collect from Hunter Kael" }
+      ],
+      "reward": { "xp": 60, "gold": 70, "items": [] },
+      "next": ""
+    }
+  }
+}

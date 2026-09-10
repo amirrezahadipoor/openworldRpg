@@ -103,16 +103,17 @@ func _build_top_left() -> void:
 func _build_top_right() -> void:
 	var m := _safe_margins()
 	quest_label = Label.new()
-	quest_label.text = "Quest: —"
+	quest_label.text = "No active quests"
 	quest_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	quest_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	quest_label.add_theme_color_override("font_color", Color(0.95, 0.9, 0.7))
-	quest_label.add_theme_font_size_override("font_size", 15)
+	quest_label.add_theme_font_size_override("font_size", 14)
 	quest_label.anchor_left = 1.0
 	quest_label.anchor_right = 1.0
 	quest_label.offset_left = -340.0 - m.x
 	quest_label.offset_top = 12.0 + m.y
 	quest_label.offset_right = -16.0 - m.x
-	quest_label.offset_bottom = 60.0
+	quest_label.offset_bottom = 130.0
 	add_child(quest_label)
 
 	var minimap := Panel.new()
@@ -188,4 +189,4 @@ func _load_icon(n: String) -> Texture2D:
 
 func set_quest_text(text: String) -> void:
 	if quest_label != null:
-		quest_label.text = "Quest: " + text
+		quest_label.text = text

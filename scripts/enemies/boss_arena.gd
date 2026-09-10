@@ -43,14 +43,18 @@ func _build_visual() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if defeated or boss != null:
-		return
 	_poll += delta
 	if _poll < 0.5:
 		return
 	_poll = 0.0
 	var player: Node2D = get_tree().get_first_node_in_group("player")
-	if player and global_position.distance_to(player.global_position) < AGGRO_RADIUS:
+	if player == null:
+		return
+	var dist := global_position.distance_to(player.global_position)
+	# Spotting the scorched ring from a distance is itself a story beat.
+	if dist < AGGRO_RADIUS * 1.8:
+		QuestManager.register_flag("saw_warden_ring")
+	if not defeated and boss == null and dist < AGGRO_RADIUS:
 		_summon()
 
 
@@ -68,7 +72,7 @@ func _summon() -> void:
 
 func _on_boss_defeated(_e: Enemy) -> void:
 	defeated = true
-	GameState.quest_flags["boss_defeated"] = true
+	QuestManager.register_flag("boss_defeated")
 	boss = null
 	if _ring:
 		_ring.default_color = Color(0.45, 0.45, 0.5, 0.35)

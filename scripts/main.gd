@@ -4,7 +4,9 @@ extends Node
 
 const PLAYER_SCENE := "res://scenes/player/player.tscn"
 const BOSS_ARENA_SCENE := "res://scenes/enemies/boss_arena.tscn"
-const SPAWN_POINT := Vector2(512, 512)
+const CAMP_SCENE := "res://scenes/world/camp.tscn"
+const SPAWN_POINT := Vector2(700, 330)
+const CAMP_POS := Vector2(900, 300)
 const BOSS_POS := Vector2(2700, -1500)
 
 var player: Player
@@ -12,6 +14,9 @@ var camera: FollowCamera
 var streamer: ChunkStreamer
 var inventory_ui: InventoryScreen
 var talent_ui: TalentScreen
+var dialogue_box: DialogueBox
+var shop_ui: ShopScreen
+var camp: Camp
 
 
 func _ready() -> void:
@@ -26,9 +31,15 @@ func _ready() -> void:
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.boss_defeated.connect(_on_boss_defeated)
 	EventBus.boss_phase_changed.connect(_on_boss_phase)
+	EventBus.quest_started.connect(func(_q: String) -> void: _refresh_quest_ui())
+	EventBus.quest_updated.connect(func(_q: String) -> void: _refresh_quest_ui())
+	EventBus.quest_completed.connect(_on_quest_completed)
+	EventBus.dialogue_closed.connect(_refresh_markers)
 
 	if SaveSystem.has_save():
 		SaveSystem.load_game(player)
+	_refresh_quest_ui()
+	_refresh_markers()
 
 
 func _build_world() -> void:
@@ -43,6 +54,12 @@ func _build_world() -> void:
 	arena.name = "BossArena"
 	world.add_child(arena)
 	arena.global_position = BOSS_POS
+
+	camp = (load(CAMP_SCENE) as PackedScene).instantiate()
+	camp.name = "Camp"
+	world.add_child(camp)
+	camp.global_position = CAMP_POS
+	camp.npc_interacted.connect(_on_npc_interacted)
 
 
 func _build_player() -> void:
@@ -67,6 +84,7 @@ func _build_ui() -> void:
 	hud.name = "HUD"
 	add_child(hud)
 	hud.setup(player)
+	hud_ref = hud
 	hud.bag_pressed.connect(func() -> void: inventory_ui.toggle())
 	hud.talents_pressed.connect(func() -> void: talent_ui.toggle())
 
@@ -79,10 +97,23 @@ func _build_ui() -> void:
 	talent_ui.name = "TalentScreen"
 	add_child(talent_ui)
 
+	dialogue_box = DialogueBox.new()
+	dialogue_box.name = "DialogueBox"
+	add_child(dialogue_box)
+
+	shop_ui = ShopScreen.new()
+	shop_ui.name = "ShopScreen"
+	add_child(shop_ui)
+
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
 	pause.player = player
 	add_child(pause)
+
+	var quest_log := QuestLogScreen.new()
+	quest_log.name = "QuestLogScreen"
+	add_child(quest_log)
+	pause.quest_log_requested.connect(quest_log.open)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -117,6 +148,92 @@ func _on_enemy_died(enemy: Node) -> void:
 	if enemy is Node2D:
 		DamageNumber.spawn(self, (enemy as Node2D).global_position + Vector2(0, -34), "+%d XP" % (enemy as Enemy).xp_reward, Color(0.55, 0.95, 0.55))
 	camera.shake(0.2)
+
+
+func _on_npc_interacted(npc: NPC) -> void:
+	if npc.is_vendor:
+		shop_ui.open(npc.display_name, camp.get_vendor_stock())
+		return
+	var d := DialogueDB.pick(npc.npc_id)
+	if d.is_empty():
+		return
+	dialogue_box.start(d)
+
+
+func _refresh_quest_ui() -> void:
+	if hud_ref:
+		hud_ref.set_quest_text(QuestManager.tracker_text())
+	_refresh_markers()
+
+
+var hud_ref: HUD
+
+
+func _refresh_markers() -> void:
+	for npc in get_tree().get_nodes_in_group("npc"):
+		(npc as NPC).set_marker(QuestManager.marker_for(npc.npc_id))
+
+
+func _on_quest_completed(qid: String) -> void:
+	if qid == "q4_new_dawn":
+		_show_ending()
+
+
+func _show_ending() -> void:
+	var ending := CanvasLayer.new()
+	ending.layer = 80
+	ending.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(ending)
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ending.add_child(root)
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.02, 0.05, 0.92)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(center)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 16)
+	center.add_child(box)
+	var title := Label.new()
+	title.text = "T H E   E N D"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 42)
+	title.add_theme_color_override("font_color", Color(1.0, 0.87, 0.5))
+	box.add_child(title)
+	var epilogue := Label.new()
+	epilogue.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	epilogue.custom_minimum_size = Vector2(620, 0)
+	epilogue.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if bool(GameState.quest_flags.get("vow_mercy", false)):
+		epilogue.text = "You chose mercy, and the valley remembers you as the one who set its guardian free. The campfire burns bright again."
+	else:
+		epilogue.text = "You chose vengeance, and the corruption burned away with the Warden. The campfire burns bright again."
+	box.add_child(epilogue)
+	var stats := Label.new()
+	stats.text = "Level %d · %d gold · %d quests completed" % [GameState.level, GameState.gold, _quests_done()]
+	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	stats.add_theme_color_override("font_color", Color(0.8, 0.85, 1.0))
+	box.add_child(stats)
+	var btn := Button.new()
+	btn.text = "Keep exploring"
+	btn.custom_minimum_size = Vector2(260, 46)
+	btn.pressed.connect(func() -> void:
+		ending.queue_free()
+		get_tree().paused = false
+	)
+	box.add_child(btn)
+	get_tree().paused = true
+
+
+func _quests_done() -> int:
+	var n := 0
+	for q in GameState.quests.values():
+		if q == "done":
+			n += 1
+	return n
 
 
 func _on_boss_defeated() -> void:

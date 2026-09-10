@@ -29,6 +29,8 @@ var inventory: Dictionary = {"health_potion": 2}
 var equipment: Dictionary = {"weapon": "", "armor": "", "accessory": ""}
 # quest_id -> "active" | "done"
 var quests: Dictionary = {}
+# quest_id -> { objective_id -> progress_count }
+var quest_progress: Dictionary = {}
 # free-form story flags (dialogue choices, secret found, ...)
 var quest_flags: Dictionary = {}
 # branch -> allocated points
@@ -222,6 +224,7 @@ func to_dict() -> Dictionary:
 		"inventory": inventory.duplicate(),
 		"equipment": equipment.duplicate(),
 		"quests": quests.duplicate(),
+		"quest_progress": quest_progress.duplicate(true),
 		"quest_flags": quest_flags.duplicate(),
 		"talents": talents.duplicate(),
 	}
@@ -237,6 +240,7 @@ func from_dict(d: Dictionary) -> void:
 	inventory = (d.get("inventory", {}) as Dictionary).duplicate()
 	equipment = (d.get("equipment", {"weapon": "", "armor": "", "accessory": ""}) as Dictionary).duplicate()
 	quests = (d.get("quests", {}) as Dictionary).duplicate()
+	quest_progress = (d.get("quest_progress", {}) as Dictionary).duplicate(true)
 	quest_flags = (d.get("quest_flags", {}) as Dictionary).duplicate()
 	talents = (d.get("talents", {"combat": 0, "magic": 0, "utility": 0}) as Dictionary).duplicate()
 	hp = clampf(float(d.get("hp", max_hp())), 0.0, max_hp())
