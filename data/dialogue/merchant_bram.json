@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for merchant_bram (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Potion's brewed for people who come back. Buy two.",
+      "when": []
+    },
+    {
+      "text": "Gold's gold, friend. I don't ask where it's been.",
+      "when": []
+    },
+    {
+      "text": "Ash in the water supply this week. Don't ask what it does to the ale.",
+      "when": []
+    }
+  ]
+}

@@ -1,80 +1,195 @@
 {
-  "_comment": "Hunter Kael — side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
+  "_comment": "Hunter Kael \u2014 side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
   "dialogues": [
     {
       "id": "kael_cull_report",
-      "requires": { "quest_active": ["s_cull_scouts"], "flag": ["s_cull_scouts_kill_scouts"] },
+      "requires": {
+        "quest_active": [
+          "s_cull_scouts"
+        ],
+        "flag": [
+          "s_cull_scouts_kill_scouts"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "Three scouts down. Clean work — the barrens will feel that for a season.", "next": "2" },
-        "2": { "speaker": "Hunter Kael", "text": "Your coin, and a potion besides. Stay sharp out there.", "next": "" }
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Three scouts down. Clean work \u2014 the barrens will feel that for a season.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Your coin, and a potion besides. Stay sharp out there.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "s_cull_scouts", "objective": "report_kael" }
+        {
+          "action": "complete_objective",
+          "quest": "s_cull_scouts",
+          "objective": "report_kael"
+        }
       ]
     },
     {
       "id": "kael_run_report",
-      "requires": { "quest_active": ["s_emberling_run"], "flag": ["s_emberling_run_kill_emberlings"] },
+      "requires": {
+        "quest_active": [
+          "s_emberling_run"
+        ],
+        "flag": [
+          "s_emberling_run_kill_emberlings"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "Four emberlings, ash to ash. Here's your pay — and if more crawl out of the cinders, you know where to find me.", "next": "" }
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Four emberlings, ash to ash. Here's your pay \u2014 and if more crawl out of the cinders, you know where to find me.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "s_emberling_run", "objective": "report_kael_run" }
+        {
+          "action": "complete_objective",
+          "quest": "s_emberling_run",
+          "objective": "report_kael_run"
+        }
       ]
     },
     {
       "id": "kael_cull_active",
-      "requires": { "quest_active": ["s_cull_scouts"] },
+      "requires": {
+        "quest_active": [
+          "s_cull_scouts"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "The scouts run in the tan barrens, west and north. Fast little devils — wait for their lunge, then roll behind and cut.", "next": "" }
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The scouts run in the tan barrens, west and north. Fast little devils \u2014 wait for their lunge, then roll behind and cut.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
     },
     {
       "id": "kael_run_active",
-      "requires": { "quest_active": ["s_emberling_run"] },
+      "requires": {
+        "quest_active": [
+          "s_emberling_run"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "Emberlings hatch near the grasslands' edge. Four of them and you've earned your coin.", "next": "" }
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Emberlings hatch near the grasslands' edge. Four of them and you've earned your coin.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
     },
     {
       "id": "kael_cull_offer",
-      "requires": { "flag_not": ["kael_cull_taken"] },
+      "requires": {
+        "flag_not": [
+          "kael_cull_taken"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "You've got the look of someone who's used a blade. Good. I could use one more pair of hands.", "next": "2" },
-        "2": { "speaker": "Hunter Kael", "text": "Barrens scouts have been shadowing our foragers. Three of them, dead, and I'll make it worth your while.", "next": "3" },
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "You've got the look of someone who's used a blade. Good. I could use one more pair of hands.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Barrens scouts have been shadowing our foragers. Three of them, dead, and I'll make it worth your while.",
+          "next": "3"
+        },
         "3": {
           "speaker": "Hunter Kael",
           "text": "In?",
           "choices": [
-            { "text": "I'll hunt them down.", "next": "4" },
-            { "text": "Not today.", "next": "5" }
+            {
+              "text": "I'll hunt them down.",
+              "next": "4"
+            },
+            {
+              "text": "Not today.",
+              "next": "5"
+            }
           ]
         },
-        "4": { "speaker": "Hunter Kael", "text": "Good. Tan barrens, west and north. Bring back the tale if not the tails.", "next": "" },
-        "5": { "speaker": "Hunter Kael", "text": "Suit yourself. Offer stands.", "next": "" }
+        "4": {
+          "speaker": "Hunter Kael",
+          "text": "Good. Tan barrens, west and north. Bring back the tale if not the tails.",
+          "next": ""
+        },
+        "5": {
+          "speaker": "Hunter Kael",
+          "text": "Suit yourself. Offer stands.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "set_flag", "flag": "kael_cull_taken" },
-        { "action": "start_quest", "quest": "s_cull_scouts" }
+        {
+          "action": "set_flag",
+          "flag": "kael_cull_taken"
+        },
+        {
+          "action": "start_quest",
+          "quest": "s_cull_scouts"
+        }
       ]
     },
     {
       "id": "kael_run_offer",
       "requires": {},
       "nodes": {
-        "1": { "speaker": "Hunter Kael", "text": "Emberlings keep crawling out of the ash near the grasslands. Vermin, but they bite.", "next": "2" },
-        "2": { "speaker": "Hunter Kael", "text": "Cull four of them and I'll pay you. And again, if they keep coming. Always do.", "next": "" }
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Emberlings keep crawling out of the ash near the grasslands. Vermin, but they bite.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Cull four of them and I'll pay you. And again, if they keep coming. Always do.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "start_quest", "quest": "s_emberling_run" }
+        {
+          "action": "start_quest",
+          "quest": "s_emberling_run"
+        }
+      ]
+    }
+  ],
+  "barks": [
+    {
+      "text": "Track the wind, not the prints. Prints lie.",
+      "when": []
+    },
+    {
+      "text": "Three scouts in one pass is a scouting party, not a patrol. Something's coming.",
+      "when": []
+    },
+    {
+      "text": "The barrens are quiet today. I don't trust quiet.",
+      "when": [
+        "Day"
+      ]
+    },
+    {
+      "text": "Stay off the ridge after dark. Things walk there that don't leave tracks.",
+      "when": [
+        "Night"
       ]
     }
   ]

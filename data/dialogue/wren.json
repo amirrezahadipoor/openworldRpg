@@ -1,0 +1,25 @@
+{
+  "_comment": "NPC dialogue for wren (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Race you to the well \u2014 no, actually, race you to the ridge.",
+      "when": []
+    },
+    {
+      "text": "Old Rowan says I ask too many questions. I say he gives too few answers.",
+      "when": []
+    },
+    {
+      "text": "If you go into the barrens again, take me with you. I'm quick.",
+      "when": []
+    },
+    {
+      "text": "The firelight makes the whole valley look like it's breathing.",
+      "when": [
+        "Night",
+        "Dusk"
+      ]
+    }
+  ]
+}

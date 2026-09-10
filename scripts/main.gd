@@ -38,6 +38,8 @@ func _ready() -> void:
 	EventBus.quest_updated.connect(func(_q: String) -> void: _refresh_quest_ui())
 	EventBus.quest_completed.connect(_on_quest_completed)
 	EventBus.dialogue_closed.connect(_refresh_markers)
+	EventBus.dialogue_closed.connect(_release_npc_talk)
+	EventBus.npc_barked.connect(_on_npc_barked)
 
 	if GameState.pending_load:
 		SaveSystem.load_game(player, GameState.current_slot)
@@ -226,9 +228,18 @@ func _on_npc_interacted(npc: NPC) -> void:
 		shop_ui.open(npc.display_name, camp.get_vendor_stock())
 		return
 	var d := DialogueDB.pick(npc.npc_id)
-	if d.is_empty():
+	if not d.is_empty():
+		dialogue_box.start(d)
 		return
-	dialogue_box.start(d)
+	# No quest line right now -> answer with an idle bark instead of silence
+	# (Phase E §3: every named NPC has something to say, always).
+	var line := DialogueDB.pick_bark(npc.npc_id, npc.time_of_day())
+	if line == "":
+		return
+	dialogue_box.start({
+		"start": "root",
+		"nodes": {"root": {"speaker": npc.display_name, "text": line, "choices": []}},
+	})
 
 
 func _on_world_interacted(node: Node) -> void:
@@ -261,6 +272,20 @@ func _refresh_quest_ui() -> void:
 
 
 var hud_ref: HUD
+
+
+func _release_npc_talk() -> void:
+	## Conversations freeze the NPC in place (NPCController.TALK); release them
+	## once the dialogue box closes.
+	for npc in get_tree().get_nodes_in_group("npc"):
+		(npc as NPCController).end_talk()
+
+
+func _on_npc_barked(_npc_id: String, display_name: String, text: String) -> void:
+	## Ambient schedule barks surface through the HUD banner (same toast the
+	## milestone rewards use).
+	if hud_ref != null:
+		hud_ref.show_toast("%s: %s" % [display_name, text])
 
 
 func _refresh_markers() -> void:

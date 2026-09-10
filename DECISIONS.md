@@ -318,3 +318,33 @@ and `req_level` (character level).
   for a later phase instead of being invented here.
 - `node_active(branch, tier)` is retained (points >= tier) for the original
   call sites and the "next point" hint in the UI.
+
+
+**#34 — NPC schedules, state machine and idle barks (Phase E §3)** · 2026-09-10
+`NPCController` (`scripts/world/npc_controller.gd`) adds the four states the
+bible names — `IDLE_SCHEDULE / WALK_TO_POINT / TALK / FLEE_COMBAT` — using the
+same shape as the enemy FSM. `NPC` now extends it, so the existing interaction
+surface (prompt, marker, `interacted` signal, vendor routing) is untouched and
+every placed NPC inherits a schedule for free.
+
+- **Clock:** schedules read the existing `DayNight` node through the
+  `day_night` group (no second time system). `DayNight` joins that group in
+  `_ready()`. `time_of_day_name()` gives the four slots (Dawn/Day/Dusk/Night).
+- **Schedule data** lives in `data/npcs.json`: display name, settlement, role,
+  story/shop function, and four offsets from wherever the NPC is placed — so one
+  roster works in any settlement layout instead of hardcoding world positions.
+  11 named NPCs ship, including the bible's whole main cast.
+- **Barks** live with the dialogue they belong to: `data/dialogue/<npc>.json`
+  gains a `barks` array (`{text, when[]}`) that `DialogueDB` loads alongside
+  `dialogues`. `pick_bark()` filters by time of day and rotates so a line never
+  repeats twice in a row. Ambient barks fire only while idle, only near the
+  player, and are rate-limited; they surface through the same HUD banner the
+  milestone rewards use.
+- **No NPC is scenery:** interacting with an NPC who has no quest line for the
+  current world state now answers with a bark instead of doing nothing.
+- `TALK` holds the NPC in place and is released by `EventBus.dialogue_closed`,
+  so conversations never walk away mid-sentence.
+- `tests/npc_test.gd` (24 checks, wired into CI) covers roster coverage
+  (every NPC: 4 slots, >=3 barks, a role + function), bark rotation and time
+  filtering, schedule offsets, all four states, arrival at a schedule point,
+  and fleeing from a nearby enemy.

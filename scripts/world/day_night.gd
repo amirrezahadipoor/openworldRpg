@@ -22,6 +22,7 @@ const KEYS: Array = [
 
 
 func _ready() -> void:
+	add_to_group("day_night")  # NPC schedules read the clock through this group
 	canvas = CanvasModulate.new()
 	canvas.name = "DayNightModulate"
 	add_child(canvas)

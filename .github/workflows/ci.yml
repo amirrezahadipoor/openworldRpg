@@ -70,6 +70,12 @@ jobs:
           grep -q "PLAYTHROUGH RESULT: PASS" playthrough.log || { echo "::error::playthrough validation failed"; exit 1; }
           echo "playthrough ✓"
 
+      - name: NPC schedules + barks (Phase E §3)
+        run: |
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/NpcTest.tscn | tee npc.log
+          grep -q "NPC RESULT: PASS" npc.log || { echo "::error::NPC schedule/bark validation failed"; exit 1; }
+          echo "npc ✓"
+
       - name: Audio integrity (every play_music/play_sfx id is registered)
         run: |
           timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/AudioTest.tscn | tee audio.log

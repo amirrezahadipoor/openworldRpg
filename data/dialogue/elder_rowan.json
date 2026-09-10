@@ -3,100 +3,256 @@
   "dialogues": [
     {
       "id": "elder_after_end",
-      "requires": { "quest_done": ["q4_new_dawn"] },
+      "requires": {
+        "quest_done": [
+          "q4_new_dawn"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "The road is safer now, thanks to you. Stay as long as you like, friend.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "The road is safer now, thanks to you. Stay as long as you like, friend.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
     },
     {
       "id": "elder_q4_end_mercy",
-      "requires": { "quest_active": ["q4_new_dawn"], "flag": ["vow_mercy"] },
+      "requires": {
+        "quest_active": [
+          "q4_new_dawn"
+        ],
+        "flag": [
+          "vow_mercy"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian — corrupted by my old mistake.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "You gave it peace instead of fury. Perhaps that is how all of us hope to be remembered.", "next": "3" },
-        "3": { "speaker": "Elder Rowan", "text": "Take this ring, traveler. It belonged to the Warden in better days. May it carry you far.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian \u2014 corrupted by my old mistake.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "You gave it peace instead of fury. Perhaps that is how all of us hope to be remembered.",
+          "next": "3"
+        },
+        "3": {
+          "speaker": "Elder Rowan",
+          "text": "Take this ring, traveler. It belonged to the Warden in better days. May it carry you far.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "q4_new_dawn", "objective": "final_words" },
-        { "action": "give_item", "item": "traveler_ring" }
+        {
+          "action": "complete_objective",
+          "quest": "q4_new_dawn",
+          "objective": "final_words"
+        },
+        {
+          "action": "give_item",
+          "item": "traveler_ring"
+        }
       ]
     },
     {
       "id": "elder_q4_end_vengeance",
-      "requires": { "quest_active": ["q4_new_dawn"], "flag": ["vow_vengeance"] },
+      "requires": {
+        "quest_active": [
+          "q4_new_dawn"
+        ],
+        "flag": [
+          "vow_vengeance"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "It is done. You burned the corruption out root and branch — just as you swore.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "Part of me mourns the guardian it once was. But the living come first, and you chose them.", "next": "3" },
-        "3": { "speaker": "Elder Rowan", "text": "Take this blade. It has waited long for a hand steady enough to wield it.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "It is done. You burned the corruption out root and branch \u2014 just as you swore.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "Part of me mourns the guardian it once was. But the living come first, and you chose them.",
+          "next": "3"
+        },
+        "3": {
+          "speaker": "Elder Rowan",
+          "text": "Take this blade. It has waited long for a hand steady enough to wield it.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "q4_new_dawn", "objective": "final_words" },
-        { "action": "give_item", "item": "iron_sword" }
+        {
+          "action": "complete_objective",
+          "quest": "q4_new_dawn",
+          "objective": "final_words"
+        },
+        {
+          "action": "give_item",
+          "item": "iron_sword"
+        }
       ]
     },
     {
       "id": "elder_q3_reminder",
-      "requires": { "quest_active": ["q3_warden_fall"] },
+      "requires": {
+        "quest_active": [
+          "q3_warden_fall"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes — that's your window to roll aside.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes \u2014 that's your window to roll aside.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
     },
     {
       "id": "elder_q2_choice",
-      "requires": { "quest_active": ["q2_ember_omen"], "flag": ["saw_warden_ring"] },
+      "requires": {
+        "quest_active": [
+          "q2_ember_omen"
+        ],
+        "flag": [
+          "saw_warden_ring"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "You saw the ring... then you saw the truth I have carried for thirty years.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "The Warden was this valley's guardian. I tried to bind more power into it than flesh could hold. The fire you saw is my failure, given form.", "next": "3" },
-        "3": { "speaker": "Elder Rowan", "text": "It must be stopped. But how you face it... that choice is yours, not mine.", "next": "4" },
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "You saw the ring... then you saw the truth I have carried for thirty years.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "The Warden was this valley's guardian. I tried to bind more power into it than flesh could hold. The fire you saw is my failure, given form.",
+          "next": "3"
+        },
+        "3": {
+          "speaker": "Elder Rowan",
+          "text": "It must be stopped. But how you face it... that choice is yours, not mine.",
+          "next": "4"
+        },
         "4": {
           "speaker": "Elder Rowan",
           "text": "How will you face the Warden?",
           "choices": [
-            { "text": "With vengeance. It burned everything I love.", "next": "5v", "actions": [{ "action": "set_flag", "flag": "vow_vengeance" }] },
-            { "text": "With mercy. It is a victim too.", "next": "5m", "actions": [{ "action": "set_flag", "flag": "vow_mercy" }] }
+            {
+              "text": "With vengeance. It burned everything I love.",
+              "next": "5v",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "vow_vengeance"
+                }
+              ]
+            },
+            {
+              "text": "With mercy. It is a victim too.",
+              "next": "5m",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "vow_mercy"
+                }
+              ]
+            }
           ]
         },
-        "5v": { "speaker": "Elder Rowan", "text": "Then may your arm be as sure as your heart is set. End it.", "next": "" },
-        "5m": { "speaker": "Elder Rowan", "text": "Mercy... yes. Perhaps it deserves that much. Free it from the flame.", "next": "" }
+        "5v": {
+          "speaker": "Elder Rowan",
+          "text": "Then may your arm be as sure as your heart is set. End it.",
+          "next": ""
+        },
+        "5m": {
+          "speaker": "Elder Rowan",
+          "text": "Mercy... yes. Perhaps it deserves that much. Free it from the flame.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "q2_ember_omen", "objective": "confront_truth" }
+        {
+          "action": "complete_objective",
+          "quest": "q2_ember_omen",
+          "objective": "confront_truth"
+        }
       ]
     },
     {
       "id": "elder_q2_brief",
-      "requires": { "quest_active": ["q2_ember_omen"] },
+      "requires": {
+        "quest_active": [
+          "q2_ember_omen"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "Northeast, past the barrens, the ground itself is scorched into a perfect ring. Nothing grows there. Nothing sleeps there.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "Go. See it with your own eyes. Then come back to me — you deserve the truth of it.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "Northeast, past the barrens, the ground itself is scorched into a perfect ring. Nothing grows there. Nothing sleeps there.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "Go. See it with your own eyes. Then come back to me \u2014 you deserve the truth of it.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
     },
     {
       "id": "elder_q1_report",
-      "requires": { "quest_active": ["q1_first_light"], "flag": ["q1_first_light_kill_grunts"] },
+      "requires": {
+        "quest_active": [
+          "q1_first_light"
+        ],
+        "flag": [
+          "q1_first_light_kill_grunts"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "You've done it — the camp can breathe again. You fight like someone the road has sharpened.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "Take this coin. And traveler... there is something darker stirring in the northeast. I need your eyes on it.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "You've done it \u2014 the camp can breathe again. You fight like someone the road has sharpened.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "Take this coin. And traveler... there is something darker stirring in the northeast. I need your eyes on it.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "complete_objective", "quest": "q1_first_light", "objective": "report_elder" }
+        {
+          "action": "complete_objective",
+          "quest": "q1_first_light",
+          "objective": "report_elder"
+        }
       ]
     },
     {
       "id": "elder_q1_progress",
-      "requires": { "quest_active": ["q1_first_light"] },
+      "requires": {
+        "quest_active": [
+          "q1_first_light"
+        ]
+      },
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge — that's your cue to roll aside.", "next": "" }
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge \u2014 that's your cue to roll aside.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": []
@@ -105,22 +261,67 @@
       "id": "elder_q1_start",
       "requires": {},
       "nodes": {
-        "1": { "speaker": "Elder Rowan", "text": "Ah — a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.", "next": "2" },
-        "2": { "speaker": "Elder Rowan", "text": "You arrive at a poor hour. Slimes have grown bold and crept right up to our walls. My knees are too old for blades.", "next": "3" },
+        "1": {
+          "speaker": "Elder Rowan",
+          "text": "Ah \u2014 a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.",
+          "next": "2"
+        },
+        "2": {
+          "speaker": "Elder Rowan",
+          "text": "You arrive at a poor hour. Slimes have grown bold and crept right up to our walls. My knees are too old for blades.",
+          "next": "3"
+        },
         "3": {
           "speaker": "Elder Rowan",
           "text": "Would you thin them out for us? Three of the brutes should send the rest packing.",
           "choices": [
-            { "text": "Consider it done.", "next": "4" },
-            { "text": "Why should I risk my neck?", "next": "3b" }
+            {
+              "text": "Consider it done.",
+              "next": "4"
+            },
+            {
+              "text": "Why should I risk my neck?",
+              "next": "3b"
+            }
           ]
         },
-        "3b": { "speaker": "Elder Rowan", "text": "Fair. Coin, then — and my thanks when it's done. We take care of those who take care of us.", "next": "4" },
-        "4": { "speaker": "Elder Rowan", "text": "They prowl just outside the firelight. And traveler — roll aside when they glow. They always lunge after.", "next": "" }
+        "3b": {
+          "speaker": "Elder Rowan",
+          "text": "Fair. Coin, then \u2014 and my thanks when it's done. We take care of those who take care of us.",
+          "next": "4"
+        },
+        "4": {
+          "speaker": "Elder Rowan",
+          "text": "They prowl just outside the firelight. And traveler \u2014 roll aside when they glow. They always lunge after.",
+          "next": ""
+        }
       },
       "start": "1",
       "on_complete": [
-        { "action": "start_quest", "quest": "q1_first_light" }
+        {
+          "action": "start_quest",
+          "quest": "q1_first_light"
+        }
+      ]
+    }
+  ],
+  "barks": [
+    {
+      "text": "The camp fire never goes out. Small mercies.",
+      "when": []
+    },
+    {
+      "text": "Millhaven has stood through three winters like this one. Stand, or fall \u2014 that is all the world asks.",
+      "when": []
+    },
+    {
+      "text": "You have your mother's stubbornness. Use it.",
+      "when": []
+    },
+    {
+      "text": "Sleep while you can. The night has grown louder.",
+      "when": [
+        "Night"
       ]
     }
   ]

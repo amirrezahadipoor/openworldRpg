@@ -1,0 +1,269 @@
+{
+  "_comment": "Phase E \u00a73 - NPC roster: settlements, roles, and a 4-slot daily schedule keyed by DayNight.time_of_day_name() (Dawn/Day/Dusk/Night). Schedule values are OFFSETS from the position the NPC is placed at, so one roster works in any settlement layout. Idle barks live with the dialogue data in data/dialogue/<id>.json under 'barks'.",
+  "npcs": {
+    "elder_rowan": {
+      "display_name": "Old Rowan",
+      "settlement": "millhaven",
+      "role": "quest",
+      "function": "Act 1 mentor \u2014 starts the main chain; dies when Millhaven burns.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          -30,
+          40
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "wren": {
+      "display_name": "Wren",
+      "settlement": "millhaven",
+      "role": "lore",
+      "function": "The player's sibling \u2014 Act 1 presence, taken by the Ashen Choir in Act 2.",
+      "schedule": {
+        "Dawn": [
+          40,
+          70
+        ],
+        "Day": [
+          15,
+          95
+        ],
+        "Dusk": [
+          0,
+          25
+        ],
+        "Night": [
+          -20,
+          10
+        ]
+      }
+    },
+    "hunter_kael": {
+      "display_name": "Hunter Kael",
+      "settlement": "ashport",
+      "role": "quest",
+      "function": "Cull/run side-quest giver; scouts the barrens by day.",
+      "schedule": {
+        "Dawn": [
+          -40,
+          -20
+        ],
+        "Day": [
+          -120,
+          -60
+        ],
+        "Dusk": [
+          -40,
+          -20
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "merchant_bram": {
+      "display_name": "Merchant Bram",
+      "settlement": "millhaven",
+      "role": "shop",
+      "function": "Vendor \u2014 general stock; trades at the camp fire.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          10,
+          -15
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "ysolde": {
+      "display_name": "Ysolde the Trader",
+      "settlement": "ashport",
+      "role": "shop",
+      "function": "Vendor \u2014 barrens stock; only opens her stall once the sun is up.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "elder_fenwick": {
+      "display_name": "Elder Fenwick",
+      "settlement": "oakstead",
+      "role": "quest",
+      "function": "Oakstead's elder \u2014 side-quest hub for the Meadows.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          -45,
+          30
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "brother_ashe": {
+      "display_name": "Brother Ashe",
+      "settlement": "monastery",
+      "role": "lore",
+      "function": "Keeper of the Scorched Monastery \u2014 lore on the Ashen Choir.",
+      "schedule": {
+        "Dawn": [
+          -20,
+          20
+        ],
+        "Day": [
+          -20,
+          20
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "captain_dael": {
+      "display_name": "Captain Dael",
+      "settlement": "cinderhold",
+      "role": "quest",
+      "function": "Cinderhold's captain \u2014 faction quest hub for the Barrens.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          -60,
+          45
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "magistrate_voss": {
+      "display_name": "Magistrate Voss",
+      "settlement": "sunreach",
+      "role": "quest",
+      "function": "Act 1 antagonist \u2014 exposed by the main chain; stands trial in Sunreach.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "mireille": {
+      "display_name": "Mireille",
+      "settlement": "frosthaven",
+      "role": "companion",
+      "function": "Ex-Choir defector, coerced \u2014 Act 2 expose/protect fork, Act 3 companion.",
+      "schedule": {
+        "Dawn": [
+          60,
+          -30
+        ],
+        "Day": [
+          20,
+          -70
+        ],
+        "Dusk": [
+          60,
+          -30
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "high_warden_isolde": {
+      "display_name": "High Warden Isolde",
+      "settlement": "skyreach",
+      "role": "quest",
+      "function": "Act 3 \u2014 knows how to sever the Ember Warden's binding without killing the vessel.",
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          -35,
+          -25
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    }
+  }
+}

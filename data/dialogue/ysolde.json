@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for ysolde (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Everything here came off a wagon that came off another wagon. Buy accordingly.",
+      "when": []
+    },
+    {
+      "text": "Ashport trades in salvage. Bring me salvage and I'll trade in coin.",
+      "when": []
+    },
+    {
+      "text": "You look like you've been walking the slag. Sit. Drink. Pay.",
+      "when": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for high_warden_isolde (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "A binding is a promise made with violence. Promises can be broken other ways.",
+      "when": []
+    },
+    {
+      "text": "The vessel is not the enemy. That distinction is the whole of our work.",
+      "when": []
+    },
+    {
+      "text": "Skyreach sees the smoke before the fire. This year, there is a great deal of smoke.",
+      "when": []
+    }
+  ]
+}

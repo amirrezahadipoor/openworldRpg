@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for brother_ashe (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "The Choir does not sing. That is the first thing they teach you, and the last.",
+      "when": []
+    },
+    {
+      "text": "We kept this monastery lit for eighty years. Now half of it is rubble with a view.",
+      "when": []
+    },
+    {
+      "text": "Embers remember. That is what 'Ashvow' means \u2014 half promise, half warning.",
+      "when": []
+    }
+  ]
+}

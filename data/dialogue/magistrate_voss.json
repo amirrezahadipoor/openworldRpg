@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for magistrate_voss (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Order is not cruelty. Order is what keeps the chaos at the gate.",
+      "when": []
+    },
+    {
+      "text": "You will find, in time, that the law is a convenience of the ones who write it.",
+      "when": []
+    },
+    {
+      "text": "Careful. You speak to the only peace Sunreach has known.",
+      "when": []
+    }
+  ]
+}

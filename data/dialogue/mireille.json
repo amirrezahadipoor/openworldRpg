@@ -1,0 +1,24 @@
+{
+  "_comment": "NPC dialogue for mireille (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "I don't want your forgiveness. I want the door behind me closed.",
+      "when": []
+    },
+    {
+      "text": "They told me the fires were holy. I stood in one. It was just fire.",
+      "when": []
+    },
+    {
+      "text": "I know the Choir's rites better than any of their chanters. Don't make me use them.",
+      "when": []
+    },
+    {
+      "text": "Say my name somewhere public and I'll be dead by morning.",
+      "when": [
+        "Day"
+      ]
+    }
+  ]
+}

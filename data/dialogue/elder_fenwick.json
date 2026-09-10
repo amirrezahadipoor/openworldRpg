@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for elder_fenwick (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Oakstead was a mill before it was a village. We still grind what we can.",
+      "when": []
+    },
+    {
+      "text": "The Meadows feed the Barrens. Nobody south of the ridge remembers that.",
+      "when": []
+    },
+    {
+      "text": "My grandmother planted that oak. It has outlived better people than me.",
+      "when": []
+    }
+  ]
+}

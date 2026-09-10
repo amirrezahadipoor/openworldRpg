@@ -218,7 +218,17 @@ analysed and have no dependency on the NPC work.
   MP-cost discount (HUD shows it), damage taken, and an XP multiplier.
 - 26 new headless checks, including the level-gate matrix (a tier-4 node stays
   locked at level 1 even with 20 points invested) and multiplier stacking.
-### E§3. NPC schedule + bark system `[ ]`
+### E§3. NPC schedule + bark system ✅ DONE
+- `NPCController` with the bible's four states (`idle_schedule / walk_to_point /
+  talk / flee_combat`); `NPC` extends it so existing interaction code is untouched.
+- Schedules live in `data/npcs.json` as offsets from the placed position and read
+  the existing `DayNight` clock; 11 named NPCs ship with the bible's whole cast.
+- Idle barks (3+ per NPC, 37 total) extend the existing dialogue JSON with a
+  `barks` array - same data-driven system, no new engine. Barks are time-filtered,
+  rotate without repeating, and surface as a HUD banner.
+- Interacting with an NPC who has nothing quest-relevant to say now answers with
+  a bark, so no named NPC is scenery.
+- `tests/NpcTest.tscn` (24 checks) runs in CI after the audio job.
 ### E§1. World map settlements `[ ]`
 ### E§4/5. Main quest chain + side quests `[ ]`
 ### E§8. Reputation + companions `[ ]`

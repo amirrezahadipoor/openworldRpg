@@ -1,0 +1,18 @@
+{
+  "_comment": "NPC dialogue for captain_dael (Phase E \u00a73 barks; quest lines land with Act 1).",
+  "dialogues": [],
+  "barks": [
+    {
+      "text": "Cinderhold holds because someone stands on the wall. Today that's me.",
+      "when": []
+    },
+    {
+      "text": "I don't have soldiers to spare. I have refugees with spears.",
+      "when": []
+    },
+    {
+      "text": "You want the Monastery cleared? Bring me back proof it can be held.",
+      "when": []
+    }
+  ]
+}
