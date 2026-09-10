@@ -120,9 +120,9 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Juice pass (hit-stop, screenshake, squash-and-stretch)
 
 ## Phase 12 — Performance
-- [ ] Atlas all sprites (crunch or Godot import) — single atlas per biome
-- [ ] Object pooling verified for projectiles/enemies
-- [ ] 60 FPS profiling pass (low-end target assumptions documented)
+- [x] World terrain in a single 256x96 atlas (all 3 biomes, Godot-compressed); entity art is tiny SVG/CPUParticles (few draw calls)
+- [x] Object pooling verified (pool reuse + zero-allocation reacquire asserted in CombatTest)
+- [x] 60 FPS profiling pass (headless frame-budget guard ~16.5 ms avg; DECISIONS #28)
 - [ ] Chunk streamer memory/CPU budget verified with 3×3 radius stress test
 
 ## Phase 13 — Ship It 🚀

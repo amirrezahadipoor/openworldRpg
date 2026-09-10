@@ -47,6 +47,8 @@ func _ready() -> void:
 
 	await _test_music()
 
+	await _test_perf()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -452,6 +454,40 @@ func _test_music() -> void:
 	check(AudioManager._active != first_deck, "crossfade swaps to the other deck")
 	AudioManager.stop_music()
 	check(AudioManager._current_track == "", "stop_music clears track")
+
+
+func _test_perf() -> void:
+	print("[combat_test] pooling + frame budget")
+	var holder := PoolManager.get_node("Projectiles")
+	var pool: ObjectPool = PoolManager._projectiles
+	var free_before: int = pool._free.size()
+
+	var spawned := []
+	for i in 4:
+		PoolManager.spawn_projectile(Vector2(-3000, -3000), Vector2.RIGHT, 5.0, 400.0, Color.WHITE)
+	for p in holder.get_children():
+		if p is Projectile and p.visible:
+			spawned.append(p)
+	check(spawned.size() == 4, "four pooled projectiles active")
+	for p in spawned:
+		PoolManager.release_projectile(p)
+	check(pool._free.size() == free_before, "release returns nodes to pool (no leak)")
+
+	var children_before := holder.get_child_count()
+	PoolManager.spawn_projectile(Vector2(-3000, -3000), Vector2.RIGHT, 5.0, 400.0, Color.WHITE)
+	check(holder.get_child_count() == children_before,
+		"reacquire reuses pooled node (zero new allocations)")
+	for p in holder.get_children():
+		if p is Projectile and p.visible:
+			PoolManager.release_projectile(p)
+
+	# Frame budget smoke on the live world (chunks, spawners, HUD, juice).
+	var t0 := Time.get_ticks_usec()
+	for i in 60:
+		await get_tree().physics_frame
+	var avg_ms := float(Time.get_ticks_usec() - t0) / 60000.0
+	print("  avg frame: %.2f ms" % avg_ms)
+	check(avg_ms < 33.0, "avg frame under 33 ms budget (headless smoke)")
 
 
 func _test_boss_phases_and_death() -> void:

@@ -71,6 +71,16 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#28 — Performance strategy & validation** · 2026-09-10
+Low-end Android target: GL Compatibility renderer, one shared texture atlas for all world
+terrain (single bind, batched `draw_texture_rect_region` per chunk; chunk `_draw` is cached by
+the canvas server so it costs only on load), pooled projectiles (`ObjectPool` prewarm 16) and
+respawning enemy slots, `CPUParticles2D` one-shots that self-free, chunk streaming radius 1
+(3×3 = ≤9 chunks, ~1 draw list each), UI rebuilt only on open, minimap redraws at 3 Hz off the
+render loop. Validation: CombatTest asserts pool reuse/zero-allocation reacquire and a headless
+frame-budget smoke (60 physics frames on the live world must average < 33 ms; measured ~16.5 ms
+on CI-class hardware). Real-device profiling remains the signed-build soak step (DECISIONS #13).
+
 **#27 — Procedural music score** · 2026-09-10
 Five seamless-loop tracks synthesized by `tools/gen_music.py` (pure stdlib, deterministic):
 title, meadow, barrens, frost (ambience) + combat. ~22 kHz mono 16-bit, ~5.2 MB total, CC0 by

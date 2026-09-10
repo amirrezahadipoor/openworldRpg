@@ -21,6 +21,16 @@ jobs:
       - name: Repo size budget gate (<= 120 MB)
         run: bash tools/check_repo_size.sh
 
+      - name: Validate authored data (items/enemies/talents/quests/dialogues + world maps)
+        run: |
+          python3 - <<'EOF'
+          import json, glob, sys
+          paths = sorted(set(glob.glob("data/*.json") + glob.glob("data/dialogue/*.json") + glob.glob("world/chunks/*.json")))
+          for p in paths:
+              json.load(open(p))
+          print("validated %d JSON data files" % len(paths))
+          EOF
+
       - name: Bootstrap toolchain (Godot editor only)
         run: bash tools/bootstrap_toolchain.sh --editor
 
