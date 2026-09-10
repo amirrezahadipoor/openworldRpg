@@ -22,3 +22,6 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# --- Gradle android build template (CI installs it in-project; never commit) ---
+android/
