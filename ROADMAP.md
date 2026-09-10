@@ -208,7 +208,16 @@ analysed and have no dependency on the NPC work.
 - Guarded by 12 new headless checks (seams, monotonicity, cap, milestone idempotency,
   save round-trip, floor scaling).
 
-### E§7. Expanded talent trees (60 nodes) `[ ]`
+### E§7. Expanded talent trees (60 nodes) ✅ DONE
+- 3 branches x 4 tiers x 5 nodes, all data-driven from `data/talents.json`; the
+  branch counter model, the three-column UI and existing saves are untouched.
+- Tier gates 5/25/50/75 by character level, per-node point costs 1..20 inside a
+  branch; the nine shipped nodes stay `core` at level 1 so nothing regressed.
+- Additive effects are summed, multiplier effects multiplied (floored at 0.4).
+  New node types are backed by real hooks — lifesteal, whirlwind/firebolt damage,
+  MP-cost discount (HUD shows it), damage taken, and an XP multiplier.
+- 26 new headless checks, including the level-gate matrix (a tier-4 node stays
+  locked at level 1 even with 20 points invested) and multiplier stacking.
 ### E§3. NPC schedule + bark system `[ ]`
 ### E§1. World map settlements `[ ]`
 ### E§4/5. Main quest chain + side quests `[ ]`

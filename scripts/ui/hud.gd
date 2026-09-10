@@ -53,8 +53,8 @@ func _process(delta: float) -> void:
 		]
 	if player != null and _whirl_btn != null:
 		var cds := player.cooldowns()
-		_update_cd(_whirl_btn, float(cds["whirl"]), Player.WHIRL_COOLDOWN, Player.WHIRL_MP)
-		_update_cd(_bolt_btn, float(cds["bolt"]), Player.BOLT_COOLDOWN, Player.BOLT_MP)
+		_update_cd(_whirl_btn, float(cds["whirl"]), Player.WHIRL_COOLDOWN, player.whirl_mp_cost())
+		_update_cd(_bolt_btn, float(cds["bolt"]), Player.BOLT_COOLDOWN, player.bolt_mp_cost())
 
 
 func _update_cd(btn: ActionButton, frac: float, total_cd: float, mp_cost: float) -> void:

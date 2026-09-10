@@ -55,6 +55,7 @@ func _ready() -> void:
 	_test_xp_curve()
 	_test_milestones()
 	_test_floor_scaling()
+	_test_talent_tree()
 
 	_report()
 
@@ -670,3 +671,96 @@ func _test_floor_scaling() -> void:
 	shallow.setup_floor(6)
 	check(absf(shallow.max_hp - deep.max_hp) < 0.001, "setup_floor re-scales in place")
 	host.queue_free()
+
+
+# --- Phase E §7: 60-node talent tree -----------------------------------------
+
+func _test_talent_tree() -> void:
+	print("[combat_test] 60-node talent tree (Phase E §7)")
+	var branches: Array = GameState._talent_branches()
+	check(branches.size() == 3, "three branches (%d)" % branches.size())
+
+	var total := 0
+	var ids := {}
+	var shape_ok := true
+	var band_ok := true
+	for b in branches:
+		var branch := b as Dictionary
+		var bid := String(branch.get("id", ""))
+		var nodes: Array = branch.get("nodes", [])
+		total += nodes.size()
+		for i in nodes.size():
+			var node := nodes[i] as Dictionary
+			ids[String(node.get("id", ""))] = true
+			if int(node.get("req_points", -1)) != i + 1:
+				band_ok = false
+			var expected_tier := (i / 5) + 1
+			if int(node.get("tier", -1)) != expected_tier:
+				shape_ok = false
+		check(nodes.size() == 20, "%s branch has 20 nodes" % bid)
+	check(total == 60, "60 nodes in total (%d)" % total)
+	check(ids.size() == 60, "all 60 node ids are unique (%d)" % ids.size())
+	check(shape_ok, "4 tiers x 5 nodes per branch")
+	check(band_ok, "req_points runs 1..20 in every branch")
+
+	# Level gates: tier bands must open at 5 / 25 / 50 / 75.
+	var gate_ok := true
+	for b in branches:
+		var nodes2: Array = (b as Dictionary).get("nodes", [])
+		for i in nodes2.size():
+			var n := nodes2[i] as Dictionary
+			if bool(n.get("core", false)):
+				continue
+			var want: int = [5, 25, 50, 75][i / 5]
+			if int(n.get("req_level", -1)) != want:
+				gate_ok = false
+	check(gate_ok, "tier gates are 5 / 25 / 50 / 75 (core starter nodes stay at 1)")
+
+	# Points alone are not enough — the level gate must bite.
+	var saved := {
+		"level": GameState.level, "tp": GameState.talent_points,
+		"talents": GameState.talents.duplicate(),
+	}
+	GameState.talents = {"combat": 20, "magic": 0, "utility": 0}
+	GameState.level = 1
+	check(GameState.talent_sum("atk") == 4.0,
+		"at level 1 only the core node counts (+%d atk)" % int(GameState.talent_sum("atk")))
+	check(GameState.node_unlocked("combat", GameState.talents_for_branch("combat")[19]) == false,
+		"tier 4 node stays locked at level 1 even with 20 points")
+
+	GameState.level = 25
+	check(GameState.talent_sum("atk") == 13.0,
+		"levels 1-25 open tiers 1-2 (+%d atk)" % int(GameState.talent_sum("atk")))
+	check(absf(GameState.attack_cooldown_mult() - 0.72) < 0.001,
+		"Swift Strikes x Momentum stack multiplicatively (%.3f)" % GameState.attack_cooldown_mult())
+
+	GameState.level = 50
+	check(absf(GameState.attack_cooldown_mult() - 0.648) < 0.001,
+		"three cooldown nodes stack (%.3f)" % GameState.attack_cooldown_mult())
+	check(GameState.talent_sum("lifesteal") > 0.0, "Bloodletter grants lifesteal")
+	check(GameState.damage_taken_mult() < 1.0, "Unyielding reduces damage taken")
+
+	GameState.level = 75
+	check(GameState.talent_sum("atk") == 34.0,
+		"all four tiers open (+%d atk)" % int(GameState.talent_sum("atk")))
+	check(GameState.whirl_mult() > 1.0, "combat whirlwind talent applies")
+	check(GameState.bolt_mult() == 1.0, "magic branch is untouched with 0 points")
+
+	GameState.talents["magic"] = 20
+	check(GameState.bolt_mult() > 1.0, "magic firebolt talents apply")
+	check(GameState.mp_cost_mult() < 1.0, "Efficient Casting discounts MP costs")
+	check(GameState.mp_regen_per_sec() > 1.0, "MP regen talents stack")
+	check(GameState.talent_mult("gold") == 1.0, "utility branch is untouched")
+
+	# A branch is mastered at 20 points; further points are refused.
+	GameState.talent_points = 5
+	check(not GameState.spend_talent("combat"), "spending past the mastered branch is refused")
+	check(GameState.talent_points == 5, "refused spend keeps the point")
+
+	# Multiplier floor keeps "less of a bad thing" talents from reaching zero.
+	check(GameState.talent_mult("dmg_taken") >= 0.4, "multiplier stack is floored")
+
+	GameState.level = int(saved["level"])
+	GameState.talent_points = int(saved["tp"])
+	GameState.talents = saved["talents"]
+	GameState.stats_changed.emit()

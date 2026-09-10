@@ -139,7 +139,11 @@ func _branch_column(branch: Dictionary) -> Control:
 	col.add_child(vbox)
 
 	var name_label := Label.new()
-	name_label.text = String(branch.get("name", bid))
+	name_label.text = "%s  %d/%d" % [
+		String(branch.get("name", bid)),
+		int(GameState.talents.get(bid, 0)),
+		int(branch.get("nodes", []).size()),
+	]
 	name_label.add_theme_font_size_override("font_size", 20)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(name_label)
@@ -159,9 +163,12 @@ func _branch_column(branch: Dictionary) -> Control:
 
 
 func _node_row(bid: String, node: Dictionary, branch_points: int) -> Control:
-	var tier := int(node.get("tier", 1))
-	var active := branch_points >= tier
-	var is_next := branch_points == tier - 1
+	## Phase E §7: a node unlocks on points invested in its branch AND a character
+	## level gate, so the row reports which of the two is missing.
+	var req_points := int(node.get("req_points", int(node.get("tier", 1))))
+	var req_level := int(node.get("req_level", 1))
+	var active := GameState.node_unlocked(bid, node)
+	var is_next := not active and branch_points == req_points - 1 and GameState.level >= req_level
 
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
@@ -185,7 +192,13 @@ func _node_row(bid: String, node: Dictionary, branch_points: int) -> Control:
 	nm.text = "%s" % String(node.get("name", ""))
 	nm.add_theme_font_size_override("font_size", 15)
 	nm.add_theme_color_override("font_color", Color(0.8, 1.0, 0.8) if active else Color(1, 1, 1, 0.8))
+	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(nm)
+	var tier_label := Label.new()
+	tier_label.text = "T%d" % int(node.get("tier", 1))
+	tier_label.add_theme_font_size_override("font_size", 11)
+	tier_label.add_theme_color_override("font_color", Color(1, 0.85, 0.5, 0.7))
+	head.add_child(tier_label)
 	inner.add_child(head)
 
 	var dsc := Label.new()
@@ -196,11 +209,11 @@ func _node_row(bid: String, node: Dictionary, branch_points: int) -> Control:
 	inner.add_child(dsc)
 
 	if active:
-		var status := Label.new()
-		status.text = "✓ Active"
-		status.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
-		status.add_theme_font_size_override("font_size", 12)
-		inner.add_child(status)
+		var mark := Label.new()
+		mark.text = "✓ Active"
+		mark.add_theme_color_override("font_color", Color(0.5, 0.9, 0.5))
+		mark.add_theme_font_size_override("font_size", 12)
+		inner.add_child(mark)
 	elif is_next and GameState.talent_points > 0:
 		var learn := Button.new()
 		learn.text = "Learn (1 point)"
@@ -211,7 +224,8 @@ func _node_row(bid: String, node: Dictionary, branch_points: int) -> Control:
 		inner.add_child(learn)
 	else:
 		var lock := Label.new()
-		lock.text = "Locked" if not is_next else "Need a point"
+		var reason := GameState.node_locked_reason(bid, node)
+		lock.text = ("Locked · %s" % reason) if reason != "" else "Locked"
 		lock.add_theme_color_override("font_color", Color(1, 1, 1, 0.3))
 		lock.add_theme_font_size_override("font_size", 12)
 		inner.add_child(lock)

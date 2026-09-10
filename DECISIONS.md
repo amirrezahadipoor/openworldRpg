@@ -288,3 +288,33 @@ in the save and shown as a HUD banner. `data/enemies.json` gains
 `floor_multiplier` and `EnemyDB.floor_scale()`, so dungeon floor N scales
 hp/damage/xp by `1 + floor_multiplier × (N-1)` — `Enemy.setup_archetype()`
 takes an optional floor, and `EnemySpawner.floor_index` exposes it per scene.
+
+**#33 — 60-node talent tree, data-driven effects (Phase E §7)** · 2026-09-10
+The bible asks for 60 nodes (3 branches x 4 tiers x 5 nodes) while `DECISIONS
+#19` shipped talents as **one integer per branch** (`talents[branch]`) with
+9 hardcoded nodes. Rather than replace the model, the counter is kept — it is
+what the three-column UI and every existing save are built on — and each node
+in `data/talents.json` now declares `req_points` (points invested in its branch)
+and `req_level` (character level).
+
+- **Tier gates** open at levels 5 / 25 / 50 / 75. The nine originally shipped
+  nodes (`Power Strikes`, `Iron Skin`, `Swift Strikes`, `Arcane Focus`,
+  `Clarity`, `Potent Brews`, `Fleet Foot`, `Fortune`, `Shadow Step`) are marked
+  `core: true` with `req_level: 1`, so a level-1 character keeps exactly the
+  effects it had before — the expansion is purely additive, and the existing
+  talent assertions still pass unchanged.
+- **Effects are data**: additive keys (`atk/def/hp/mp/speed/mp_regen/dodge/
+  lifesteal`) are summed by `talent_sum()`, multiplier keys (`atk_cd/potion/
+  gold/xp/dmg_taken/whirl/bolt/mp_cost`) are multiplied by `talent_mult()`,
+  floored at 0.4 so stacked "take less damage" nodes can never reach zero.
+- **New nodes got real hooks**, not just numbers: lifesteal heals on melee and
+  whirlwind hits, `whirl_mult()`/`bolt_mult()` scale ability damage,
+  `mp_cost_mult()` discounts whirlwind/firebolt costs (the HUD shows the
+  discounted number), `damage_taken_mult()` reduces incoming damage, and
+  `xp_mult()` scales all XP gains. Each is exercised in `combat_test.gd`.
+- `MAX_BRANCH_POINTS = 20` — a mastered branch refuses further points. Since
+  100 levels plus milestone points exceed 60 nodes, a max-level character
+  masters all three branches; an overflow/paragon sink is deliberately left
+  for a later phase instead of being invented here.
+- `node_active(branch, tier)` is retained (points >= tier) for the original
+  call sites and the "next point" hint in the UI.

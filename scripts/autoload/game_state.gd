@@ -19,6 +19,7 @@ const XP_SEG2_END: int = 60
 const XP_MAX_LEVEL: int = 100
 const MILESTONE_STEP: int = 10
 const MILESTONES_PATH: String = "res://data/milestones.json"
+const TALENTS_PATH: String = "res://data/talents.json"
 
 signal stats_changed
 
@@ -114,6 +115,7 @@ func add_xp(amount: int) -> void:
 	if level >= XP_MAX_LEVEL:
 		xp = 0  # capped: excess XP is discarded rather than looping
 		return
+	amount = int(round(float(amount) * xp_mult()))  # Trailwise / Survivor / Veteran
 	xp += amount
 	while level < XP_MAX_LEVEL and xp >= xp_to_next() and xp_to_next() > 0:
 		xp -= xp_to_next()
@@ -178,6 +180,8 @@ func _grant_milestone(lv: int) -> void:
 func spend_talent(branch: String) -> bool:
 	if talent_points <= 0 or not talents.has(branch):
 		return false
+	if int(talents[branch]) >= MAX_BRANCH_POINTS:
+		return false  # every node in this branch is already mastered
 	talent_points -= 1
 	talents[branch] = int(talents[branch]) + 1
 	_clamp_pools()
@@ -185,57 +189,157 @@ func spend_talent(branch: String) -> bool:
 	return true
 
 
-# --- Final stats (level + talents; gear is added in Phase 7) ----------------
+# --- Final stats (level + talents + milestones; gear is added in Phase 7) ----
 
 func max_hp() -> float:
-	var bonus := 15.0 if node_active("combat", 2) else 0.0  # Iron Skin
-	return base_hp + (level - 1) * 12.0 + bonus + milestone_bonus("hp") + equipment_bonus("hp")
+	return base_hp + (level - 1) * 12.0 + talent_sum("hp") \
+		+ milestone_bonus("hp") + equipment_bonus("hp")
 
 
 func max_mp() -> float:
-	var bonus := 20.0 if node_active("magic", 1) else 0.0  # Arcane Focus
-	return base_mp + (level - 1) * 6.0 + bonus + milestone_bonus("mp") + equipment_bonus("mp")
+	return base_mp + (level - 1) * 6.0 + talent_sum("mp") \
+		+ milestone_bonus("mp") + equipment_bonus("mp")
 
 
 func attack() -> float:
-	var bonus := 4.0 if node_active("combat", 1) else 0.0  # Power Strikes
-	return base_attack + (level - 1) * 1.5 + bonus + milestone_bonus("atk") + equipment_bonus("atk")
+	return base_attack + (level - 1) * 1.5 + talent_sum("atk") \
+		+ milestone_bonus("atk") + equipment_bonus("atk")
 
 
 func defense() -> float:
-	var bonus := 4.0 if node_active("combat", 2) else 0.0  # Iron Skin
-	return base_defense + (level - 1) * 1.0 + bonus + milestone_bonus("def") + equipment_bonus("def")
+	return base_defense + (level - 1) * 1.0 + talent_sum("def") \
+		+ milestone_bonus("def") + equipment_bonus("def")
 
 
 func move_speed() -> float:
-	var bonus := 22.0 if node_active("utility", 1) else 0.0  # Fleet Foot
-	return base_speed + bonus + milestone_bonus("speed") + equipment_bonus("speed")
+	return base_speed + talent_sum("speed") + milestone_bonus("speed") + equipment_bonus("speed")
 
 
-# --- Talent tree (node-active model, DECISIONS #19) ---------------------------
+# --- Talent tree (Phase E §7: 60 data-driven nodes, DECISIONS #19/#33) --------
+#
+# A branch is still a single invested-points counter (`talents[branch]`), which
+# keeps the three-column UI and the existing saves working. Each node in
+# data/talents.json declares `req_points` (points invested in that branch to
+# unlock it) and `req_level` (character level gate: tiers open at 5/25/50/75,
+# except the three originally shipped starter nodes, which stay at level 1).
+# `effects` are summed for additive keys and multiplied for multiplier keys.
+
+const TALENT_POINTS_PER_NODE: int = 1
+const MAX_BRANCH_POINTS: int = 20  # one per node in a branch
+
+var _talent_cache: Array = []
+
+
+func _talent_branches() -> Array:
+	if _talent_cache.is_empty():
+		var f := FileAccess.open(TALENTS_PATH, FileAccess.READ)
+		if f == null:
+			push_error("GameState: cannot open %s" % TALENTS_PATH)
+			return []
+		var parsed: Variant = JSON.parse_string(f.get_as_text())
+		if typeof(parsed) != TYPE_DICTIONARY:
+			push_error("GameState: %s is not a JSON object" % TALENTS_PATH)
+			return []
+		_talent_cache = (parsed as Dictionary).get("branches", [])
+	return _talent_cache
+
+
+func talents_for_branch(branch: String) -> Array:
+	for b in _talent_branches():
+		if String((b as Dictionary).get("id", "")) == branch:
+			return (b as Dictionary).get("nodes", [])
+	return []
+
+
+func node_unlocked(branch: String, node: Dictionary) -> bool:
+	## Point cost *and* level gate — the node is live only when both hold.
+	if int(talents.get(branch, 0)) < int(node.get("req_points", 1)):
+		return false
+	return level >= int(node.get("req_level", 1))
+
+
+func node_locked_reason(branch: String, node: Dictionary) -> String:
+	## "" when unlocked, else why not (used by the talent screen).
+	if int(talents.get(branch, 0)) < int(node.get("req_points", 1)):
+		return "%d pts in %s" % [int(node.get("req_points", 1)), branch]
+	if level < int(node.get("req_level", 1)):
+		return "Level %d" % int(node.get("req_level", 1))
+	return ""
+
+
+func talent_sum(key: String) -> float:
+	## Additive talent effects (atk, def, hp, mp, speed, mp_regen, dodge, lifesteal).
+	var total := 0.0
+	for b in _talent_branches():
+		var bid := String((b as Dictionary).get("id", ""))
+		for n in (b as Dictionary).get("nodes", []):
+			var node := n as Dictionary
+			if node_unlocked(bid, node):
+				total += float((node.get("effects", {}) as Dictionary).get(key, 0.0))
+	return total
+
+
+func talent_mult(key: String) -> float:
+	## Multiplier talent effects, applied as a product so they stack sanely.
+	## Floored so that "less of a bad thing" talents can never reach zero.
+	var m := 1.0
+	for b in _talent_branches():
+		var bid := String((b as Dictionary).get("id", ""))
+		for n in (b as Dictionary).get("nodes", []):
+			var node := n as Dictionary
+			if node_unlocked(bid, node):
+				m *= float((node.get("effects", {}) as Dictionary).get(key, 1.0))
+	return maxf(m, 0.4)
+
 
 func node_active(branch: String, tier: int) -> bool:
+	## Legacy helper: "at least this many points invested in the branch".
+	## Kept because the original talent effects and the UI were built on it.
 	return int(talents.get(branch, 0)) >= tier
 
 
 func attack_cooldown_mult() -> float:
-	return 0.8 if node_active("combat", 3) else 1.0  # Swift Strikes
+	return talent_mult("atk_cd")                            # Swift Strikes, Momentum, ...
 
 
 func potion_mult() -> float:
-	return 1.35 if node_active("magic", 3) else 1.0  # Potent Brews
+	return talent_mult("potion")                            # Potent Brews, Alchemist, ...
 
 
 func gold_mult() -> float:
-	return 1.2 if node_active("utility", 2) else 1.0  # Fortune
+	return talent_mult("gold")                              # Fortune, Gilded Hand, ...
 
 
 func mp_regen_per_sec() -> float:
-	return 0.6 if node_active("magic", 2) else 0.0  # Clarity
+	return talent_sum("mp_regen")                           # Clarity, Focused Mind, ...
 
 
 func dodge_duration_bonus() -> float:
-	return 0.08 if node_active("utility", 3) else 0.0  # Shadow Step
+	return talent_sum("dodge")                              # Shadow Step, Ghost Walk, ...
+
+
+func whirl_mult() -> float:
+	return talent_mult("whirl")                             # Blade Storm, Emberstorm, ...
+
+
+func bolt_mult() -> float:
+	return talent_mult("bolt")                              # Kindled Bolt, Vessel's Spark
+
+
+func mp_cost_mult() -> float:
+	return talent_mult("mp_cost")                           # Efficient Casting
+
+
+func damage_taken_mult() -> float:
+	return talent_mult("dmg_taken")                         # Unyielding, Ashen Ward, ...
+
+
+func lifesteal() -> float:
+	return clampf(talent_sum("lifesteal"), 0.0, 0.5)        # Bloodletter, Sanguine Edge
+
+
+func xp_mult() -> float:
+	return talent_mult("xp")                                # Trailwise, Survivor, Veteran
 
 
 func equipment_bonus(key: String) -> float:

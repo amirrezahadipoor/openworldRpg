@@ -148,14 +148,17 @@ func _resolve_attack_hits() -> void:
 		if area.is_in_group("hurtbox"):
 			var target: Node = area.get_parent()
 			if target != null and target.has_method("take_hit"):
-				target.take_hit(GameState.attack(), facing)
+				var dmg := GameState.attack()
+				target.take_hit(dmg, facing)
+				_apply_lifesteal(dmg)
 
 
 ## Whirlwind — 360° melee spin hitting every hurtbox in WHIRL_RADIUS.
 func cast_whirlwind() -> void:
-	if GameState.mp < WHIRL_MP:
+	var cost := whirl_mp_cost()
+	if GameState.mp < cost:
 		return
-	GameState.mp -= WHIRL_MP
+	GameState.mp -= cost
 	_whirl_cd = WHIRL_COOLDOWN
 	_cast_anim = 0.32
 	AudioManager.play_sfx("ability_whirl")
@@ -168,20 +171,23 @@ func cast_whirlwind() -> void:
 			if global_position.distance_to(e.global_position) <= WHIRL_RADIUS:
 				var dir := (e.global_position - global_position).normalized()
 				if e.has_method("take_hit"):
-					e.take_hit(GameState.attack() * WHIRL_MULT, dir)
+					var wdmg := GameState.attack() * WHIRL_MULT * GameState.whirl_mult()
+					e.take_hit(wdmg, dir)
+					_apply_lifesteal(wdmg)
 
 
 ## Firebolt — ranged projectile that pierces toward the facing direction.
 func cast_firebolt() -> void:
-	if GameState.mp < BOLT_MP:
+	var cost := bolt_mp_cost()
+	if GameState.mp < cost:
 		return
-	GameState.mp -= BOLT_MP
+	GameState.mp -= cost
 	_bolt_cd = BOLT_COOLDOWN
 	_cast_anim = 0.35
 	AudioManager.play_sfx("ability_bolt")
 	PoolManager.spawn_projectile(
 		global_position + facing * 22.0, facing,
-		GameState.attack() * BOLT_MULT, BOLT_SPEED,
+		GameState.attack() * BOLT_MULT * GameState.bolt_mult(), BOLT_SPEED,
 		Color(0.45, 0.75, 1.0), true
 	)
 
@@ -205,11 +211,29 @@ func _squash(target: Vector2) -> void:
 		.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
+## Whirlwind / Firebolt MP costs after the Efficient Casting talent.
+func whirl_mp_cost() -> float:
+	return maxf(1.0, WHIRL_MP * GameState.mp_cost_mult())
+
+
+func bolt_mp_cost() -> float:
+	return maxf(1.0, BOLT_MP * GameState.mp_cost_mult())
+
+
+func _apply_lifesteal(dmg: float) -> void:
+	## Bloodletter / Sanguine Edge: heal a fraction of the damage dealt.
+	var frac := GameState.lifesteal()
+	if frac <= 0.0:
+		return
+	GameState.hp = minf(GameState.hp + dmg * frac, GameState.max_hp())
+	EventBus.player_healed.emit(dmg * frac)
+
+
 ## Called by enemy hitboxes / hazards.
 func take_hit(amount: float, _dir: Vector2) -> void:
 	if invulnerable:
 		return
-	var dmg := maxf(1.0, amount - GameState.defense() * 0.5)
+	var dmg := maxf(1.0, amount - GameState.defense() * 0.5) * GameState.damage_taken_mult()
 	GameState.hp = clampf(GameState.hp - dmg, 0.0, GameState.max_hp())
 	EventBus.player_damaged.emit(dmg)
 	_hurt_anim = 0.3
