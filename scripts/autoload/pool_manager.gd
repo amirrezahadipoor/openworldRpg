@@ -14,9 +14,9 @@ func _ready() -> void:
 	_projectiles = ObjectPool.new(load(PROJECTILE_SCENE), holder, PROJECTILE_PREWARM)
 
 
-func spawn_projectile(pos: Vector2, dir: Vector2, damage: float, speed: float, color: Color) -> void:
+func spawn_projectile(pos: Vector2, dir: Vector2, damage: float, speed: float, color: Color, friendly: bool = false) -> void:
 	var p: Projectile = _projectiles.acquire()
-	p.launch(pos, dir, damage, speed, color)
+	p.launch(pos, dir, damage, speed, color, friendly)
 
 
 func release_projectile(p: Projectile) -> void:

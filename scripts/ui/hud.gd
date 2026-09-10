@@ -15,6 +15,8 @@ var mp_bar: ProgressBar
 var info_label: Label
 var quest_label: Label
 var joystick: VirtualJoystick
+var _whirl_btn: ActionButton
+var _bolt_btn: ActionButton
 
 
 func setup(p: Player) -> void:
@@ -35,6 +37,25 @@ func _process(_delta: float) -> void:
 		info_label.text = "Lv %d · XP %d/%d · %d gold" % [
 			GameState.level, GameState.xp, GameState.xp_to_next(), GameState.gold
 		]
+	if player != null and _whirl_btn != null:
+		var cds := player.cooldowns()
+		_update_cd(_whirl_btn, float(cds["whirl"]), Player.WHIRL_COOLDOWN, Player.WHIRL_MP)
+		_update_cd(_bolt_btn, float(cds["bolt"]), Player.BOLT_COOLDOWN, Player.BOLT_MP)
+
+
+func _update_cd(btn: ActionButton, frac: float, total_cd: float, mp_cost: float) -> void:
+	var label: Label = btn.get_child(btn.get_child_count() - 1) if btn.get_child_count() > 0 else null
+	if label == null:
+		return
+	if frac > 0.0:
+		label.text = "%.1f" % (frac * total_cd)
+		btn.modulate = Color(0.5, 0.5, 0.55, 0.85)
+	elif GameState.mp < mp_cost:
+		label.text = "MP"
+		btn.modulate = Color(0.45, 0.5, 0.9, 0.85)
+	else:
+		label.text = ""
+		btn.modulate = Color(1, 1, 1, 0.85)
 
 
 # --- Builders -----------------------------------------------------------------
@@ -167,6 +188,14 @@ func _build_touch_controls() -> void:
 	buttons.offset_bottom = -20.0 - m.y
 	buttons.alignment = BoxContainer.ALIGNMENT_END
 
+	var whirl := ActionButton.new()
+	whirl.setup("ability_whirl", _load_icon("icon_whirl"), 74.0)
+	_whirl_btn = whirl
+	whirl.add_child(_cd_label())
+	var bolt := ActionButton.new()
+	bolt.setup("ability_bolt", _load_icon("icon_bolt"), 74.0)
+	_bolt_btn = bolt
+	bolt.add_child(_cd_label())
 	var dodge := ActionButton.new()
 	dodge.setup("dodge", _load_icon("icon_dodge"), 74.0)
 	var interact_btn := ActionButton.new()
@@ -174,10 +203,24 @@ func _build_touch_controls() -> void:
 	var attack := ActionButton.new()
 	attack.setup("attack", _load_icon("icon_attack"), 104.0)
 
+	buttons.add_child(whirl)
+	buttons.add_child(bolt)
 	buttons.add_child(dodge)
 	buttons.add_child(interact_btn)
 	buttons.add_child(attack)
 	add_child(buttons)
+
+
+func _cd_label() -> Label:
+	var l := Label.new()
+	l.set_anchors_preset(Control.PRESET_FULL_RECT)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_size_override("font_size", 20)
+	l.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
+	l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	l.add_theme_constant_override("outline_size", 5)
+	return l
 
 
 func _load_icon(n: String) -> Texture2D:

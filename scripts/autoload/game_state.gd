@@ -85,6 +85,7 @@ func add_xp(amount: int) -> void:
 		talent_points += 1
 		hp = max_hp()
 		mp = max_mp()
+		AudioManager.play_sfx("level_up")
 		EventBus.player_leveled_up.emit(level)
 	stats_changed.emit()
 

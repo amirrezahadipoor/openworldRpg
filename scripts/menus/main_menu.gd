@@ -136,6 +136,7 @@ func _menu_button(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(320, 50)
+	b.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
 	b.pressed.connect(cb)
 	return b
 
@@ -257,6 +258,7 @@ func _refresh_slot_picker() -> void:
 
 
 func _on_slot_chosen(slot: int) -> void:
+	AudioManager.play_sfx("ui_click")
 	if _slot_mode == "continue":
 		if not SaveSystem.has_save(slot):
 			return

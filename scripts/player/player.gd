@@ -13,6 +13,16 @@ const DODGE_COOLDOWN := 0.6
 const ATTACK_COOLDOWN := 0.35
 const ATTACK_ACTIVE_TIME := 0.12
 
+# Abilities (Phase 4): cooldown-based, MP-fueled.
+const WHIRL_COOLDOWN := 4.0
+const WHIRL_MP := 10.0
+const WHIRL_RADIUS := 95.0
+const WHIRL_MULT := 1.4
+const BOLT_COOLDOWN := 2.2
+const BOLT_MP := 12.0
+const BOLT_SPEED := 430.0
+const BOLT_MULT := 1.2
+
 ## Fed by the virtual joystick (touch). Zero → fall back to keyboard actions.
 var external_input := Vector2.ZERO
 
@@ -24,6 +34,10 @@ var _dodge_cd := 0.0
 var _dodge_dir := Vector2.RIGHT
 var _attack_cd := 0.0
 var _attack_active := 0.0
+var _whirl_cd := 0.0
+var _bolt_cd := 0.0
+
+signal ability_cooldowns_changed(whirl: float, bolt: float)
 
 @onready var sprite: Sprite2D = $Sprite
 @onready var attack_pivot: Node2D = $AttackPivot
@@ -41,6 +55,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_dodge_cd = maxf(_dodge_cd - delta, 0.0)
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
+	_whirl_cd = maxf(_whirl_cd - delta, 0.0)
+	_bolt_cd = maxf(_bolt_cd - delta, 0.0)
 
 	if _dodge_timer > 0.0:
 		_dodge_timer -= delta
@@ -67,8 +83,20 @@ func _physics_process(delta: float) -> void:
 			_start_attack()
 		elif Input.is_action_just_pressed("dodge") and _dodge_cd <= 0.0:
 			_start_dodge(move)
+		if Input.is_action_just_pressed("ability_whirl") and _whirl_cd <= 0.0:
+			cast_whirlwind()
+		if Input.is_action_just_pressed("ability_bolt") and _bolt_cd <= 0.0:
+			cast_firebolt()
 
 	move_and_slide()
+
+
+## Normalized remaining cooldowns for HUD display (1 = just cast, 0 = ready).
+func cooldowns() -> Dictionary:
+	return {
+		"whirl": _whirl_cd / WHIRL_COOLDOWN,
+		"bolt": _bolt_cd / BOLT_COOLDOWN,
+	}
 
 
 func _read_move_input() -> Vector2:
@@ -91,8 +119,43 @@ func _resolve_attack_hits() -> void:
 	if attack_area == null:
 		return
 	for area in attack_area.get_overlapping_areas():
-		if area.is_in_group("hurtbox") and area.has_method("take_hit"):
-			area.take_hit(GameState.attack(), facing)
+		if area.is_in_group("hurtbox"):
+			var target: Node = area.get_parent()
+			if target != null and target.has_method("take_hit"):
+				target.take_hit(GameState.attack(), facing)
+
+
+## Whirlwind — 360° melee spin hitting every hurtbox in WHIRL_RADIUS.
+func cast_whirlwind() -> void:
+	if GameState.mp < WHIRL_MP:
+		return
+	GameState.mp -= WHIRL_MP
+	_whirl_cd = WHIRL_COOLDOWN
+	AudioManager.play_sfx("ability_whirl")
+	# Spin flourish.
+	var tw := create_tween()
+	tw.tween_property(attack_pivot, "rotation", attack_pivot.rotation + TAU, 0.28)
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if enemy is Node2D:
+			var e := enemy as Node2D
+			if global_position.distance_to(e.global_position) <= WHIRL_RADIUS:
+				var dir := (e.global_position - global_position).normalized()
+				if e.has_method("take_hit"):
+					e.take_hit(GameState.attack() * WHIRL_MULT, dir)
+
+
+## Firebolt — ranged projectile that pierces toward the facing direction.
+func cast_firebolt() -> void:
+	if GameState.mp < BOLT_MP:
+		return
+	GameState.mp -= BOLT_MP
+	_bolt_cd = BOLT_COOLDOWN
+	AudioManager.play_sfx("ability_bolt")
+	PoolManager.spawn_projectile(
+		global_position + facing * 22.0, facing,
+		GameState.attack() * BOLT_MULT, BOLT_SPEED,
+		Color(0.45, 0.75, 1.0), true
+	)
 
 
 func _start_dodge(move: Vector2) -> void:

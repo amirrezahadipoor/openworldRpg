@@ -24,7 +24,7 @@ license-verified before commit and logged below.
 | 0x72 DungeonTileset II | 0x72 (itch.io) | CC0 | ⬜ pending Phase 2 |
 | LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | ⬜ pending Phase 2 |
 | Music (per-biome ambient + combat theme) | TBD — CC0 sources only | CC0 | ⬜ pending Phase 11 |
-| SFX pack | TBD — CC0 sources only | CC0 | ⬜ pending Phase 11 |
+| SFX pack (13 procedural WAVs, `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ✅ in repo (`assets/audio/sfx/`) |
 
 > ⚠️ Anything CC-BY-SA additionally requires attribution in-game (credits screen) — handled
 > when the assets are integrated, and noted here per asset.

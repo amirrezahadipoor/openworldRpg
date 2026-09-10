@@ -103,11 +103,13 @@ func _build() -> void:
 	var apply_btn := Button.new()
 	apply_btn.text = "Apply & Close"
 	apply_btn.custom_minimum_size = Vector2(200, 44)
+	apply_btn.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
 	apply_btn.pressed.connect(_apply_and_close)
 	btns.add_child(apply_btn)
 	var cancel_btn := Button.new()
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size = Vector2(140, 44)
+	cancel_btn.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
 	cancel_btn.pressed.connect(close)
 	btns.add_child(cancel_btn)
 	box.add_child(btns)

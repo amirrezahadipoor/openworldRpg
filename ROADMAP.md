@@ -55,7 +55,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Attack cooldown + active hit window
 - [x] `EventBus` combat signals (swung/damaged/dodged/died) + camera shake on hit
 - [x] Hurtbox/damage component for enemies (`Hurtbox` Area2D, group `hurtbox`, `take_hit`)
-- [ ] Cooldown-based abilities (≥2 active skills)
+- [x] Cooldown-based abilities (≥2 active skills: Whirlwind Q, Firebolt F)
 - [x] Floating damage numbers (`DamageNumber` — hits + XP gains)
 - [x] Hit feedback: flash, knockback, hit-stop *(flash + knockback + screenshake; hit-stop later)*
 - [x] Enemy telegraph system (0.45 s wind-up, gold pulse before attack lands)
@@ -114,7 +114,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 
 ## Phase 11 — Audio & Polish
 - [ ] `AudioManager` registries wired to real CC0 assets (music per biome + combat theme)
-- [ ] SFX: attack, hit, pickup, UI click, dodge (CC0 only → CREDITS.md)
+- [x] SFX: attack, hit, pickup, UI click, dodge + more (13 procedural CC0 WAVs via `tools/gen_sfx.py`)
 - [ ] Particles: hits, spells, pickups, level-up
 - [ ] Tweened scene transitions (fade)
 - [ ] Juice pass (hit-stop, screenshake tuning, squash)

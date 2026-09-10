@@ -41,6 +41,8 @@ func _ready() -> void:
 
 	_test_save_slots()
 
+	await _test_abilities()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -251,6 +253,69 @@ func _test_save_slots() -> void:
 	GameState.reset()
 	check(GameState.gold == 50 and GameState.level == 1, "reset yields fresh state")
 	check(GameState.quests.is_empty() and GameState.quest_flags.is_empty(), "reset clears story state")
+
+
+func _test_abilities() -> void:
+	print("[combat_test] abilities (whirlwind + firebolt)")
+	var player: Player = get_tree().get_first_node_in_group("player")
+	GameState.mp = GameState.max_mp()
+
+	var host := Node2D.new()
+	add_child(host)
+	var e: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(e)
+	e.global_position = player.global_position + Vector2(50, 0)
+	e.setup_archetype("grunt")
+
+	var mp_before := GameState.mp
+	player.cast_whirlwind()
+	check(e.hp < e.max_hp, "whirlwind damaged nearby enemy")
+	check(GameState.mp == mp_before - Player.WHIRL_MP, "whirlwind MP cost applied")
+	check(float(player.cooldowns()["whirl"]) > 0.9, "whirlwind on cooldown after cast")
+
+	mp_before = GameState.mp
+	player.facing = Vector2.RIGHT
+	player.cast_firebolt()
+	check(GameState.mp == mp_before - Player.BOLT_MP, "firebolt MP cost applied")
+	check(float(player.cooldowns()["bolt"]) > 0.9, "firebolt on cooldown after cast")
+
+	# Friendly projectile damages an enemy hurtbox.
+	var e2: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(e2)
+	e2.global_position = player.global_position + Vector2(200, 0)
+	e2.setup_archetype("grunt")
+	# Melee: hurtbox routes take_hit to its owner (regression guard).
+	var melee_target: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(melee_target)
+	melee_target.setup_archetype("grunt")
+	player.facing = Vector2.RIGHT
+	melee_target.global_position = player.global_position + Vector2(48, 0)
+	player.attack_shape.disabled = false
+	await get_tree().physics_frame
+	var melee_before := melee_target.hp
+	player._resolve_attack_hits()
+	await get_tree().process_frame
+	check(melee_target.hp < melee_before, "melee hit lands via hurtbox routing")
+	player.attack_shape.disabled = true
+
+	PoolManager.spawn_projectile(e2.global_position, Vector2.RIGHT, 12.0, 400.0, Color.WHITE, true)
+	await get_tree().physics_frame
+	var proj: Projectile = null
+	for child in get_tree().root.get_node("PoolManager").get_node("Projectiles").get_children():
+		if child is Projectile and child.visible and (child as Projectile).friendly:
+			proj = child
+			break
+	if proj != null:
+		proj._armed = true
+		proj._on_area_entered(e2.get_node("Hurtbox"))
+	check(e2.hp < e2.max_hp, "friendly projectile damages enemy hurtbox")
+
+	# No MP -> no cast.
+	GameState.mp = 0.0
+	player._whirl_cd = 0.0
+	player.cast_whirlwind()
+	check(GameState.mp == 0.0, "cannot cast whirlwind without MP")
+	GameState.mp = GameState.max_mp()
 
 
 func _test_boss_phases_and_death() -> void:

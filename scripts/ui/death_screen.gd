@@ -75,5 +75,6 @@ func _btn(text: String, cb: Callable) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.custom_minimum_size = Vector2(300, 48)
+	b.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
 	b.pressed.connect(cb)
 	return b

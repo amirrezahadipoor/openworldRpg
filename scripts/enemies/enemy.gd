@@ -177,6 +177,7 @@ func take_hit(amount: float, dir: Vector2) -> void:
 		return
 	hp -= amount
 	velocity += dir * 160.0
+	AudioManager.play_sfx("hit")
 	sprite.modulate = Color(1.5, 1.5, 1.5)
 	var tw := create_tween()
 	tw.tween_property(sprite, "modulate", body_color, 0.18)

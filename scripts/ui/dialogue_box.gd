@@ -143,6 +143,7 @@ func _populate_choices(node: Dictionary) -> void:
 		var btn := Button.new()
 		btn.text = "• " + String(c.get("text", "..."))
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
 		btn.pressed.connect(_on_choice.bind(c))
 		_choice_box.add_child(btn)
 
