@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for elder_fenwick (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for elder_fenwick (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ005",
@@ -92,6 +92,70 @@
           "text": "Slay 8 Meadow Wolf. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "fenwick_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Elder Fenwick",
+          "text": "Fenwick is mending a fence that will be broken again by morning.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Elder Fenwick",
+          "text": "Because a village that stops repairing things is a village that has decided to move, and I have not decided that yet.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Elder Fenwick",
+          "text": "Green, mostly. There were trees past the last field, and the road, and a bell you could hear from the barrens on a quiet day.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Elder Fenwick",
+          "text": "The ones I can see are. Start worrying about the ones we cannot and you will forget to feed the ones we can.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Elder Fenwick",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Why rebuild a fence every day?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_fenwick_fences"
+                }
+              ]
+            },
+            {
+              "text": "What did Oakstead look like before the fires?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_fenwick_before"
+                }
+              ]
+            },
+            {
+              "text": "Are the others safe?",
+              "next": "5",
+              "actions": []
+            }
+          ]
         }
       },
       "start": "1",

@@ -1,5 +1,5 @@
 {
-  "_comment": "Hunter Kael — side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
+  "_comment": "Hunter Kael \u2014 side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
   "dialogues": [
     {
       "id": "mq_brief_MQ021",
@@ -350,7 +350,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "Three scouts down. Clean work — the barrens will feel that for a season.",
+          "text": "Three scouts down. Clean work \u2014 the barrens will feel that for a season.",
           "next": "2"
         },
         "2": {
@@ -381,7 +381,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "Four emberlings, ash to ash. Here's your pay — and if more crawl out of the cinders, you know where to find me.",
+          "text": "Four emberlings, ash to ash. Here's your pay \u2014 and if more crawl out of the cinders, you know where to find me.",
           "next": ""
         }
       },
@@ -404,7 +404,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "The scouts run in the tan barrens, west and north. Fast little devils — wait for their lunge, then roll behind and cut.",
+          "text": "The scouts run in the tan barrens, west and north. Fast little devils \u2014 wait for their lunge, then roll behind and cut.",
           "next": ""
         }
       },
@@ -505,6 +505,70 @@
           "quest": "s_emberling_run"
         }
       ]
+    },
+    {
+      "id": "kael_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Kael",
+          "text": "Kael is, as always, half-way through a meal and entirely covered in ash.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Kael",
+          "text": "Ash lies the same as snow, if you stop assuming it will not. Watch where the wind has not touched and you will find where something sleeps.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Kael",
+          "text": "Because there is a door down there and it is not locked \u2014 it is only heavy. We have been getting heavier and it has been getting patient.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Kael",
+          "text": "Not with me. Try the villagers; they have problems shaped like people, and those are cheaper to solve than the ones shaped like holes in the ground.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Kael",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "How do you read a trail out here?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_kael_trails"
+                }
+              ]
+            },
+            {
+              "text": "Why do the emberlings keep coming?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_kael_door"
+                }
+              ]
+            },
+            {
+              "text": "Any work that will not get me killed?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
     }
   ],
   "barks": [

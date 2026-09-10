@@ -661,3 +661,47 @@ README, `PLAYTEST.md` and the release body were rewritten in the same pass: the
 old text still sold the game short by two phases ("audio placeholders", "credits
 screen does not exist yet", "difficulty untuned"), which is a different failure
 than overclaiming but a failure of the same document.
+
+**#49 — The audit turned into a fix list: 13 categories, every deduction answered (fix pass 1)** · 2026-09-11
+`reports/game-audit-2026-09-11.md` scored the build 5.8/10 and named a reason for
+every deduction. That report is now the checklist, and the work is closed out in
+this batch: side-quest description leaks, the "road to Wren" dead end, the MQ100
+name clash, missing armour art for the ember warden, item effects that the budget
+check rejected, invisible armour upgrades, portraits, the removed NPC, an ending
+that stopped one beat early, no respec, bosses with no lines, the camp that could
+not burn, barks that ignored the quest you were on, three settings that lied
+(language, text scale, joystick size), 12–13 px fonts, no joypad map, a flat
+unsorted inventory, and — the audio half — no buses, missing cues and a silent
+world. Two items are deliberately *not* rewritten: the story and the 100/100
+quest text stay as authored (the template system is the sanctioned method), and
+the Warden's mechanics stay frozen.
+
+**#50 — The borders had to move before the seams could be built (worldgen)** · 2026-09-11
+The geographic complaint in the audit — "graphics 5.0", which the rigid biome
+edges fed — was really two problems. First, the world was three rectangles:
+`cy <= -1` winter, `cx >= 2` barrens, meadow elsewhere, borders you could walk
+along in a perfectly straight line. They now breathe on a slow sinusoid
+(`tools/worldgen/build_world.py`, mirrored in `scripts/world/biome.gd`), which is
+also how 8 chunks changed biome — frost pushed as far south as y = 0 and the
+barrens wedged in from the south-east — so no old save spoils by finding snow
+where it used to farm. Second, a straight edge was invisible from three tiles
+away. Along a seam the generator now scatters the neighbour's ground tile, which
+costs nothing at runtime and reads as a transition instead of a cut. Music and
+ambience read the *same* function (`Biome.name_at_position`), so the score can no
+longer disagree with the map about where the player is — it used to, because
+`main.gd` hardcoded the old straight lines. `WorldMapTest` re-derives every
+chunk's stamped biome from the GDScript and fails if the two ever drift.
+
+**#51 — Named places, and reasons to open a door (level design)** · 2026-09-11
+"Level 7.5" came down to density of *place*: fourteen settlements, dungeons and
+boss gates, and then a lot of ground with nothing to arrive at. The map now
+carries **14 named micro-locations** — the Hollow Well, the Gallows Oak, the
+Ferryman's Rest, the Standing Stones, the Slag Chapel, Cinder Well, Rime Orchard,
+the Long Ladder, Hermit's Chimney, the Quiet Mile and the rest — each stamping
+its own tile feature (ring, ruin, orchard, walls, pit, well) and each carrying a
+sign with its own text. Two of them hide a **lever-gated cache**, using the lever
+and gate scripts that already existed and had nowhere to be used. Dungeon floors
+get the same treatment from the other end: every non-boss floor now builds a
+sealed side-vault (lever, rock gate, chest, two torches), so a floor is a room to
+search rather than a room to cross. Doors with nothing behind them were the
+complaint; now every lever in the game opens something.

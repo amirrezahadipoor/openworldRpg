@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for mireille (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for mireille (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_fork_choice",
@@ -536,6 +536,75 @@
           "text": "Gather 8 Rime Core. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mireille_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Mireille does not look up from her alembic.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Mireille",
+          "text": "Someone with a name nobody had written down yet. That was the last time it was mine alone.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Mireille",
+          "text": "Something that will work. The Choir's formulae need a living thing to be authoritative. Mine will not.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Mireille",
+          "text": "I want to be finished. Found is what happens in between, and it is worse than either.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What were you before the Choir?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_mireille_before"
+                }
+              ]
+            },
+            {
+              "text": "What are you making?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_mireille_work"
+                }
+              ]
+            },
+            {
+              "text": "Do you want to be found?",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_mireille_found"
+                }
+              ]
+            }
+          ]
         }
       },
       "start": "1",

@@ -256,6 +256,35 @@ func next_offer(npc_id: String) -> String:
 	return best
 
 
+func reminder_for(npc_id: String) -> String:
+	## What this NPC would say about the job you are already carrying. Barks were
+	## completely deaf to quest state (0 of 37 were flag-gated), so an NPC you
+	## were mid-mission for greeted you like a stranger.
+	for row in active_snapshot():
+		var qid := String(row)
+		var data_q: Dictionary = data.get(qid, {})
+		if data_q.is_empty():
+			continue
+		var giver := String(data_q.get("giver", ""))
+		var targets: Array = []
+		for o in (data_q.get("objectives", []) as Array):
+			var od := o as Dictionary
+			if String(od.get("type", "")) == "talk":
+				targets.append(String(od.get("target", "")))
+		if giver != npc_id and not targets.has(npc_id):
+			continue
+		var next_obj := ""
+		for o in (data_q.get("objectives", []) as Array):
+			var od := o as Dictionary
+			if objective_count(qid, String(od.get("id", ""))) < int(od.get("count", 1)):
+				next_obj = String(od.get("desc", ""))
+				break
+		if giver == npc_id:
+			return "\"%s\" is not finished. %s" % [String(data_q.get("name", qid)), next_obj]
+		return "You are still on \"%s\". %s" % [String(data_q.get("name", qid)), next_obj]
+	return ""
+
+
 func offer_dialogue(npc_id: String, display_name: String) -> Dictionary:
 	## Wrap an offer in the same shape the dialogue box already understands, so
 	## the board uses the existing choice UI rather than a second one.

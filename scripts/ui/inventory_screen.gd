@@ -14,6 +14,13 @@ var _item_list: VBoxContainer
 var _equip_labels: Dictionary = {}
 var _stats_label: Label
 var _gold_label: Label
+## Sorting / filtering / selection: 123 items with no way to order them meant
+## scrolling blind on a phone.
+var _sort_mode := "rarity"          # rarity | power | name | type
+var _filter_mode := "all"           # all | gear | consumable | material
+var _selected := ""
+var _detail_label: Label
+var _count_label: Label
 
 
 func _ready() -> void:
@@ -98,6 +105,45 @@ func _build_left_column() -> Control:
 	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	box.add_child(_gold_label)
 
+	_count_label = Label.new()
+	_count_label.add_theme_font_size_override("font_size", 14)
+	_count_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
+	box.add_child(_count_label)
+
+	var sort_row := HBoxContainer.new()
+	sort_row.add_theme_constant_override("separation", 6)
+	var sort_label := Label.new()
+	sort_label.text = "Sort"
+	sort_label.add_theme_font_size_override("font_size", 14)
+	sort_row.add_child(sort_label)
+	for mode in ["rarity", "power", "name", "type"]:
+		var sb := Button.new()
+		sb.text = String(mode).capitalize()
+		sb.add_theme_font_size_override("font_size", 14)
+		sb.pressed.connect(func() -> void:
+			_sort_mode = String(mode)
+			_refresh()
+		)
+		sort_row.add_child(sb)
+	box.add_child(sort_row)
+
+	var filter_row := HBoxContainer.new()
+	filter_row.add_theme_constant_override("separation", 6)
+	var filter_label := Label.new()
+	filter_label.text = "Show"
+	filter_label.add_theme_font_size_override("font_size", 14)
+	filter_row.add_child(filter_label)
+	for mode in ["all", "gear", "consumable", "material"]:
+		var fb := Button.new()
+		fb.text = String(mode).capitalize()
+		fb.add_theme_font_size_override("font_size", 14)
+		fb.pressed.connect(func() -> void:
+			_filter_mode = String(mode)
+			_refresh()
+		)
+		filter_row.add_child(fb)
+	box.add_child(filter_row)
+
 	var eq_title := Label.new()
 	eq_title.text = "— Equipment —"
 	eq_title.add_theme_color_override("font_color", Color(0.7, 0.8, 1.0))
@@ -123,6 +169,15 @@ func _build_left_column() -> Control:
 	_stats_label.add_theme_color_override("font_color", Color(0.75, 0.9, 0.75))
 	_stats_label.add_theme_font_size_override("font_size", 15)
 	box.add_child(_stats_label)
+
+	# Details for the tapped item. On a phone there is no hover, so the tooltip
+	# that explained every item was unreachable: this panel is what it becomes.
+	_detail_label = Label.new()
+	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_detail_label.custom_minimum_size = Vector2(300, 96)
+	_detail_label.add_theme_font_size_override("font_size", 14)
+	_detail_label.add_theme_color_override("font_color", Color(0.85, 0.9, 1.0, 0.95))
+	box.add_child(_detail_label)
 
 	var close_btn := Button.new()
 	close_btn.text = "Close (I)"
@@ -172,8 +227,87 @@ func _refresh() -> void:
 		_item_list.add_child(empty)
 		return
 
+	var ids: Array = []
 	for item_id in GameState.inventory.keys():
-		_item_list.add_child(_item_row(String(item_id), int(GameState.inventory[item_id])))
+		if _passes_filter(String(item_id)):
+			ids.append(String(item_id))
+	ids.sort_custom(func(a: String, b: String) -> bool: return _before(a, b))
+	_count_label.text = "%d shown / %d carried" % [ids.size(), GameState.inventory.size()]
+	if ids.is_empty():
+		var none := Label.new()
+		none.text = "Nothing here for that filter."
+		none.add_theme_color_override("font_color", Color(1, 1, 1, 0.4))
+		_item_list.add_child(none)
+	_update_detail()
+	for item_id in ids:
+		_item_list.add_child(_item_row(item_id, int(GameState.inventory[item_id])))
+
+
+func _passes_filter(item_id: String) -> bool:
+	if _filter_mode == "all":
+		return true
+	return ItemsDB.get_type(item_id) == _filter_mode
+
+
+func _before(a: String, b: String) -> bool:
+	## Ordering the player asked for. "power" is the weighted stat budget the
+	## rarity ladder is built on, so the list can be read as a strength ranking.
+	match _sort_mode:
+		"power":
+			return ItemsDB.stat_budget_used(a) > ItemsDB.stat_budget_used(b)
+		"name":
+			return ItemsDB.item_name(a).to_lower() < ItemsDB.item_name(b).to_lower()
+		"type":
+			if ItemsDB.get_type(a) != ItemsDB.get_type(b):
+				return ItemsDB.get_type(a) < ItemsDB.get_type(b)
+			return ItemsDB.item_name(a) < ItemsDB.item_name(b)
+		_:
+			if ItemsDB.rarity_rank(a) != ItemsDB.rarity_rank(b):
+				return ItemsDB.rarity_rank(a) > ItemsDB.rarity_rank(b)
+			return ItemsDB.item_name(a) < ItemsDB.item_name(b)
+
+
+func _update_detail() -> void:
+	if _selected == "" or int(GameState.inventory.get(_selected, 0)) < 1:
+		_detail_label.text = "Tap an item to see what it does."
+		return
+	var it: Dictionary = ItemsDB.get_item(_selected)
+	var lines: Array = [ItemsDB.item_name(_selected)]
+	lines.append(String(it.get("desc", "")))
+	var stat := _stat_line(it)
+	if stat != "":
+		lines.append(stat)
+	lines.append("Value %d g · %s" % [ItemsDB.get_value(_selected),
+		ItemsDB.get_rarity(_selected).capitalize()])
+	var delta := _compare_text(_selected)
+	if delta != "":
+		lines.append(delta)
+	_detail_label.text = "\n".join(lines)
+
+
+func _compare_text(item_id: String) -> String:
+	## "Equipped: Leather Armor — ATK 0 · DEF +6 · HP +18" / what you lose.
+	var slot := ItemsDB.get_slot(item_id)
+	if slot == "":
+		return ""
+	var worn: String = String(GameState.equipment.get(slot, ""))
+	if worn == "":
+		return "Equipped slot is empty — every point is a gain."
+	var what: Dictionary = ItemsDB.get_item(item_id)
+	var have: Dictionary = ItemsDB.get_item(worn)
+	var keys := ["atk", "def", "hp", "mp", "speed", "crit", "lifesteal"]
+	var parts: Array = []
+	for k in keys:
+		var d := float(what.get(k, 0)) - float(have.get(k, 0))
+		if absf(d) < 0.0001:
+			continue
+		if k in ["crit", "lifesteal"]:
+			parts.append("%s %+.1f%%" % [k.to_upper(), d * 100.0])
+		else:
+			parts.append("%s %+d" % [k.to_upper(), int(round(d))])
+	if parts.is_empty():
+		return "Equipped (%s) is numerically identical." % ItemsDB.item_name(worn)
+	return "vs equipped %s: %s" % [ItemsDB.item_name(worn), " · ".join(parts)]
 
 
 func _item_row(item_id: String, qty: int) -> Control:
@@ -184,7 +318,15 @@ func _item_row(item_id: String, qty: int) -> Control:
 	var name_label := Label.new()
 	name_label.text = "%s ×%d" % [ItemsDB.item_name(item_id), qty]
 	name_label.custom_minimum_size = Vector2(190, 0)
+	# Kept for desktops, but the details panel below is what phones use.
 	name_label.tooltip_text = ItemsDB.get_desc(item_id)
+	name_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	name_label.gui_input.connect(func(ev: InputEvent) -> void:
+		if (ev is InputEventScreenTouch and (ev as InputEventScreenTouch).pressed) \
+				or (ev is InputEventMouseButton and (ev as InputEventMouseButton).pressed):
+			_selected = item_id
+			_update_detail()
+	)
 	# Rarity is the power ordering, so it is the thing the player scans for.
 	# Legendary/mythical gear also gets a marker so it reads at a glance.
 	name_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
@@ -195,14 +337,14 @@ func _item_row(item_id: String, qty: int) -> Control:
 	var rarity_label := Label.new()
 	rarity_label.text = ItemsDB.get_rarity(item_id).capitalize()
 	rarity_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
-	rarity_label.add_theme_font_size_override("font_size", 12)
+	rarity_label.add_theme_font_size_override("font_size", 14)
 	rarity_label.custom_minimum_size = Vector2(78, 0)
 	row.add_child(rarity_label)
 
 	var stat_text := _stat_line(it)
 	var stat_label := Label.new()
 	stat_label.text = stat_text
-	stat_label.add_theme_font_size_override("font_size", 12)
+	stat_label.add_theme_font_size_override("font_size", 14)
 	stat_label.add_theme_color_override("font_color", Color(0.85, 0.95, 0.85, 0.9))
 	stat_label.custom_minimum_size = Vector2(200, 0)
 	row.add_child(stat_label)
@@ -210,11 +352,12 @@ func _item_row(item_id: String, qty: int) -> Control:
 	var type_label := Label.new()
 	type_label.text = "[%s]" % String(it.get("type", "?"))
 	type_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.45))
-	type_label.add_theme_font_size_override("font_size", 13)
+	type_label.add_theme_font_size_override("font_size", 14)
 	type_label.custom_minimum_size = Vector2(110, 0)
 	row.add_child(type_label)
 
 	var primary := Button.new()
+	primary.add_theme_font_size_override("font_size", 15)
 	if String(it.get("type", "")) == "consumable":
 		primary.text = "Use"
 		primary.pressed.connect(func() -> void:
@@ -231,6 +374,7 @@ func _item_row(item_id: String, qty: int) -> Control:
 
 	var drop := Button.new()
 	drop.text = "Drop"
+	drop.add_theme_font_size_override("font_size", 15)
 	drop.pressed.connect(func() -> void:
 		drop_requested.emit(item_id)
 		_refresh()

@@ -1,0 +1,35 @@
+{
+  "_comment": "Spoken by each boss at the start of its fight and after it falls. Read by main.gd via EventBus.boss_encounter_started / boss_defeated.",
+  "bosses": {
+    "goblin_king": {
+      "name": "Skarn the Crowned",
+      "intro": "You brought a sword to a court.",
+      "defeat": "The crown rolls. Nobody picks it up."
+    },
+    "slag_wraith": {
+      "name": "The Slag Wraith",
+      "intro": "Heat without a body. It says your name in furnace-tongue.",
+      "defeat": "It cools into a shape like a person, and then into slag."
+    },
+    "bone_titan": {
+      "name": "The Bone Titan",
+      "intro": "It stands up out of the crypt floor, still counting.",
+      "defeat": "Ten thousand ribs come apart and stay apart."
+    },
+    "frost_giant": {
+      "name": "Hrim, the Rimevault's Keeper",
+      "intro": "Warm blood on my floor. In this vault that is a debt.",
+      "defeat": "The vault keeps its cold, and you keep your life."
+    },
+    "choir_priest": {
+      "name": "Cantor Vail",
+      "intro": "Sing with us, vessel. The Choir is only ever short one voice.",
+      "defeat": "The hymn stops mid-word. The silence after is enormous."
+    },
+    "ember_warden": {
+      "name": "The Ember Warden",
+      "intro": "I kept the fire so it would not spread. You kept walking toward it.",
+      "defeat": "The Warden lets go, and the fire it held goes with it."
+    }
+  }
+}

@@ -12,9 +12,18 @@ var _fire_light: PointLight2D
 var _t := 0.0
 
 
+## Set once Millhaven has burned (MQ020): the camp loses its elder for good and
+## the fire is rebuilt as a memorial. Checked on load too, so a save taken after
+## the burn does not resurrect him.
+var _burned := false
+
+
 func _ready() -> void:
 	_build_scenery()
+	_burned = bool(GameState.quest_flags.get("millhaven_burned", false))
 	_spawn_npcs()
+	if _burned:
+		_build_memorial()
 	# The camp fire is the starting fast-travel waypoint (auto-unlocked at
 	# spawn via GameState defaults for new games).
 	var wp := Waypoint.new()
@@ -83,10 +92,43 @@ func _tent(pos: Vector2, color: Color) -> Node2D:
 	return tent
 
 
+func burn() -> void:
+	## Millhaven burns. data/npcs.json always said Rowan "dies when Millhaven
+	## burns", but nothing in the game ever removed him — the player could come
+	## back from the ash road and find the mentor standing at a fire that was
+	## supposed to have taken him. This is that beat, finally played out.
+	if _burned:
+		return
+	_burned = true
+	var elder := get_node_or_null("ElderRowan")
+	if elder != null:
+		(elder as Node).queue_free()
+	_build_memorial()
+	for child in get_children():
+		if child is PointLight2D:
+			(child as PointLight2D).color = Color(0.95, 0.45, 0.25)
+	EventBus.camp_burned.emit()
+
+
+func _build_memorial() -> void:
+	## A scorched ring and a stone where the elder stood.
+	var stone := Sign.new()
+	stone.name = "RowanStone"
+	stone.title = "Rowan's Stone"
+	stone.text = ("The camp at Millhaven burned while you were on the ash road. "
+		+ "Nobody has told the story the same way twice. Someone has scratched a "
+		+ "name into the stone and someone else has kept the fire going anyway.")
+	stone.position = Vector2(-55, 55)
+	add_child(stone)
+
+
 func _spawn_npcs() -> void:
 	var scene: PackedScene = load(NPC_SCENE)
+	if _burned:
+		return _spawn_npcs_survivors()
 
 	var elder: NPC = scene.instantiate()
+	elder.name = "ElderRowan"
 	elder.npc_id = "elder_rowan"
 	elder.display_name = "Elder Rowan"
 	elder.sprite_sheet = "res://assets/lpc/npc_elder.png"
@@ -94,6 +136,30 @@ func _spawn_npcs() -> void:
 	elder.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
 	add_child(elder)
 
+	var vendor: NPC = scene.instantiate()
+	vendor.npc_id = "merchant_bram"
+	vendor.display_name = "Merchant Bram"
+	vendor.is_vendor = true
+	vendor.show_quest_marker = false
+	vendor.sprite_sheet = "res://assets/lpc/npc_vendor.png"
+	vendor.position = Vector2(120, 65)
+	vendor.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
+	add_child(vendor)
+
+	var kael: NPC = scene.instantiate()
+	kael.npc_id = "hunter_kael"
+	kael.display_name = "Hunter Kael"
+	kael.sprite_sheet = "res://assets/lpc/npc_hunter.png"
+	kael.modulate = Color(0.85, 0.95, 0.85)
+	kael.position = Vector2(215, 150)
+	kael.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
+	add_child(kael)
+
+
+func _spawn_npcs_survivors() -> void:
+	## After the burn the camp is a smaller, harder place: the vendor stays
+	## because someone has to sell rope, and Kael stays because he never left.
+	var scene: PackedScene = load(NPC_SCENE)
 	var vendor: NPC = scene.instantiate()
 	vendor.npc_id = "merchant_bram"
 	vendor.display_name = "Merchant Bram"

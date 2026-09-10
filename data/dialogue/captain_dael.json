@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for captain_dael (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for captain_dael (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ027",
@@ -332,6 +332,75 @@
           "text": "Slay 10 Choir Legionnaire. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "dael_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Dael is cleaning armour that is already clean.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Captain Dael",
+          "text": "To the edge of what I can feed. Past that it is a polite suggestion and a sword.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Captain Dael",
+          "text": "I trust it the way I trust the wall I am standing on. It will hold, and it was built by someone with a reason I was not told.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Captain Dael",
+          "text": "If you hear my name in a mouth that should not know it, come and tell me before you tell anyone else.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "How far does your writ run?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_dael_writ"
+                }
+              ]
+            },
+            {
+              "text": "Do you trust the citadel?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_dael_citadel"
+                }
+              ]
+            },
+            {
+              "text": "Anything you need done quietly?",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_dael_quiet"
+                }
+              ]
+            }
+          ]
         }
       },
       "start": "1",

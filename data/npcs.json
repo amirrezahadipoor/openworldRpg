@@ -3,6 +3,7 @@
   "npcs": {
     "elder_rowan": {
       "display_name": "Old Rowan",
+      "sheet": "res://assets/lpc/npc_elder.png",
       "settlement": "millhaven",
       "role": "quest",
       "function": "Act 1 mentor \u2014 starts the main chain; dies when Millhaven burns.",
@@ -27,6 +28,7 @@
     },
     "wren": {
       "display_name": "Wren",
+      "sheet": "res://assets/lpc/npc_wren.png",
       "settlement": "millhaven",
       "role": "lore",
       "function": "The player's sibling \u2014 Act 1 presence, taken by the Ashen Choir in Act 2.",
@@ -51,6 +53,7 @@
     },
     "hunter_kael": {
       "display_name": "Hunter Kael",
+      "sheet": "res://assets/lpc/npc_hunter.png",
       "settlement": "ashport",
       "role": "quest",
       "function": "Cull/run side-quest giver; scouts the barrens by day.",
@@ -75,6 +78,7 @@
     },
     "merchant_bram": {
       "display_name": "Merchant Bram",
+      "sheet": "res://assets/lpc/npc_vendor.png",
       "settlement": "millhaven",
       "role": "shop",
       "function": "Vendor \u2014 general stock; trades at the camp fire.",
@@ -99,6 +103,7 @@
     },
     "ysolde": {
       "display_name": "Ysolde the Trader",
+      "sheet": "res://assets/lpc/npc_trader.png",
       "settlement": "ashport",
       "role": "shop",
       "function": "Vendor \u2014 barrens stock; only opens her stall once the sun is up.",
@@ -123,6 +128,7 @@
     },
     "elder_fenwick": {
       "display_name": "Elder Fenwick",
+      "sheet": "res://assets/lpc/npc_fenwick.png",
       "settlement": "oakstead",
       "role": "quest",
       "function": "Oakstead's elder \u2014 side-quest hub for the Meadows.",
@@ -147,6 +153,7 @@
     },
     "brother_ashe": {
       "display_name": "Brother Ashe",
+      "sheet": "res://assets/lpc/npc_ashe.png",
       "settlement": "monastery",
       "role": "lore",
       "function": "Keeper of the Scorched Monastery \u2014 lore on the Ashen Choir.",
@@ -171,6 +178,7 @@
     },
     "captain_dael": {
       "display_name": "Captain Dael",
+      "sheet": "res://assets/lpc/npc_captain.png",
       "settlement": "cinderhold",
       "role": "quest",
       "function": "Cinderhold's captain \u2014 faction quest hub for the Barrens.",
@@ -195,6 +203,7 @@
     },
     "magistrate_voss": {
       "display_name": "Magistrate Voss",
+      "sheet": "res://assets/lpc/npc_magistrate.png",
       "settlement": "sunreach",
       "role": "quest",
       "function": "Act 1 antagonist \u2014 exposed by the main chain; stands trial in Sunreach.",
@@ -219,6 +228,7 @@
     },
     "mireille": {
       "display_name": "Mireille",
+      "sheet": "res://assets/lpc/npc_mireille.png",
       "settlement": "frosthaven",
       "role": "companion",
       "function": "Ex-Choir defector, coerced \u2014 Act 2 expose/protect fork, Act 3 companion.",
@@ -243,6 +253,7 @@
     },
     "high_warden_isolde": {
       "display_name": "High Warden Isolde",
+      "sheet": "res://assets/lpc/npc_warden.png",
       "settlement": "skyreach",
       "role": "quest",
       "function": "Act 3 \u2014 knows how to sever the Ember Warden's binding without killing the vessel.",

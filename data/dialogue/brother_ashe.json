@@ -1,6 +1,150 @@
 {
-  "_comment": "NPC dialogue for brother_ashe (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for brother_ashe. He had three idle barks and no dialogue tree at all, so the one Choir defector in the cast could not be asked anything \u2014 the whole Choir backstory rested on two lore NPCs.",
+  "dialogues": [
+    {
+      "id": "ashe_intro",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Brother Ashe",
+          "text": "You are the one walking the ash road. Good. I have been the only person out here counting, and counting alone makes you strange.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Brother Ashe",
+          "text": "I was of the Choir. Not high, not sworn, just useful with a ledger. When they started singing to something in the ground I wrote down every name they paid.",
+          "next": "3",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Brother Ashe",
+          "text": "Ask me what you like. I have no vows left to break, and the ones I kept were for men who burned a monastery with the doors shut.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What was in the vault under the monastery?",
+              "next": "4",
+              "actions": []
+            },
+            {
+              "text": "Why are you still here?",
+              "next": "5",
+              "actions": []
+            },
+            {
+              "text": "Nothing. Not today.",
+              "next": "",
+              "actions": []
+            }
+          ]
+        },
+        "4": {
+          "speaker": "Brother Ashe",
+          "text": "Ledgers, mostly. And a stone tank of something warm that they fed. I never saw it fed twice the same way.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Brother Ashe",
+          "text": "Because somebody has to be here when the last name is crossed off. It would be a poor ending if the book just stopped mid-page.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "ashe_after_burn",
+      "requires": {
+        "flag": [
+          "millhaven_burned"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Brother Ashe",
+          "text": "I heard about the camp. Rowan was the only one of them who ever wrote to me and never asked for anything. Sit down a moment; the fire is mine and it is honest.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "ashe_postgame",
+      "requires": {
+        "flag": [
+          "vow_mercy"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Brother Ashe",
+          "text": "Mercy. I wrote it down and I still do not believe the sentence. Come back when the road runs out and I will show you the last page.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "ashe_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Brother Ashe",
+          "text": "Ashe does not stop writing while he speaks.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Brother Ashe",
+          "text": "Every ledger does. The trick is to be honest about where you stopped, not where you meant to stop.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Brother Ashe",
+          "text": "I still say the words. It costs nothing and it keeps the mouth honest, even when the ear has gone.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Brother Ashe",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Does the ledger have an end?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_ashe_ledger"
+                }
+              ]
+            },
+            {
+              "text": "Do you still pray?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_ashe_prayer"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "The Choir does not sing. That is the first thing they teach you, and the last.",

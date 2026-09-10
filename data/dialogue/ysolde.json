@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for ysolde (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for ysolde (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ024",
@@ -92,6 +92,59 @@
           "text": "Slay 8 Ash Minotaur. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "ysolde_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Ysolde the Trader",
+          "text": "Ysolde weighs your boots before she weighs your purse.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Ysolde the Trader",
+          "text": "Nothing. That is the trade. I sit with the goods and I lose money slowly and I know exactly how fast.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Ysolde the Trader",
+          "text": "Something does. I have found its coin and I have never found its face.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Ysolde the Trader",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What do you trade when nobody comes?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_ysolde_slow"
+                }
+              ]
+            },
+            {
+              "text": "Does anyone else come down this road?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_ysolde_coin"
+                }
+              ]
+            }
+          ]
         }
       },
       "start": "1",

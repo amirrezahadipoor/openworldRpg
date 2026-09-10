@@ -345,11 +345,31 @@
       "name": "Elixir of Haste",
       "rarity": "uncommon",
       "type": "consumable",
-      "heal": 20,
-      "restore_mp": 20,
+      "speed_mult": 1.3,
+      "duration": 10.0,
       "stack": 10,
       "value": 130,
-      "desc": "A short burst of speed for the long walk home."
+      "desc": "A short burst of speed for the long walk home. +30% move speed for 10s."
+    },
+    "ironskin_tonic": {
+      "name": "Ironskin Tonic",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "shield": 0.35,
+      "duration": 12.0,
+      "stack": 10,
+      "value": 130,
+      "desc": "Chalk and iron filings. Takes 35% off everything that lands for 12s."
+    },
+    "focus_draught": {
+      "name": "Focus Draught",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "mp_regen": 8.0,
+      "duration": 12.0,
+      "stack": 10,
+      "value": 130,
+      "desc": "Restores 8 MP a second for 12s. Tastes like cold metal."
     },
     "ashsteel_longsword": {
       "name": "Ashsteel Longsword",
@@ -1204,14 +1224,25 @@
       "value": 17961,
       "desc": "Citadel couriers wear these up the switchbacks."
     },
+    "ward_of_ash": {
+      "name": "Ward of Ash",
+      "rarity": "rare",
+      "type": "consumable",
+      "shield": 0.5,
+      "duration": 10.0,
+      "stack": 10,
+      "value": 874,
+      "desc": "Halves the damage you take for 10s. Something in it is still warm."
+    },
     "phoenix_elixir": {
       "name": "Phoenix Draught",
       "rarity": "mythical",
       "type": "consumable",
       "heal": 320,
+      "revive": true,
       "stack": 10,
       "value": 1621,
-      "desc": "Restores 320 HP. Once it has saved you, it is gone."
+      "desc": "Restores 320 HP. If you fall while it is in your pack, it burns instead of you."
     },
     "dawnbreaker": {
       "name": "Dawnbreaker",

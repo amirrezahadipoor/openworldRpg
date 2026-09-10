@@ -24,6 +24,9 @@ func _ready() -> void:
 	_test_dungeon_data()
 	await _test_settlement_builds()
 	await _test_dungeon_builds()
+	_test_biome_geography()
+	_test_micro_locations()
+	await _test_dungeon_vaults()
 	_report()
 
 
@@ -207,3 +210,111 @@ func _spawner_depths(d: Dungeon) -> Array:
 		if child is EnemySpawner:
 			out.append((child as EnemySpawner).floor_index)
 	return out
+
+
+func _test_biome_geography() -> void:
+	print("[world_map_test] biome geography matches the generated chunks")
+	var x_range := range(-2, 5)
+	var y_range := range(-3, 2)
+	var matches := 0
+	var interior := 0
+	for cy in y_range:
+		for cx in x_range:
+			var path := "res://world/chunks/chunk_%d_%d.json" % [cx, cy]
+			if not FileAccess.file_exists(path):
+				continue
+			var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+			var stamped := -1
+			for prop in doc.get("properties", []):
+				if String(prop.get("name", "")) == "biome":
+					stamped = int(prop.get("value", -1))
+			if stamped == Biome.biome_of(int(cx), int(cy)):
+				matches += 1
+			# A chunk with no differently-biome neighbour is interior; the rest sit
+			# on a seam, and the seams must not be perfectly straight rows/columns.
+			var n := Biome.biome_of(cx, cy + 1)
+			if n == Biome.biome_of(cx, cy - 1) and n == Biome.biome_of(cx + 1, cy) \
+					and n == Biome.biome_of(cx - 1, cy):
+				interior += 1
+	check(matches == 35, "all 35 chunks agree with Biome.biome_of (%d)" % matches)
+	check(interior < 35, "biome borders are not straight lines (%d chunks sit on a seam)" % (35 - interior))
+	check(frost_line_varies(), "the frost line varies per chunk column")
+	check(barrens_line_varies(), "the barrens line varies per chunk row")
+
+
+func frost_line_varies() -> bool:
+	var seen := {}
+	for cx in range(-2, 5):
+		seen[Biome.frost_line(cx)] = true
+	return seen.size() > 1
+
+
+func barrens_line_varies() -> bool:
+	var seen := {}
+	for cy in range(-3, 2):
+		seen[Biome.barrens_line(cy)] = true
+	return seen.size() > 1
+
+
+func _test_micro_locations() -> void:
+	print("[world_map_test] named micro-locations exist on the map")
+	var signs := 0
+	var levers := 0
+	var gates := 0
+	var vault_chests := 0
+	for cy in range(-3, 2):
+		for cx in range(-2, 5):
+			var path := "res://world/chunks/chunk_%d_%d.json" % [cx, cy]
+			if not FileAccess.file_exists(path):
+				continue
+			var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+			for layer in doc.get("layers", []):
+				if String(layer.get("name", "")) != "objects":
+					continue
+				for obj in layer.get("objects", []):
+					var nm := String(obj.get("name", ""))
+					var ty := String(obj.get("type", ""))
+					if ty == "sign" and nm.begins_with("micro_"):
+						signs += 1
+					elif ty == "lever":
+						levers += 1
+					elif ty == "gate":
+						gates += 1
+					elif ty == "chest" and nm.begins_with("chest_vault_"):
+						vault_chests += 1
+	check(signs >= 12, "at least 12 named micro-locations carry a sign (%d)" % signs)
+	check(levers >= 3, "levers placed in the world (%d)" % levers)
+	check(gates == levers, "every world lever has its matching gate (%d levers / %d gates)" % [levers, gates])
+	check(vault_chests >= 2, "lever-gated caches exist (%d)" % vault_chests)
+
+
+func _test_dungeon_vaults() -> void:
+	print("[world_map_test] non-boss dungeon floors hide a lever vault")
+	var host := Node2D.new()
+	add_child(host)
+	var d := Dungeon.new()
+	host.add_child(d)
+	d.setup("drowned_mill", 1)
+	await get_tree().process_frame
+	var levers := 0
+	var gates := 0
+	var chests := 0
+	for child in d.floor_root.get_children():
+		if child is Lever:
+			levers += 1
+		elif child is SecretGate:
+			gates += 1
+		elif child is Chest:
+			chests += 1
+	check(levers == 1 and gates == 1 and chests == 1,
+		"floor 1 builds one lever, one gate and one chest (%d/%d/%d)" % [levers, gates, chests])
+
+	# A boss floor is an arena: no vault clutter in it.
+	d.descend()
+	await get_tree().process_frame
+	var boss_levers := 0
+	for child in d.floor_root.get_children():
+		if child is Lever:
+			boss_levers += 1
+	check(boss_levers == 0, "boss floors have no vault")
+	host.queue_free()

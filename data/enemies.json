@@ -316,6 +316,14 @@
           [
             "elixir_of_haste",
             0.06
+          ],
+          [
+            "ironskin_tonic",
+            0.05
+          ],
+          [
+            "focus_draught",
+            0.05
           ]
         ],
         "rarity_table": {
@@ -394,6 +402,14 @@
           [
             "elixir_of_haste",
             0.06
+          ],
+          [
+            "ironskin_tonic",
+            0.05
+          ],
+          [
+            "focus_draught",
+            0.05
           ]
         ],
         "rarity_table": {
@@ -583,7 +599,7 @@
         "swings": 3.6,
         "survival": 8.4
       },
-      "sheet": "res://assets/lpc/enemy_raider.png",
+      "sheet": "res://assets/lpc/enemy_raider2.png",
       "sprite_scale": 1.3,
       "drops": {
         "gold": [
@@ -834,6 +850,14 @@
           [
             "chilled_greater_potion",
             0.12
+          ],
+          [
+            "ward_of_ash",
+            0.08
+          ],
+          [
+            "ironskin_tonic",
+            0.06
           ]
         ],
         "rarity_table": {
@@ -900,6 +924,14 @@
           [
             "chilled_greater_potion",
             0.12
+          ],
+          [
+            "ward_of_ash",
+            0.08
+          ],
+          [
+            "ironskin_tonic",
+            0.06
           ]
         ],
         "rarity_table": {
@@ -1149,6 +1181,14 @@
           [
             "elixir_of_haste",
             0.06
+          ],
+          [
+            "ironskin_tonic",
+            0.05
+          ],
+          [
+            "focus_draught",
+            0.05
           ]
         ],
         "rarity_table": {
@@ -1335,6 +1375,14 @@
           [
             "chilled_greater_potion",
             0.12
+          ],
+          [
+            "ward_of_ash",
+            0.08
+          ],
+          [
+            "ironskin_tonic",
+            0.06
           ]
         ],
         "rarity_table": {
@@ -1426,6 +1474,14 @@
           [
             "chilled_greater_potion",
             0.12
+          ],
+          [
+            "ward_of_ash",
+            0.08
+          ],
+          [
+            "ironskin_tonic",
+            0.06
           ]
         ],
         "rarity_table": {
@@ -1521,6 +1577,14 @@
           [
             "chilled_greater_potion",
             0.12
+          ],
+          [
+            "ward_of_ash",
+            0.08
+          ],
+          [
+            "ironskin_tonic",
+            0.06
           ]
         ],
         "rarity_table": {
@@ -1560,7 +1624,7 @@
         "seconds": 100.0,
         "survival": 9.0
       },
-      "sheet": "res://assets/lpc/enemy_orc.png",
+      "sheet": "res://assets/lpc/enemy_warden.png",
       "sprite_scale": 1.7,
       "boss": true,
       "phases": [],

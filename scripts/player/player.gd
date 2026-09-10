@@ -252,6 +252,15 @@ func take_hit(amount: float, _dir: Vector2) -> void:
 	_hurt_anim = 0.3
 	_squash(Vector2(0.8, 1.22))
 	if GameState.hp <= 0.0:
+		if GameState.consume_revive():
+			# Phoenix Draught: it burns instead of you, once.
+			GameState.hp = GameState.max_hp() * 0.5
+			invulnerable = true
+			_dodge_timer = maxf(_dodge_timer, DODGE_DURATION)
+			EventBus.player_healed.emit(GameState.hp)
+			EventBus.item_used.emit("phoenix_elixir")
+			AudioManager.play_sfx("level_up")
+			return
 		EventBus.player_died.emit()
 
 
@@ -281,12 +290,31 @@ func _dir_key() -> String:
 
 
 ## Equipment -> composed sheet variant (rebuilds animation on change).
+##
+## The armour ladder is read off the item the player is WEARING, so every piece
+## of gear in the game is visible on the character: cloth (nothing heavy yet),
+## leather, plate and legion as defence rises. The weapon shows on the sheet
+## whenever anything is held in the weapon slot.
+const ARMOR_LOOK_DEF := [8.0, 20.0, 34.0]   # def thresholds -> leather/plate/legion
+
+
 func _variant_key() -> String:
-	var armor: String = GameState.equipment.get("armor", "")
-	var weapon: String = GameState.equipment.get("weapon", "")
-	var a := "leather" if armor == "leather_armor" else "none"
-	var w := "sword" if weapon in ["short_sword", "iron_sword"] else "none"
-	return "player_%s_%s" % [a, w]
+	var armor: String = String(GameState.equipment.get("armor", ""))
+	var weapon: String = String(GameState.equipment.get("weapon", ""))
+	return "player_%s_%s" % [_armor_look(armor), "sword" if weapon != "" else "none"]
+
+
+func _armor_look(armor_id: String) -> String:
+	if armor_id == "":
+		return "none"
+	var def := float(ItemsDB.get_item(armor_id).get("def", 0.0))
+	if def >= ARMOR_LOOK_DEF[2]:
+		return "legion"
+	if def >= ARMOR_LOOK_DEF[1]:
+		return "plate"
+	if def >= ARMOR_LOOK_DEF[0]:
+		return "leather"
+	return "none"
 
 
 func _rebuild_sprite_frames() -> void:

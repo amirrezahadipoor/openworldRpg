@@ -56,6 +56,13 @@ var quest_progress: Dictionary = {}
 var quest_flags: Dictionary = {}
 # branch -> allocated points
 var talents: Dictionary = {"combat": 0, "magic": 0, "utility": 0}
+# Temporary effects from consumables. Not serialized: a buff is a moment, not
+# progress. kind -> {"kind", "value", "time_left"} where kind is speed/shield/regen.
+var buffs: Dictionary = {}
+# A Phoenix Draught in the pack buys exactly one fall (consumed on trigger).
+var revive_armed: bool = false
+
+signal buffs_changed
 
 
 func _ready() -> void:
@@ -78,13 +85,64 @@ func reset() -> void:
 	quest_progress = {}
 	quest_flags = {"wp_camp": true}  # starting campfire is always lit
 	talents = {"combat": 0, "magic": 0, "utility": 0}
+	buffs = {}
+	revive_armed = false
 	stats_changed.emit()
 
 
 func _process(delta: float) -> void:
+	_tick_buffs(delta)
 	# Clarity talent: passive MP regeneration.
 	if mp < max_mp() and mp_regen_per_sec() > 0.0:
 		mp = minf(mp + mp_regen_per_sec() * delta, max_mp())
+
+
+func _tick_buffs(delta: float) -> void:
+	if buffs.is_empty():
+		return
+	var expired: Array = []
+	for key in buffs.keys():
+		var b: Dictionary = buffs[key]
+		b["time_left"] = float(b.get("time_left", 0.0)) - delta
+		if float(b["time_left"]) <= 0.0:
+			expired.append(key)
+		else:
+			buffs[key] = b
+	for key in expired:
+		buffs.erase(key)
+	if not expired.is_empty():
+		buffs_changed.emit()
+
+
+func apply_buff(kind: String, value: float, duration: float) -> void:
+	## Timed consumable effect. Re-using the same kind refreshes it.
+	if duration <= 0.0:
+		return
+	buffs[kind] = {"kind": kind, "value": value, "time_left": duration}
+	buffs_changed.emit()
+
+
+func buff_value(kind: String) -> float:
+	var b: Dictionary = buffs.get(kind, {})
+	if b.is_empty():
+		return 1.0 if kind in ["speed", "shield"] else 0.0
+	return float(b.get("value", 1.0))
+
+
+func buff_time_left(kind: String) -> float:
+	var b: Dictionary = buffs.get(kind, {})
+	return float(b.get("time_left", 0.0)) if not b.is_empty() else 0.0
+
+
+func active_buff_text() -> String:
+	## Compact HUD line, e.g. "Haste 6s · Ironskin 3s". Empty when nothing runs.
+	var parts: Array = []
+	for key in ["speed", "shield", "regen"]:
+		var b: Dictionary = buffs.get(key, {})
+		if b.is_empty():
+			continue
+		parts.append("%s %ds" % [String(b.get("label", key)), int(ceil(float(b.get("time_left", 0.0))))])
+	return " · ".join(parts)
 
 
 # --- Progression ------------------------------------------------------------
@@ -177,6 +235,41 @@ func _grant_milestone(lv: int) -> void:
 	EventBus.milestone_reached.emit(lv, String(m.get("title", "")), String(m.get("text", "")))
 
 
+func respec_talents() -> int:
+	## Refund every allocated talent point. There was no way back from a bad
+	## build: 60 points spent blind on a phone, with the only remedy a new game.
+	## Free (no gold cost) because respeccing is a UI affordance for an
+	## irreversible blind decision, not a gold sink. Returns points refunded.
+	var refunded := 0
+	for branch in talents.keys():
+		refunded += int(talents[branch])
+		talents[branch] = 0
+	if refunded > 0:
+		talent_points += refunded
+		_clamp_pools()
+		stats_changed.emit()
+	return refunded
+
+
+func talent_effect_text(branch: String) -> String:
+	## The numeric line the talent screen shows for one branch, e.g.
+	## "ATK +25 · DEF +23 · HP +223". Empty when nothing is allocated.
+	var totals: Dictionary = {}
+	for node in talents_for_branch(branch):
+		for k in ((node.get("effects", {}) as Dictionary).keys() as Array):
+			totals[k] = float(totals.get(k, 0.0)) + float(node["effects"][k])
+	var parts: Array = []
+	for k in totals.keys():
+		var v := float(totals[k])
+		if k in ["atk", "def", "hp", "mp", "speed"]:
+			parts.append("%s +%d" % [k.to_upper(), int(round(v))])
+		elif k in ["atk_cd", "dmg_taken", "mp_cost", "potion", "whirl", "bolt"]:
+			parts.append("%s %d%%" % [k, int(round((v - 1.0) * 100.0))])
+		else:
+			parts.append("%s +%.2f" % [k, v])
+	return " · ".join(parts)
+
+
 func spend_talent(branch: String) -> bool:
 	if talent_points <= 0 or not talents.has(branch):
 		return false
@@ -212,7 +305,9 @@ func defense() -> float:
 
 
 func move_speed() -> float:
-	return base_speed + talent_sum("speed") + milestone_bonus("speed") + equipment_bonus("speed")
+	var base: float = base_speed + talent_sum("speed") + milestone_bonus("speed") \
+		+ equipment_bonus("speed")
+	return base * buff_value("speed")            # Elixir of Haste
 
 
 # --- Talent tree (Phase E §7: 60 data-driven nodes, DECISIONS #19/#33) --------
@@ -272,7 +367,7 @@ func talent_sum(key: String) -> float:
 	var total := 0.0
 	for b in _talent_branches():
 		var bid := String((b as Dictionary).get("id", ""))
-		for n in (b as Dictionary).get("nodes", []):
+		for n in ((b as Dictionary).get("nodes", []) as Array):
 			var node := n as Dictionary
 			if node_unlocked(bid, node):
 				total += float((node.get("effects", {}) as Dictionary).get(key, 0.0))
@@ -285,7 +380,7 @@ func talent_mult(key: String) -> float:
 	var m := 1.0
 	for b in _talent_branches():
 		var bid := String((b as Dictionary).get("id", ""))
-		for n in (b as Dictionary).get("nodes", []):
+		for n in ((b as Dictionary).get("nodes", []) as Array):
 			var node := n as Dictionary
 			if node_unlocked(bid, node):
 				m *= float((node.get("effects", {}) as Dictionary).get(key, 1.0))
@@ -311,7 +406,9 @@ func gold_mult() -> float:
 
 
 func mp_regen_per_sec() -> float:
-	return talent_sum("mp_regen")                           # Clarity, Focused Mind, ...
+	var b: Dictionary = buffs.get("regen", {})
+	var burst := float(b.get("value", 0.0)) if not b.is_empty() else 0.0
+	return talent_sum("mp_regen") + burst                   # Clarity, Focused Mind, Focus Draught
 
 
 func dodge_duration_bonus() -> float:
@@ -331,7 +428,17 @@ func mp_cost_mult() -> float:
 
 
 func damage_taken_mult() -> float:
-	return talent_mult("dmg_taken")                         # Unyielding, Ashen Ward, ...
+	## Talent multiplier for damage taken, reduced further by a Ward/Ironskin
+	## buff (see shield_fraction()).
+	return talent_mult("dmg_taken") * (1.0 - shield_fraction())
+
+
+func shield_fraction() -> float:
+	## Fraction of incoming damage removed by a Ward/Ironskin buff (0 = none).
+	var b: Dictionary = buffs.get("shield", {})
+	if b.is_empty():
+		return 0.0
+	return clampf(float(b.get("value", 0.0)), 0.0, 0.75)
 
 
 func lifesteal() -> float:
@@ -401,10 +508,45 @@ func use_item(item_id: String) -> bool:
 		EventBus.player_healed.emit(heal)
 	if mana > 0.0:
 		mp = clampf(mp + mana, 0.0, max_mp())
+	# Timed / triggered effects (see tools/gen_items.py `_consumable_buff`).
+	var dur := float(it.get("duration", 0.0))
+	if it.has("speed_mult"):
+		apply_buff("speed", float(it["speed_mult"]), dur)
+		_label_buff("speed", "Haste")
+	if it.has("shield"):
+		apply_buff("shield", float(it["shield"]), dur)
+		_label_buff("shield", "Ironskin")
+	if it.has("mp_regen"):
+		apply_buff("regen", float(it["mp_regen"]), dur)
+		_label_buff("regen", "Focus")
+	if bool(it.get("revive", false)):
+		revive_armed = true
 	remove_item(item_id, 1)
 	EventBus.item_used.emit(item_id)
 	AudioManager.play_sfx("item_use")
 	return true
+
+
+func _label_buff(kind: String, label: String) -> void:
+	var b: Dictionary = buffs.get(kind, {})
+	if not b.is_empty():
+		b["label"] = label
+		buffs[kind] = b
+
+
+func consume_revive() -> bool:
+	## Called by the player when a hit would be lethal. Returns true if the
+	## draught burned instead of the player (one use, then it is gone).
+	if not revive_armed:
+		return false
+	revive_armed = false
+	return true
+
+
+func reset_buffs() -> void:
+	buffs.clear()
+	revive_armed = false
+	buffs_changed.emit()
 
 
 # --- Inventory ---------------------------------------------------------------

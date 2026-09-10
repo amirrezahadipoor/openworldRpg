@@ -1,31 +1,32 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=27 format=3]
 [ext_resource type="Script" path="res://scripts/world/chunk_renderer.gd" id="r_renderer"]
 [ext_resource type="Texture2D" path="res://assets/tiles/atlas.png" id="r_atlas"]
+[ext_resource type="Script" path="res://scripts/world/sign.gd" id="s_sign"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_spawner.gd" id="s_spawner"]
 
 [sub_resource type="RectangleShape2D" id="col_0"]
-size = Vector2(96, 96)
+size = Vector2(224, 32)
 
 [sub_resource type="RectangleShape2D" id="col_1"]
-size = Vector2(32, 64)
+size = Vector2(96, 96)
 
 [sub_resource type="RectangleShape2D" id="col_2"]
-size = Vector2(32, 32)
-
-[sub_resource type="RectangleShape2D" id="col_3"]
 size = Vector2(32, 64)
 
-[sub_resource type="RectangleShape2D" id="col_4"]
-size = Vector2(64, 64)
-
-[sub_resource type="RectangleShape2D" id="col_5"]
+[sub_resource type="RectangleShape2D" id="col_3"]
 size = Vector2(32, 32)
 
+[sub_resource type="RectangleShape2D" id="col_4"]
+size = Vector2(32, 64)
+
+[sub_resource type="RectangleShape2D" id="col_5"]
+size = Vector2(64, 64)
+
 [sub_resource type="RectangleShape2D" id="col_6"]
-size = Vector2(128, 32)
+size = Vector2(32, 32)
 
 [sub_resource type="RectangleShape2D" id="col_7"]
-size = Vector2(64, 32)
+size = Vector2(32, 32)
 
 [sub_resource type="RectangleShape2D" id="col_8"]
 size = Vector2(32, 32)
@@ -37,7 +38,37 @@ size = Vector2(32, 32)
 size = Vector2(32, 32)
 
 [sub_resource type="RectangleShape2D" id="col_11"]
+size = Vector2(128, 32)
+
+[sub_resource type="RectangleShape2D" id="col_12"]
 size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_13"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_14"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_15"]
+size = Vector2(32, 160)
+
+[sub_resource type="RectangleShape2D" id="col_16"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_17"]
+size = Vector2(32, 96)
+
+[sub_resource type="RectangleShape2D" id="col_18"]
+size = Vector2(32, 96)
+
+[sub_resource type="RectangleShape2D" id="col_19"]
+size = Vector2(64, 32)
+
+[sub_resource type="RectangleShape2D" id="col_20"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="col_21"]
+size = Vector2(32, 32)
 
 [node name="chunk_1_1" type="Node2D"]
 
@@ -46,7 +77,7 @@ script = ExtResource("r_renderer")
 grid_w = 32
 grid_h = 32
 tile_size = 32
-tiles = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 7)
+tiles = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 6, 6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 6, 1, 6, 1, 6, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 5, 5, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 9, 9, 5, 1, 1, 1, 1, 1, 9, 4, 4, 4, 9, 9, 9, 9, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 5, 5, 9, 9, 1, 9, 9, 9, 4, 4, 4, 4, 4, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, 4, 4, 4, 9, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 4, 9, 9, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 9, 9, 9, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 7)
 atlas = ExtResource("r_atlas")
 base_color = Color(0.24, 0.42, 0.25, 1)
 
@@ -55,56 +86,108 @@ collision_layer = 1
 collision_mask = 0
 
 [node name="Col0" type="CollisionShape2D" parent="Solids"]
-position = Vector2(688, 144)
+position = Vector2(816, 48)
 shape = SubResource("col_0")
 
 [node name="Col1" type="CollisionShape2D" parent="Solids"]
-position = Vector2(560, 160)
+position = Vector2(688, 144)
 shape = SubResource("col_1")
 
 [node name="Col2" type="CollisionShape2D" parent="Solids"]
-position = Vector2(752, 144)
+position = Vector2(560, 160)
 shape = SubResource("col_2")
 
 [node name="Col3" type="CollisionShape2D" parent="Solids"]
-position = Vector2(528, 192)
+position = Vector2(752, 144)
 shape = SubResource("col_3")
 
 [node name="Col4" type="CollisionShape2D" parent="Solids"]
-position = Vector2(160, 224)
+position = Vector2(528, 192)
 shape = SubResource("col_4")
 
 [node name="Col5" type="CollisionShape2D" parent="Solids"]
-position = Vector2(688, 208)
+position = Vector2(160, 224)
 shape = SubResource("col_5")
 
 [node name="Col6" type="CollisionShape2D" parent="Solids"]
-position = Vector2(288, 272)
+position = Vector2(688, 208)
 shape = SubResource("col_6")
 
 [node name="Col7" type="CollisionShape2D" parent="Solids"]
-position = Vector2(256, 304)
+position = Vector2(720, 240)
 shape = SubResource("col_7")
 
 [node name="Col8" type="CollisionShape2D" parent="Solids"]
-position = Vector2(336, 304)
+position = Vector2(784, 240)
 shape = SubResource("col_8")
 
 [node name="Col9" type="CollisionShape2D" parent="Solids"]
-position = Vector2(240, 336)
+position = Vector2(848, 240)
 shape = SubResource("col_9")
 
 [node name="Col10" type="CollisionShape2D" parent="Solids"]
-position = Vector2(976, 624)
+position = Vector2(912, 240)
 shape = SubResource("col_10")
 
 [node name="Col11" type="CollisionShape2D" parent="Solids"]
-position = Vector2(928, 656)
+position = Vector2(288, 272)
 shape = SubResource("col_11")
+
+[node name="Col12" type="CollisionShape2D" parent="Solids"]
+position = Vector2(256, 304)
+shape = SubResource("col_12")
+
+[node name="Col13" type="CollisionShape2D" parent="Solids"]
+position = Vector2(336, 304)
+shape = SubResource("col_13")
+
+[node name="Col14" type="CollisionShape2D" parent="Solids"]
+position = Vector2(240, 336)
+shape = SubResource("col_14")
+
+[node name="Col15" type="CollisionShape2D" parent="Solids"]
+position = Vector2(208, 688)
+shape = SubResource("col_15")
+
+[node name="Col16" type="CollisionShape2D" parent="Solids"]
+position = Vector2(976, 624)
+shape = SubResource("col_16")
+
+[node name="Col17" type="CollisionShape2D" parent="Solids"]
+position = Vector2(176, 688)
+shape = SubResource("col_17")
+
+[node name="Col18" type="CollisionShape2D" parent="Solids"]
+position = Vector2(240, 688)
+shape = SubResource("col_18")
+
+[node name="Col19" type="CollisionShape2D" parent="Solids"]
+position = Vector2(928, 656)
+shape = SubResource("col_19")
+
+[node name="Col20" type="CollisionShape2D" parent="Solids"]
+position = Vector2(144, 688)
+shape = SubResource("col_20")
+
+[node name="Col21" type="CollisionShape2D" parent="Solids"]
+position = Vector2(272, 688)
+shape = SubResource("col_21")
 
 [node name="Objects" type="Node2D" parent="."]
 
-[node name="o10" type="Node2D" parent="Objects"]
+[node name="o10" type="Area2D" parent="Objects"]
+position = Vector2(246, 676)
+script = ExtResource("s_sign")
+title = "Ferryman's Rest"
+text = "A punt with no river under it, hauled this far inland and left. The oars are worn smooth."
+
+[node name="o11" type="Area2D" parent="Objects"]
+position = Vector2(846, 156)
+script = ExtResource("s_sign")
+title = "Watchtower Foot"
+text = "Only the foot survives, and the foot is one course of stone taller than the wall it watched."
+
+[node name="o12" type="Node2D" parent="Objects"]
 position = Vector2(174, 265)
 script = ExtResource("s_spawner")
 archetype = "emberling"

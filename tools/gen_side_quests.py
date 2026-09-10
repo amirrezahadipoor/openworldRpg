@@ -389,12 +389,23 @@ def main() -> None:
             "item2_name": item_name(items, extra),
             "giver_name": npc_name(npcs, giver),
             "npc_name": npc_name(npcs, extra),
+                "npc_place_name": npc_home_name(npcs, settlements, extra),
             "place_name": place_name(settlements, extra),
             "dungeon_name": str((dungeons.get(extra, {}) or {}).get("name", extra)),
         }
 
+        # Every seventh Bounty also asks for the drop it leaves behind, so the
+        # board is not purely (kill -> report) shapes: the hunt has a specimen
+        # attached to it and the fight has a second reason.
+        objs_spec = list(model["objs"])
+        if cat == "Bounty" and i % 7 == 0:
+            drops = archetype_drops(enemies, target)
+            if drops:
+                objs_spec.append(("collect", drops[0], "2", "Bring back 2 {drop_name}"))
+                ctx["drop_name"] = item_name(items, drops[0])
+
         objs = []
-        for n, (kind, tgt, cnt, desc) in enumerate(model["objs"]):
+        for n, (kind, tgt, cnt, desc) in enumerate(objs_spec):
             objs.append(collections.OrderedDict([
                 ("id", "obj%d" % (n + 1)),
                 ("type", kind),
@@ -455,8 +466,12 @@ def main() -> None:
 
         q = collections.OrderedDict()
         q["name"] = name
-        q["desc"] = "%s (%s, %s)" % (
-            model_desc(cat, ctx, twist), cat, name)
+        # The description is *player-facing* prose. The category model and the
+        # quest title used to be appended as "(Bounty, Fold Work)" — a generator
+        # tag leaking into every one of the 100 strings — so provenance now lives
+        # in `source`, which no UI reads.
+        q["desc"] = model_desc(cat, ctx, twist)
+        q["source"] = collections.OrderedDict([("model", cat), ("title", name)])
         q["giver"] = giver
         q["category"] = cat
         q["region"] = region
@@ -518,7 +533,22 @@ def main() -> None:
     report_offers(offers, npcs)
 
 
-FOLLOWUPS = {7, 16, 22, 26, 42, 50, 62, 76, 88, 94}
+FOLLOWUPS = {7, 11, 16, 22, 26, 33, 38, 42, 45, 50, 53, 58, 62, 66, 70, 76, 81,
+             84, 88, 91, 94, 97}
+
+
+def archetype_drops(enemies: dict, archetype: str) -> list:
+    """Item ids an archetype can drop (data/enemies.json `drops.items`)."""
+    arch = enemies.get(archetype, {}) or {}
+    return [str(e[0]) for e in (arch.get("drops", {}) or {}).get("items", [])]
+
+
+def npc_home_name(npcs: dict, settlements: dict, npc_id: str) -> str:
+    """Where a companion actually lives — the road they want company on."""
+    home = str((npcs.get(npc_id, {}) or {}).get("settlement", ""))
+    if home == "":
+        return ""
+    return str((settlements.get(home, {}) or {}).get("name", home))
 
 
 def model_desc(cat: str, ctx: dict, twist: str) -> str:
@@ -546,7 +576,7 @@ def model_desc(cat: str, ctx: dict, twist: str) -> str:
         "Mystery": (giver, twist),
         "Faction": (giver,),
         "Collection": (giver, twist),
-        "Companion": (giver, twist),
+        "Companion": (giver, ctx["npc_place_name"] if ctx["npc_place_name"] else twist),
         "Repeatable": (giver, ctx["count"], ctx["target_name"]),
     }[cat]
     return model % rows

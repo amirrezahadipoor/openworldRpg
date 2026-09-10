@@ -16,6 +16,7 @@ var _waiting_choice := false
 
 var _root: Control
 var _panel: Panel
+var _portrait: TextureRect
 var _name_label: Label
 var _text_label: RichTextLabel
 var _hint_label: Label
@@ -54,10 +55,25 @@ func _build_ui() -> void:
 	)
 	_root.add_child(_panel)
 
+	# Portrait on the left, text on the right: eleven characters used to be a
+	# name and a paragraph with nothing to look at.
+	var row := HBoxContainer.new()
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	row.add_theme_constant_override("separation", 14)
+	_panel.add_child(row)
+
+	_portrait = TextureRect.new()
+	_portrait.custom_minimum_size = Vector2(104, 104)
+	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_portrait.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(_portrait)
+
 	var vbox := VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.add_theme_constant_override("separation", 8)
-	_panel.add_child(vbox)
+	row.add_child(vbox)
 
 	_name_label = Label.new()
 	_name_label.add_theme_font_size_override("font_size", 18)
@@ -78,7 +94,7 @@ func _build_ui() -> void:
 
 	_hint_label = Label.new()
 	_hint_label.text = "▼ E / tap to continue"
-	_hint_label.add_theme_font_size_override("font_size", 13)
+	_hint_label.add_theme_font_size_override("font_size", 14)
 	_hint_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.45))
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(_hint_label)
@@ -93,9 +109,12 @@ func _process(delta: float) -> void:
 
 
 func layout(size: Vector2) -> void:
+	## Sized from the viewport, so the box lands correctly on a phone in
+	## landscape as well as on desktop.
 	var w := minf(size.x * 0.72, 860.0)
-	_panel.size = Vector2(w, 200.0)
-	_panel.position = Vector2((size.x - w) * 0.5, size.y - 200.0 - 24.0)
+	var h := 216.0 if _portrait != null and _portrait.visible else 200.0
+	_panel.size = Vector2(w, h)
+	_panel.position = Vector2((size.x - w) * 0.5, size.y - h - 24.0)
 
 
 func start(dialogue: Dictionary) -> void:
@@ -122,7 +141,11 @@ func _show_node(id: String) -> void:
 		return
 	_node_id = id
 	var node: Dictionary = nodes[id]
-	_name_label.text = String(node.get("speaker", ""))
+	var speaker := String(node.get("speaker", ""))
+	_name_label.text = speaker
+	var portrait_path := DialogueDB.portrait_for(speaker)
+	_portrait.texture = load(portrait_path) if portrait_path != "" else null
+	_portrait.visible = portrait_path != ""
 	_full_text = String(node.get("text", ""))
 	_shown = 0
 	_text_label.text = _full_text

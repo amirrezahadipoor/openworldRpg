@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for wren (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for wren (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ003",
@@ -192,11 +192,64 @@
       },
       "start": "1",
       "on_complete": []
+    },
+    {
+      "id": "wren_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "Wren is already looking past you at the road.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Wren",
+          "text": "Pieces. The well rope, mostly, and the colour the roof went in the evenings. If I think about it too long I lose the rope.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Wren",
+          "text": "The ones that were mine. The ones that were theirs I left in the building with them.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Do you remember the village?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_wren_remember"
+                }
+              ]
+            },
+            {
+              "text": "Do you still keep to the old rules?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_wren_rules"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
     }
   ],
   "barks": [
     {
-      "text": "Race you to the well — no, actually, race you to the ridge.",
+      "text": "Race you to the well \u2014 no, actually, race you to the ridge.",
       "when": []
     },
     {

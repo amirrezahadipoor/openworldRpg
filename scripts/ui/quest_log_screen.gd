@@ -146,7 +146,7 @@ func _quest_block(qid: String) -> Control:
 	var desc := Label.new()
 	desc.text = String(quest.get("desc", ""))
 	desc.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
-	desc.add_theme_font_size_override("font_size", 13)
+	desc.add_theme_font_size_override("font_size", 14)
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(desc)
 
@@ -158,6 +158,6 @@ func _quest_block(qid: String) -> Control:
 			var line := Label.new()
 			line.text = "    %s %s (%d/%d)" % ["✓" if cur >= need else "·", String(obj.get("desc", oid)), cur, need]
 			line.add_theme_color_override("font_color", Color(0.85, 0.9, 0.8))
-			line.add_theme_font_size_override("font_size", 13)
+			line.add_theme_font_size_override("font_size", 14)
 			box.add_child(line)
 	return box

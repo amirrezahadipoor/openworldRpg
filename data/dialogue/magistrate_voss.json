@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for magistrate_voss (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for magistrate_voss (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ014",
@@ -44,6 +44,70 @@
           "text": "Reach Entered Emberling Warrens. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "voss_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Magistrate Voss",
+          "text": "Voss keeps his hands folded and his papers exactly square.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Magistrate Voss",
+          "text": "The signatures are all perfect. That is the first thing I stopped trusting about them.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Magistrate Voss",
+          "text": "Filed. Where they belong. If a thing is filed properly nobody has to look at it again, and that is the whole point of filing.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Magistrate Voss",
+          "text": "On the nights the bell is quiet. It has not been quiet in some time.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Magistrate Voss",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Who signs your orders?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_voss_orders"
+                }
+              ]
+            },
+            {
+              "text": "What happened to the millhaven ledgers?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_voss_ledgers"
+                }
+              ]
+            },
+            {
+              "text": "Do you sleep?",
+              "next": "5",
+              "actions": []
+            }
+          ]
         }
       },
       "start": "1",

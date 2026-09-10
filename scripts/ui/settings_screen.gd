@@ -1,6 +1,8 @@
 class_name SettingsScreen
 extends CanvasLayer
-## Settings menu: music/SFX volume, control scale, language stub.
+## Settings menu: music/SFX volume, joystick size, large-text accessibility.
+## Everything on this screen does something: the language dropdown that always
+## saved "en" and the control-scale slider that changed nothing are gone.
 ## Persists via SettingsManager and applies live.
 
 signal closed
@@ -10,6 +12,7 @@ var _music_slider: HSlider
 var _sfx_slider: HSlider
 var _scale_slider: HSlider
 var _lang_option: OptionButton
+var _large_text_check: CheckButton
 
 
 func _ready() -> void:
@@ -45,7 +48,8 @@ func _load_into_ui() -> void:
 	_music_slider.value = SettingsManager.music_volume
 	_sfx_slider.value = SettingsManager.sfx_volume
 	_scale_slider.value = SettingsManager.joystick_scale
-	_lang_option.select(0)  # English stub
+	if _large_text_check != null:
+		_large_text_check.button_pressed = SettingsManager.large_text
 
 
 func _build() -> void:
@@ -85,18 +89,37 @@ func _build() -> void:
 
 	box.add_child(_slider_row("Music Volume", func(s: HSlider) -> void: _music_slider = s))
 	box.add_child(_slider_row("SFX Volume", func(s: HSlider) -> void: _sfx_slider = s))
-	box.add_child(_slider_row("Control Size", func(s: HSlider) -> void: _scale_slider = s))
+	box.add_child(_slider_row("Joystick Size", func(s: HSlider) -> void: _scale_slider = s))
+	_scale_slider.tooltip_text = "Scales the on-screen stick. Applied live."
 
+	# This used to be a live dropdown that silently saved "en" whatever you
+	# picked, next to a "Control Size" slider that changed nothing. A setting that
+	# lies is worse than no setting, so what is shipped is stated plainly.
 	var lang_row := HBoxContainer.new()
 	var lang_label := Label.new()
 	lang_label.text = "Language"
 	lang_label.custom_minimum_size = Vector2(180, 0)
 	lang_row.add_child(lang_label)
-	_lang_option = OptionButton.new()
-	_lang_option.add_item("English")
-	_lang_option.tooltip_text = "More languages coming post-launch."
-	lang_row.add_child(_lang_option)
+	var lang_value := Label.new()
+	lang_value.text = "English (the only language in this build)"
+	lang_value.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
+	lang_row.add_child(lang_value)
 	box.add_child(lang_row)
+
+	# Accessibility: works, and is applied immediately.
+	var big_row := HBoxContainer.new()
+	var big_label := Label.new()
+	big_label.text = "Large text"
+	big_label.custom_minimum_size = Vector2(180, 0)
+	big_row.add_child(big_label)
+	_large_text_check = CheckButton.new()
+	_large_text_check.button_pressed = SettingsManager.large_text
+	_large_text_check.toggled.connect(func(on: bool) -> void:
+		SettingsManager.large_text = on
+		SettingsManager.apply_text_scale(get_tree().root)
+	)
+	big_row.add_child(_large_text_check)
+	box.add_child(big_row)
 
 	var btns := HBoxContainer.new()
 	btns.add_theme_constant_override("separation", 12)
@@ -137,7 +160,6 @@ func _apply_and_close() -> void:
 	SettingsManager.music_volume = _music_slider.value
 	SettingsManager.sfx_volume = _sfx_slider.value
 	SettingsManager.joystick_scale = _scale_slider.value
-	SettingsManager.language = "en"
 	SettingsManager.apply()
 	SettingsManager.save_settings()
 	close()

@@ -18,6 +18,11 @@ func _ready() -> void:
 		_spawns = (parsed as Dictionary).get("spawns", {})
 
 
+func display_name(id: String) -> String:
+	## Player-facing name of an archetype (data/enemies.json display_name).
+	return String(get_archetype(id).get("display_name", id))
+
+
 func get_archetype(id: String) -> Dictionary:
 	return archetypes.get(id, {})
 

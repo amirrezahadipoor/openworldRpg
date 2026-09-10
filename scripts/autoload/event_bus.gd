@@ -31,6 +31,12 @@ signal dialogue_closed
 # --- Boss ---
 signal boss_phase_changed(phase: int)
 signal boss_defeated
+## Fired when a boss floor instantiates its boss, with the roster id and the
+## name the player will read. Lets the game speak the antagonist's line.
+signal boss_encounter_started(boss_id: String, display_name: String)
+## Millhaven burns once the player leaves the valley (MQ020). World state, not
+## a cutscene: the camp literally loses its elder.
+signal camp_burned
 
 # --- World ---
 signal chunk_loaded(chunk_key: Vector2i)

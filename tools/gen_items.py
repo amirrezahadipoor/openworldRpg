@@ -100,7 +100,11 @@ ITEMS = [
     ("greater_mana_potion", "Greater Mana Potion", "consumable", "", "uncommon", {},
      "Restores 70 MP."),
     ("elixir_of_haste", "Elixir of Haste", "consumable", "", "uncommon", {},
-     "A short burst of speed for the long walk home."),
+     "A short burst of speed for the long walk home. +30% move speed for 10s."),
+    ("ironskin_tonic", "Ironskin Tonic", "consumable", "", "uncommon", {},
+     "Chalk and iron filings. Takes 35% off everything that lands for 12s."),
+    ("focus_draught", "Focus Draught", "consumable", "", "uncommon", {},
+     "Restores 8 MP a second for 12s. Tastes like cold metal."),
 
     # ---------------- RARE: first real power ----------------
     ("ashsteel_longsword", "Ashsteel Longsword", "weapon", "weapon", "rare",
@@ -237,7 +241,10 @@ ITEMS = [
     ("vessels_judgement", "Vessel's Judgement", "weapon", "weapon", "mythical", {"atk": 19, "def": 5, "mp": 25}, "It was meant for Wren. It answered to you."),
     ("cryptwarden_shield", "Cryptwarden Shield", "armor", "armor", "mythical", {"def": 20, "hp": 65}, "The Crypts' own door, cut down to fit an arm."),
     ("skyrunners_anklet", "Skyrunner's Anklet", "accessory", "accessory", "mythical", {"speed": 30, "hp": 20}, "Citadel couriers wear these up the switchbacks."),
-    ("phoenix_elixir", "Phoenix Draught", "consumable", "", "mythical", {}, "Restores 320 HP. Once it has saved you, it is gone."),
+    ("ward_of_ash", "Ward of Ash", "consumable", "", "rare", {},
+     "Halves the damage you take for 10s. Something in it is still warm."),
+    ("phoenix_elixir", "Phoenix Draught", "consumable", "", "mythical", {},
+     "Restores 320 HP. If you fall while it is in your pack, it burns instead of you."),
     ("dawnbreaker", "Dawnbreaker", "weapon", "weapon", "legendary", {"atk": 31, "crit": 0.14, "hp": 30}, "It only rises once a day. You only need it once."),
     ("aegis_of_millhaven", "Aegis of Millhaven", "armor", "armor", "legendary", {"def": 26, "hp": 105}, "The camp's fire, and everyone who warmed at it."),]
 
@@ -271,6 +278,11 @@ def main() -> None:
                 entry["heal"] = heal
             if mana:
                 entry["restore_mp"] = mana
+            # Effects that are not a one-shot heal: a timed buff the player
+            # applies through GameState.use_item(), or a save-the-player-once
+            # trigger. Written verbatim so the data always matches the code.
+            for k, v in _consumable_buff(iid).items():
+                entry[k] = v
             entry["stack"] = 10
         else:
             for k in ("atk", "def", "hp", "mp", "speed", "mp_regen", "crit", "lifesteal"):
@@ -295,9 +307,13 @@ def main() -> None:
     offenders = []
     for iid, entry in items.items():
         r = entry["rarity"]
-        used = weighted({k: entry[k] for k in WEIGHT if k in entry})
+        gear = entry["type"] in ("weapon", "armor", "accessory")
+        # Consumables and materials carry no power ladder: their worth is the
+        # effect they trigger once, not a stat line. Counting a timed buff
+        # (mp_regen, speed) against a gear budget is meaningless.
+        used = weighted({k: entry[k] for k in WEIGHT if k in entry}) if gear else 0.0
         tier_totals[r].append(used)
-        if entry["type"] in ("weapon", "armor", "accessory"):
+        if gear:
             gear_totals[r].append(used)
         if used > BUDGET[r] + 0.001:
             offenders.append((iid, r, round(used, 1), BUDGET[r]))
@@ -322,12 +338,30 @@ def main() -> None:
     print("  lifesteal items:", sum(1 for e in items.values() if "lifesteal" in e))
 
 
+def _consumable_buff(iid: str) -> dict:
+    """Timed/triggered effects, keyed by item id.
+
+    `speed_mult` / `shield` / `mp_regen` are multipliers or rates applied for
+    `duration` seconds; `revive` arms a one-shot revive in the player. Kept in
+    the generator so an item's text and its mechanics are written together.
+    """
+    table = {
+        "elixir_of_haste": {"speed_mult": 1.3, "duration": 10.0},
+        "ironskin_tonic": {"shield": 0.35, "duration": 12.0},
+        "focus_draught": {"mp_regen": 8.0, "duration": 12.0},
+        "ward_of_ash": {"shield": 0.5, "duration": 10.0},
+        "phoenix_elixir": {"revive": True},
+    }
+    return dict(table.get(iid, {}))
+
+
 def _consumable_effect(iid: str):
     table = {
         "health_potion": (40, 0), "bread": (15, 0), "bandage": (25, 0),
         "greater_health_potion": (90, 0), "chilled_greater_potion": (180, 0),
         "mana_potion": (0, 30), "greater_mana_potion": (0, 70),
-        "elixir_of_haste": (20, 20), "dried_meat": (20, 0),
+        "elixir_of_haste": (0, 0), "dried_meat": (20, 0),
+        "ironskin_tonic": (0, 0), "focus_draught": (0, 0), "ward_of_ash": (0, 0),
         "elixir_of_iron": (40, 40), "greater_elixir": (150, 90),
         "phoenix_elixir": (320, 0),
     }

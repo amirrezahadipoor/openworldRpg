@@ -219,7 +219,65 @@ func _stair_marker(at: Vector2, color: Color, label_text: String, up: bool) -> N
 	return node
 
 
+func _build_vault() -> void:
+	## Every non-boss floor hides one sealed side-vault: a lever, a rock gate and
+	## a chest behind it. Dungeon floors were a room, a stair and a spawn ring —
+	## no puzzle, no reason to look at the walls. The vault is the reason.
+	var floor_id := "%s_%d" % [dungeon_id, floor_index]
+	if bool(GameState.quest_flags.get("lever_%s" % floor_id, false)):
+		pass  # already opened on a previous run: the gate builds itself open
+	var gate := SecretGate.new()
+	gate.gate_id = "vault_%s" % floor_id
+	gate.position = Vector2(ROOM - 150.0, 180.0)
+	floor_root.add_child(gate)
+
+	var lever := Lever.new()
+	lever.lever_id = floor_id
+	lever.gate_id = gate.gate_id
+	lever.prompt_text = "Pull the lever"
+	lever.position = Vector2(96.0, ROOM - 150.0)
+	floor_root.add_child(lever)
+
+	# Chest is built the way the chunk pipeline builds one: an Area2D with the
+	# chest script on it (there is no chest.tscn in this project).
+	var chest := Area2D.new()
+	chest.name = "VaultChest_" + floor_id
+	chest.set_script(load("res://scripts/world/chest.gd"))
+	chest.set("chest_id", "vault_%s" % floor_id)
+	chest.set("gold", 120 + 40 * floor_index)
+	chest.set("item_id", "health_potion" if floor_index % 2 == 1 else "mana_potion")
+	floor_root.add_child(chest)
+	(chest as Node2D).position = Vector2(ROOM - 60.0, 180.0)
+
+	# Two torches so the vault corner is legible in the dark. The light texture is
+	# a radial gradient made in code — no extra art file to ship.
+	for at in [Vector2(ROOM - 240.0, 120.0), Vector2(ROOM - 240.0, 300.0)]:
+		var light := PointLight2D.new()
+		light.color = Color(1.0, 0.72, 0.35)
+		light.energy = 0.85
+		light.texture = _radial_light_texture()
+		light.texture_scale = 2.4
+		light.position = at
+		floor_root.add_child(light)
+
+
+func _radial_light_texture() -> GradientTexture2D:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(1, 1, 1, 1))
+	grad.set_color(1, Color(1, 1, 1, 0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 256
+	tex.height = 256
+	return tex
+
+
 func _populate(fd: Dictionary) -> void:
+	if not bool(fd.get("boss", false)):
+		_build_vault()
 	var table: Array = fd.get("enemies", ["grunt"])
 	var count := int(fd.get("spawner_count", 3))
 	var power := float(fd.get("power_scale", 1.0))
@@ -252,6 +310,9 @@ func _populate(fd: Dictionary) -> void:
 		_floor_boss = boss
 		if not EventBus.enemy_died.is_connected(_on_enemy_died):
 			EventBus.enemy_died.connect(_on_enemy_died)
+		# The roster boss gets a line before the fight: the antagonists used to
+		# be silent, which left the lore coming only from two side NPCs.
+		EventBus.boss_encounter_started.emit(String(table[0]), EnemyDB.display_name(String(table[0])))
 		_spawn_boss_guards(table)
 		return
 

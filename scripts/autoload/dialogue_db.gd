@@ -52,11 +52,73 @@ func bark_count(npc_key: String) -> int:
 	return (barks.get(npc_key, []) as Array).size()
 
 
+## Lines for the state of the world *after* the chain is over. The game used to
+## go silent once the boss was down: no NPC acknowledged that it had changed.
+const POST_GAME_LINES := {
+	"elder_rowan": "The fire is still going. That is the whole of my report.",
+	"hunter_kael": "Nothing on the salt since. I keep walking it anyway.",
+	"merchant_bram": "Prices are down. Nobody needs warding anymore, apparently.",
+	"ysolde": "I melted my last Choir ingot down into a cooking pot. Feels right.",
+	"elder_fenwick": "Oakstead's fold has lambs in it again. Come and see them.",
+	"brother_ashe": "I have started writing it down. Someone should have the order of it.",
+	"captain_dael": "The wall is quiet. I do not trust quiet, but I will take it.",
+	"magistrate_voss": "The ledger balances. Do not ask me to say it twice.",
+	"mireille": "Whatever you decided, I am still here. That is not nothing.",
+	"high_warden_isolde": "The Warden is still. You can put the sword down now.",
+	"wren": "You came back. I stopped expecting that a while ago.",
+}
+
+
+func post_game_line(npc_key: String) -> String:
+	return String(POST_GAME_LINES.get(npc_key, ""))
+
+
 func pick(npc_key: String) -> Dictionary:
 	for d in dialogues.get(npc_key, []):
 		if _conditions_met(d.get("requires", {})):
 			return d
 	return {}
+
+
+const PORTRAIT_DIR := "res://assets/portraits/"
+# Display-name variants used in the dialogue data. "Old Rowan" is the roster
+# name and "Elder Rowan" is what the camp scene calls him; both are the same man.
+const SPEAKER_ALIASES := {"Elder Rowan": "elder_rowan", "Old Rowan": "elder_rowan"}
+
+
+func portrait_for(speaker: String) -> String:
+	## Portrait texture for whoever is talking, or "" when there is no art.
+	## Resolved from data/npcs.json display names, so a new NPC ships with a face
+	## as soon as the roster entry and the sheet exist.
+	var id := String(SPEAKER_ALIASES.get(speaker, ""))
+	if id == "":
+		for npc_id in _roster_names().keys():
+			if String(_roster_names()[npc_id]) == speaker:
+				id = String(npc_id)
+				break
+	if id == "":
+		id = speaker.to_lower()
+	var path := "%s%s.png" % [PORTRAIT_DIR, id]
+	return path if ResourceLoader.exists(path) else ""
+
+
+## display_name -> npc id, read straight from data/npcs.json. DialogueDB reads the
+## file rather than asking NPCController, because NPCController is a scene class
+## that must not be a dependency of an autoload.
+static var _roster_name_cache: Dictionary = {}
+
+
+func _roster_names() -> Dictionary:
+	if not _roster_name_cache.is_empty():
+		return _roster_name_cache
+	var f := FileAccess.open("res://data/npcs.json", FileAccess.READ)
+	if f != null:
+		var parsed: Variant = JSON.parse_string(f.get_as_text())
+		if typeof(parsed) == TYPE_DICTIONARY:
+			for npc_id in ((parsed as Dictionary).get("npcs", {}) as Dictionary).keys():
+				var entry: Dictionary = ((parsed as Dictionary)["npcs"] as Dictionary).get(npc_id, {})
+				_roster_name_cache[String(npc_id)] = String(entry.get("display_name", ""))
+	return _roster_name_cache
 
 
 func _conditions_met(req: Dictionary) -> bool:

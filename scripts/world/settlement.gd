@@ -251,15 +251,12 @@ func _spawn_npcs(radius: float, rng: RandomNumberGenerator) -> void:
 
 
 func _sheet_for(npc_id: String) -> String:
-	## Reuse the composed sheets already shipped; unknown NPCs keep placeholder
-	## art rather than breaking the scene.
-	var known := {
-		"elder_rowan": "res://assets/lpc/npc_elder.png",
-		"merchant_bram": "res://assets/lpc/npc_vendor.png",
-		"hunter_kael": "res://assets/lpc/npc_hunter.png",
-	}
-	var sheet := String(known.get(npc_id, ""))
+	## The sheet lives in data/npcs.json next to the schedule, so all eleven named
+	## NPCs have their own body instead of three of them having one and the rest
+	## falling through to a placeholder sprite.
+	var sheet := String(NPCController.roster_entry(npc_id).get("sheet", ""))
 	if sheet != "" and not ResourceLoader.exists(sheet):
+		push_warning("settlement: missing sheet %s for %s" % [sheet, npc_id])
 		return ""
 	return sheet
 

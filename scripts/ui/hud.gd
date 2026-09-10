@@ -41,6 +41,7 @@ func setup(p: Player, s: ChunkStreamer = null) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_buffs(delta)
 	if _toast_time > 0.0:
 		_toast_time -= delta
 		if _toast_time <= 0.0 and toast_label != null:
@@ -76,6 +77,19 @@ func _update_cd(btn: ActionButton, frac: float, total_cd: float, mp_cost: float)
 
 # --- Builders -----------------------------------------------------------------
 
+var _buff_label: Label
+
+
+func _update_buffs(_delta: float) -> void:
+	## Timed consumable effects belong on screen: a Haste you cannot see running
+	## is a potion the player will not trust.
+	if _buff_label == null:
+		return
+	var text := GameState.active_buff_text()
+	_buff_label.text = text
+	_buff_label.visible = text != ""
+
+
 func _safe_margins() -> Vector2:
 	var safe := DisplayServer.get_display_safe_area()
 	var win := Vector2(DisplayServer.window_get_size())
@@ -99,6 +113,11 @@ func _make_bar(fill_color: Color) -> ProgressBar:
 
 func _build_top_left() -> void:
 	var m := _safe_margins()
+	_buff_label = Label.new()
+	_buff_label.add_theme_font_size_override("font_size", 14)
+	_buff_label.add_theme_color_override("font_color", Color(0.75, 0.95, 1.0))
+	_buff_label.visible = false
+
 	var box := VBoxContainer.new()
 	box.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	box.position = Vector2(16, 12) + m
@@ -113,6 +132,7 @@ func _build_top_left() -> void:
 	box.add_child(hp_bar)
 	box.add_child(mp_bar)
 	box.add_child(info_label)
+	box.add_child(_buff_label)
 
 	var btn_row := HBoxContainer.new()
 	btn_row.add_theme_constant_override("separation", 10)
@@ -169,12 +189,15 @@ func _build_touch_controls() -> void:
 	var m := _safe_margins()
 
 	joystick = VirtualJoystick.new()
-	joystick.size = Vector2(210, 210)
+	# The joystick size is a real setting now: "Joystick Size" in Settings moves
+	# this number, instead of a slider that changed nothing.
+	var js := 210.0 * clampf(SettingsManager.joystick_scale, 0.8, 1.5)
+	joystick.size = Vector2(js, js)
 	joystick.anchor_top = 1.0
 	joystick.anchor_bottom = 1.0
 	joystick.offset_left = 20.0 + m.x
-	joystick.offset_top = -230.0 - m.y
-	joystick.offset_right = 230.0 + m.x
+	joystick.offset_top = -(js + 20.0) - m.y
+	joystick.offset_right = (js + 20.0) + m.x
 	joystick.offset_bottom = -20.0 - m.y
 	if player != null:
 		joystick.vector_changed.connect(func(v: Vector2) -> void: player.external_input = v)

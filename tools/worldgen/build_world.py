@@ -30,12 +30,46 @@ def gid(biome, col):
     return biome * 8 + col + 1
 
 
+def _wobble(v, phase, amp=1.2, freq=0.9):
+    """Smooth, deterministic border offset.
+
+    The world used to be three rectangles: `cy <= -1` was winter, `cx >= 2` was
+    desert, everything else was meadow, with borders a player could walk along in
+    a straight line. The lines now breathe with a slow sinusoid, so biomes
+    interlock without the border breaking up into single-chunk islands.
+    """
+    return int(round(math.sin(v * freq + phase) * amp))
+
+
+def frost_line(cx):
+    """Chunk row where winter starts, drifting around y = -1."""
+    return -1 + _wobble(cx, 0.4)
+
+
+def barrens_line(cy):
+    """Chunk column where the barrens start, drifting around x = 2."""
+    return 2 + _wobble(cy, -0.7, freq=1.1)
+
+
 def biome_of(cx, cy):
-    if cy <= -1:
+    if cy <= frost_line(cx):
         return 2
-    if cx >= 2:
+    if cx >= barrens_line(cy):
         return 1
     return 0
+
+
+def edge_biome(cx, cy):
+    """The neighbouring biome a chunk sits against, or None when it is interior.
+
+    Edge chunks get a scatter of the other side's ground tile, which is what
+    turns a border into a transition.
+    """
+    here = biome_of(cx, cy)
+    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+        if biome_of(cx + dx, cy + dy) != here:
+            return biome_of(cx + dx, cy + dy)
+    return None
 
 
 # ---- world-space feature definitions -------------------------------------
@@ -141,7 +175,7 @@ def value_noise(x, y, scale, seed=1337):
     return a + (b - a) * sy
 
 
-def ground_gid(biome, wx, wy):
+def ground_gid(biome, wx, wy, edge=None):
     """Clustered ground variation.
 
     ground_a and ground_b are subtle tone variants, so broad noise patches read
@@ -151,6 +185,10 @@ def ground_gid(biome, wx, wy):
     broad = value_noise(wx, wy, 300.0, seed=11)
     detail = value_noise(wx, wy, 110.0, seed=23)
     v = broad * 0.75 + detail * 0.25
+    # Transition band: along a border, patches of the neighbour's ground break up
+    # the straight line between two biomes.
+    if edge is not None and value_noise(wx, wy, 220.0, seed=53) > 0.72:
+        return gid(edge, 0)
     if v < 0.52:
         return gid(biome, 0)
     if value_noise(wx, wy, 58.0, seed=37) > 0.96:
@@ -173,8 +211,56 @@ def path_distance(wx, wy):
     return best
 
 
+# --- micro-locations ---------------------------------------------------------
+# Between the villages, the dungeons and the boss gates there was a great deal
+# of ground with nothing to arrive at. These are the small named places: a well,
+# a gallows oak, a ferryman's rest, a slag chapel, two vaults that need a lever.
+# Each stamps its own tile feature (so it reads from a distance) and carries a
+# sign with its own text.
+#   kind: ring | well | ruins | walls | trees | pit
+MICRO_LOCATIONS = [
+    (360, 900, "well", "Hollow Well",
+     "The well is dry and someone has bricked it over from the inside. The bricks are newer than the village."),
+    (-120, 1560, "trees", "The Gallows Oak",
+     "There is a rope still over the branch, cut rather than untied. Nobody in Millhaven claims the tree."),
+    (1240, 1700, "pit", "Ferryman's Rest",
+     "A punt with no river under it, hauled this far inland and left. The oars are worn smooth."),
+    (1840, 1180, "ruins", "Watchtower Foot",
+     "Only the foot survives, and the foot is one course of stone taller than the wall it watched."),
+    (2160, 260, "ring", "The Standing Stones",
+     "Nine stones in a ring, the tenth face-down in the grass. The lever beside the fallen one is not old."),
+    (3320, 1420, "ruins", "Slag Chapel",
+     "A chapel built out of furnace slag by people who had nothing else. The door is ajar and the hinges are warm."),
+    (4520, 620, "pit", "Cinder Well",
+     "A shaft that breathes. Something down there has been keeping a fire going for a long time."),
+    (2980, -180, "pit", "Two Roads Stone",
+     "Where the mill road meets the ash road. Every traveller scratches a mark; the stone is nearly illegible."),
+    (900, -1420, "trees", "Rime Orchard",
+     "Fruit trees that froze standing and never fell. The apples are still on them, grey and hard."),
+    (1720, -2380, "walls", "The Long Ladder",
+     "A frozen scaffold up the cliff face, one rung short of the top. Rungs have been added from below, recently."),
+    (-880, -2760, "ruins", "Hermit's Chimney",
+     "One chimney standing in the snow with no house left around it, and smoke coming out of it."),
+    (-1560, -1200, "pit", "The Quiet Mile",
+     "A mile of road where nothing has been allowed to grow. The silence has an edge to it, like a held breath."),
+    (3900, -2500, "walls", "Frostbound Gate",
+     "A gate in a wall that goes nowhere, closed from this side, with the keyhole on the far side."),
+    (-420, 480, "pit", "The Last Milepost",
+     "The last stone marker before the valley ends. Someone has carved their own distance, wrong by a wide margin."),
+]
+
+# Two small places hide a cache behind a lever (lever -> gate -> chest).
+MICRO_VAULTS = {
+    "The Standing Stones": dict(gate="vault_stones", lever=(2280, 320), chest=(2090, 190),
+                                gold=340, item="traveler_ring"),
+    "Hermit's Chimney": dict(gate="vault_chimney", lever=(-960, -2680), chest=(-800, -2768),
+                             gold=420, item="frostbind_ring"),
+}
+
+
 def build_chunk(cx, cy):
     biome = biome_of(cx, cy)
+    edge = edge_biome(cx, cy)
     rng = random.Random((cx * 73856093) ^ (cy * 19349663))
     ox, oy = cx * CHUNK, cy * CHUNK
     grid = [0] * (GRID * GRID)
@@ -198,7 +284,7 @@ def build_chunk(cx, cy):
             if in_ellipse(wx, wy, POND) or in_ellipse(wx, wy, FROST_LAKE):
                 continue
             rng.random()
-            set_tile(tx, ty, ground_gid(biome, wx, wy))
+            set_tile(tx, ty, ground_gid(biome, wx, wy, edge))
 
     # 2) biome features (obstacles / hazards)
     if biome == 0:  # meadow tree clusters
@@ -304,10 +390,68 @@ def build_chunk(cx, cy):
             if g and ((g - 1) % 8) in (3, 4, 5, 6):
                 grid[ty * GRID + tx] = gid(biome, 0)
 
-    # 7) objects for this chunk (world -> chunk-local coords)
+    
+
+    # 6b) micro-locations: stamp the tile feature, add the sign (and any vault)
+    micro_objects = []
+    for mx, my, kind, mname, mtext in MICRO_LOCATIONS:
+        if not (ox - 192 <= mx < ox + CHUNK + 192 and oy - 192 <= my < oy + CHUNK + 192):
+            continue
+        lcx, lcy = int((mx - ox) // TILE), int((my - oy) // TILE)
+
+        def put(tx, ty, col, solid=True):
+            if 0 <= tx < GRID and 0 <= ty < GRID:
+                set_tile(tx, ty, gid(biome, col))
+                if solid:
+                    solids_stamp.add((tx, ty))
+
+        if kind == "ring":
+            for k in range(9):
+                a = math.tau * k / 9.0
+                put(lcx + int(round(math.cos(a) * 4)), lcy + int(round(math.sin(a) * 4)), 4)
+        elif kind == "well":
+            for k in range(8):
+                a = math.tau * k / 8.0
+                put(lcx + int(round(math.cos(a) * 2)), lcy + int(round(math.sin(a) * 2)), 4)
+            put(lcx, lcy, 3, solid=False)
+        elif kind == "ruins":
+            for k in range(7):
+                put(lcx - 3 + k, lcy - 3, 5)
+                if k % 2 == 0:
+                    put(lcx - 3 + k, lcy + 3, 5)
+        elif kind == "walls":
+            for k in range(5):
+                for tx, ty in ((lcx - 3 + k, lcy - 3), (lcx - 3 + k, lcy + 3),
+                               (lcx - 3, lcy - 3 + k), (lcx + 3, lcy - 3 + k)):
+                    if k in (0, 4) or k % 2 == 0:
+                        put(tx, ty, 5)
+        elif kind == "trees":
+            for k in range(6):
+                a = math.tau * k / 6.0 + 0.4
+                put(lcx + int(round(math.cos(a) * 3)), lcy + int(round(math.sin(a) * 3)), 4)
+        elif kind == "pit":
+            for dx in range(-2, 3):
+                for dy in range(-2, 3):
+                    if abs(dx) + abs(dy) <= 2:
+                        put(lcx + dx, lcy + dy, 3, solid=False)
+
+        micro_objects.append(dict(name="micro_%s" % mname.lower().replace(" ", "_"),
+                                  type="sign", x=mx + 30, y=my, title=mname, text=mtext))
+        vault = MICRO_VAULTS.get(mname)
+        if vault:
+            micro_objects.append(dict(name=vault["gate"], type="gate",
+                                      x=mx - 96, y=my + 96))
+            micro_objects.append(dict(name="lever_%s" % vault["gate"], type="lever",
+                                      x=vault["lever"][0], y=vault["lever"][1],
+                                      gate=vault["gate"], label=mname))
+            micro_objects.append(dict(name="chest_%s" % vault["gate"], type="chest",
+                                      x=vault["chest"][0], y=vault["chest"][1],
+                                      gold=vault["gold"], item=vault["item"]))
+
+# 7) objects for this chunk (world -> chunk-local coords)
     objects = []
     oid = 1
-    for obj in WORLD_OBJECTS:
+    for obj in list(WORLD_OBJECTS) + micro_objects:
         lx, ly = obj["x"] - ox, obj["y"] - oy
         if 0 <= lx < CHUNK and 0 <= ly < CHUNK:
             o = {

@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for high_warden_isolde (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for high_warden_isolde (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ057",
@@ -596,6 +596,75 @@
           "text": "Gather 6 Warden-Steel Ingot. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "isolde_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Isolde stands like a wall that has been asked a question.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "High Warden Isolde",
+          "text": "A knot in the ground and a promise built around it. Cut one and you will be left holding the other, and it will be your hand.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "High Warden Isolde",
+          "text": "Enough that it is no longer counted. I stopped writing them down because the list was being read as a war, and it is not a war.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "High Warden Isolde",
+          "text": "Eventually: everything. Right now: whatever you are carrying that still answers when you call it.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What holds the Warden here?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_isolde_knot"
+                }
+              ]
+            },
+            {
+              "text": "How many have tried?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_isolde_tried"
+                }
+              ]
+            },
+            {
+              "text": "What do you need from me?",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_isolde_need"
+                }
+              ]
+            }
+          ]
         }
       },
       "start": "1",

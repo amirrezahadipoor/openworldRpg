@@ -25,6 +25,7 @@ single raider sheet rather than one per enemy id.
 
 Attribution: see CREDITS.md (Liberated Pixel Cup contributors, CC-BY-SA-3.0).
 """
+import colorsys
 import os
 import sys
 
@@ -80,12 +81,32 @@ ARCHETYPES = {
     "player_none_sword": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_M, EYES, HAIR_BEDHEAD, SWORD],
     "player_leather_none": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_M, EYES, HAIR_BEDHEAD],
     "player_leather_sword": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_M, EYES, HAIR_BEDHEAD, SWORD],
+    # Armour is visible for the whole ladder, not just the first set: the sheet
+    # is chosen from the defence of the piece being worn (player.gd
+    # _armor_look), so upgrading gear is something the player can SEE.
+    "player_plate_none": [BODY_M, PANTS, ARMOR_PLATE, BOOTS, HEAD_M, EYES, HAIR_BEDHEAD],
+    "player_plate_sword": [BODY_M, PANTS, ARMOR_PLATE, BOOTS, HEAD_M, EYES, HAIR_BEDHEAD, SWORD],
+    "player_legion_none": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_M, EYES, HAIR_BEDHEAD],
+    "player_legion_sword": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_M, EYES, HAIR_BEDHEAD, SWORD],
     # --- NPCs: Elder Rowan (elderly), Hunter Kael, the camp vendor ---
-    "npc_elder": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_ELDERLY, EYES, HAIR_LONG],
-    "npc_hunter": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_M, EYES, HAIR_BANGS],
-    "npc_vendor": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_M, EYES, HAIR_PLAIN],
+    "npc_elder": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_ELDERLY, EYES, (HAIR_LONG, {"hue": 0.0, "sat": 0.15, "val": 0.85})],
+    "npc_hunter": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_M, EYES, (HAIR_BANGS, {"hue": 0.0, "sat": 0.5, "val": 0.55})],
+    "npc_vendor": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_M, EYES, (HAIR_PLAIN, {"hue": 0.03, "sat": 0.9, "val": 0.7})],
+    # Every named NPC gets a body of their own. Eight of the eleven used to fall
+    # through settlement.gd's three-entry lookup and render as the placeholder
+    # sprite, so half the cast was an untextured stand-in.
+    "npc_wren": [BODY_F, PANTS, SHIRT_SHORT, BOOTS, HEAD_F, EYES, (HAIR_BANGS, {"hue": -0.04, "sat": 1.25, "val": 0.80})],
+    "npc_trader": [BODY_F, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_F, EYES, (HAIR_LONG, {"hue": -0.09, "sat": 1.2, "val": 1.15})],
+    "npc_fenwick": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_ELDERLY, EYES, (HAIR_PLAIN, {"hue": 0.5, "sat": 0.12, "val": 0.92})],
+    "npc_ashe": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_M, EYES, (HAIR_PLAIN, {"hue": 0.02, "sat": 0.35, "val": 0.5})],
+    "npc_captain": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS_REVISED, HEAD_M, EYES, (HAIR_BANGS, {"hue": -0.02, "sat": 0.6, "val": 0.45})],
+    "npc_magistrate": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_GAUNT, EYES, (HAIR_PLAIN, {"hue": 0.0, "sat": 0.1, "val": 0.35})],
+    "npc_mireille": [BODY_F, PANTS, ARMOR_LEATHER, BOOTS, HEAD_F, EYES, (HAIR_LONG, {"hue": 0.0, "sat": 1.0, "val": 1.0})],
+    "npc_warden": [BODY_F, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_F, EYES, (HAIR_BANGS, {"hue": 0.45, "sat": 0.35, "val": 0.4})],
     # --- enemies: distinct silhouettes, tinted per archetype at runtime ---
     "enemy_raider": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_GAUNT, EYES, HAIR_PLAIN],
+    # raider_brute shares the raider *archetype* but not the silhouette.
+    "enemy_raider2": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_GAUNT, EYES, HAIR_BANGS],
     "enemy_shaman": [BODY_F, PANTS, SHIRT_LONG, BOOTS, HEAD_F, EYES, HAIR_LONG],
     "enemy_goblin": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_GOBLIN, EYES],
     "enemy_skeleton": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_SKELETON, EYES],
@@ -107,14 +128,44 @@ ARCHETYPES = {
     "boss_bone_titan": [BODY_M, PANTS, ARMOR_LEGION, BOOTS, HEAD_SKELETON, EYES],
     "boss_choir_priest": [BODY_F, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_ZOMBIE, EYES, HAIR_LONG],
     "boss_ashen_herald": [BODY_M, PANTS, ARMOR_PLATE, BOOTS_REVISED, HEAD_MINOTAUR, EYES],
+    # The Ember Warden — the game's final boss — carried a generic orc sheet and
+    # a runtime tint. It now has its own body: plate, gaunt face, long hair and
+    # a blade, unlike any other boss on the roster.
+    "enemy_warden": [BODY_M, PANTS, ARMOR_PLATE, BOOTS_REVISED, HEAD_GAUNT, EYES, HAIR_LONG, SWORD],
 }
 
 
-def load_layer(rel: str):
+def load_layer(rel: str, adjust: dict | None = None):
+    """Load a layer, optionally recolouring it.
+
+    LPC layers ship pre-coloured, so every character composed from the same hair
+    (or cloth) layer comes out the same person. `adjust` shifts the layer's own
+    pixels — hue/sat/val multipliers applied only where the layer has alpha —
+    which is how the eleven NPCs get eleven different heads of hair without a
+    second art pipeline. (adjust=None leaves the layer alone.)
+    """
     p = os.path.join(SRC, rel)
     if not os.path.exists(p):
         return None
-    return Image.open(p).convert("RGBA")
+    img = Image.open(p).convert("RGBA")
+    if not adjust:
+        return img
+    dh = float(adjust.get("hue", 0.0))
+    ds = float(adjust.get("sat", 1.0))
+    dv = float(adjust.get("val", 1.0))
+    px = img.load()
+    for y in range(img.size[1]):
+        for x in range(img.size[0]):
+            r, g, b, a = px[x, y]
+            if a == 0:
+                continue
+            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+            h = (h + dh) % 1.0
+            s = min(1.0, s * ds)
+            v = min(1.0, v * dv)
+            r2, g2, b2 = colorsys.hsv_to_rgb(h, s, v)
+            px[x, y] = (int(r2 * 255), int(g2 * 255), int(b2 * 255), a)
+    return img
 
 
 def paste_frames(sheet: Image.Image, layer: Image.Image, frames: int, d_i: int,
@@ -145,15 +196,16 @@ def assert_complete(name: str, layers: list[str]) -> None:
     Every archetype must therefore include a head layer, and a face-bearing one
     must pair it with eyes, or the composite is wrong by construction.
     """
-    has_head = any(l.startswith("head/heads/") for l in layers)
-    has_eyes = any("eyes/" in l for l in layers)
-    has_body = any("body/bodies/" in l for l in layers)
+    flat = [l[0] if isinstance(l, tuple) else l for l in layers]
+    has_head = any(l.startswith("head/heads/") for l in flat)
+    has_eyes = any("eyes/" in l for l in flat)
+    has_body = any("body/bodies/" in l for l in flat)
     problems = []
     if not has_body:
         problems.append("no body layer")
     if not has_head:
         problems.append("NO HEAD LAYER (sprite would render headless)")
-    if has_head and not has_eyes and "skeleton" not in " ".join(layers):
+    if has_head and not has_eyes and "skeleton" not in " ".join(flat):
         problems.append("head without eyes layer")
     if problems:
         sys.exit(f"{name}: " + "; ".join(problems))
@@ -167,14 +219,15 @@ def compose(layers: list[str], out_path: str) -> int:
     for a_i, (anim, frames) in enumerate(ANIMS):
         for d_i in range(4):
             row = a_i * 4 + d_i
-            for template in layers:
+            for spec in layers:
+                template, adjust = spec if isinstance(spec, tuple) else (spec, None)
                 is_weapon = "weapon/" in template
                 src_anim, src_frame = anim, None
                 path_anim = anim
                 if is_weapon and anim in WEAPON_ALT:
                     path_anim, src_frame = WEAPON_ALT[anim]
 
-                layer = load_layer(template % path_anim)
+                layer = load_layer(template % path_anim, adjust)
                 if layer is None:
                     if not is_weapon:
                         missing.append(template % path_anim)

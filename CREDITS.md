@@ -89,14 +89,16 @@ published on the generator repository.
 
 ### Audio (Phase B5) — real score and SFX
 
-Vendored by `tools/audio/vendor_audio.sh`. Six tracks are committed (renamed to the ids
-`AudioManager` registers); the 26 MB upstream OST archive is **not** committed, only the
-selected tracks, so attribution below is what satisfies the licence.
+Vendored by `tools/audio/vendor_audio.sh`. Eleven tracks and twenty SFX are committed
+(renamed to the ids `AudioManager` registers); the 26 MB upstream OST archive is **not**
+committed, only the selected tracks, so attribution below is what satisfies the licence.
+The seven ambience beds are **ours**: pure-Python synthesis by `tools/gen_ambient.py`
+(seamless 8-second loops, no samples, no third-party rights).
 
 | Asset | Author | Licence | Status |
 |---|---|---|---|
-| Score: `title`, `meadow`, `barrens`, `frost`, `combat`, `boss` | **Avgvst** — "Generic 8-bit JRPG Soundtrack" ([OpenGameArt](https://opengameart.org/content/generic-8-bit-jrpg-soundtrack)) | **CC-BY 3.0 / 4.0** | ✅ in repo (`assets/audio/music/*.ogg`) |
-| SFX (13): attack_swing, hit, player_hurt, dodge, pickup, ui_click, item_use, purchase, level_up, enemy_cast, boss_roar, ability_whirl, ability_bolt | **Kenney** — "RPG Audio", "Interface Sounds", "Impact Sounds" ([kenney.nl](https://kenney.nl/assets/rpg-audio)) | **CC0** | ✅ in repo (`assets/audio/sfx/*.ogg`) |
+| Score (11): `title`, `meadow`, `barrens`, `frost`, `combat`, `boss`, `town`, `dungeon`, `camp`, `victory`, `danger` | **Avgvst** — "Generic 8-bit JRPG Soundtrack" ([OpenGameArt](https://opengameart.org/content/generic-8-bit-jrpg-soundtrack)) | **CC-BY 3.0 / 4.0** | ✅ in repo (`assets/audio/music/*.ogg`) |
+| SFX (20): attack_swing, hit, player_hurt, dodge, pickup, ui_click, item_use, purchase, level_up, enemy_cast, boss_roar, ability_whirl, ability_bolt, equip, coin, quest_accept, quest_complete, secret_found, denied, footstep | **Kenney** — "RPG Audio", "Interface Sounds", "Impact Sounds" ([kenney.nl](https://kenney.nl/assets/rpg-audio)) | **CC0** | ✅ in repo (`assets/audio/sfx/*.ogg`) |
 
 **CC-BY obligation:** the score requires attribution, which is shipped in the in-game
 credits screen (`scripts/menus/main_menu.gd`) **and** in this file. Do not remove either.
@@ -104,6 +106,11 @@ credits screen (`scripts/menus/main_menu.gd`) **and** in this file. Do not remov
 > Note: Kenney's packs are generic sound libraries, not fantasy-specific. The mappings
 > above are intentional substitutions (e.g. a heavy bell impact for the boss roar, a
 > knife draw for an attack swing) — they read correctly in play but are not bespoke.
+
+| Ambience (7): `amb_meadow`, `amb_frost`, `amb_lava`, `amb_campfire`, `amb_water`, `amb_cave`, `amb_town` | **This project** — synthesized by `tools/gen_ambient.py` | CC0 (our own work) | ✅ in repo (`assets/audio/ambient/*.wav`) |
+
+Audio routing: `AudioManager` creates three runtime buses — **Music**, **SFX**, **Ambience** —
+all sending to Master, which is what the three volume sliders in Settings drive.
 
 `tools/gen_music.py` and `tools/gen_sfx.py` are deprecated and now refuse to run without
 `--force`, so they cannot silently regenerate placeholders over the real audio.

@@ -344,7 +344,7 @@ STEPS = [
     ("frost", "high_warden_isolde", "C", "warden_steel_ingot", 6, "Ingots for the Return Road",
      "Six ingots left at the citadel, so the road back is a road and not a walk "
      "into nothing."),
-    ("frost", "elder_rowan", "T", "elder_rowan", 1, "The Ember Omen",
+    ("frost", "elder_rowan", "T", "elder_rowan", 1, "The Warden's Answer",
      "You climb back into the snow at the scorched ring with the ledger, the "
      "shards and the word 'vessel' in your mouth. Rowan is waiting at the edge of "
      "the burn, and he already knows what you are going to say."),

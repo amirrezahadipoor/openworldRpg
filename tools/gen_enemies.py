@@ -113,12 +113,13 @@ def rt(common, uncommon, rare, mythical, legendary):
 CONSUMABLES_BY_TIER = {
     1: [["bandage", 0.12], ["health_potion", 0.18], ["mana_potion", 0.10]],
     2: [["bandage", 0.12], ["health_potion", 0.18], ["mana_potion", 0.12],
-        ["elixir_of_haste", 0.06]],
+        ["elixir_of_haste", 0.06], ["ironskin_tonic", 0.05], ["focus_draught", 0.05]],
     3: [["greater_health_potion", 0.15], ["greater_mana_potion", 0.12],
         ["elixir_of_haste", 0.08], ["elixir_of_iron", 0.08]],
     4: [["greater_health_potion", 0.18], ["greater_mana_potion", 0.15],
         ["elixir_of_iron", 0.10]],
-    5: [["greater_elixir", 0.12], ["chilled_greater_potion", 0.12]],
+    5: [["greater_elixir", 0.12], ["chilled_greater_potion", 0.12],
+        ["ward_of_ash", 0.08], ["ironskin_tonic", 0.06]],
     6: [["greater_elixir", 0.15], ["chilled_greater_potion", 0.12],
         ["phoenix_elixir", 0.06]],
 }
@@ -172,7 +173,7 @@ MONSTERS = [
       ["greater_health_potion", 0.18]],
      0.14, [0.55, 0.70, 0.35]),
     ("raider_brute", "Raider Brute", 3, "barrens", (24, 45), 90, 14, 105, 48, (8, 16),
-     "enemy_raider", 1.3, "melee",
+     "enemy_raider2", 1.3, "melee",
      [["raider_insignia", 0.45], ["scrap_iron", 0.5], ["greater_health_potion", 0.15],
       ["warden_steel_ingot", 0.06]],
      0.15, [0.72, 0.40, 0.22]),
@@ -257,7 +258,7 @@ BOSSES = [
     # The shipped final fight. Stats unchanged from the original data so the
     # fight still plays exactly as it always has (Phase E: mechanics untouched).
     ("ember_warden", "The Ember Warden", 6, "frost", (92, 100), 5200, 58, 128,
-     4200, (400, 600), "enemy_orc", 1.7,
+     4200, (400, 600), "enemy_warden", 1.7,
      [],  # Boss.gd owns the Ember Warden's phase script — see below
      [["warden_core", 1.0], ["warden_steel_ingot", 1.0],
       ["greater_health_potion", 1.0], ["worlds_end", 0.35]],

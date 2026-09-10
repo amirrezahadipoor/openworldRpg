@@ -92,6 +92,13 @@ func rarity_rank(id: String) -> int:
 func stat_budget_used(id: String) -> float:
 	## Weighted stat total, so "is this item within its rarity budget?" is a
 	## single number both the generator and the tests can agree on.
+	##
+	## The budget is a GEAR ladder. Consumables and materials are excluded: a
+	## timed buff (e.g. +30% speed for 10s) is not a stat line, and counting it
+	## would make a potion "outrank" a legendary sword on the rarity ladder.
+	var t := get_type(id)
+	if t not in ["weapon", "armor", "accessory"]:
+		return 0.0
 	var total := 0.0
 	for key in STAT_WEIGHT:
 		total += absf(float(get_item(id).get(key, 0))) * float(STAT_WEIGHT[key])

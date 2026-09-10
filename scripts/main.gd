@@ -11,6 +11,7 @@ const BOSS_POS := Vector2(2700, -1500)
 ## Phase E §1: dungeon interiors are built far off-map and the player is moved
 ## to them, so a floor never overlaps the overworld.
 const DUNGEON_ORIGIN := Vector2(200000, 200000)
+const BOSS_LINES_PATH := "res://data/boss_lines.json"
 
 var player: Player
 var camera: FollowCamera
@@ -26,6 +27,9 @@ var settlements: Array[Settlement] = []
 var _dungeon: Dungeon
 var _dungeon_return := Vector2.ZERO
 var day_night: DayNight
+## Boss id -> {intro, defeat}. The antagonists were silent before this.
+var _boss_lines: Dictionary = {}
+var _boss_id: String = ""
 
 
 func _ready() -> void:
@@ -39,6 +43,8 @@ func _ready() -> void:
 	EventBus.enemy_hurt.connect(_on_enemy_hurt)
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.boss_defeated.connect(_on_boss_defeated)
+	EventBus.boss_encounter_started.connect(_on_boss_encounter)
+	_boss_lines = _load_boss_lines()
 	EventBus.boss_phase_changed.connect(_on_boss_phase)
 	EventBus.world_interacted.connect(_on_world_interacted)
 	EventBus.quest_started.connect(func(_q: String) -> void: _refresh_quest_ui())
@@ -47,6 +53,12 @@ func _ready() -> void:
 	EventBus.dialogue_closed.connect(_refresh_markers)
 	EventBus.dialogue_closed.connect(_release_npc_talk)
 	EventBus.npc_barked.connect(_on_npc_barked)
+	# Systems that used to be silent: money, equipping, a quest landing, a secret.
+	EventBus.gold_changed.connect(func(_amount: int) -> void: AudioManager.play_sfx("coin"))
+	EventBus.quest_started.connect(func(_q: String) -> void: AudioManager.play_sfx("quest_accept"))
+	EventBus.quest_completed.connect(func(_q: String) -> void: AudioManager.play_sfx("quest_complete"))
+	EventBus.secret_found.connect(func(_id: String, _n: String, _i: int, _t: int) -> void:
+		AudioManager.play_sfx("secret_found"))
 
 	if GameState.pending_load:
 		SaveSystem.load_game(player, GameState.current_slot)
@@ -54,6 +66,7 @@ func _ready() -> void:
 	_refresh_quest_ui()
 	_refresh_markers()
 	_update_music()
+	SettingsManager.apply_text_scale(get_tree().root)
 
 
 var _music_timer := 0.0
@@ -63,6 +76,7 @@ var _place_timer := 0.0
 
 
 func _process(delta: float) -> void:
+	_victory_timer = maxf(0.0, _victory_timer - delta)
 	_music_timer += delta
 	_place_timer += delta
 	if _place_timer >= 0.5:
@@ -99,25 +113,71 @@ var _boss_active := false
 var _boss_defeated := false
 
 
+## A victory sting plays over the boss theme for a few seconds, then the world
+## track returns — the score reacts to what just happened instead of looping.
+var _victory_timer := 0.0
+
+
 func _update_music() -> void:
 	if player == null:
 		return
 	var track := _biome_track(player.global_position)
+	var here := player.global_position
+	if _dungeon != null:
+		track = "dungeon"
+	elif _inside_settlement(here):
+		track = "town"
+	elif here.distance_to(CAMP_POS) < 320.0:
+		track = "camp"
+	elif day_night != null and day_night.time_of_day_name() == "Night":
+		# The day/night cycle had no audio signature at all before this.
+		track = "night" if ResourceLoader.exists("res://assets/audio/music/night.ogg") else track
 	if _boss_active:
 		track = "boss"
-	elif not _boss_defeated and player.global_position.distance_to(BOSS_POS) < 1250.0:
+	elif not _boss_defeated and here.distance_to(BOSS_POS) < 1250.0:
 		track = "combat"
+	elif _victory_timer > 0.0:
+		track = "victory"
+	elif track in ["meadow", "barrens", "frost"] and GameState.max_hp() > 0.0 \
+			and GameState.hp / GameState.max_hp() < 0.25:
+		# Badly hurt and alone in the field: the score notices.
+		track = "danger"
 	AudioManager.play_music(track)
+	AudioManager.play_ambient(_ambient_id())
+
+
+func _inside_settlement(pos: Vector2) -> bool:
+	for st in settlements:
+		if st == null or not is_instance_valid(st):
+			continue
+		if pos.distance_to(st.global_position) <= 420.0:
+			return true
+	return false
+
+
+func _ambient_id() -> String:
+	## Place, in sound: cave for a dungeon, room-tone in a town, firelight at the
+	## camp, weather for the biome. (Beds are generated — tools/gen_ambient.py.)
+	if _dungeon != null:
+		return "amb_water" if _dungeon.dungeon_id == "drowned_mill" else "amb_cave"
+	if _inside_settlement(player.global_position):
+		return "amb_town"
+	if player.global_position.distance_to(CAMP_POS) < 420.0:
+		return "amb_campfire"
+	match _biome_track(player.global_position):
+		"frost":
+			return "amb_frost"
+		"barrens":
+			return "amb_lava"
+		_:
+			return "amb_meadow"
 
 
 func _biome_track(pos: Vector2) -> String:
-	var cx := int(floorf(pos.x / float(ChunkStreamer.CHUNK_SIZE)))
-	var cy := int(floorf(pos.y / float(ChunkStreamer.CHUNK_SIZE)))
-	if cy <= -1:
-		return "frost"
-	if cx >= 2:
-		return "barrens"
-	return "meadow"
+	## Delegates to the same function the generator uses (scripts/world/biome.gd),
+	## so the music follows the map's wobbling borders instead of three straight
+	## lines that no longer exist in the world data.
+	return Biome.name_at_position(pos, ChunkStreamer.CHUNK_SIZE)
 
 
 func _build_world() -> void:
@@ -273,6 +333,24 @@ func _on_npc_interacted(npc: NPC) -> void:
 	if not offer.is_empty():
 		dialogue_box.start(offer)
 		return
+	# Mid-mission: an NPC you are working for (or reporting to) talks about the
+	# job in hand. Before this, barks were completely deaf to quest state.
+	# After the Warden falls the valley should notice. One line per NPC.
+	if QuestManager.is_done("MQ100") or QuestManager.is_done("q4_new_dawn"):
+		var done_line := DialogueDB.post_game_line(npc.npc_id)
+		if done_line != "":
+			dialogue_box.start({
+				"start": "root",
+				"nodes": {"root": {"speaker": npc.display_name, "text": done_line, "choices": []}},
+			})
+			return
+	var reminder := QuestManager.reminder_for(npc.npc_id)
+	if reminder != "" and randf() < 0.6:
+		dialogue_box.start({
+			"start": "root",
+			"nodes": {"root": {"speaker": npc.display_name, "text": reminder, "choices": []}},
+		})
+		return
 	# No quest line right now -> answer with an idle bark instead of silence
 	# (Phase E §3: every named NPC has something to say, always).
 	var line := DialogueDB.pick_bark(npc.npc_id, npc.time_of_day())
@@ -335,7 +413,47 @@ func _refresh_markers() -> void:
 		(npc as NPC).set_marker(QuestManager.marker_for(npc.npc_id))
 
 
+const BURN_QUEST := "MQ020"   # "The Ash Road" — the player leaves the valley
+
+
+func _load_boss_lines() -> Dictionary:
+	var f := FileAccess.open(BOSS_LINES_PATH, FileAccess.READ)
+	if f == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	return (parsed as Dictionary).get("bosses", {})
+
+
+func _on_boss_encounter(boss_id: String, display_name: String) -> void:
+	## The boss speaks before it tries to kill you. A banner, not a modal box:
+	## the fight must never open behind a wall of paused text.
+	_boss_id = boss_id
+	var line: Dictionary = _boss_lines.get(boss_id, {})
+	var intro := String(line.get("intro", ""))
+	AudioManager.play_sfx("boss_roar")
+	if hud_ref != null and intro != "":
+		hud_ref.show_toast("%s — \"%s\"" % [display_name, intro])
+
+
+func _burn_millhaven() -> void:
+	## MQ020 ends the first act: the player is sent east on the ash road, and the
+	## camp they started in burns while they are gone. The roster always said
+	## Rowan dies here; until now nothing in the game removed him.
+	if bool(GameState.quest_flags.get("millhaven_burned", false)):
+		return
+	QuestManager.register_flag("millhaven_burned")
+	AudioManager.play_sfx("boss_roar")
+	if camp != null and is_instance_valid(camp):
+		camp.burn()
+	if hud_ref != null:
+		hud_ref.show_toast("Smoke on the western road: Millhaven is burning.")
+
+
 func _on_quest_completed(qid: String) -> void:
+	if qid == BURN_QUEST:
+		_burn_millhaven()
 	if qid == "q4_new_dawn":
 		_show_ending()
 
@@ -366,18 +484,27 @@ func _show_ending() -> void:
 	box.add_child(title)
 	var epilogue := Label.new()
 	epilogue.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	epilogue.custom_minimum_size = Vector2(620, 0)
+	epilogue.custom_minimum_size = Vector2(680, 0)
 	epilogue.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	if bool(GameState.quest_flags.get("vow_mercy", false)):
-		epilogue.text = "You chose mercy, and the valley remembers you as the one who set its guardian free. The campfire burns bright again."
-	else:
-		epilogue.text = "You chose vengeance, and the corruption burned away with the Warden. The campfire burns bright again."
+	epilogue.add_theme_font_size_override("font_size", 16)
+	epilogue.text = _epilogue_text()
 	box.add_child(epilogue)
 	var stats := Label.new()
-	stats.text = "Level %d · %d gold · %d quests completed" % [GameState.level, GameState.gold, _quests_done()]
+	stats.text = _epilogue_stats()
 	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stats.add_theme_color_override("font_color", Color(0.8, 0.85, 1.0))
 	box.add_child(stats)
+
+	# The credits are built by MainMenu (there is no separate credits scene), so
+	# the ending rolls them by showing the title screen's credits layer.
+	var credits := Button.new()
+	credits.text = "Credits"
+	credits.custom_minimum_size = Vector2(200, 40)
+	credits.pressed.connect(func() -> void:
+		get_tree().paused = false
+		get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
+	)
+	box.add_child(credits)
 	var btn := Button.new()
 	btn.text = "Keep exploring"
 	btn.custom_minimum_size = Vector2(260, 46)
@@ -389,6 +516,54 @@ func _show_ending() -> void:
 	get_tree().paused = true
 
 
+func _epilogue_text() -> String:
+	## A closing that reflects what the player actually did, instead of one
+	## sentence that only knew about a flag. Three towns, a decision or two, a
+	## secret count and the state of the camp.
+	var mercy := bool(GameState.quest_flags.get("vow_mercy", false))
+	var rows: Array = []
+	rows.append("The Warden is still. The ash that came up out of the valley stops coming.")
+	rows.append("You chose mercy, and the valley remembers you as the one who set its guardian free."
+		if mercy else
+		" You chose vengeance, and the corruption burned away with the Warden, and something that had been keeping watch stopped watching.")
+	var burned := bool(GameState.quest_flags.get("millhaven_burned", false))
+	var dead := _towns_visited() - 1
+	rows.append("Millhaven burned behind you before you were half the fighter you are now, and the road has been a road to somewhere ever since."
+		if burned else
+		"Hazelwood Camp still keeps its fire, and Rowan still asks what you saw out there.")
+	rows.append("You have walked into %d of the valley's towns and come back out of %d of its dungeons."
+		% [_towns_visited(), _dungeons_entered()])
+	rows.append("The road east is open. If the Choir comes back it will find the valley already awake.")
+	return "\n\n".join(rows)
+
+
+func _epilogue_stats() -> String:
+	var secrets := 0
+	for flag in GameState.quest_flags.keys():
+		if String(flag).begins_with("secret_"):
+			secrets += 1
+	return "Level %d · %d gold · %d/%d quests · %d dungeons · %d/%d secrets found" % [
+		GameState.level, GameState.gold, _quests_done(), 106 + 100,
+		_dungeons_entered(), secrets, int(SecretsDB.total())]
+
+
+func _towns_visited() -> int:
+	var n := 0
+	for id in ["millhaven", "oakstead", "sunreach", "ashport", "cinderhold",
+			"ashvow", "frosthaven", "kilnrest", "skyreach"]:
+		if bool(GameState.quest_flags.get("visited_%s" % id, false)):
+			n += 1
+	return maxi(n, 1)
+
+
+func _dungeons_entered() -> int:
+	var n := 0
+	for flag in GameState.quest_flags.keys():
+		if String(flag).begins_with("entered_"):
+			n += 1
+	return n
+
+
 func _quests_done() -> int:
 	var n := 0
 	for q in GameState.quests.values():
@@ -398,6 +573,12 @@ func _quests_done() -> int:
 
 
 func _on_boss_defeated() -> void:
+	_victory_timer = 6.0
+	var line: Dictionary = _boss_lines.get(_boss_id, {})
+	var defeat_line := String(line.get("defeat", ""))
+	AudioManager.play_sfx("quest_complete")
+	if hud_ref != null and defeat_line != "":
+		hud_ref.show_toast(defeat_line)
 	_boss_active = false
 	_boss_defeated = true
 	QuestManager.register_flag("cleared_ember_warden_keep")

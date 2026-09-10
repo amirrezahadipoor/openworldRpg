@@ -66,7 +66,12 @@ func _test_catalogue_size() -> void:
 		var t := String(it.get("type", ""))
 		if t in ["weapon", "armor", "accessory"] and String(it.get("slot", "")) == "":
 			usable = false
-		if t == "consumable" and not (it.has("heal") or it.has("restore_mp")):
+		# A consumable is usable when it does something: a heal, a mana restore,
+		# a timed buff (haste / ward / focus) or an armed revive.
+		var does_something := it.has("heal") or it.has("restore_mp") \
+			or it.has("speed_mult") or it.has("shield") or it.has("mp_regen") \
+			or bool(it.get("revive", false))
+		if t == "consumable" and not does_something:
 			usable = false
 		if int(it.get("value", 0)) <= 0:
 			usable = false

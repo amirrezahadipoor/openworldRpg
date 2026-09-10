@@ -1,5 +1,5 @@
 {
-  "_comment": "NPC dialogue for merchant_bram (Phase E §3 barks; quest lines land with Act 1).",
+  "_comment": "NPC dialogue for merchant_bram (Phase E \u00a73 barks; quest lines land with Act 1).",
   "dialogues": [
     {
       "id": "mq_brief_MQ008",
@@ -44,6 +44,59 @@
           "text": "Slay 10 Slime Grunt. Come back to me when it is done.",
           "next": "",
           "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "bram_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Merchant Bram",
+          "text": "Bram has already decided you are buying something.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Merchant Bram",
+          "text": "Caravans, mostly. The ones that arrive. The ones that do not arrive still cost me, which is a tax I did not vote for.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Merchant Bram",
+          "text": "Whoever pays first. You are not offended by that. You would do the same, and you would sleep fine.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Merchant Bram",
+          "text": "Go on. I have the time, which is the only thing anyone in this valley still has in quantity.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Where do you get your stock?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_bram_stock"
+                }
+              ]
+            },
+            {
+              "text": "Who is your best customer?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_bram_customers"
+                }
+              ]
+            }
+          ]
         }
       },
       "start": "1",
