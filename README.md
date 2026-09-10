@@ -4,9 +4,10 @@ A complete, polished **2D open-world action RPG for Android**, built with **Godo
 combat with dodge i-frames, a chunk-streamed seamless world with 3 biomes, talent trees, quests
 with branching dialogue, loot, shops, and full save/load. Built to ship: signed APK/AAB from CI.
 
-> 📍 Status: **active development** — see [ROADMAP.md](ROADMAP.md) for the live checklist
+> 📍 Status: **v1.0 feature-complete** — see [ROADMAP.md](ROADMAP.md) for the live checklist
 > (ticked after every pushed subsystem), [DECISIONS.md](DECISIONS.md) for design decisions,
-> and [CREDITS.md](CREDITS.md) for third-party licenses.
+> and [CREDITS.md](CREDITS.md) for third-party licenses. Signed APK/AAB are produced by the
+> `release` workflow on `v*` tags and attached to the GitHub Release.
 
 ## Quick facts
 
@@ -17,6 +18,23 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 | Design resolution | 1280×720, `canvas_items` stretch, `expand` aspect, landscape |
 | Repo budget | < 120 MB total (enforced in CI); toolchain lives in `/tmp/rpg-toolchain/` |
 | Language | English |
+
+## What's in the game
+
+- **World** — 35 authored chunks (Tiled JSON → compiled scenes) across Verdant Meadows,
+  Ashen Barrens and Frosthollow Peaks; gated mountain passes, a hidden grove secret,
+  5 fast-travel campfires, day/night tint cycle, real terrain minimap.
+- **Combat** — directional melee, dodge with i-frames, Whirlwind + Firebolt cooldown
+  abilities, telegraphed enemy AI (idle/patrol/chase/attack/flee), the three-phase
+  Ember Warden boss, damage numbers, hit-stop, particles and squash-and-stretch.
+- **Progression** — XP/levels, 3-branch talent tree, stats (HP/MP/stamina/ATK/DEF/SPD),
+  loot chests, stacking inventory, equipment affecting stats, consumables, shop economy.
+- **Story** — 4-part main questline with branching, consequential dialogue, side and
+  repeatable quests, tracked objectives, data-driven JSON dialogue.
+- **Meta** — 3 save slots, settings (volume/joystick/language stub), main menu with slot
+  picker, pause, death and fast-travel screens; procedural CC0 music + SFX.
+- **Controls** — keyboard or touch: left virtual joystick; right buttons for attack,
+  dodge, interact and the two abilities (with live cooldown readouts).
 
 ## Repository layout
 

@@ -458,6 +458,7 @@ func _test_music() -> void:
 
 func _test_perf() -> void:
 	print("[combat_test] pooling + frame budget")
+	var main_node = get_node_or_null("Main")
 	var holder := PoolManager.get_node("Projectiles")
 	var pool: ObjectPool = PoolManager._projectiles
 	var free_before: int = pool._free.size()
@@ -488,6 +489,20 @@ func _test_perf() -> void:
 	var avg_ms := float(Time.get_ticks_usec() - t0) / 60000.0
 	print("  avg frame: %.2f ms" % avg_ms)
 	check(avg_ms < 33.0, "avg frame under 33 ms budget (headless smoke)")
+
+	# Chunk streaming: walking east loads new authored chunks and unloads old.
+	if main_node != null:
+		var streamer: ChunkStreamer = main_node.get_node("World/ChunkStreamer")
+		var walker: Node2D = main_node.get_node("Player")
+		walker.global_position = Vector2(2600, 600)
+		streamer.set_target(walker)
+		await get_tree().create_timer(0.6).timeout
+		check(streamer.get_loaded_chunk(Vector2i(2, 0)) != null, "east chunk (2,0) streamed in")
+		check(streamer.get_loaded_chunk(Vector2i(0, 0)) == null, "village chunk (0,0) streamed out")
+		walker.global_position = Vector2(700, 330)
+		streamer.set_target(walker)
+		await get_tree().create_timer(0.6).timeout
+		check(streamer.get_loaded_chunk(Vector2i(0, 0)) != null, "village chunk re-streamed on return")
 
 
 func _test_boss_phases_and_death() -> void:
