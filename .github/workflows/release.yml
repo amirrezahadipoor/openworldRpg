@@ -86,6 +86,12 @@ jobs:
             --export-release "Android" "build/OpenWorldRPG-${{ steps.ver.outputs.tag }}.aab"
           ls -lh build/
 
+      - name: Export signed debug APK (side-loadable)
+        run: |
+          /tmp/rpg-toolchain/bin/godot --headless --path . \
+            --export-debug "Android" "build/OpenWorldRPG-${{ steps.ver.outputs.tag }}-debug.apk"
+          ls -lh build/
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -94,6 +100,7 @@ jobs:
             build/*.apk
             build/*.aab
           retention-days: 90
+          if-no-files-found: error
 
       - name: Create GitHub Release with artifacts
         uses: softprops/action-gh-release@v2
@@ -103,8 +110,9 @@ jobs:
           body: |
             Installable Android builds (ARM64 + ARMv7), signed.
 
-            - `OpenWorldRPG-*.apk` — direct install
-            - `OpenWorldRPG-*.aab` — Play Store bundle
+            - `OpenWorldRPG-v*.apk` — release build, direct install
+            - `OpenWorldRPG-v*-debug.apk` — debug build for side-loading / logcat
+            - `OpenWorldRPG-v*.aab` — Play Store bundle
 
             Built from `${{ github.sha }}` by the release workflow.
           files: |
