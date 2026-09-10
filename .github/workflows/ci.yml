@@ -64,6 +64,12 @@ jobs:
           grep -q "TEST RESULT: PASS" tests.log || { echo "::error::gameplay tests failed"; exit 1; }
           echo "gameplay tests ✓"
 
+      - name: Full main-story playthrough validation (q1 -> q4 + boss)
+        run: |
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/PlaythroughTest.tscn | tee playthrough.log
+          grep -q "PLAYTHROUGH RESULT: PASS" playthrough.log || { echo "::error::playthrough validation failed"; exit 1; }
+          echo "playthrough ✓"
+
   android-export:
     name: Android debug APK (main only)
     runs-on: ubuntu-latest

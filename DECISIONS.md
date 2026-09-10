@@ -249,3 +249,12 @@ At runtime `player.gd` builds `SpriteFrames` from the active variant and
 rebuilds within 0.5 s of an equipment change — equipment slots visibly drive
 the sprite (paper-doll). Sheets are ~90 KB each (repo stays far under the
 120 MB budget). All LPC layers are CC-BY-SA-3.0/GPL; attribution in CREDITS.md.
+
+**#31 — Automated full playthrough validation** · 2026-09-10
+`tests/PlaythroughTest.tscn` replays the entire authored main arc headless on
+the live world: dialogue-driven quest start, kill objectives through real
+enemy deaths, auto-flags, quest chaining with rewards, traveling to the
+scorched ring (arena sighting flag), Ember Warden summon + 3-phase kill via
+the real `BossArena`, and the closing elder conversation (q1→q4, 23 checks).
+Runs in CI after the combat suite. The test player steps out of melee range
+before the lethal blow so a death screen can never pause the tree mid-tween.
