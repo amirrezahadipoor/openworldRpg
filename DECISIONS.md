@@ -705,3 +705,38 @@ get the same treatment from the other end: every non-boss floor now builds a
 sealed side-vault (lever, rock gate, chest, two torches), so a floor is a room to
 search rather than a room to cross. Doors with nothing behind them were the
 complaint; now every lever in the game opens something.
+
+**#52 — The projectile that kept hitting: a pooled Area2D disarmed from inside its own signal** · 2026-09-11
+CI caught this one, and it is the kind of bug that only shows up in a render. The
+visual-capture job hung until its 25-minute timeout and printed exactly one
+suspicious line: `ERROR: Function blocked during in/out signal. Use
+set_deferred("monitoring", true/false)`.
+
+The cause was in `scripts/combat/projectile.gd`. A projectile is pooled, so when it
+connects it is *released* from inside its own `body_entered` / `area_entered`
+handler — and release ran `monitoring = false` directly. Godot refuses that
+assignment during the physics flush, the error aborts the assignment, and the
+Area2D stays **live while parked on top of whatever it just hit**. The player walks
+off and back, or jitters inside it, and takes damage again from a projectile that
+does not exist any more. Headless suites never saw it (no enemy ever landed a shot
+inside the window they ran); the rendered run did, and the hits it produced were
+enough to kill the character, which opened the death screen — which pauses the tree
+— which froze the capture node too, which hung the job.
+
+Two fixes, because there were two faults:
+* **The bug:** `_spent` is set the instant a projectile connects and both handlers
+  bail out if it is set; `on_pool_release()` now uses
+  `set_deferred("monitoring", false)`, and `on_pool_acquire()` re-arms both flags.
+  Deferred calls run FIFO, so a re-acquire in the same frame still ends armed.
+  `CombatTest` gained a section that fires a hostile projectile at the player,
+  asserts the hit lands **exactly once**, asserts the pool's copy is genuinely
+  disarmed, then walks out of its radius and back in and asserts zero phantom
+  damage — three checks that would have caught the original defect.
+* **The job:** the capture node is now `PROCESS_MODE_ALWAYS`, prints a diagnostic
+  when it finds the tree paused (so a paused game produces a screenshot and a log
+  line instead of silence), and carries a 90-second watchdog that fails fast with
+  a clear message rather than burning the job timeout.
+
+Lesson recorded: this is the same class of failure as `SecretSite._drop_loot`
+instantiated inside `body_entered` (see the secrets pass) — **anything that
+touches the scene tree or an Area2D from inside a physics signal has to defer**.

@@ -16,15 +16,34 @@ extends Node
 const OUT_DIR := "/tmp"
 const SHOT_AT := [2.0, 3.0]
 
+const WATCHDOG_MS := 90_000   # fail loudly instead of hitting the job timeout
+
 var _t := 0.0
 var _n := 0
+var _started_ms := 0
+var _pause_reported := false
 
 
 func _ready() -> void:
+	# The harness must not be hostage to the game's own pauses: a death screen or
+	# an open dialogue pauses the tree, which used to freeze this node too and
+	# hang the CI job until its 25-minute timeout.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_started_ms = Time.get_ticks_msec()
 	add_child(load("res://scenes/main.tscn").instantiate())
 
 
 func _process(delta: float) -> void:
+	if get_tree().paused and not _pause_reported:
+		_pause_reported = true
+		var ds := get_tree().root.find_child("DeathScreen", true, false)
+		print("DIAG: game paused at t=%.1f (death screen=%s) — capturing anyway"
+			% [_t, str(ds != null and (ds as CanvasItem).visible)])
+	if Time.get_ticks_msec() - _started_ms > WATCHDOG_MS:
+		printerr("::error::capture watchdog fired after %d s (t=%.1f, shots=%d)"
+			% [WATCHDOG_MS / 1000, _t, _n])
+		get_tree().quit(2)
+		return
 	_t += delta
 	if _n >= SHOT_AT.size() or _t < SHOT_AT[_n]:
 		return

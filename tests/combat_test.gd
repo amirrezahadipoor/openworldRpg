@@ -42,6 +42,7 @@ func _ready() -> void:
 	_test_save_slots()
 
 	await _test_abilities()
+	await _test_projectile_contact()
 
 	await _test_world()
 
@@ -883,3 +884,79 @@ func _test_quest_collect() -> void:
 
 	for q in [qid, qid2, qid3]:
 		QuestManager.data.erase(q)
+
+func _test_projectile_contact() -> void:
+	## A pooled projectile is released from inside its own contact signal, and
+	## Godot refuses a direct `monitoring = false` there ("Function blocked during
+	## in/out signal"). That used to leave the spent projectile live on top of
+	## whatever it hit, so the next contact dealt damage again with nothing in the
+	## air. Three things must hold: one hit, a genuinely disarmed area, and no
+	## damage when the player walks back over the corpse.
+	print("[combat_test] projectile contact (one hit, disarmed, no phantom damage)")
+	var host := Node2D.new()
+	add_child(host)
+	var player: Player = load("res://scenes/player/player.tscn").instantiate()
+	host.add_child(player)
+	player.global_position = Vector2(9000, 9000)   # away from everything else
+	GameState.hp = GameState.max_hp()
+	await _phys(3)
+
+	# Quiet the pool first: anything already in flight would pollute the count.
+	var holder := get_tree().root.get_node_or_null("PoolManager/Projectiles")
+	if holder != null:
+		for child in holder.get_children():
+			if child is Projectile and (child as Projectile).visible:
+				PoolManager.release_projectile(child)
+	await _phys(3)
+
+	# Clear the field: earlier sections leave players standing in enemy fire, and
+	# GameState.hp is global, so a stray grunt landing 19 on somebody else's
+	# character would show up in this measurement. (Muting them is not an option —
+	# Player._physics_process resets `invulnerable` every frame.)
+	for e in get_tree().get_nodes_in_group("enemies"):
+		e.queue_free()
+	if holder != null:
+		for child in holder.get_children():
+			if child is Projectile and (child as Projectile).visible:
+				PoolManager.release_projectile(child)
+	await _phys(4)
+	var before := GameState.hp
+	var hits: Array = []
+	var probe := func(amount: float) -> void: hits.append(amount)
+	EventBus.player_damaged.connect(probe)
+	PoolManager.spawn_projectile(player.global_position + Vector2(0, -60),
+		Vector2.DOWN, 6.0, 300.0, Color.RED, false)
+	for i in 60:
+		await get_tree().physics_frame
+		if GameState.hp < before:
+			break
+	EventBus.player_damaged.disconnect(probe)
+	var after_one := GameState.hp
+	check(after_one < before, "hostile projectile damaged the player (%d -> %d)" % [before, after_one])
+	check(hits.size() == 1, "the hit landed exactly once (%d damage events %s)" % [hits.size(), str(hits)])
+
+	# The spent projectile must be genuinely disarmed (the bug was a blocked
+	# `monitoring = false` inside the physics signal).
+	await _phys(2)
+	var spent: Projectile = null
+	for child in holder.get_children():
+		if child is Projectile and (child as Projectile)._spent:
+			spent = child
+			break
+	check(spent != null, "the projectile was returned to the pool")
+	check(spent != null and not spent.monitoring, "the spent projectile's area is off (monitoring=%s)"
+		% [str(spent.monitoring) if spent != null else "n/a"])
+
+	# Walk out of its radius and straight back into it.
+	player.global_position = Vector2(9400, 9000)
+	await _phys(20)
+	player.global_position = Vector2(9000, 9000)
+	await _phys(45)
+	check(GameState.hp == after_one,
+		"a spent projectile deals no phantom damage (%d -> %d)" % [after_one, GameState.hp])
+	host.queue_free()
+
+
+func _phys(n: int) -> void:
+	for i in n:
+		await get_tree().physics_frame
