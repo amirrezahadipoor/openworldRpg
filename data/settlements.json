@@ -1,0 +1,310 @@
+{
+  "_comment": "Phase E \u00a71 - settlements. Each entry becomes a real scene built by scripts/world/settlement.gd (plaza, buildings, waypoint, sign, NPCs), not a recoloured biome chunk. `position` is a world pixel coordinate; `safe_radius` suppresses enemy spawners around the settlement.",
+  "settlements": {
+    "millhaven": {
+      "id": "millhaven",
+      "name": "Millhaven",
+      "tier": "village",
+      "biome": "meadow",
+      "desc": "The player's home village on the camp road.",
+      "position": [
+        1100,
+        620
+      ],
+      "radius": 210.0,
+      "safe_radius": 300.0,
+      "buildings": 6,
+      "services": [
+        "waypoint",
+        "questboard"
+      ],
+      "npcs": [
+        "elder_rowan",
+        "wren",
+        "merchant_bram"
+      ],
+      "ground_color": [
+        0.28,
+        0.46,
+        0.28
+      ],
+      "roof_color": [
+        0.52,
+        0.3,
+        0.22
+      ]
+    },
+    "oakstead": {
+      "id": "oakstead",
+      "name": "Oakstead",
+      "tier": "village",
+      "biome": "meadow",
+      "desc": "Mill and orchard village; Meadows side-quest hub.",
+      "position": [
+        300,
+        1200
+      ],
+      "radius": 210.0,
+      "safe_radius": 300.0,
+      "buildings": 6,
+      "services": [
+        "waypoint",
+        "questboard"
+      ],
+      "npcs": [
+        "elder_fenwick",
+        "merchant_bram"
+      ],
+      "ground_color": [
+        0.28,
+        0.46,
+        0.28
+      ],
+      "roof_color": [
+        0.52,
+        0.3,
+        0.22
+      ]
+    },
+    "sunreach": {
+      "id": "sunreach",
+      "name": "Sunreach City",
+      "tier": "city",
+      "biome": "meadow",
+      "desc": "The Meadows' seat of law. Home of Magistrate Voss.",
+      "position": [
+        1750,
+        1350
+      ],
+      "radius": 330.0,
+      "safe_radius": 440.0,
+      "buildings": 16,
+      "services": [
+        "waypoint",
+        "shop",
+        "inn",
+        "questboard"
+      ],
+      "npcs": [
+        "magistrate_voss",
+        "ysolde",
+        "elder_fenwick"
+      ],
+      "ground_color": [
+        0.28,
+        0.46,
+        0.28
+      ],
+      "roof_color": [
+        0.52,
+        0.3,
+        0.22
+      ]
+    },
+    "ashport": {
+      "id": "ashport",
+      "name": "Ashport",
+      "tier": "town",
+      "biome": "barrens",
+      "desc": "Salvage town on the ash road; Kael's base.",
+      "position": [
+        2850,
+        900
+      ],
+      "radius": 260.0,
+      "safe_radius": 360.0,
+      "buildings": 10,
+      "services": [
+        "waypoint",
+        "shop",
+        "questboard"
+      ],
+      "npcs": [
+        "hunter_kael",
+        "ysolde"
+      ],
+      "ground_color": [
+        0.55,
+        0.47,
+        0.33
+      ],
+      "roof_color": [
+        0.4,
+        0.26,
+        0.2
+      ]
+    },
+    "cinderhold": {
+      "id": "cinderhold",
+      "name": "Cinderhold",
+      "tier": "town",
+      "biome": "barrens",
+      "desc": "Garrison town holding the line at the slag.",
+      "position": [
+        3400,
+        300
+      ],
+      "radius": 260.0,
+      "safe_radius": 360.0,
+      "buildings": 10,
+      "services": [
+        "waypoint",
+        "questboard"
+      ],
+      "npcs": [
+        "captain_dael"
+      ],
+      "ground_color": [
+        0.55,
+        0.47,
+        0.33
+      ],
+      "roof_color": [
+        0.4,
+        0.26,
+        0.2
+      ]
+    },
+    "ashvow": {
+      "id": "ashvow",
+      "name": "Ashvow",
+      "tier": "city",
+      "biome": "barrens",
+      "desc": "The Ashen Choir's burnt seat. Half-ruined, still inhabited.",
+      "position": [
+        4300,
+        1200
+      ],
+      "radius": 330.0,
+      "safe_radius": 440.0,
+      "buildings": 16,
+      "services": [
+        "waypoint"
+      ],
+      "npcs": [
+        "brother_ashe"
+      ],
+      "ground_color": [
+        0.55,
+        0.47,
+        0.33
+      ],
+      "roof_color": [
+        0.4,
+        0.26,
+        0.2
+      ]
+    },
+    "frosthaven": {
+      "id": "frosthaven",
+      "name": "Frosthaven",
+      "tier": "village",
+      "biome": "frost",
+      "desc": "Last hearth before the climb.",
+      "position": [
+        200,
+        -900
+      ],
+      "radius": 210.0,
+      "safe_radius": 300.0,
+      "buildings": 6,
+      "services": [
+        "waypoint",
+        "questboard"
+      ],
+      "npcs": [
+        "mireille"
+      ],
+      "ground_color": [
+        0.33,
+        0.38,
+        0.47
+      ],
+      "roof_color": [
+        0.28,
+        0.32,
+        0.42
+      ]
+    },
+    "kilnrest": {
+      "id": "kilnrest",
+      "name": "Kilnrest",
+      "tier": "town",
+      "biome": "frost",
+      "desc": "Terraced mining town in the pass; the peaks' trade floor.",
+      "position": [
+        1500,
+        -1800
+      ],
+      "radius": 260.0,
+      "safe_radius": 360.0,
+      "buildings": 10,
+      "services": [
+        "waypoint",
+        "shop",
+        "inn"
+      ],
+      "npcs": [
+        "ysolde",
+        "mireille"
+      ],
+      "ground_color": [
+        0.33,
+        0.38,
+        0.47
+      ],
+      "roof_color": [
+        0.28,
+        0.32,
+        0.42
+      ]
+    },
+    "skyreach": {
+      "id": "skyreach",
+      "name": "Skyreach Citadel",
+      "tier": "city",
+      "biome": "frost",
+      "desc": "The Wardens' citadel above the clouds.",
+      "position": [
+        3200,
+        -2400
+      ],
+      "radius": 330.0,
+      "safe_radius": 440.0,
+      "buildings": 16,
+      "services": [
+        "waypoint",
+        "shop",
+        "questboard"
+      ],
+      "npcs": [
+        "high_warden_isolde",
+        "captain_dael"
+      ],
+      "ground_color": [
+        0.33,
+        0.38,
+        0.47
+      ],
+      "roof_color": [
+        0.28,
+        0.32,
+        0.42
+      ]
+    }
+  },
+  "tiers": {
+    "village": {
+      "buildings": 6,
+      "radius": 210.0
+    },
+    "town": {
+      "buildings": 10,
+      "radius": 260.0
+    },
+    "city": {
+      "buildings": 16,
+      "radius": 330.0
+    }
+  }
+}

@@ -76,6 +76,12 @@ jobs:
           grep -q "NPC RESULT: PASS" npc.log || { echo "::error::NPC schedule/bark validation failed"; exit 1; }
           echo "npc ✓"
 
+      - name: World map: settlements + dungeons (Phase E §1)
+        run: |
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/WorldMapTest.tscn | tee worldmap.log
+          grep -q "WORLDMAP RESULT: PASS" worldmap.log || { echo "::error::settlement/dungeon validation failed"; exit 1; }
+          echo "worldmap ✓"
+
       - name: Audio integrity (every play_music/play_sfx id is registered)
         run: |
           timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/AudioTest.tscn | tee audio.log

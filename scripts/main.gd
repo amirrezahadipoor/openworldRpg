@@ -8,6 +8,9 @@ const CAMP_SCENE := "res://scenes/world/camp.tscn"
 const SPAWN_POINT := Vector2(700, 330)
 const CAMP_POS := Vector2(900, 300)
 const BOSS_POS := Vector2(2700, -1500)
+## Phase E §1: dungeon interiors are built far off-map and the player is moved
+## to them, so a floor never overlaps the overworld.
+const DUNGEON_ORIGIN := Vector2(200000, 200000)
 
 var player: Player
 var camera: FollowCamera
@@ -18,6 +21,10 @@ var dialogue_box: DialogueBox
 var shop_ui: ShopScreen
 var travel_ui: TravelScreen
 var camp: Camp
+var world: Node2D
+var settlements: Array[Settlement] = []
+var _dungeon: Dungeon
+var _dungeon_return := Vector2.ZERO
 var day_night: DayNight
 
 
@@ -89,7 +96,7 @@ func _biome_track(pos: Vector2) -> String:
 
 
 func _build_world() -> void:
-	var world := Node2D.new()
+	world = Node2D.new()
 	world.name = "World"
 	add_child(world)
 	streamer = ChunkStreamer.new()
@@ -114,6 +121,7 @@ func _build_world() -> void:
 	world.add_child(camp)
 	camp.global_position = CAMP_POS
 	camp.npc_interacted.connect(_on_npc_interacted)
+	_build_settlements()
 
 
 func _build_player() -> void:
@@ -409,3 +417,66 @@ func _on_quit_title() -> void:
 	get_tree().paused = false
 	GameState.pending_load = false
 	Transition.go_to("res://scenes/menus/main_menu.tscn")
+
+
+# --- Phase E §1: settlements + dungeons --------------------------------------
+
+func _build_settlements() -> void:
+	## One real scene per settlement (plaza, buildings, waypoint, sign, NPCs).
+	for id in Settlement.all():
+		var s := Settlement.new()
+		s.name = "Settlement_%s" % id
+		world.add_child(s)
+		s.setup(String(id))
+		s.npc_interacted.connect(_on_npc_interacted)
+		settlements.append(s)
+	_build_dungeon_entrances()
+
+
+func _build_dungeon_entrances() -> void:
+	for id in Dungeon.all():
+		var d: Dictionary = (Dungeon.all() as Dictionary)[id]
+		var p: Array = d.get("position", [0, 0])
+		var entrance := DungeonEntrance.new()
+		entrance.name = "Dungeon_%s" % id
+		entrance.position = Vector2(float(p[0]), float(p[1]))
+		entrance.configure(String(id))
+		entrance.entered.connect(enter_dungeon)
+		world.add_child(entrance)
+
+
+func enter_dungeon(dungeon_id: String) -> void:
+	## Build the dungeon off-map and move the player in. Ascending past floor 1
+	## (the "Exit" stair) returns them to where they stood.
+	if player == null:
+		return
+	_dungeon_return = player.global_position
+	if _dungeon != null and is_instance_valid(_dungeon):
+		_dungeon.queue_free()
+	_dungeon = Dungeon.new()
+	_dungeon.name = "Dungeon_%s" % dungeon_id
+	add_child(_dungeon)
+	_dungeon.exited.connect(_on_dungeon_exited)
+	_dungeon.setup(dungeon_id, 1)
+	# Important: setup() places the dungeon at its world position, so the
+	# off-map relocation has to happen AFTER it, or the room is left sitting on
+	# the overworld while the player stands in an empty chunk.
+	_dungeon.global_position = DUNGEON_ORIGIN
+	if hud_ref != null:
+		hud_ref.show_toast("Entered %s — floor 1 of %d" % [
+			String(_dungeon.data.get("name", dungeon_id)), _dungeon.floor_count()])
+	player.global_position = DUNGEON_ORIGIN + Dungeon.STAIR_DOWN - Vector2(0, 40)
+
+
+func _on_dungeon_exited(_id: String) -> void:
+	if _dungeon != null and is_instance_valid(_dungeon):
+		_dungeon.queue_free()
+		_dungeon = null
+	if player != null:
+		player.global_position = _dungeon_return
+	if hud_ref != null:
+		hud_ref.show_toast("Back on the surface")
+
+
+func current_dungeon() -> Dungeon:
+	return _dungeon

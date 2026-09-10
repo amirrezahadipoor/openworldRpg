@@ -348,3 +348,46 @@ every placed NPC inherits a schedule for free.
   (every NPC: 4 slots, >=3 barks, a role + function), bark rotation and time
   filtering, schedule offsets, all four states, arrival at a schedule point,
   and fleeing from a nearby enemy.
+
+
+**#35 — Settlements and multi-floor dungeons as real built scenes (Phase E §1)** · 2026-09-10
+Biomes were one palette per chunk; §1 asks for actual places. `data/settlements.json`
+defines 9 settlements — 3 villages (Millhaven, Oakstead, Frosthaven), 3 towns
+(Ashport, Cinderhold, Kilnrest) and 3 cities (Sunreach, Ashvow, Skyreach Citadel) —
+and `scripts/world/settlement.gd` builds each one as a scene: a paved plaza, a ring
+of houses sized by tier (village 6 / town 10 / city 16 buildings), its own waypoint
+and name sign, lantern rings, and the NPCs the data assigns to it. Layout is
+deterministic per settlement id (`hash(id)` seeds the RNG), so a settlement looks
+identical every session on every machine.
+
+- **Two settlement names were invented**: *Ashvow* (the Ashen Choir's burnt seat,
+  the Barrens city) and *Kilnrest* (the Frosthollow trade town), because the bible
+  names 7 settlements but the acceptance criteria call for 9. Both are flagged
+  here so they are easy to rename in one data file.
+- **Safe ground**: `Settlement.safe_zone_at()` is consulted by the chunk streamer,
+  which re-rolls (and if needed drops) enemy spawners inside a settlement's
+  `safe_radius` — towns are not ambush corridors.
+- **Plaza tinting**: the trodden-ground disc tints toward the biome palette, so a
+  frost village doesn't get a meadow-brown mud patch on its snow (found by
+  rendering, like every other visual defect in this project).
+
+`data/dungeons.json` defines 9 dungeons totalling **26 floors** (2–4 each), and
+`scripts/world/dungeon.gd` builds a floor as a walled interior: `floor_root` is
+rebuilt on every descend/ascend, spawners are ringed around the room and carry the
+floor's `floor_index`, which is what Phase E §6's `floor_multiplier` scaling reads,
+so depth drives difficulty instead of hand-tuned `power_scale` per floor. Stairs are
+physical: the "Down" stair descends, "Up" climbs, and on floor 1 the same stair reads
+"Exit" and returns the player to where they entered. Interiors are built at
+`DUNGEON_ORIGIN` — `GlobalPosition (200000, 200000)` — **after** `setup()` places the
+dungeon, since `setup()` overwrites `position`; getting that order wrong left the room
+on the overworld while the player stood in an empty chunk (also caught by rendering).
+
+The **boss floor of `ember_warden_keep` instantiates the existing `BossArena`
+unchanged** — §3 of the bible says the final fight is mechanically untouched, so
+nothing about the three-phase fight was reimplemented.
+
+`tools/art/capture_settlements.gd` renders all nine settlements plus two dungeon
+floors from the real game. It teleports the player and calls `FollowCamera.snap()`,
+because the follow rig lerps at `follow_speed = 8` and waiting only two frames
+photographs empty space between chunks — the first run of this harness produced nine
+grey voids for that reason.

@@ -126,14 +126,28 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 			table = ["shaman", "scout"]
 			power = 2.4
 	for i in rng.randi_range(1, 2):
+		var local := Vector2(
+			rng.randf_range(128.0, CHUNK_SIZE - 128.0),
+			rng.randf_range(128.0, CHUNK_SIZE - 128.0)
+		)
+		# Phase E §1: settlements are safe ground — no spawner may land inside a
+		# settlement's safe radius (roll the position again, bounded attempts).
+		var world_pos := root.position + local
+		var tries := 0
+		while Settlement.safe_zone_at(world_pos) and tries < 8:
+			local = Vector2(
+				rng.randf_range(128.0, CHUNK_SIZE - 128.0),
+				rng.randf_range(128.0, CHUNK_SIZE - 128.0)
+			)
+			world_pos = root.position + local
+			tries += 1
+		if Settlement.safe_zone_at(world_pos):
+			continue
 		var spawner := EnemySpawner.new()
 		spawner.archetype = table[rng.randi_range(0, table.size() - 1)]
 		spawner.count = rng.randi_range(1, 2)
 		spawner.power_scale = power
-		spawner.position = Vector2(
-			rng.randf_range(128.0, CHUNK_SIZE - 128.0),
-			rng.randf_range(128.0, CHUNK_SIZE - 128.0)
-		)
+		spawner.position = local
 		root.add_child(spawner)
 
 

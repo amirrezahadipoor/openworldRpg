@@ -191,8 +191,9 @@ The world is visually new and mechanically untouched. This was verified, not ass
 ## Phase E — Content Bible & Deep Roadmap  ← **in progress**
 
 Executed in the bible's own §9 order; each numbered item is committed and pushed
-on its own. Items 2 and 3 were taken before item 1 because they were already
-analysed and have no dependency on the NPC work.
+on its own. §6 and §7 were taken before §3/§1 because they were already analysed and
+had no dependency on the NPC or world work; §1 then reused the completed schedule
+system to staff the new settlements.
 
 ### E§6. Re-tapered level curve + milestones ✅ DONE
 - Three tapering segments (1-20 / 21-60 / 61-100), **seamless and monotonic** — the
@@ -229,7 +230,25 @@ analysed and have no dependency on the NPC work.
 - Interacting with an NPC who has nothing quest-relevant to say now answers with
   a bark, so no named NPC is scenery.
 - `tests/NpcTest.tscn` (24 checks) runs in CI after the audio job.
-### E§1. World map settlements `[ ]`
+### E§1. World map settlements ✅ DONE
+- 9 settlements as real scenes (3 villages / 3 towns / 3 cities), built from
+  `data/settlements.json` by `scripts/world/settlement.gd`: plaza, a tier-sized ring
+  of houses, waypoint, name sign, lanterns and the settlement's NPCs.
+- `Settlement.safe_zone_at()` keeps the chunk streamer from spawning enemies inside
+  a settlement's safe radius.
+- 9 dungeons / **26 floors** from `data/dungeons.json`, built as walled interiors by
+  `scripts/world/dungeon.gd` with physical up/down stairs and a real exit on floor 1.
+  Floor depth flows into `EnemySpawner.floor_index`, so §6's scaling does the work.
+- The Ember Warden keep's final floor instantiates the **existing** `BossArena`
+  fight unchanged, as the bible requires.
+- Two settlement names were invented to reach 9: **Ashvow** (Barrens city) and
+  **Kilnrest** (Frosthollow town). Rename them in `data/settlements.json`.
+- `tests/WorldMapTest.tscn` (34 checks) covers tier counts, bible names, NPC/service
+  coverage, floor counts and indices, descend/ascend, and floor repopulation.
+- `tools/art/capture_settlements.gd` renders every settlement + two dungeon floors;
+  `docs/screenshot-sunreach.png` and `docs/screenshot-frosthaven.png` are in-repo.
+
+
 ### E§4/5. Main quest chain + side quests `[ ]`
 ### E§8. Reputation + companions `[ ]`
 ### E§9. Weather + secrets `[ ]`
@@ -240,8 +259,9 @@ analysed and have no dependency on the NPC work.
 
 Phase B and the CI/release half of Phase D are done: a real 32 px LPC world, real characters
 and enemies, a real CC0/CC-BY score, a visual-capture harness, shipped attribution, and a
-published `v0.2.0` prerelease with signed APK/AAB. **Phase E (the content bible)** is now the
-active work: the level curve is re-tapered and milestones ship (§6); 60 talent nodes, the NPC
-schedule/bark system, the world-map settlements, the 100-step main chain, 100 side quests,
-reputation/companions and the weather/secret pass all follow in the bible's §9 order.
+published `v0.2.0` prerelease with signed APK/AAB. **Phase E (the content bible)** is the
+active work and four of its eight sections are done: the re-tapered level curve + milestone
+rewards (§6), the 60-node talent trees (§7), the NPC schedule/bark system (§3), and the world
+map — 9 settlements and 9 dungeons / 26 floors (§1). The 100-step main chain, 100 side quests,
+reputation/companions and the weather/secret pass follow in the bible's §9 order.
 **Phase C — a human playtest on a real device — is still the one thing an agent cannot do.**
