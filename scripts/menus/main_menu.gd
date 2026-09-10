@@ -22,6 +22,7 @@ func _ready() -> void:
 	_settings_ui = SettingsScreen.new()
 	add_child(_settings_ui)
 	_build_credits()
+	AudioManager.play_music("title")
 
 
 # --- Background -----------------------------------------------------------------

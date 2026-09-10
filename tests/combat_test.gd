@@ -45,6 +45,8 @@ func _ready() -> void:
 
 	await _test_world()
 
+	await _test_music()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -431,6 +433,25 @@ func _test_world() -> void:
 	check(SaveSystem.load_game(player), "load restores save")
 	check(bool(GameState.quest_flags.get("chest_test_chest_opened", false)),
 		"chest flag restored from save")
+
+
+func _test_music() -> void:
+	print("[combat_test] procedural music")
+	for id in ["title", "meadow", "barrens", "frost", "combat"]:
+		check(AudioManager.music_tracks.has(id), "music track registered: %s" % id)
+	check(AudioManager.music_tracks.size() >= 5, "all five builtin tracks registered")
+
+	AudioManager.play_music("meadow")
+	await get_tree().process_frame
+	check(AudioManager._current_track == "meadow", "play_music sets current track")
+	check(AudioManager._active.playing, "music deck is playing")
+	var first_deck := AudioManager._active
+	AudioManager.play_music("combat")
+	await get_tree().process_frame
+	check(AudioManager._current_track == "combat", "crossfade switches track id")
+	check(AudioManager._active != first_deck, "crossfade swaps to the other deck")
+	AudioManager.stop_music()
+	check(AudioManager._current_track == "", "stop_music clears track")
 
 
 func _test_boss_phases_and_death() -> void:

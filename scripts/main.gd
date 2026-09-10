@@ -44,6 +44,36 @@ func _ready() -> void:
 		GameState.pending_load = false
 	_refresh_quest_ui()
 	_refresh_markers()
+	_update_music()
+
+
+var _music_timer := 0.0
+
+
+func _process(delta: float) -> void:
+	_music_timer += delta
+	if _music_timer < 0.75:
+		return
+	_music_timer = 0.0
+	_update_music()
+
+
+func _update_music() -> void:
+	if player == null:
+		return
+	var near_boss := player.global_position.distance_to(BOSS_POS) < 1250.0
+	var track := "combat" if near_boss else _biome_track(player.global_position)
+	AudioManager.play_music(track)
+
+
+func _biome_track(pos: Vector2) -> String:
+	var cx := int(floorf(pos.x / float(ChunkStreamer.CHUNK_SIZE)))
+	var cy := int(floorf(pos.y / float(ChunkStreamer.CHUNK_SIZE)))
+	if cy <= -1:
+		return "frost"
+	if cx >= 2:
+		return "barrens"
+	return "meadow"
 
 
 func _build_world() -> void:

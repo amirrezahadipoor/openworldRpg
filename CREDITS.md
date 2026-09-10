@@ -25,7 +25,7 @@ license-verified before commit and logged below.
 | LPC character sheets (walk/attack/cast/hurt/death + equipment layers) | Liberated Pixel Cup contributors | CC-BY-SA-3.0 + GPL dual (verify per file) | ⬜ pending Phase 3/6 |
 | 0x72 DungeonTileset II | 0x72 (itch.io) | CC0 | ⬜ pending Phase 2 |
 | LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | ⬜ pending Phase 2 |
-| Music (per-biome ambient + combat theme) | TBD — CC0 sources only | CC0 | ⬜ pending Phase 11 |
+| Music (title + 3 biome ambiences + combat; procedural `tools/gen_music.py`) | This project (synthesized) | CC0 | ✅ in repo (`assets/audio/music/`) |
 | SFX pack (13 procedural WAVs, `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ✅ in repo (`assets/audio/sfx/`) |
 
 > ⚠️ Anything CC-BY-SA additionally requires attribution in-game (credits screen) — handled

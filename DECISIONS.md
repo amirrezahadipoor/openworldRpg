@@ -71,6 +71,17 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#27 — Procedural music score** · 2026-09-10
+Five seamless-loop tracks synthesized by `tools/gen_music.py` (pure stdlib, deterministic):
+title, meadow, barrens, frost (ambience) + combat. ~22 kHz mono 16-bit, ~5.2 MB total, CC0 by
+construction. Voices: detuned pads, plucks, inharmonic bells, bass, swept kick, noise hats, all
+through a one-pole low-pass + tanh soft-clip; loop points made seamless with a tail→head
+crossfade, and `AudioManager._loopify` marks streams LOOP_FORWARD at runtime. `AudioManager`
+upgraded to dual-deck crossfade (1.4 s) so biome/arena switches never cut. In-game music follows
+the player's chunk biome (frost / barrens / meadow) with a combat override inside 1250 px of the
+Ember Warden arena; the title screen plays the title theme. Settings music volume drives the
+active deck.
+
 **#26 — Minimap + juice layer + transitions** · 2026-09-10
 Minimap is a real terrain map, not a placeholder: a `Minimap` Control redraws at 3 Hz by
 sampling the live `ChunkStreamer` tile grids (72×72 cells over ~2300 px), coloring by tile

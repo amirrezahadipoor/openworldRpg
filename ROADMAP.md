@@ -113,7 +113,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [ ] UI polish pass: fonts, 9-patch panels, consistent theme across 720p→1440p+ & 16:9→20:9
 
 ## Phase 11 — Audio & Polish
-- [ ] `AudioManager` registries wired to real CC0 assets (music per biome + combat theme)
+- [x] `AudioManager` registries wired to real CC0 assets (5 procedural tracks: title/3 biomes/combat, crossfade + loop)
 - [x] SFX: attack, hit, pickup, UI click, dodge + more (13 procedural CC0 WAVs via `tools/gen_sfx.py`)
 - [x] Particles: hits, deaths, pickups, level-up, dodge dust (`Juice`)
 - [x] Tweened scene transitions (fade via `Transition` autoload)
