@@ -26,7 +26,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Autoloads: `EventBus`, `GameState`, `SaveSystem`, `AudioManager`
 - [x] Input map (keyboard + touch actions: move/attack/dodge/interact/pause)
 - [x] Android `export_presets.cfg` (package name, ARM64 + ARMv7, minimal permissions)
-- [ ] Adaptive icon + full icon set (mdpi → xxxhdpi)
+- [x] Adaptive icon + full icon set (mdpi → xxxhdpi; `tools/gen_icons.py`)
 
 ## Phase 2 — World & Chunk Streaming
 - [x] `ChunkStreamer` — loads/unloads chunks around player (radius 1, 1024 px chunks)
