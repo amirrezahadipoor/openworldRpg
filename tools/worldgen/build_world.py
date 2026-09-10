@@ -30,6 +30,43 @@ def gid(biome, col):
     return biome * 8 + col + 1
 
 
+def frost_line_f(cx):
+    """Unrounded frost line, in chunk units (for the per-tile meander)."""
+    return -1.0 + math.sin(cx * 0.9 + 0.4) * 1.2
+
+
+def barrens_line_f(cy):
+    """Unrounded barrens line, in chunk units."""
+    return 2.0 + math.sin(cy * 1.1 - 0.7) * 1.2
+
+
+def tile_biome(cx, cy, wx, wy):
+    """Per-tile biome: the chunk-level border, meandered at tile scale.
+
+    Biome *ownership* is decided per chunk (that is what the game reads for
+    music, ambience and spawn tables), but painting the ground from the chunk
+    decision alone gave every seam a 32-tile stair-step edge. Here the same
+    border is evaluated with a smooth noise offset of up to ~0.4 chunk in both
+    axes, so the ground changes over a handful of tiles and reads as a coast.
+    """
+    jx = (value_noise(wx, wy, 640.0, seed=97) - 0.5) * 0.8
+    jy = (value_noise(wx, wy, 640.0, seed=61) - 0.5) * 0.8
+    if cy + jy <= frost_line_f(cx + jx):
+        return 2
+    if cx + jx >= barrens_line_f(cy + jy):
+        return 1
+    return 0
+
+
+def neighbour_tile_biome(cx, cy, wx, wy, base):
+    """The differing biome at an adjacent tile, or -1 (for the blend band)."""
+    for dx, dy in ((44.0, 0.0), (-44.0, 0.0), (0.0, 44.0), (0.0, -44.0)):
+        other = tile_biome(cx, cy, wx + dx, wy + dy)
+        if other != base:
+            return other
+    return -1
+
+
 def _wobble(v, phase, amp=1.2, freq=0.9):
     """Smooth, deterministic border offset.
 
@@ -259,8 +296,8 @@ MICRO_VAULTS = {
 
 
 def build_chunk(cx, cy):
-    biome = biome_of(cx, cy)
-    edge = edge_biome(cx, cy)
+    biome = biome_of(cx, cy)          # chunk ownership: music, ambience, spawn tables
+    edge = edge_biome(cx, cy)         # kept for the chunk-level fallbacks below
     rng = random.Random((cx * 73856093) ^ (cy * 19349663))
     ox, oy = cx * CHUNK, cy * CHUNK
     grid = [0] * (GRID * GRID)
@@ -284,7 +321,9 @@ def build_chunk(cx, cy):
             if in_ellipse(wx, wy, POND) or in_ellipse(wx, wy, FROST_LAKE):
                 continue
             rng.random()
-            set_tile(tx, ty, ground_gid(biome, wx, wy, edge))
+            tb = tile_biome(cx, cy, wx, wy)
+            nb = neighbour_tile_biome(cx, cy, wx, wy, tb)
+            set_tile(tx, ty, ground_gid(tb, wx, wy, None if nb < 0 else nb))
 
     # 2) biome features (obstacles / hazards)
     if biome == 0:  # meadow tree clusters
@@ -377,7 +416,7 @@ def build_chunk(cx, cy):
             wx, wy = world(tx, ty)
             wobble = (value_noise(wx, wy, 70.0, seed=71) - 0.5) * 15.0
             if path_distance(wx, wy) + wobble < 30.0:
-                set_tile(tx, ty, gid(biome, 2))
+                set_tile(tx, ty, gid(tile_biome(cx, cy, wx, wy), 2))
 
     # 6) clearings: remove solids and keep the plaza floor open (roads survive)
     for ty in range(GRID):
@@ -388,7 +427,7 @@ def build_chunk(cx, cy):
             solids_stamp.discard((tx, ty))
             g = grid[ty * GRID + tx]
             if g and ((g - 1) % 8) in (3, 4, 5, 6):
-                grid[ty * GRID + tx] = gid(biome, 0)
+                grid[ty * GRID + tx] = gid(tile_biome(cx, cy, wx, wy), 0)
 
     
 
@@ -401,7 +440,7 @@ def build_chunk(cx, cy):
 
         def put(tx, ty, col, solid=True):
             if 0 <= tx < GRID and 0 <= ty < GRID:
-                set_tile(tx, ty, gid(biome, col))
+                set_tile(tx, ty, gid(tile_biome(cx, cy, *world(tx, ty)), col))
                 if solid:
                     solids_stamp.add((tx, ty))
 
