@@ -87,12 +87,12 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Gear contributes to final stats (equipment_bonus in every stat formula)
 
 ## Phase 8 — Quests & Narrative
-- [ ] Dialogue system — data-driven (`data/dialogue/*.json`), typewriter UI, portraits
-- [ ] Branching dialogue with **≥1 meaningful player choice**
-- [ ] Quest engine: objectives, counters, flags, complete/fail states
-- [ ] Quest log UI + HUD quest tracker (tracker label scaffolded)
-- [ ] Side/repeatable quests (≥2)
-- [ ] Main story arc authored (beginning → midpoint twist → climax → ending), English
+- [x] Dialogue system — data-driven (`data/dialogue/*.json`), typewriter UI, condition-based picking *(portraits deferred to art phase)*
+- [x] Branching dialogue with **≥1 meaningful player choice** — mercy/vengeance vow changes ending text + final reward
+- [x] Quest engine: objectives (kill/talk/flag), counters, flags, completion + rewards + auto-chains *(fail states: supported, none authored yet)*
+- [x] Quest log UI (pause menu) + HUD multi-line quest tracker
+- [x] Side/repeatable quests (≥2) — Hunter Kael: "Scouts in the Barrens" + repeatable "Emberling Run"
+- [x] Main story arc authored (First Light → Ember Omen twist → Fall of the Warden → A New Dawn), English
 
 ## Phase 9 — Save/Load & Meta
 - [x] `SaveSystem` — JSON at `user://save.json` (state + position; versioned)

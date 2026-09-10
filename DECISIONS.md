@@ -71,6 +71,29 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#21 — Story arc & content authoring** · 2026-09-10
+Main arc in 4 quests: **First Light** (clear slimes, earn trust) → **The Ember
+Omen** (midpoint twist: the "monster" is a corrupted guardian created by the
+Elder's own hubris) → **Fall of the Warden** (boss climax) → **A New Dawn**
+(ending). The q2 choice — *vow vengeance* vs *vow mercy* — is the meaningful
+branch: it sets a flag that changes the epilogue text AND the final reward
+(iron_sword vs traveler_ring). Side content: Hunter Kael offers a one-shot
+hunt plus a **repeatable** cull (repeatable quests erase their state on
+completion so dialogue can re-offer). Objective completion auto-raises
+`<quest>_<objective>` flags so dialogue `requires` blocks gate on progress
+without extra scripting.
+
+**#20 — Dialogue architecture** · 2026-09-10
+Dialogue = JSON files per NPC, each file an ordered list of conversations;
+`DialogueDB.pick(npc)` returns the first whose `requires` (quest_active /
+quest_done / flag / flag_not, all AND-ed, lists are all-must) matches —
+**specific-before-general ordering is the author's contract**. Choice-level
+and `on_complete` actions run through one executor (start_quest / set_flag /
+complete_objective / give_item / give_gold / give_xp), so content never needs
+code. Talk-objective completion is always explicit via dialogue actions
+(never auto on talk) to keep choice moments inside active quests. Camp hub
+(elder + vendor + hunter) is a fixed world location near spawn, built in code.
+
 **#19 — Talent tree mechanics** · 2026-09-10
 Kept the save-compatible model (`talents = {branch: points}`) but read it as a
 **tiered node tree**: node N of a branch is active at ≥ N points, so points are
