@@ -63,6 +63,22 @@ Every push: repo-size gate → bootstrap (editor only) → headless import → 3
 run of the main scene. On `main`: additionally full Android export (debug-signed APK) uploaded as
 an artifact. GUT unit tests will be added alongside gameplay systems.
 
+**#13 — Android export without Gradle** · 2026-09-10
+CI first failed on two preset mistakes, both fixed the same session: (a) empty
+`patches` must be `PackedStringArray()` (ConfigFile rejects `array[]`), and
+(b) `gradle_build/min_sdk`/`target_sdk` are only legal when Gradle build is on.
+Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
+in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
+be enabled later if plugins require it.
+
+**#14 — Enemy design baseline** · 2026-09-10
+Single `Enemy` base class with FSM (idle/patrol/chase/attack/flee), exported
+stat knobs (hp/speed/damage/radii/xp/color) so archetypes are configured, not
+forked. Attacks are **telegraphed** (0.45 s wind-up, sprite pulses gold) before
+the hit lands — dodge i-frames are the counter. Flee triggers below 25% HP.
+Death grants XP immediately + tween-out; loot drops attach in Phase 6.
+Temporary combat sandbox: 3 enemies near spawn until chunk-based spawning ships.
+
 **#12 — Placeholder art policy** · 2026-09-10
 Tiny inline SVG placeholders (player, icons) keep the repo near-zero size while systems are built.
 They are replaced by LPC-generated character sheets and CC0 tilesets (0x72 DungeonTileset II, LPC

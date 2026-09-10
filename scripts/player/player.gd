@@ -32,6 +32,7 @@ var _attack_active := 0.0
 
 
 func _ready() -> void:
+	add_to_group("player")
 	GameState.hp = GameState.max_hp()
 	GameState.mp = GameState.max_mp()
 	attack_shape.disabled = true

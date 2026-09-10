@@ -13,11 +13,14 @@ var streamer: ChunkStreamer
 func _ready() -> void:
 	_build_world()
 	_build_player()
+	_build_enemies()
 	_build_camera()
 	_build_ui()
 
 	EventBus.player_damaged.connect(_on_player_damaged)
 	EventBus.player_died.connect(_on_player_died)
+	EventBus.enemy_hurt.connect(_on_enemy_hurt)
+	EventBus.enemy_died.connect(_on_enemy_died)
 
 	if SaveSystem.has_save():
 		SaveSystem.load_game(player)
@@ -39,6 +42,17 @@ func _build_player() -> void:
 	add_child(player)
 	player.global_position = SPAWN_POINT
 	streamer.set_target(player)
+
+
+func _build_enemies() -> void:
+	# Temporary combat sandbox around spawn until chunk spawning lands.
+	var scene: PackedScene = load("res://scenes/enemies/enemy.tscn")
+	var spots := [Vector2(780, 430), Vector2(310, 720), Vector2(660, 820)]
+	for s in spots:
+		var e: Enemy = scene.instantiate()
+		e.name = "Enemy_%s" % str(s)
+		add_child(e)
+		e.global_position = s
 
 
 func _build_camera() -> void:
@@ -64,6 +78,17 @@ func _build_ui() -> void:
 func _on_player_damaged(_amount: float) -> void:
 	camera.shake(0.35)
 	AudioManager.play_sfx("player_hurt")
+
+
+func _on_enemy_hurt(enemy: Node, amount: float, _dir: Vector2) -> void:
+	if enemy is Node2D:
+		DamageNumber.spawn(self, (enemy as Node2D).global_position + Vector2(0, -30), str(int(amount)), Color(1.0, 0.9, 0.35))
+
+
+func _on_enemy_died(enemy: Node) -> void:
+	if enemy is Node2D:
+		DamageNumber.spawn(self, (enemy as Node2D).global_position + Vector2(0, -34), "+%d XP" % (enemy as Enemy).xp_reward, Color(0.55, 0.95, 0.55))
+	camera.shake(0.2)
 
 
 func _on_player_died() -> void:

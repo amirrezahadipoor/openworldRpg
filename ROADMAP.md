@@ -53,14 +53,14 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Directional melee attack with hit/hurtbox areas
 - [x] Attack cooldown + active hit window
 - [x] `EventBus` combat signals (swung/damaged/dodged/died) + camera shake on hit
-- [ ] Hurtbox/damage component for enemies
+- [x] Hurtbox/damage component for enemies (`Hurtbox` Area2D, group `hurtbox`, `take_hit`)
 - [ ] Cooldown-based abilities (≥2 active skills)
-- [ ] Floating damage numbers
-- [ ] Hit feedback: flash, knockback, hit-stop
-- [ ] Enemy telegraph system (wind-up tells before attacks)
+- [x] Floating damage numbers (`DamageNumber` — hits + XP gains)
+- [x] Hit feedback: flash, knockback, hit-stop *(flash + knockback + screenshake; hit-stop later)*
+- [x] Enemy telegraph system (0.45 s wind-up, gold pulse before attack lands)
 
 ## Phase 5 — Enemy AI & Boss
-- [ ] Enemy base controller + state machine: `idle / patrol / chase / attack / flee`
+- [x] Enemy base controller + state machine: `idle / patrol / chase / attack / flee`
 - [ ] ≥3 enemy archetypes (melee, ranged, fast)
 - [ ] Object pooling for enemies & projectiles
 - [ ] Death → loot drop → respawn handling
