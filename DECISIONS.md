@@ -71,6 +71,15 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#19 — Talent tree mechanics** · 2026-09-10
+Kept the save-compatible model (`talents = {branch: points}`) but read it as a
+**tiered node tree**: node N of a branch is active at ≥ N points, so points are
+allocated per branch and nodes unlock in order. Display data lives in
+`data/talents.json`; mechanical effects are real gameplay hooks in GameState
+(`attack_cooldown_mult`, `mp_regen_per_sec`, `potion_mult`, `gold_mult`,
+`dodge_duration_bonus`) consumed by Player/use_item/add_gold. 9 nodes total
+(3 per branch), each with a distinct, testable effect — verified by tests.
+
 **#18 — Boss design: The Ember Warden** · 2026-09-10
 Single-author boss reusing the Enemy base via `Boss extends Enemy` and an
 extracted `_finish_attack()` hook — no FSM duplication. Phases at 60%/25% HP:

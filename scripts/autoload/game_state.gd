@@ -40,6 +40,12 @@ func _ready() -> void:
 	mp = max_mp()
 
 
+func _process(delta: float) -> void:
+	# Clarity talent: passive MP regeneration.
+	if mp < max_mp() and mp_regen_per_sec() > 0.0:
+		mp = minf(mp + mp_regen_per_sec() * delta, max_mp())
+
+
 # --- Progression ------------------------------------------------------------
 
 func xp_to_next() -> int:
@@ -73,23 +79,54 @@ func spend_talent(branch: String) -> bool:
 # --- Final stats (level + talents; gear is added in Phase 7) ----------------
 
 func max_hp() -> float:
-	return base_hp + (level - 1) * 12.0 + int(talents["combat"]) * 8.0 + equipment_bonus("hp")
+	var bonus := 15.0 if node_active("combat", 2) else 0.0  # Iron Skin
+	return base_hp + (level - 1) * 12.0 + bonus + equipment_bonus("hp")
 
 
 func max_mp() -> float:
-	return base_mp + (level - 1) * 6.0 + int(talents["magic"]) * 6.0 + equipment_bonus("mp")
+	var bonus := 20.0 if node_active("magic", 1) else 0.0  # Arcane Focus
+	return base_mp + (level - 1) * 6.0 + bonus + equipment_bonus("mp")
 
 
 func attack() -> float:
-	return base_attack + (level - 1) * 1.5 + int(talents["combat"]) * 2.0 + equipment_bonus("atk")
+	var bonus := 4.0 if node_active("combat", 1) else 0.0  # Power Strikes
+	return base_attack + (level - 1) * 1.5 + bonus + equipment_bonus("atk")
 
 
 func defense() -> float:
-	return base_defense + (level - 1) * 1.0 + int(talents["combat"]) * 1.0 + equipment_bonus("def")
+	var bonus := 4.0 if node_active("combat", 2) else 0.0  # Iron Skin
+	return base_defense + (level - 1) * 1.0 + bonus + equipment_bonus("def")
 
 
 func move_speed() -> float:
-	return base_speed + int(talents["utility"]) * 8.0 + equipment_bonus("speed")
+	var bonus := 22.0 if node_active("utility", 1) else 0.0  # Fleet Foot
+	return base_speed + bonus + equipment_bonus("speed")
+
+
+# --- Talent tree (node-active model, DECISIONS #19) ---------------------------
+
+func node_active(branch: String, tier: int) -> bool:
+	return int(talents.get(branch, 0)) >= tier
+
+
+func attack_cooldown_mult() -> float:
+	return 0.8 if node_active("combat", 3) else 1.0  # Swift Strikes
+
+
+func potion_mult() -> float:
+	return 1.35 if node_active("magic", 3) else 1.0  # Potent Brews
+
+
+func gold_mult() -> float:
+	return 1.2 if node_active("utility", 2) else 1.0  # Fortune
+
+
+func mp_regen_per_sec() -> float:
+	return 0.6 if node_active("magic", 2) else 0.0  # Clarity
+
+
+func dodge_duration_bonus() -> float:
+	return 0.08 if node_active("utility", 3) else 0.0  # Shadow Step
 
 
 func equipment_bonus(key: String) -> float:
@@ -137,8 +174,8 @@ func use_item(item_id: String) -> bool:
 	var it: Dictionary = ItemsDB.get_item(item_id)
 	if String(it.get("type", "")) != "consumable":
 		return false
-	var heal := float(it.get("heal", 0))
-	var mana := float(it.get("restore_mp", 0))
+	var heal := float(it.get("heal", 0)) * potion_mult()
+	var mana := float(it.get("restore_mp", 0)) * potion_mult()
 	if heal > 0.0:
 		hp = clampf(hp + heal, 0.0, max_hp())
 		EventBus.player_healed.emit(heal)
@@ -166,7 +203,8 @@ func remove_item(item_id: String, qty: int = 1) -> bool:
 
 
 func add_gold(amount: int) -> void:
-	gold = maxi(0, gold + amount)
+	var gained := int(round(float(amount) * gold_mult())) if amount > 0 else amount
+	gold = maxi(0, gold + gained)
 	EventBus.gold_changed.emit(gold)
 
 

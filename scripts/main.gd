@@ -11,6 +11,7 @@ var player: Player
 var camera: FollowCamera
 var streamer: ChunkStreamer
 var inventory_ui: InventoryScreen
+var talent_ui: TalentScreen
 
 
 func _ready() -> void:
@@ -67,11 +68,16 @@ func _build_ui() -> void:
 	add_child(hud)
 	hud.setup(player)
 	hud.bag_pressed.connect(func() -> void: inventory_ui.toggle())
+	hud.talents_pressed.connect(func() -> void: talent_ui.toggle())
 
 	inventory_ui = InventoryScreen.new()
 	inventory_ui.name = "InventoryScreen"
 	add_child(inventory_ui)
 	inventory_ui.drop_requested.connect(_on_drop_requested)
+
+	talent_ui = TalentScreen.new()
+	talent_ui.name = "TalentScreen"
+	add_child(talent_ui)
 
 	var pause := PauseMenu.new()
 	pause.name = "PauseMenu"
@@ -82,6 +88,9 @@ func _build_ui() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("inventory"):
 		inventory_ui.toggle()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("talents"):
+		talent_ui.toggle()
 		get_viewport().set_input_as_handled()
 
 

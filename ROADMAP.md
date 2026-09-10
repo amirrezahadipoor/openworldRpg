@@ -71,20 +71,20 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] `data/items.json` item database seeded (weapons/armor/consumables)
 - [x] Inventory model in `GameState` (stacking, add/remove)
 - [x] `ItemsDB` autoload (single source of truth for item lookups)
-- [ ] Inventory UI screen (grid, tooltips, use/equip/drop)
-- [ ] Equipment slots (weapon/armor/accessory) affecting stats
-- [ ] Equipment drives LPC sprite layers (paper-doll)
-- [ ] Consumables (potions etc.) with effects
+- [x] Inventory UI screen (item rows, tooltips, Use/Equip/Drop, stat sheet, pauses game)
+- [x] Equipment slots (weapon/armor/accessory) affecting stats (atk/def/hp/mp/speed)
+- [ ] Equipment drives LPC sprite layers (paper-doll) *(waits for LPC art)*
+- [x] Consumables (potions etc.) with effects (heal/mana, consumed on use)
 - [x] Loot drop system (drop tables in `data/enemies.json`)
-- [ ] Currency (gold) + vendor/shop NPC
+- [x] Currency (gold) — earned from kills, shown in HUD/inventory · vendor NPC with Phase 8
 
 ## Phase 7 — Progression
 - [x] XP curve + leveling (`GameState.add_xp`, growth 1.35)
 - [x] Talent points awarded per level
 - [x] Stat formulas (HP/MP/ATK/DEF/SPD) driven by level + talents
-- [ ] Talent tree UI — **3 branches** (Combat / Magic / Utility), allocatable points
-- [ ] ≥2 talents per branch with real gameplay effects
-- [ ] Gear contributes to final stats
+- [x] Talent tree UI — **3 branches** (Combat / Magic / Utility), allocatable points, T key / HUD star
+- [x] ≥2 talents per branch with real gameplay effects (9 nodes: atk/def/hp, cooldown -20%, MP+regen, potion +35%, speed, gold +20%, dodge i-frames +0.08s)
+- [x] Gear contributes to final stats (equipment_bonus in every stat formula)
 
 ## Phase 8 — Quests & Narrative
 - [ ] Dialogue system — data-driven (`data/dialogue/*.json`), typewriter UI, portraits

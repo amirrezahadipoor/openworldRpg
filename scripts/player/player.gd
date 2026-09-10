@@ -78,7 +78,7 @@ func _read_move_input() -> Vector2:
 
 
 func _start_attack() -> void:
-	_attack_cd = ATTACK_COOLDOWN
+	_attack_cd = ATTACK_COOLDOWN * GameState.attack_cooldown_mult()
 	_attack_active = ATTACK_ACTIVE_TIME
 	attack_shape.disabled = false
 	EventBus.attack_swung.emit(self)
@@ -97,7 +97,7 @@ func _resolve_attack_hits() -> void:
 
 func _start_dodge(move: Vector2) -> void:
 	_dodge_dir = move if move.length_squared() > 0.01 else facing
-	_dodge_timer = DODGE_DURATION
+	_dodge_timer = DODGE_DURATION + GameState.dodge_duration_bonus()
 	_dodge_cd = DODGE_COOLDOWN
 	EventBus.player_dodged.emit(self)
 	AudioManager.play_sfx("dodge")

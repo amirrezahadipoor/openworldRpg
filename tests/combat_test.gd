@@ -35,6 +35,8 @@ func _ready() -> void:
 
 	_test_consumable_use()
 
+	_test_talents()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -138,6 +140,30 @@ func _test_consumable_use() -> void:
 	check(GameState.use_item("health_potion"), "using health_potion succeeds")
 	check(GameState.hp == 50.0, "healed 10 -> 50 (now %.0f)" % GameState.hp)
 	check(int(GameState.inventory.get("health_potion", 0)) == before - 1, "potion consumed")
+
+
+func _test_talents() -> void:
+	print("[combat_test] talent allocation + effects")
+	# Guarantee points to spend regardless of earlier XP levels.
+	GameState.talent_points += 3
+
+	var atk0 := GameState.attack()
+	check(GameState.spend_talent("combat"), "allocating a combat point succeeds")
+	check(GameState.node_active("combat", 1), "Power Strikes active at 1 combat point")
+	check(GameState.attack() == atk0 + 4.0, "+4 attack from Power Strikes")
+
+	check(GameState.attack_cooldown_mult() == 1.0, "no cooldown bonus before tier 3")
+	GameState.spend_talent("combat")
+	GameState.spend_talent("combat")
+	check(GameState.node_active("combat", 3), "Swift Strikes active at 3 points")
+	check(GameState.attack_cooldown_mult() == 0.8, "attack cooldown -20% at tier 3")
+
+	check(GameState.mp_regen_per_sec() == 0.0, "no MP regen without Clarity")
+	GameState.talent_points += 2
+	GameState.spend_talent("magic")
+	GameState.spend_talent("magic")
+	check(GameState.mp_regen_per_sec() == 0.6, "Clarity grants 0.6 MP/s")
+	check(GameState.potion_mult() == 1.0, "no potion bonus before Potent Brews")
 
 
 func _test_boss_phases_and_death() -> void:

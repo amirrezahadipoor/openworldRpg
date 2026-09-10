@@ -1,0 +1,35 @@
+{
+  "_comment": "Talent tree display data. Each branch has 3 tiered nodes; a node is ACTIVE when the player has allocated >= tier points to that branch. Mechanical effects live in GameState (DECISIONS #19).",
+  "branches": [
+    {
+      "id": "combat",
+      "name": "Combat",
+      "desc": "Might of arms.",
+      "nodes": [
+        { "tier": 1, "name": "Power Strikes", "desc": "+4 Attack" },
+        { "tier": 2, "name": "Iron Skin", "desc": "+4 Defense, +15 Max HP" },
+        { "tier": 3, "name": "Swift Strikes", "desc": "Attack cooldown -20%" }
+      ]
+    },
+    {
+      "id": "magic",
+      "name": "Magic",
+      "desc": "Command of aether.",
+      "nodes": [
+        { "tier": 1, "name": "Arcane Focus", "desc": "+20 Max MP" },
+        { "tier": 2, "name": "Clarity", "desc": "Regenerate 0.6 MP/s" },
+        { "tier": 3, "name": "Potent Brews", "desc": "Potions 35% stronger" }
+      ]
+    },
+    {
+      "id": "utility",
+      "name": "Utility",
+      "desc": "Wiles of the road.",
+      "nodes": [
+        { "tier": 1, "name": "Fleet Foot", "desc": "+22 Move Speed" },
+        { "tier": 2, "name": "Fortune", "desc": "+20% gold from all sources" },
+        { "tier": 3, "name": "Shadow Step", "desc": "Dodge i-frames +0.08s" }
+      ]
+    }
+  ]
+}
