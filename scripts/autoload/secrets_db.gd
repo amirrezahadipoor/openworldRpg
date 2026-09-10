@@ -192,19 +192,61 @@ func hint_from(secret_id: String) -> String:
 	## Landmarks and carvings are breadcrumbs: reading one points at the nearest
 	## unfound secret, without saying where it is.
 	var s := get_secret(secret_id)
-	var target := nearest_unfound(position_of(secret_id), [secret_id])
+	var target := rumour_target(secret_id)
 	if target == "":
 		return "There is nothing left out here to find."
 	var t := get_secret(target)
-	var dir := "east"
 	var delta := position_of(target) - position_of(secret_id)
-	if absf(delta.y) > absf(delta.x):
-		dir = "south" if delta.y > 0.0 else "north"
-	else:
-		dir = "east" if delta.x > 0.0 else "west"
-	return "%s Something of the kind lies %s, %d paces off." % [
-		String(s.get("carving_lines", [""])[0]) if s.has("carving_lines") else "",
-		dir, int(roundf(delta.length() / 8.0))]
+	var dir := _bearing(delta)
+	# Rounded to 25 paces: precise enough to walk by, loose enough that you still
+	# have to look. Before this the source line was the only hint a carving gave,
+	# and the `hint` field in secrets.json was never read by anything at all.
+	var paces := int(roundf(delta.length() / 100.0)) * 100
+	var source := String(s.get("hint", ""))
+	if source.is_empty():
+		source = String(s.get("text", ""))
+	if source.is_empty():
+		source = "Something of the kind"
+	return "%s — %s, roughly %d paces off." % [source, dir, paces]
+
+
+func rumour_target(secret_id: String) -> String:
+	## The secret a breadcrumb points at.
+	return nearest_unfound(position_of(secret_id), [secret_id])
+
+
+func is_rumoured(secret_id: String) -> bool:
+	## True once something in the world has pointed at this secret. Only rumoured
+	## secrets are drawn on the minimap — the other thirty are meant to be found by
+	## walking, not by reading a map.
+	return bool(GameState.quest_flags.get("rumour_%s" % secret_id, false))
+
+
+func mark_rumoured(secret_id: String) -> void:
+	if secret_id.is_empty():
+		return
+	GameState.quest_flags["rumour_%s" % secret_id] = true
+
+
+func _bearing(delta: Vector2) -> String:
+	var ang := rad_to_deg(atan2(delta.y, delta.x))
+	if ang < 0.0:
+		ang += 360.0
+	if ang < 22.5 or ang >= 337.5:
+		return "east"
+	if ang < 67.5:
+		return "south-east"
+	if ang < 112.5:
+		return "south"
+	if ang < 157.5:
+		return "south-west"
+	if ang < 202.5:
+		return "west"
+	if ang < 247.5:
+		return "north-west"
+	if ang < 292.5:
+		return "north"
+	return "north-east"
 
 
 func item_name(item_id: String) -> String:

@@ -187,11 +187,17 @@ func _build_top_right() -> void:
 
 func _build_touch_controls() -> void:
 	var m := _safe_margins()
+	# Everything on the touch layer scales to the smaller screen axis (and to the
+	# player's joystick setting). A 640x360 phone fits a 210px stick plus five
+	# 74-104px buttons with 18px gaps only if those numbers shrink; before this the
+	# row simply ran off the left edge of small screens.
+	var vp := Vector2(DisplayServer.window_get_size())
+	var fit: float = clampf(minf(vp.x / 1280.0, vp.y / 720.0), 0.62, 1.15)
 
 	joystick = VirtualJoystick.new()
 	# The joystick size is a real setting now: "Joystick Size" in Settings moves
 	# this number, instead of a slider that changed nothing.
-	var js := 210.0 * clampf(SettingsManager.joystick_scale, 0.8, 1.5)
+	var js := 210.0 * clampf(SettingsManager.joystick_scale, 0.8, 1.5) * fit
 	joystick.size = Vector2(js, js)
 	joystick.anchor_top = 1.0
 	joystick.anchor_bottom = 1.0
@@ -204,31 +210,32 @@ func _build_touch_controls() -> void:
 	add_child(joystick)
 
 	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 18)
+	buttons.add_theme_constant_override("separation", 18.0 * fit)
 	buttons.anchor_left = 1.0
 	buttons.anchor_right = 1.0
 	buttons.anchor_top = 1.0
 	buttons.anchor_bottom = 1.0
-	buttons.offset_left = -320.0 - m.x
+	# Hug the row's real width (74*4 + 104 + gaps), so it scales as one unit.
+	buttons.offset_left = -((74.0 * 4.0 + 104.0 + 18.0 * 4.0) * fit) - 20.0 - m.x
 	buttons.offset_top = -130.0 - m.y
 	buttons.offset_right = -20.0 - m.x
 	buttons.offset_bottom = -20.0 - m.y
 	buttons.alignment = BoxContainer.ALIGNMENT_END
 
 	var whirl := ActionButton.new()
-	whirl.setup("ability_whirl", _load_icon("icon_whirl"), 74.0)
+	whirl.setup("ability_whirl", _load_icon("icon_whirl"), 74.0 * fit)
 	_whirl_btn = whirl
 	whirl.add_child(_cd_label())
 	var bolt := ActionButton.new()
-	bolt.setup("ability_bolt", _load_icon("icon_bolt"), 74.0)
+	bolt.setup("ability_bolt", _load_icon("icon_bolt"), 74.0 * fit)
 	_bolt_btn = bolt
 	bolt.add_child(_cd_label())
 	var dodge := ActionButton.new()
-	dodge.setup("dodge", _load_icon("icon_dodge"), 74.0)
+	dodge.setup("dodge", _load_icon("icon_dodge"), 74.0 * fit)
 	var interact_btn := ActionButton.new()
-	interact_btn.setup("interact", _load_icon("icon_interact"), 74.0)
+	interact_btn.setup("interact", _load_icon("icon_interact"), 74.0 * fit)
 	var attack := ActionButton.new()
-	attack.setup("attack", _load_icon("icon_attack"), 104.0)
+	attack.setup("attack", _load_icon("icon_attack"), 104.0 * fit)
 
 	buttons.add_child(whirl)
 	buttons.add_child(bolt)
@@ -272,10 +279,13 @@ func _build_toast() -> void:
 	toast_label.anchor_left = 0.0
 	toast_label.anchor_right = 1.0
 	var m := _safe_margins()
-	toast_label.offset_left = 24.0 + m.x
-	toast_label.offset_right = -24.0 - m.x
-	toast_label.offset_top = 96.0 + m.y
-	toast_label.offset_bottom = 140.0 + m.y
+	# Anchored across the middle of the screen, not the full width: a full-width
+	# toast printed straight across the HP/MP/XP block (see the merchant toast in
+	# reports/rpg_shot_2.png). It also sits below the bars now.
+	toast_label.offset_left = 220.0 + m.x
+	toast_label.offset_right = -220.0 - m.x
+	toast_label.offset_top = 118.0 + m.y
+	toast_label.offset_bottom = 162.0 + m.y
 	toast_label.add_theme_font_size_override("font_size", 19)
 	toast_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.55))
 	toast_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))

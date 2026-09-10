@@ -238,10 +238,15 @@ func _spawn_npcs(radius: float, rng: RandomNumberGenerator) -> void:
 	var services: Array = data.get("services", [])
 	for i in ids.size():
 		var npc_id := String(ids[i])
+		var entry: Dictionary = NPCController.roster_entry(npc_id)
+		if bool(entry.get("at_camp", false)):
+			continue   # Elder Rowan, Bram and Kael live at the camp, once
 		var npc: NPC = scene.instantiate()
 		npc.npc_id = npc_id
 		npc.display_name = ""
-		npc.is_vendor = (npc_id == "merchant_bram" or npc_id == "ysolde") and services.has("shop")
+		# A vendor is whoever data/npcs.json gives a stock list to. The old pair
+		# (bram/ysolde) were the only two, and every shop carried one inventory.
+		npc.is_vendor = NPCController.is_vendor_id(npc_id) and services.has("shop")
 		npc.show_quest_marker = true
 		npc.sprite_sheet = _sheet_for(npc_id)
 		var a := TAU * float(i) / float(ids.size()) + 0.7

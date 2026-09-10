@@ -10,6 +10,21 @@ extends WorldInteractable
 static var registry: Dictionary = {}
 static var names: Dictionary = {}
 
+const TRAVEL_GOLD_PER_1000PX := 6
+const TRAVEL_FREE_RANGE := 900.0   # neighbours walk for free
+
+
+static func travel_cost(from: Vector2, to_id: String) -> int:
+	## Fast travel costs money by distance. Gold had one sink in the whole game
+	## (a vendor) and pooled up after level ~20; this makes the map itself cost
+	## something and keeps early money meaningful.
+	if not registry.has(to_id):
+		return 0
+	var dist := from.distance_to(registry[to_id])
+	if dist <= TRAVEL_FREE_RANGE:
+		return 0
+	return maxi(1, int(round((dist - TRAVEL_FREE_RANGE) / 1000.0 * TRAVEL_GOLD_PER_1000PX)))
+
 var _fire: Polygon2D
 var _light: PointLight2D
 

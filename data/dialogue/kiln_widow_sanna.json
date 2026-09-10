@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for kiln_widow_sanna.",
+  "barks": [
+    {
+      "text": "The fires will not go out while I am here.",
+      "when": []
+    },
+    {
+      "text": "Ash takes what it takes and leaves the rest.",
+      "when": []
+    },
+    {
+      "text": "Kilnrest is the fire, not the town.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "kiln_widow_sanna_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Kiln-Widow Sanna",
+          "text": "Sanna watches the fourth kiln the way other people watch a fire in a grate.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Kiln-Widow Sanna",
+          "text": "He built them and the town built around them. If the fires go out, Kilnrest is just a name for a pile of bricks.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Kiln-Widow Sanna",
+          "text": "The fourth kiln backdrafted. Nobody told the fires to stop, so they have not.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Kiln-Widow Sanna",
+          "text": "They fear the cold more, and they are right to. A burn is a wound; a frost is a decision.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Kiln-Widow Sanna",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Why keep the kilns lit?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_sanna_kilns"
+                }
+              ]
+            },
+            {
+              "text": "What happened to your husband?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_sanna_husband"
+                }
+              ]
+            },
+            {
+              "text": "Do the workers fear the kilns?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

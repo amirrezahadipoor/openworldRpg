@@ -760,3 +760,63 @@ generator's RNG stream is untouched, so every spawner, chest and tree sits where
 did and no balance number moves. The rendered capture from CI is the evidence —
 `reports/rpg_shot_1.png` / `rpg_shot_2.png` now show a wavy coast where the earlier
 capture showed steps.
+
+**#54 — Fights are read, not mashed: enemy patterns and a three-hit chain** · 2026-09-11
+The v2 audit's harshest gameplay number was combat variety (5.5): fifteen of twenty
+archetypes shared one brain — walk straight at the player, swing on cooldown — and
+every player click was the same click. Two changes, both small in code and large in
+feel. Enemies now declare a `pattern` in `enemies.json`: **skirmish** (wolves,
+scouts, emberlings and lizards circle instead of charging down the middle, so a
+straight swing misses), **charger** (brutes, minotaurs, trolls and the Ashen Herald
+back off to a 260 px standoff, telegraph for at least 0.55 s, then commit to a
+locked 0.42 s dash at 2.9× speed — and stand **winded** for 0.9 s afterwards, taking
+1.3× damage: the reward for reading the tell), **caster** (shamans, revenants and
+archons hold a casting band and strafe inside it), and plain **melee** for grunts,
+husks and legionaries. Bosses keep their own frozen mechanics and simply report
+`pattern: "boss"`. The player side is a three-hit chain: two quick jabs, then a
+finisher at 1.5× damage, a wider arc and a shove — paid for with 1.8× recovery, so
+the chain trades sustained DPS for burst and does not move the balance bands.
+`balance_report.py --check` still passes.
+
+**#55 — The ledger and the words: nothing you were paid, or told, disappears** · 2026-09-11
+Two audit deductions (quest log 5.5, economy 6.5) were really the same complaint:
+the game paid you and spoke to you, and then had no memory of either. `GameState`
+now keeps a **ledger** (`ledger_add` / `ledger_entries`, capped at 120, saved with
+the slot) that quests write to on completion with a formatted reward line, purchases
+and sales write to as they happen, level-ups write to, and travel tolls write to —
+and a **dialogue history** (`record_line`, capped at 60) that records every spoken
+line and every player choice, both surfaced as their own tabs in the quest log
+(*Received*, *Heard*). The quest log itself stopped being one 306-row wall: it is
+sectioned into *In hand*, *On the board*, *Finished*, *Received*, *Heard* and
+*Everything*, with the untouched remainder of the story behind a single count
+instead of two hundred `[Hidden]` rows that spoiled the size of the game.
+
+**#56 — Gold has somewhere to go: local markets and a travel toll** · 2026-09-11
+Economy was deducted for having exactly one sink and identical prices everywhere.
+Every settlement now declares a `market` multiplier (Ashport 0.88 — a trading port
+with cheap wares and poor prices; Ashvow 1.18 — a burnt city at the end of a bad
+road), applied by the shop screen to both directions: buy `value × market`, sell
+`value × 0.5 × (2 − market)`, so carrying goods between towns is a genuine trade
+route rather than decoration, and the shop says which kind of town you are standing
+in. Fast travel is no longer free: `Waypoint.travel_cost()` charges 6 gold per
+1000 px beyond a 900 px walking range, the travel screen prints the fare on every
+destination and greys out what you cannot afford, and `main.gd` re-checks before it
+moves anyone.
+
+**#57 — Secrets you have heard of are rumoured; secrets you have not are not drawn** · 2026-09-11
+`secrets.json` had a `hint` field that no code ever read, and all forty hints were
+byte-identical to the lore text. Hints are now authored per secret (a frame that
+matches the kind of find, an eight-way bearing, a distance rounded to the nearest
+100 paces, and a line about the terrain), `SecretsDB.hint_from()` speaks them with
+`_bearing()`, and finding anything — or reading a carving — marks the secret it
+points at as **rumoured**. The minimap draws rumoured secrets only, with a legend
+that finally says what its colours mean (fire, hazard, wall, rumour). Walking into
+a cache now leaves you with somewhere to go instead of just loot.
+
+**#58 — Land ends at water: the shore column is used at last** · 2026-09-11
+The tileset has carried a shore column since it was first authored and the world
+generator never used it, so every pond and lake ended in a hard 32-px edge. The
+generator now paints the shore tile on the ground directly above any water body
+(the tile art has its water band along its bottom edge, so the two line up) and
+clears the collision stamp there. Eleven tiles in the shipped world change;
+nothing else does.

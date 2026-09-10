@@ -1,0 +1,88 @@
+{
+  "_comment": "NPC dialogue for miller_hobb.",
+  "barks": [
+    {
+      "text": "The sluice was signed off in triplicate. Triplicate!",
+      "when": []
+    },
+    {
+      "text": "Wet grain, wet walls, wet boots. That is Millhaven.",
+      "when": []
+    },
+    {
+      "text": "Wren used to sit on the wheel housing. Never fell once.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "hobb_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Hobb the Miller",
+          "text": "Hobb is mending a sack with more care than the sack deserves.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Hobb the Miller",
+          "text": "Voss's clerks signed the order and the water did the rest. Ask him about the ledger and watch his hands.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Hobb the Miller",
+          "text": "I grind by hand, a bag a week, for people who cannot get to Oakstead. It is not a living. It is a reason to get up.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Hobb the Miller",
+          "text": "Because the mill is the only building in Millhaven that was ever finished. You do not walk away from that.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hobb the Miller",
+          "text": "Ask me about the mill and you will get the long version.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Who broke the sluice?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_hobb_sluice"
+                }
+              ]
+            },
+            {
+              "text": "Does anyone still grind here?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_hobb_grind"
+                }
+              ]
+            },
+            {
+              "text": "Why not leave?",
+              "next": "5",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_hobb_leaving"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

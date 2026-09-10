@@ -181,7 +181,10 @@ func _spawn_npcs_survivors() -> void:
 
 
 func get_vendor_stock() -> Array:
-	return MERCHANT_STOCK
+	## data/npcs.json owns the shelf; MERCHANT_STOCK is only the fallback for a
+	## build with the data file missing.
+	var from_data: Array = NPCController.stock_for("merchant_bram")
+	return from_data if not from_data.is_empty() else MERCHANT_STOCK
 
 
 func _circle_poly(radius: float, sides: int, wobble: float = 0.0) -> PackedVector2Array:

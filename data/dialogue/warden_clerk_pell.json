@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for warden_clerk_pell.",
+  "barks": [
+    {
+      "text": "Every name in this book was somebody's day.",
+      "when": []
+    },
+    {
+      "text": "The captain wants a list. I want the truth.",
+      "when": []
+    },
+    {
+      "text": "Nine hundred closed. Four thousand open.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "warden_clerk_pell_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Warden-Clerk Pell",
+          "text": "Pell's ledger is open at a page you cannot see.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Warden-Clerk Pell",
+          "text": "Four thousand and eleven entries, and I have closed nine hundred of them. The rest are open, which is another way of saying unanswered.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Warden-Clerk Pell",
+          "text": "If you find a name you recognise out there, come back and say it out loud. That is all the closing I need.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Warden-Clerk Pell",
+          "text": "The citadel knows about all of them and files them under weather. I have started keeping my own copy.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Warden-Clerk Pell",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "How many names are in your book?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_pell_book"
+                }
+              ]
+            },
+            {
+              "text": "Can I close one?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_pell_close"
+                }
+              ]
+            },
+            {
+              "text": "Does the citadel know about the vaults?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

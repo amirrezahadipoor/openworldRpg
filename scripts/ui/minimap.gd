@@ -86,6 +86,16 @@ func _draw() -> void:
 			draw_circle(local, 3.2, Color(1.0, 0.62, 0.2))
 			draw_circle(local, 1.4, Color(1.0, 0.9, 0.6))
 
+	# Rumoured secrets: somewhere out there, unhinted in position but marked on the
+	# map once you have been told they exist.
+	for sid in SecretsDB.unfound():
+		if not SecretsDB.is_rumoured(String(sid)):
+			continue
+		var probe := (SecretsDB.position_of(String(sid)) - origin) * scale_px
+		if rect.has_point(probe):
+			draw_rect(Rect2(probe - Vector2(2.0, 2.0), Vector2(4.0, 4.0)),
+				Color(0.75, 0.85, 1.0, 0.7))
+
 	# Player arrow.
 	var center := size * 0.5
 	var facing := Vector2.DOWN
@@ -96,10 +106,33 @@ func _draw() -> void:
 	var side_b := center + facing.rotated(-2.5) * 7.0
 	draw_colored_polygon(PackedVector2Array([tip, side_a, side_b]), Color(1, 1, 1, 0.95))
 
+	# Legend. The map has always drawn six different colours and never once said
+	# what any of them meant — read at a glance, gold is a campfire, green is the
+	# meadow, red is something that will hurt you.
+	_draw_legend(rect)
+
 	# Frame + north mark.
 	draw_rect(rect, Color(0.85, 0.75, 0.5, 0.55), false, 2.0)
 	draw_string(ThemeDB.fallback_font, Vector2(size.x * 0.5 - 5.0, 14.0), "N",
 		HORIZONTAL_ALIGNMENT_CENTER, -1, 13, Color(1, 0.95, 0.8, 0.9))
+
+
+func _draw_legend(rect: Rect2) -> void:
+	## The map has always drawn six colours and never said what any of them meant.
+	## Read at a glance: gold is a lit campfire, red is something that will bite.
+	var items := [
+		[Color(1.0, 0.62, 0.2), "fire"],
+		[Color(0.80, 0.38, 0.15), "hazard"],
+		[Color(0.30, 0.29, 0.27), "wall"],
+		[Color(0.75, 0.85, 1.0), "rumour"],
+	]
+	var font := ThemeDB.fallback_font
+	var y := rect.position.y + 8.0
+	for it in items:
+		draw_rect(Rect2(Vector2(8.0, y + 2.0), Vector2(9.0, 9.0)), it[0])
+		draw_string(font, Vector2(21.0, y + 11.0), String(it[1]),
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.72))
+		y += 15.0
 
 
 func _sample(wpos: Vector2) -> Color:

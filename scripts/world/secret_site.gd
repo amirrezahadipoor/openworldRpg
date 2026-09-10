@@ -123,6 +123,7 @@ func _on_interact() -> void:
 		var reveal := SecretsDB.discover(secret_id)
 		if bool(reveal.get("ok", false)):
 			_after_find(reveal)
+			SecretsDB.mark_rumoured(SecretsDB.rumour_target(secret_id))
 			var hud: Node = _hud_node()
 			if hud != null:
 				hud.show_toast(SecretsDB.hint_from(secret_id))
@@ -139,6 +140,16 @@ func _reveal() -> void:
 			hud.show_toast(reason)
 		return
 	_after_find(result)
+	# The `hint` field used to sit unread in secrets.json; a found secret should
+	# leave you with somewhere to go, not just loot. Marking the target is what
+	# puts it on the minimap as a rumour.
+	SecretsDB.mark_rumoured(SecretsDB.rumour_target(secret_id))
+	var trail := SecretsDB.hint_from(secret_id)
+	if trail.is_empty():
+		return
+	var hud: Node = _hud_node()
+	if hud != null:
+		hud.show_toast(trail)
 
 
 func _after_find(result: Dictionary) -> void:

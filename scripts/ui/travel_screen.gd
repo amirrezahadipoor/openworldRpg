@@ -10,6 +10,7 @@ var _list: VBoxContainer
 var _title: Label
 var _empty: Label
 var _current_id := ""
+var _from := Vector2.ZERO
 var _was_paused := false
 
 
@@ -77,8 +78,9 @@ func _build_ui() -> void:
 	vbox.add_child(cancel)
 
 
-func open(current_wp_id: String) -> void:
+func open(current_wp_id: String, from: Vector2 = Vector2.ZERO) -> void:
 	_current_id = current_wp_id
+	_from = from
 	_was_paused = get_tree().paused
 	get_tree().paused = true
 	_rebuild()
@@ -95,9 +97,13 @@ func _rebuild() -> void:
 		if String(wp_id) == _current_id:
 			continue
 		options += 1
+		var cost := Waypoint.travel_cost(_from, String(wp_id))
 		var b := Button.new()
-		b.text = _name_of(wp_id)
+		b.text = "%s%s" % [_name_of(wp_id), "" if cost == 0 else "   —   %d g" % cost]
 		b.custom_minimum_size = Vector2(380, 44)
+		b.disabled = cost > GameState.gold
+		if b.disabled:
+			b.tooltip_text = "You need %d gold for that road." % cost
 		b.pressed.connect(func() -> void:
 			AudioManager.play_sfx("ui_click")
 			var chosen := String(wp_id)

@@ -8,6 +8,8 @@ signal closed
 var _root: Control
 var _title: Label
 var _gold_label: Label
+var _market_label: Label
+var _market := 1.0
 var _buy_list: VBoxContainer
 var _sell_list: VBoxContainer
 var _stock: Array = []
@@ -26,9 +28,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func open(vendor_name: String, stock: Array) -> void:
+func open(vendor_name: String, stock: Array, market: float = 1.0) -> void:
 	_stock = stock
+	_market = clampf(market, 0.6, 1.6)
 	_title.text = "%s's Wares" % vendor_name
+	_market_label.text = _market_blurb()
 	_refresh()
 	visible = true
 	get_tree().paused = true
@@ -81,7 +85,14 @@ func _build() -> void:
 	_gold_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
 	_gold_label.add_theme_font_size_override("font_size", 18)
 	header.add_child(_gold_label)
+
+	# Prices are local, and the player can see that they are: the same sword is
+	# not the same sword in Ashvow and in Ashport.
+	_market_label = Label.new()
+	_market_label.add_theme_font_size_override("font_size", 14)
+	_market_label.modulate = Color(1, 1, 1, 0.7)
 	outer.add_child(header)
+	outer.add_child(_market_label)
 
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 24)
@@ -115,6 +126,8 @@ func _build() -> void:
 
 func _refresh() -> void:
 	_gold_label.text = "Gold: %d" % GameState.gold
+	if _market_label != null:
+		_market_label.text = _market_blurb()
 
 	for child in _buy_list.get_children():
 		child.queue_free()
@@ -128,7 +141,7 @@ func _refresh() -> void:
 	for child in _sell_list.get_children():
 		child.queue_free()
 	var sell_header := Label.new()
-	sell_header.text = "— Sell (half price) —"
+	sell_header.text = "— Sell (local rate) —"
 	sell_header.add_theme_color_override("font_color", Color(1.0, 0.8, 0.6))
 	_sell_list.add_child(sell_header)
 	if GameState.inventory.is_empty():
@@ -142,7 +155,7 @@ func _refresh() -> void:
 
 
 func _buy_row(item_id: String) -> Control:
-	var price := ItemsDB.get_value(item_id)
+	var price := buy_price(item_id)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	var label := Label.new()
@@ -164,7 +177,7 @@ func _buy_row(item_id: String) -> Control:
 
 
 func _sell_row(item_id: String, qty: int) -> Control:
-	var price := maxi(1, ItemsDB.get_value(item_id) / 2)
+	var price := sell_price(item_id)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	var label := Label.new()
@@ -183,12 +196,34 @@ func _sell_row(item_id: String, qty: int) -> Control:
 	return row
 
 
+func buy_price(item_id: String) -> int:
+	## What this town charges. Dear towns charge up to +18%, trading towns as
+	## little as -12%.
+	return maxi(1, int(round(float(ItemsDB.get_value(item_id)) * _market)))
+
+
+func sell_price(item_id: String) -> int:
+	## Buying low and selling high only works if the two ends move in opposite
+	## directions, so the sell rate is the mirror of the buy rate around half.
+	return maxi(1, int(round(float(ItemsDB.get_value(item_id)) * 0.5 * (2.0 - _market))))
+
+
+func _market_blurb() -> String:
+	if _market >= 1.12:
+		return "Prices here are cruel — but the same goods fetch well."
+	if _market <= 0.92:
+		return "A trading town: cheap wares, poor prices for your own."
+	return "Fair local prices."
+
+
 func _buy(item_id: String, price: int) -> void:
 	if GameState.gold < price:
+		AudioManager.play_sfx("denied")
 		return
 	GameState.add_gold(-price)
 	GameState.add_item(item_id, 1)
-	AudioManager.play_sfx("purchase")
+	AudioManager.play_sfx("coin")     # a coin, not the same blip as a menu click
+	GameState.ledger_add("purchase", "%s ← %d g" % [ItemsDB.item_name(item_id), price])
 	_refresh()
 
 
@@ -196,9 +231,11 @@ func _sell(item_id: String, price: int) -> void:
 	# Never sell what's currently equipped.
 	for slot in GameState.equipment:
 		if GameState.equipment[slot] == item_id:
+			AudioManager.play_sfx("denied")
 			return
 	if not GameState.remove_item(item_id, 1):
 		return
 	GameState.add_gold(price)
-	AudioManager.play_sfx("purchase")
+	GameState.ledger_add("sale", "%s → %d g" % [ItemsDB.item_name(item_id), price])
+	AudioManager.play_sfx("purchase")  # the till, not the coin
 	_refresh()

@@ -147,6 +147,9 @@ func _show_node(id: String) -> void:
 	_portrait.texture = load(portrait_path) if portrait_path != "" else null
 	_portrait.visible = portrait_path != ""
 	_full_text = String(node.get("text", ""))
+	# Every line goes into the history as it is spoken, so a conversation can be
+	# re-read later instead of existing only in the moment.
+	GameState.record_line(speaker, _full_text)
 	_shown = 0
 	_text_label.text = _full_text
 	_text_label.visible_characters = 0
@@ -167,6 +170,7 @@ func _populate_choices(node: Dictionary) -> void:
 		btn.text = "• " + String(c.get("text", "..."))
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
+		btn.pressed.connect(func() -> void: GameState.record_line("You", String(c.get("text", "..."))))
 		btn.pressed.connect(_on_choice.bind(c))
 		_choice_box.add_child(btn)
 

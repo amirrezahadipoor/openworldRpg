@@ -295,6 +295,25 @@ MICRO_VAULTS = {
 }
 
 
+
+def _paint_bank(grid, grid_n, world, biome, solids_stamp, ellipse):
+    """Paint a shore tile on the ground directly above a body of water.
+
+    The shore tile is drawn with its water band along the bottom edge, so placing
+    it on the tile *above* water puts the two edges together.
+    """
+    for ty in range(grid_n - 1):
+        for tx in range(grid_n):
+            wx, wy = world(tx, ty)
+            if in_ellipse(wx, wy, ellipse):
+                continue
+            x2, y2 = world(tx, ty + 1)
+            if not in_ellipse(x2, y2, ellipse):
+                continue
+            grid[ty * grid_n + tx] = gid(biome, 7)
+            solids_stamp.discard((tx, ty))
+
+
 def build_chunk(cx, cy):
     biome = biome_of(cx, cy)          # chunk ownership: music, ambience, spawn tables
     edge = edge_biome(cx, cy)         # kept for the chunk-level fallbacks below
@@ -342,6 +361,9 @@ def build_chunk(cx, cy):
                 if in_ellipse(*world(tx, ty), e=POND):
                     set_tile(tx, ty, gid(0, 3))
                     solids_stamp.add((tx, ty))
+        # ...and its bank: the atlas has had a shore column since the tileset was
+        # written and never used it, so every pond ended in a hard edge.
+        _paint_bank(grid, GRID, world, 0, solids_stamp, POND)
     elif biome == 1:  # barrens rocks + lava pools
         for _ in range(rng.randint(3, 6)):
             tx, ty = rng.randint(1, GRID - 2), rng.randint(1, GRID - 2)
@@ -376,6 +398,7 @@ def build_chunk(cx, cy):
                 if in_ellipse(*world(tx, ty), e=FROST_LAKE):
                     set_tile(tx, ty, gid(2, 3))
                     solids_stamp.add((tx, ty))
+        _paint_bank(grid, GRID, world, 2, solids_stamp, FROST_LAKE)
 
     # 3) secret grove ring (chunk -2,0): dense tree wall around (-1600,500)
     if (cx, cy) == (-2, 0):

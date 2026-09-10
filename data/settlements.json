@@ -1,5 +1,5 @@
 {
-  "_comment": "Phase E \u00a71 - settlements. Each entry becomes a real scene built by scripts/world/settlement.gd (plaza, buildings, waypoint, sign, NPCs), not a recoloured biome chunk. `position` is a world pixel coordinate; `safe_radius` suppresses enemy spawners around the settlement.",
+  "_comment": "Settlements. `services` drives what the world actually builds (shop / waypoint / heal / board); a vendor NPC without the `shop` service stays a talker. `market` is the local price multiplier used by the shop screen \u2014 buying cheap in one town and selling dear in another is a real trade route, not decoration.",
   "settlements": {
     "millhaven": {
       "id": "millhaven",
@@ -19,9 +19,8 @@
         "questboard"
       ],
       "npcs": [
-        "elder_rowan",
-        "wren",
-        "merchant_bram"
+        "miller_hobb",
+        "wren"
       ],
       "ground_color": [
         0.28,
@@ -32,7 +31,8 @@
         0.52,
         0.3,
         0.22
-      ]
+      ],
+      "market": 1.0
     },
     "oakstead": {
       "id": "oakstead",
@@ -49,11 +49,12 @@
       "buildings": 6,
       "services": [
         "waypoint",
-        "questboard"
+        "questboard",
+        "shop"
       ],
       "npcs": [
         "elder_fenwick",
-        "merchant_bram"
+        "marget"
       ],
       "ground_color": [
         0.28,
@@ -64,7 +65,8 @@
         0.52,
         0.3,
         0.22
-      ]
+      ],
+      "market": 0.97
     },
     "sunreach": {
       "id": "sunreach",
@@ -86,9 +88,8 @@
         "questboard"
       ],
       "npcs": [
-        "magistrate_voss",
-        "ysolde",
-        "elder_fenwick"
+        "factor_orlan",
+        "magistrate_voss"
       ],
       "ground_color": [
         0.28,
@@ -99,7 +100,8 @@
         0.52,
         0.3,
         0.22
-      ]
+      ],
+      "market": 1.02
     },
     "ashport": {
       "id": "ashport",
@@ -120,7 +122,7 @@
         "questboard"
       ],
       "npcs": [
-        "hunter_kael",
+        "dockhand_merrit",
         "ysolde"
       ],
       "ground_color": [
@@ -132,7 +134,8 @@
         0.4,
         0.26,
         0.2
-      ]
+      ],
+      "market": 0.88
     },
     "cinderhold": {
       "id": "cinderhold",
@@ -149,10 +152,12 @@
       "buildings": 10,
       "services": [
         "waypoint",
-        "questboard"
+        "questboard",
+        "shop"
       ],
       "npcs": [
-        "captain_dael"
+        "captain_dael",
+        "smith_corvin"
       ],
       "ground_color": [
         0.55,
@@ -163,7 +168,8 @@
         0.4,
         0.26,
         0.2
-      ]
+      ],
+      "market": 1.12
     },
     "ashvow": {
       "id": "ashvow",
@@ -179,10 +185,13 @@
       "safe_radius": 440.0,
       "buildings": 16,
       "services": [
-        "waypoint"
+        "waypoint",
+        "shop"
       ],
       "npcs": [
-        "brother_ashe"
+        "relicmonger_tib",
+        "sister_halde",
+        "warden_clerk_pell"
       ],
       "ground_color": [
         0.55,
@@ -193,7 +202,8 @@
         0.4,
         0.26,
         0.2
-      ]
+      ],
+      "market": 1.18
     },
     "frosthaven": {
       "id": "frosthaven",
@@ -213,7 +223,8 @@
         "questboard"
       ],
       "npcs": [
-        "mireille"
+        "mireille",
+        "old_sorrel"
       ],
       "ground_color": [
         0.33,
@@ -224,7 +235,8 @@
         0.28,
         0.32,
         0.42
-      ]
+      ],
+      "market": 1.08
     },
     "kilnrest": {
       "id": "kilnrest",
@@ -245,8 +257,8 @@
         "inn"
       ],
       "npcs": [
-        "ysolde",
-        "mireille"
+        "kiln_widow_sanna",
+        "trapper_vess"
       ],
       "ground_color": [
         0.33,
@@ -257,7 +269,8 @@
         0.28,
         0.32,
         0.42
-      ]
+      ],
+      "market": 1.05
     },
     "skyreach": {
       "id": "skyreach",
@@ -278,8 +291,9 @@
         "questboard"
       ],
       "npcs": [
+        "adept_nessa",
         "high_warden_isolde",
-        "captain_dael"
+        "quartermaster_rook"
       ],
       "ground_color": [
         0.33,
@@ -290,7 +304,8 @@
         0.28,
         0.32,
         0.42
-      ]
+      ],
+      "market": 0.95
     }
   },
   "tiers": {

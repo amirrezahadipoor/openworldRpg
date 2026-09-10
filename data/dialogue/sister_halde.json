@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for sister_halde.",
+  "barks": [
+    {
+      "text": "The Choir is not a building. That is the difficulty.",
+      "when": []
+    },
+    {
+      "text": "We sang because we believed. Belief was the fuel.",
+      "when": []
+    },
+    {
+      "text": "You are the vessel they wrote about. I am sorry.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "sister_halde_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Sister Halde",
+          "text": "Halde has a hymn roll open in her lap and a pen she is not using.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Sister Halde",
+          "text": "\"We kept the fire so that it would not spread.\" That is the whole hymn. The Choir added ninety verses and every one of them disagrees with the first.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Sister Halde",
+          "text": "Because a hymn that names what you are feeding it turns out to be evidence. The Choir learned that late, and I learned it early.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Sister Halde",
+          "text": "I do not have the standing. I keep the rolls; the rolls do the forgiving, and they are not generous.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Sister Halde",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Will you recite the hymn for me?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_halde_hymn"
+                }
+              ]
+            },
+            {
+              "text": "Why were the rolls locked away?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_halde_rolls"
+                }
+              ]
+            },
+            {
+              "text": "Do you forgive them?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

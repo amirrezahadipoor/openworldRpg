@@ -361,13 +361,20 @@ func _item_row(item_id: String, qty: int) -> Control:
 	if String(it.get("type", "")) == "consumable":
 		primary.text = "Use"
 		primary.pressed.connect(func() -> void:
-			GameState.use_item(item_id)
+			if GameState.use_item(item_id):
+				AudioManager.play_sfx("item_use")
+			else:
+				# A consumable that does nothing right now must say so out loud.
+				AudioManager.play_sfx("denied")
 			_refresh()
 		)
 	else:
 		primary.text = "Equip"
 		primary.pressed.connect(func() -> void:
-			GameState.equip(item_id)
+			if GameState.equip(item_id):
+				AudioManager.play_sfx("equip")
+			else:
+				AudioManager.play_sfx("denied")
 			_refresh()
 		)
 	row.add_child(primary)

@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for relicmonger_tib.",
+  "barks": [
+    {
+      "text": "No two alike. That is the rule.",
+      "when": []
+    },
+    {
+      "text": "Warm on the wrong night. You can feel it.",
+      "when": []
+    },
+    {
+      "text": "The third row of stalls is nobody's business.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "relicmonger_tib_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Tib the Relic-Monger",
+          "text": "Tib sits behind a stall of oddments and watches your hands, not your face.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Tib the Relic-Monger",
+          "text": "Out of the monastery, mostly, and off the people who went in before it fell. I do not keep two of anything, because two of a relic is a replica.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Tib the Relic-Monger",
+          "text": "The lantern is. It is warm on the wrong nights, which is its way of telling you it is thinking about it.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Tib the Relic-Monger",
+          "text": "Because the Choir's leftovers wash up here and the Wardens do not search the third row of stalls. Ask me nothing else.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Tib the Relic-Monger",
+          "text": "Well? The day is not getting shorter.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Where do these come from?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_tib_relics"
+                }
+              ]
+            },
+            {
+              "text": "Is any of it dangerous?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_tib_lantern"
+                }
+              ]
+            },
+            {
+              "text": "Why stay in Ashvow?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

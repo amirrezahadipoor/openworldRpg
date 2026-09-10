@@ -5,6 +5,7 @@ extends CanvasLayer
 
 var _root: Control
 var _list: VBoxContainer
+var _filter := "active"
 
 
 func _ready() -> void:
@@ -64,6 +65,25 @@ func _build() -> void:
 	title.add_theme_font_size_override("font_size", 24)
 	outer.add_child(title)
 
+	# The log used to be one flat list of all 306 entries (206 quests + 100 jobs),
+	# which told a level-1 player exactly how much game existed and buried the two
+	# things they were actually doing. It is now sectioned, and the untouched main
+	# chain is behind a count instead of a wall of [Hidden] rows.
+	var filters := HBoxContainer.new()
+	filters.add_theme_constant_override("separation", 8)
+	for spec in [["In hand", "active"], ["On the board", "board"], ["Finished", "done"],
+			["Received", "ledger"], ["Heard", "history"], ["Everything", "all"]]:
+		var b := Button.new()
+		b.text = String(spec[0])
+		b.custom_minimum_size = Vector2(120, 34)
+		b.add_theme_font_size_override("font_size", 15)
+		b.pressed.connect(func() -> void:
+			_filter = String(spec[1])
+			AudioManager.play_sfx("ui_click")
+			_refresh())
+		filters.add_child(b)
+	outer.add_child(filters)
+
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size = Vector2(0, 360)
@@ -83,9 +103,113 @@ func _build() -> void:
 func _refresh() -> void:
 	for child in _list.get_children():
 		child.queue_free()
+	var buckets := {"active": [], "progress": [], "done": [], "board": []}
+	var hidden := 0
 	for qid in QuestManager.data.keys():
-		_list.add_child(_quest_block(String(qid)))
+		var id := String(qid)
+		var state := String(GameState.quests.get(id, ""))
+		if state == "active":
+			buckets["active"].append(id)
+		elif state == "done":
+			buckets["done"].append(id)
+		elif not state.is_empty():
+			buckets["progress"].append(id)
+		else:
+			hidden += 1
+	if _filter == "ledger":
+		# What the character has actually been paid, newest first — quests, trades
+		# and level-ups in one place. The audit asked where the receipts were.
+		_ledger_section()
+		return
+	if _filter == "history":
+		_history_section()
+		return
+	if _filter == "active":
+		_section("IN HAND", buckets["active"] + buckets["progress"])
+	elif _filter == "board":
+		_section("ON THE BOARD", _board_quests())
+	elif _filter == "done":
+		_section("FINISHED", buckets["done"])
+	else:
+		_section("IN HAND", buckets["active"] + buckets["progress"])
+		_section("FINISHED", buckets["done"])
+		_section("ON THE BOARD", _board_quests())
+		var chain := Label.new()
+		chain.text = "%d more quests are waiting further along the story — they appear here when they start." % hidden
+		chain.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		chain.add_theme_font_size_override("font_size", 14)
+		chain.modulate = Color(1, 1, 1, 0.5)
+		_list.add_child(chain)
 	_list.add_child(_secrets_block())
+
+
+func _board_quests() -> Array:
+	## Jobs a player at their level can actually take right now, from the board's
+	## own offer model, instead of the whole 100-job catalogue at once.
+	var out: Array = []
+	for qid in QuestManager.data.keys():
+		var id := String(qid)
+		if not id.begins_with("SQ"):
+			continue
+		var state := String(GameState.quests.get(id, ""))
+		if state == "done" and not bool((QuestManager.data[id] as Dictionary).get("repeatable", false)):
+			continue
+		var anchor := int((QuestManager.data[id] as Dictionary).get("level_anchor", 99))
+		if anchor <= GameState.level + 4:
+			out.append(id)
+	return out
+
+
+func _ledger_section() -> void:
+	var entries: Array = GameState.ledger_entries()
+	if entries.is_empty():
+		_section("RECEIVED", [])
+		return
+	_section("RECEIVED  (newest first)", [])
+	for i in range(entries.size() - 1, -1, -1):
+		var e: Dictionary = entries[i]
+		var row := Label.new()
+		var kind := String(e.get("kind", ""))
+		row.text = "  · [%s · lv %d]  %s" % [kind.to_upper(), int(e.get("level", 1)), String(e.get("text", ""))]
+		row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row.add_theme_font_size_override("font_size", 14)
+		row.modulate = {"quest": Color(1.0, 0.9, 0.62), "sale": Color(0.75, 1.0, 0.8),
+				"purchase": Color(0.95, 0.8, 0.8), "level": Color(0.8, 0.9, 1.0)}.get(
+						kind, Color(0.9, 0.9, 0.9))
+		_list.add_child(row)
+
+
+func _history_section() -> void:
+	var lines: Array = GameState.dialogue_history
+	if lines.is_empty():
+		_section("WORDS  (nothing said yet)", [])
+		return
+	_section("WORDS  (oldest first)", [])
+	for entry in lines:
+		var e: Dictionary = entry
+		var row := Label.new()
+		row.text = "%s: %s" % [String(e.get("speaker", "")), String(e.get("text", ""))]
+		row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row.add_theme_font_size_override("font_size", 14)
+		row.modulate = Color(0.86, 0.9, 1.0, 0.9) if String(e.get("speaker", "")) != "You" \
+				else Color(1.0, 0.95, 0.8, 0.75)
+		_list.add_child(row)
+
+
+func _section(head: String, ids: Array) -> void:
+	var label := Label.new()
+	label.text = "%s  (%d)" % [head, ids.size()]
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.55))
+	_list.add_child(label)
+	if ids.is_empty():
+		var none := Label.new()
+		none.text = "  —"
+		none.modulate = Color(1, 1, 1, 0.45)
+		_list.add_child(none)
+		return
+	for qid in ids:
+		_list.add_child(_quest_block(String(qid)))
 
 
 func _secrets_block() -> Control:

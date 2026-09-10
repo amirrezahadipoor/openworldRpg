@@ -321,7 +321,8 @@ func _on_npc_interacted(npc: NPC) -> void:
 	# objective for this NPC advances even when the reply is only a bark.
 	QuestManager.talk_to(npc.npc_id)
 	if npc.is_vendor:
-		shop_ui.open(npc.display_name, camp.get_vendor_stock())
+		var stock: Array = NPCController.stock_for(npc.npc_id)
+		shop_ui.open(npc.display_name, stock if not stock.is_empty() else camp.get_vendor_stock())
 		return
 	var d := DialogueDB.pick(npc.npc_id)
 	if not d.is_empty():
@@ -372,12 +373,18 @@ func _on_world_interacted(node: Node) -> void:
 			},
 		})
 	elif node is Waypoint:
-		travel_ui.open((node as Waypoint).wp_id)
+		travel_ui.open((node as Waypoint).wp_id, player.global_position)
 
 
 func _on_travel_to(wp_id: String) -> void:
 	if not Waypoint.registry.has(wp_id):
 		return
+	var cost := Waypoint.travel_cost(player.global_position, wp_id)
+	if cost > GameState.gold:
+		return                       # the screen already greys these out; this is the guard
+	if cost > 0:
+		GameState.add_gold(-cost)
+		GameState.ledger_add("travel", "Road to %s — %d g" % [Waypoint.names.get(wp_id, wp_id), cost])
 	player.global_position = (Waypoint.registry[wp_id] as Vector2) + Vector2(0, 42)
 	player.velocity = Vector2.ZERO
 	camera.snap()

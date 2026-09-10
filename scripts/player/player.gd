@@ -11,7 +11,13 @@ const DODGE_SPEED := 540.0
 const DODGE_DURATION := 0.28
 const DODGE_COOLDOWN := 0.6
 const ATTACK_COOLDOWN := 0.35
+const STEP_INTERVAL := 0.34      # footstep pacing while walking
+
+var _step_timer := 0.0
 const ATTACK_ACTIVE_TIME := 0.12
+const COMBO_WINDOW := 0.62         # time after a swing to keep the chain alive
+const COMBO_FINISHER_MULT := 1.5   # third hit lands harder and pushes back
+const FINISHER_RECOVERY := 1.8     # ...but it costs you the next swing
 const CRIT_MULT := 1.8
 
 # Abilities (Phase 4): cooldown-based, MP-fueled.
@@ -35,6 +41,9 @@ var _dodge_cd := 0.0
 var _dodge_dir := Vector2.RIGHT
 var _attack_cd := 0.0
 var _attack_active := 0.0
+var _combo := 0            # 0,1 = jabs · 2 = the finisher
+var _combo_timer := 0.0
+var _attack_mult := 1.0
 var _whirl_cd := 0.0
 var _bolt_cd := 0.0
 
@@ -73,11 +82,16 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_step_timer -= delta
 	_dodge_cd = maxf(_dodge_cd - delta, 0.0)
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
 	_whirl_cd = maxf(_whirl_cd - delta, 0.0)
 	_bolt_cd = maxf(_bolt_cd - delta, 0.0)
 	_cast_anim = maxf(_cast_anim - delta, 0.0)
+	_combo_timer = maxf(_combo_timer - delta, 0.0)
+	if _combo_timer <= 0.0 and _combo != 0:
+		_combo = 0
+		_attack_mult = 1.0
 	_hurt_anim = maxf(_hurt_anim - delta, 0.0)
 	_variant_timer -= delta
 	if _variant_timer <= 0.0:
@@ -116,6 +130,19 @@ func _physics_process(delta: float) -> void:
 			cast_firebolt()
 
 	move_and_slide()
+	_update_footsteps()
+
+
+func _update_footsteps() -> void:
+	## Footsteps for the walk cycle. The world used to be silent between fights —
+	## music over nothing. A stride you can hear is most of what makes walking
+	## feel like walking, so this is paced to the step, not to the frame.
+	if velocity.length() < 12.0 or _dodge_timer > 0.0 or _hurt_anim > 0.0:
+		return
+	if _step_timer > 0.0:
+		return
+	_step_timer = STEP_INTERVAL
+	AudioManager.play_sfx("footstep")
 
 
 ## Normalized remaining cooldowns for HUD display (1 = just cast, 0 = ready).
@@ -133,15 +160,29 @@ func _read_move_input() -> Vector2:
 
 
 func _start_attack() -> void:
-	_attack_cd = ATTACK_COOLDOWN * GameState.attack_cooldown_mult()
-	_attack_active = ATTACK_ACTIVE_TIME
+	## Three-hit chain. The first two swings are quick jabs; the third is a heavy
+	## finisher that reaches further, hits for COMBO_FINISHER_MULT and shoves what
+	## it hits — and leaves you open for longer, so mashing is not strictly better
+	## than reading the fight. Without this every click was the same click.
+	_combo = (_combo + 1) % 3
+	_combo_timer = COMBO_WINDOW
+	var finisher := _combo == 2
+	_attack_mult = COMBO_FINISHER_MULT if finisher else 1.0
+	var recovery := ATTACK_COOLDOWN * (FINISHER_RECOVERY if finisher else 1.0)
+	_attack_cd = recovery * GameState.attack_cooldown_mult()
+	_attack_active = ATTACK_ACTIVE_TIME * (1.5 if finisher else 1.0)
 	attack_shape.disabled = false
+	if attack_shape.shape is CircleShape2D:
+		# the finisher sweeps a wider arc
+		(attack_shape.shape as CircleShape2D).radius = 26.0 if finisher else 18.0
 	EventBus.attack_swung.emit(self)
 	AudioManager.play_sfx("attack_swing")
-	_resolve_attack_hits()
+	if finisher:
+		_finisher_flash()
+	_resolve_attack_hits(finisher)
 
 
-func _resolve_attack_hits() -> void:
+func _resolve_attack_hits(finisher: bool = false) -> void:
 	await get_tree().process_frame  # let physics overlaps update first
 	if attack_area == null:
 		return
@@ -149,15 +190,41 @@ func _resolve_attack_hits() -> void:
 		if area.is_in_group("hurtbox"):
 			var target: Node = area.get_parent()
 			if target != null and target.has_method("take_hit"):
-				var dmg := roll_damage(GameState.attack())
+				var dmg := roll_damage(GameState.attack() * _attack_mult)
 				target.take_hit(dmg, facing)
 				_apply_lifesteal(dmg)
+				if finisher:
+					_shove(target)
+					AudioManager.play_sfx("hit")
+
+
+func _shove(target: Node) -> void:
+	## The finisher pushes what it hits. Enemies knock themselves around in
+	## take_hit via their own velocity, so this only needs to add to it.
+	if target is CharacterBody2D:
+		var body := target as CharacterBody2D
+		body.velocity += facing * 260.0
+
+
+func _finisher_flash() -> void:
+	## A brighter, wider swing arc for the third hit so the chain reads on screen.
+	var flash := Polygon2D.new()
+	flash.polygon = PackedVector2Array([
+		Vector2(0, -26), Vector2(46, -18), Vector2(58, 0),
+		Vector2(46, 18), Vector2(0, 26),
+	])
+	flash.color = Color(1.0, 0.94, 0.72, 0.55)
+	attack_pivot.add_child(flash)
+	var tw := create_tween()
+	tw.tween_property(flash, "modulate:a", 0.0, 0.18)
+	tw.tween_callback(flash.queue_free)
 
 
 ## Whirlwind — 360° melee spin hitting every hurtbox in WHIRL_RADIUS.
 func cast_whirlwind() -> void:
 	var cost := whirl_mp_cost()
 	if GameState.mp < cost:
+		AudioManager.play_sfx("denied")   # out of mana says so
 		return
 	GameState.mp -= cost
 	_whirl_cd = WHIRL_COOLDOWN
@@ -181,6 +248,7 @@ func cast_whirlwind() -> void:
 func cast_firebolt() -> void:
 	var cost := bolt_mp_cost()
 	if GameState.mp < cost:
+		AudioManager.play_sfx("denied")
 		return
 	GameState.mp -= cost
 	_bolt_cd = BOLT_COOLDOWN

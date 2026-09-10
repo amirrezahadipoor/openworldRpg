@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for old_sorrel.",
+  "barks": [
+    {
+      "text": "There was grass on the ridge when I was young.",
+      "when": []
+    },
+    {
+      "text": "Frost is patient. That is what makes it dangerous.",
+      "when": []
+    },
+    {
+      "text": "I have outlived two elders and a season.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "old_sorrel_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Old Sorrel",
+          "text": "Sorrel sits with her back to the kiln and her face to the road.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Old Sorrel",
+          "text": "Green up to the ridge, and the frost was a week in the low fields, not a country. I remember complaining about that week.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Old Sorrel",
+          "text": "Something under the rimevault woke up, and the cold came out of it like a held breath let go.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Old Sorrel",
+          "text": "My knees are afraid of the stairs and that is all. When you have outlived a season you stop negotiating with the next one.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Sorrel",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What did the valley look like before?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_sorrel_before"
+                }
+              ]
+            },
+            {
+              "text": "What took the north?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_sorrel_north"
+                }
+              ]
+            },
+            {
+              "text": "Are you afraid?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

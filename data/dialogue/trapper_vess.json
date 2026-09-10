@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for trapper_vess.",
+  "barks": [
+    {
+      "text": "Third ridge is off limits. I will not say it twice.",
+      "when": []
+    },
+    {
+      "text": "Cold does not kill you. Stopping does.",
+      "when": []
+    },
+    {
+      "text": "Whatever you heard out there had hands. That is all I know.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "trapper_vess_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Trapper Vess",
+          "text": "Vess is skinning something and does not appear to be squeamish about it.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Trapper Vess",
+          "text": "Rime foxes, mostly, and once a thing with hands. I do not set snares past the third ridge any more.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Trapper Vess",
+          "text": "Because everything down south has already been claimed, and up here a person can still be the first to find something.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Trapper Vess",
+          "text": "They are. They walk because something is holding the door open, and they stop the moment you stop being interesting to it.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Trapper Vess",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What do you catch up here?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_vess_catch"
+                }
+              ]
+            },
+            {
+              "text": "Why stay in this cold?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_vess_cold"
+                }
+              ]
+            },
+            {
+              "text": "Are the revenants real?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

@@ -25,6 +25,21 @@ const ANIM_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, 
 const ANIM_BLOCK := {"idle": 0, "walk": 1, "slash": 2, "spellcast": 3, "hurt": 4}
 
 var telegraph_time := DEFAULT_TELEGRAPH
+## Movement/attack style, read from the archetype ("melee", "skirmish",
+## "charger", "caster"). Before this every non-ranged enemy in the game fought
+## identically: walk straight at the player, swing on cooldown. Fifteen of the
+## twenty archetypes shared one brain.
+var pattern := "melee"
+var _strafe := 1.0          # skirmish: which way it circles
+var _strafe_timer := 0.0
+var _dash_time := 0.0       # charger: seconds of committed dash left
+var _dash_dir := Vector2.RIGHT
+var _recovery := 0.0        # charger: winded after a dash — hits hurt more
+const CHARGE_STANDOFF := 260.0
+const CHARGE_DASH_SPEED := 2.9
+const CHARGE_RECOVERY := 0.9
+const DASH_DAMAGE_MULT := 1.35
+const STAGGER_DAMAGE_MULT := 1.3
 var base_scale := Vector2.ONE
 
 var archetype := "grunt"
@@ -78,6 +93,10 @@ func _physics_process(delta: float) -> void:
 		return
 	_state_time += delta
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
+	_recovery = maxf(_recovery - delta, 0.0)
+	if pattern == "charger" and _dash_time > 0.0:
+		_charge_tick(delta)
+		return
 	_player = _find_player()
 
 	var to_player := (_player.global_position - global_position) if _player else Vector2.ZERO
@@ -108,11 +127,12 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.ATTACK)
 			elif dist > chase_radius * 1.6:
 				_change_state(State.IDLE)
+			elif pattern == "charger" and _recovery > 0.0:
+				# winded: it cannot close, and it knows it
+				velocity = velocity.move_toward(-to_player.normalized() * move_speed * 0.4, 400.0 * delta)
 			else:
-				var desired := move_speed
-				if behavior == "ranged" and dist < attack_radius * 0.5:
-					desired = -move_speed * 0.7  # keep distance while casting
-				velocity = velocity.move_toward(to_player.normalized() * desired, 700.0 * delta)
+				velocity = velocity.move_toward(
+					_desired_velocity(to_player, dist, delta), 700.0 * delta)
 
 		State.ATTACK:
 			velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
@@ -121,7 +141,10 @@ func _physics_process(delta: float) -> void:
 			if _state_time >= telegraph_time:
 				sprite.modulate = _tinted()
 				_attack_cd = attack_cooldown
-				_finish_attack(to_player, dist)
+				if pattern == "charger":
+					_begin_charge(to_player)
+				else:
+					_finish_attack(to_player, dist)
 				_change_state(State.CHASE)
 
 		State.FLEE:
@@ -212,6 +235,14 @@ func setup_archetype(id: String, power_scale: float = 1.0, floor: int = 1) -> vo
 	attack_cooldown = float(cfg.get("attack_cooldown", 1.2))
 	xp_reward = int(int(cfg.get("xp_reward", 18)) * power_scale)
 	behavior = String(cfg.get("behavior", "melee"))
+	pattern = String(cfg.get("pattern", "melee"))
+	telegraph_time = float(cfg.get("telegraph_time", DEFAULT_TELEGRAPH))
+	if pattern == "charger":
+		telegraph_time = maxf(telegraph_time, 0.55)   # a charge has to be readable
+	_strafe = 1.0 if randf() < 0.5 else -1.0
+	_strafe_timer = 0.0
+	_dash_time = 0.0
+	_recovery = 0.0
 	projectile_damage = float(cfg.get("projectile_damage", 0.0)) * power_scale
 	projectile_speed = float(cfg.get("projectile_speed", 240.0))
 	var c: Array = cfg.get("body_color", [0.78, 0.28, 0.28])
@@ -255,6 +286,64 @@ func _finish_attack(to_player: Vector2, dist: float) -> void:
 		_player.take_hit(contact_damage, to_player.normalized())
 
 
+func _desired_velocity(to_player: Vector2, dist: float, delta: float) -> Vector2:
+	## Each pattern answers "how do I get to you?" differently.
+	match pattern:
+		"skirmish":
+			# Wolves and scouts circle instead of charging down the middle: a
+			# tangent component plus a light pull inward. They slip past a straight
+			# swing instead of walking into it.
+			_strafe_timer -= maxf(delta, 0.001)
+			if _strafe_timer <= 0.0:
+				_strafe_timer = randf_range(1.0, 1.9)
+				if randf() < 0.35:
+					_strafe = -_strafe
+			var inward := 1.0 if dist > attack_radius * 1.2 else 0.35
+			var tangent := to_player.normalized().orthogonal() * _strafe
+			return (tangent * 0.85 + to_player.normalized() * inward).normalized() * move_speed
+		"charger":
+			# A brute backs off to a standoff and then commits; standing inside its
+			# standoff is a mistake, not a safe spot.
+			if dist < CHARGE_STANDOFF * 0.6:
+				return -to_player.normalized() * move_speed * 0.5
+			if dist > CHARGE_STANDOFF:
+				return to_player.normalized() * move_speed
+			return Vector2.ZERO
+		"caster":
+			if dist < attack_radius * 0.5:
+				return -to_player.normalized() * move_speed * 0.7
+			if dist > attack_radius * 0.85:
+				return to_player.normalized() * move_speed
+			return to_player.normalized().orthogonal() * _strafe * move_speed * 0.5
+		_:
+			return to_player.normalized() * move_speed
+
+
+func _begin_charge(to_player: Vector2) -> void:
+	## The commit: locked direction, locked duration, no steering. Everything the
+	## player needs to dodge is visible in the telegraph before this. (Bosses have
+	## their own `_start_charge` — the name is taken.)
+	_dash_dir = to_player.normalized()
+	_dash_time = 0.42
+	AudioManager.play_sfx("enemy_cast")
+
+
+func _charge_tick(delta: float) -> void:
+	_dash_time = maxf(_dash_time - delta, 0.0)
+	velocity = _dash_dir * move_speed * CHARGE_DASH_SPEED
+	move_and_slide()
+	_update_anim(delta)
+	if _player != null:
+		var gap := _player.global_position - global_position
+		if gap.length() < attack_radius + 12.0:
+			_player.take_hit(contact_damage * DASH_DAMAGE_MULT, _dash_dir)
+			_dash_time = 0.0
+	if _dash_time <= 0.0:
+		# Winded: stands there for a beat and takes more punishment.
+		_recovery = CHARGE_RECOVERY
+		_change_state(State.CHASE)
+
+
 func _change_state(s: State) -> void:
 	state = s
 	_state_time = 0.0
@@ -274,6 +363,8 @@ func _find_player() -> Player:
 func take_hit(amount: float, dir: Vector2) -> void:
 	if state == State.DEAD:
 		return
+	if _recovery > 0.0:
+		amount *= STAGGER_DAMAGE_MULT   # punish the wind-up
 	hp -= amount
 	velocity += dir * 160.0
 	AudioManager.play_sfx("hit")

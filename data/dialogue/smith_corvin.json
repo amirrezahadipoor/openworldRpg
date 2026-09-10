@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for smith_corvin.",
+  "barks": [
+    {
+      "text": "Bring me slag and I will bring you steel.",
+      "when": []
+    },
+    {
+      "text": "A blade is a promise you can only keep once.",
+      "when": []
+    },
+    {
+      "text": "Wardens want them long. Raiders want them heavy. I want to be paid.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "smith_corvin_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Corvin the Smith",
+          "text": "Corvin does not stop hammering to look up.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Corvin the Smith",
+          "text": "The slag fields. Ore that has already been through a furnace once fights you the whole way, and then it makes a blade that holds.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Corvin the Smith",
+          "text": "I shoe whatever walks in. Wardens pay in coin, raiders pay in the same coin, and I do not ask which pocket it slept in.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Corvin the Smith",
+          "text": "A girl who could read a blade by ear. She went east with the Choir's recruiters. I still keep her hammer on the wall.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Corvin the Smith",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Where does your ore come from?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_corvin_ore"
+                }
+              ]
+            },
+            {
+              "text": "Do you shoe the wardens' horses?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_corvin_wardens"
+                }
+              ]
+            },
+            {
+              "text": "Who was your best apprentice?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

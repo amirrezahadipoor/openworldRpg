@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for dockhand_merrit.",
+  "barks": [
+    {
+      "text": "No water, no boats, no work. Still here.",
+      "when": []
+    },
+    {
+      "text": "Ash makes poor brick and good weight.",
+      "when": []
+    },
+    {
+      "text": "Strangers come out of the dust with no cargo.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dockhand_merrit_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Dockhand Merrit",
+          "text": "Merrit is coiling a rope that will not be used, and doing it carefully.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Dockhand Merrit",
+          "text": "Up-channel to the flats, when there is water. There has not been water since the barrens drank it, so I mend ropes nobody uses.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Dockhand Merrit",
+          "text": "A place where ash came in by boat and left as bricks. Two of the warehouses are still full of it. Nobody wants bricks made of that.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Dockhand Merrit",
+          "text": "One a season, walking out of the dust with a story and no cargo. You are the first in a while with a sword.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Dockhand Merrit",
+          "text": "Well? The day is not getting shorter.",
+          "next": "",
+          "choices": [
+            {
+              "text": "Where do the boats go?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_merrit_boats"
+                }
+              ]
+            },
+            {
+              "text": "What did Ashport used to be?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_merrit_ashport"
+                }
+              ]
+            },
+            {
+              "text": "Do you still get strangers?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

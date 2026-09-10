@@ -25,6 +25,7 @@ func _ready() -> void:
 	await _test_states()
 	await _test_flee()
 	_test_conversation_depth()
+	_test_placement_and_vendors()
 	_report()
 
 
@@ -236,3 +237,55 @@ func _test_conversation_depth() -> void:
 	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
 	check(main_src.contains("answer_buried") and main_src.contains("answer_carried"),
 		"the epilogue reads the player's last decision")
+
+func _test_placement_and_vendors() -> void:
+	## Placement rules the audit asked for: nobody stands in two towns at once,
+	## every settlement has someone to talk to, and vendors do not all sell the
+	## same four things.
+	print("[npc_test] placement: one home each, and a shelf per vendor")
+	var st: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/settlements.json")).get("settlements", {})
+	var seen := {}
+	var duplicates := []
+	var thin := []
+	for sid in st:
+		var roster: Array = (st[sid] as Dictionary).get("npcs", [])
+		if roster.size() < 2:
+			thin.append("%s(%d)" % [sid, roster.size()])
+		for npc_id in roster:
+			var key := String(npc_id)
+			if seen.has(key):
+				duplicates.append("%s in %s+%s" % [key, seen[key], sid])
+			seen[key] = sid
+	check(duplicates.is_empty(), "no NPC lives in two settlements (%s)" % str(duplicates))
+	check(thin.is_empty(), "every settlement has at least two residents (%s)" % str(thin))
+
+	# The camp trio are placed by camp.gd, so they must be excluded from the
+	# settlement spawner or the player meets Rowan twice.
+	var camp_flagged := 0
+	var roster: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string("res://data/npcs.json")).get("npcs", {})
+	for npc_id in roster:
+		if bool((roster[npc_id] as Dictionary).get("at_camp", false)):
+			camp_flagged += 1
+	check(camp_flagged == 3, "the camp's three residents are flagged at_camp (%d)" % camp_flagged)
+
+	var shelves := {}
+	var vendors := 0
+	var dead_shelves := []
+	for npc_id in roster:
+		var stock: Array = (roster[npc_id] as Dictionary).get("stock", [])
+		if stock.is_empty():
+			continue
+		vendors += 1
+		shelves[str(stock)] = true
+		for iid in stock:
+			if ItemsDB.get_item(String(iid)).is_empty():
+				dead_shelves.append("%s:%s" % [npc_id, iid])
+	check(vendors >= 6, "at least six vendors trade in the valley (%d)" % vendors)
+	check(shelves.size() == vendors, "every vendor has a shelf of its own (%d/%d)" % [shelves.size(), vendors])
+	check(dead_shelves.is_empty(), "every shelf item exists in the catalogue (%s)" % str(dead_shelves))
+
+	# The shop screen must be handed the vendor's own stock, not the camp's list.
+	var main_src := FileAccess.get_file_as_string("res://scripts/main.gd")
+	check(main_src.contains("NPCController.stock_for"), "the shop opens with the vendor's own stock")

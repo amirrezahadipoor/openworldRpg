@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for marget.",
+  "barks": [
+    {
+      "text": "Half of what I sell works. The other half works slower.",
+      "when": []
+    },
+    {
+      "text": "If you are bleeding, sit down. If you are not, buy something.",
+      "when": []
+    },
+    {
+      "text": "Oakstead buried nobody this winter. I intend to keep the tally.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "marget_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Marget",
+          "text": "Marget has dirt under her nails and a ledger of the sick that she keeps in her head.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Marget",
+          "text": "Thyme, mostly, and a root the millhands call widow's bread. It tastes like a mistake and it keeps you alive, which is the trade out here.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Marget",
+          "text": "I treat everything. The trick with a wolf bite is you have to want the patient to live before you start, and half the time I am the only one in the room who does.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Marget",
+          "text": "Take a tonic. Not for the road \u2014 for the moment after the road, when you sit down and everything you were carrying catches up with you.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Marget",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What grows out here?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_marget_herbs"
+                }
+              ]
+            },
+            {
+              "text": "Do you treat the wolves' bites?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_marget_bites"
+                }
+              ]
+            },
+            {
+              "text": "Anything for the road?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for quartermaster_rook.",
+  "barks": [
+    {
+      "text": "Everything here is signed for. Sign here.",
+      "when": []
+    },
+    {
+      "text": "The Warden's seal is old work. Older than the order.",
+      "when": []
+    },
+    {
+      "text": "Citadel first, valley second. That is the job.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "quartermaster_rook_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Quartermaster Rook",
+          "text": "Rook is inventorying a crate that was inventoried this morning.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Quartermaster Rook",
+          "text": "Plate that stops one hit and slows the rest of the fight, and a sabre that will not break. Take the sabre.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Quartermaster Rook",
+          "text": "I sell to whoever signs. The paper says the citadel owns the gear until you die, at which point it owns it again. Nobody has come to collect yet.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Quartermaster Rook",
+          "text": "My commander. She has not slept properly since the seal went quiet, and she thinks I have not noticed.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Quartermaster Rook",
+          "text": "Well? The day is not getting shorter.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What does the citadel issue?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_rook_issue"
+                }
+              ]
+            },
+            {
+              "text": "Do you sell to outsiders?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_rook_outsiders"
+                }
+              ]
+            },
+            {
+              "text": "Who is the High Warden to you?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

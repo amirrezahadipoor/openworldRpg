@@ -20,6 +20,8 @@ signal enemy_died(enemy: Node)
 signal item_picked_up(item_id: String, qty: int)
 signal item_used(item_id: String)
 signal gold_changed(amount: int)
+## Emitted whenever the reward ledger or the dialogue history gains an entry.
+signal ledger_changed
 
 # --- Quests / dialogue ---
 signal quest_started(quest_id: String)

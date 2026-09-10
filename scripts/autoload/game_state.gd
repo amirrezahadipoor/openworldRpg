@@ -54,6 +54,16 @@ var quests: Dictionary = {}
 var quest_progress: Dictionary = {}
 # free-form story flags (dialogue choices, secret found, ...)
 var quest_flags: Dictionary = {}
+## What the character has actually received, in order — kind -> text. Quests,
+## purchases, sales and level-ups all write here. The audit's point was that a
+## player could not answer "what did that job pay me?"; this is the answer, and
+## the quest log renders it.
+var ledger: Array = []
+## The last lines spoken to this character, so a conversation can be re-read
+## instead of being a one-shot that vanishes. speaker -> text.
+var dialogue_history: Array = []
+const LEDGER_MAX := 120
+const HISTORY_MAX := 60
 # branch -> allocated points
 var talents: Dictionary = {"combat": 0, "magic": 0, "utility": 0}
 # Temporary effects from consumables. Not serialized: a buff is a moment, not
@@ -182,6 +192,7 @@ func add_xp(amount: int) -> void:
 		hp = max_hp()
 		mp = max_mp()
 		AudioManager.play_sfx("level_up")
+		ledger_add("level", "Level %d reached (+1 talent point)" % level)
 		EventBus.player_leveled_up.emit(level)
 		_grant_milestone(level)
 	if level >= XP_MAX_LEVEL:
@@ -551,6 +562,30 @@ func reset_buffs() -> void:
 
 # --- Inventory ---------------------------------------------------------------
 
+func ledger_add(kind: String, text: String) -> void:
+	ledger.append({"kind": kind, "text": text, "level": level})
+	while ledger.size() > LEDGER_MAX:
+		ledger.pop_front()
+	EventBus.ledger_changed.emit()
+
+
+func ledger_entries(kind: String = "") -> Array:
+	if kind == "":
+		return ledger.duplicate()
+	var out: Array = []
+	for e in ledger:
+		if String((e as Dictionary).get("kind", "")) == kind:
+			out.append(e)
+	return out
+
+
+func record_line(speaker: String, text: String) -> void:
+	dialogue_history.append({"speaker": speaker, "text": text})
+	while dialogue_history.size() > HISTORY_MAX:
+		dialogue_history.pop_front()
+	EventBus.ledger_changed.emit()
+
+
 func add_item(item_id: String, qty: int = 1) -> void:
 	inventory[item_id] = int(inventory.get(item_id, 0)) + qty
 	if int(inventory[item_id]) <= 0:
@@ -593,6 +628,8 @@ func to_dict() -> Dictionary:
 		"quest_progress": quest_progress.duplicate(true),
 		"quest_flags": quest_flags.duplicate(),
 		"talents": talents.duplicate(),
+		"ledger": ledger.duplicate(true),
+		"dialogue_history": dialogue_history.duplicate(true),
 	}
 
 
@@ -612,6 +649,8 @@ func from_dict(d: Dictionary) -> void:
 	quest_progress = (d.get("quest_progress", {}) as Dictionary).duplicate(true)
 	quest_flags = (d.get("quest_flags", {}) as Dictionary).duplicate()
 	talents = (d.get("talents", {"combat": 0, "magic": 0, "utility": 0}) as Dictionary).duplicate()
+	ledger = (d.get("ledger", []) as Array).duplicate(true)
+	dialogue_history = (d.get("dialogue_history", []) as Array).duplicate(true)
 	hp = clampf(float(d.get("hp", max_hp())), 0.0, max_hp())
 	mp = clampf(float(d.get("mp", max_mp())), 0.0, max_mp())
 	stats_changed.emit()

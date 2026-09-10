@@ -109,8 +109,12 @@ func _build_buttons() -> void:
 	box.add_child(_menu_button("Credits", _on_credits))
 
 	var version := Label.new()
-	version.text = "v0.1.0 — Godot 4.4 · %d slots" % SaveSystem.SLOT_COUNT
-	version.add_theme_font_size_override("font_size", 13)
+	# The build's own version, not a hardcoded string that drifted three releases
+	# behind (it read v0.1.0 while the project was on 0.4.0).
+	version.text = "v%s — Godot 4.4 · %d slots" % [
+		String(ProjectSettings.get_setting("application/config/version", "0.0.0")),
+		SaveSystem.SLOT_COUNT]
+	version.add_theme_font_size_override("font_size", 14)
 	version.add_theme_color_override("font_color", Color(1, 1, 1, 0.35))
 	version.anchor_left = 0.0
 	version.anchor_right = 1.0

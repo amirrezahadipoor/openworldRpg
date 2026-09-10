@@ -200,7 +200,7 @@ func _complete(qid: String) -> void:
 	for obj in _objectives(qid):
 		if String(obj.get("type", "")) == "deliver":
 			GameState.remove_item(String(obj.get("target", "")), int(obj.get("count", 1)))
-	var reward: Dictionary = quest.get("reward", {})
+	var reward: Dictionary = reward_of(qid)
 	if int(reward.get("xp", 0)) > 0:
 		GameState.add_xp(int(reward["xp"]))
 	if int(reward.get("gold", 0)) > 0:
@@ -208,6 +208,10 @@ func _complete(qid: String) -> void:
 	for it in reward.get("items", []):
 		GameState.add_item(String(it), 1)
 		EventBus.item_picked_up.emit(String(it), 1)
+	# The ledger is the answer to "what did that job actually pay me?" — quests,
+	# trades and level-ups all write to it, and the quest log reads it back.
+	GameState.ledger_add("quest", "%s — %s" % [
+		String(quest.get("title", qid)), _reward_text(reward)])
 	if bool(quest.get("repeatable", false)):
 		# Repeatable quests reset fully so their dialogue can re-offer them.
 		GameState.quests.erase(qid)
@@ -218,6 +222,21 @@ func _complete(qid: String) -> void:
 	var nxt := String(quest.get("next", ""))
 	if nxt != "":
 		start_quest(nxt)
+
+
+func reward_of(qid: String) -> Dictionary:
+	return (data.get(qid, {}) as Dictionary).get("reward", {})
+
+
+func _reward_text(reward: Dictionary) -> String:
+	var parts: Array = []
+	if int(reward.get("gold", 0)) > 0:
+		parts.append("%d g" % int(reward["gold"]))
+	if int(reward.get("xp", 0)) > 0:
+		parts.append("%d xp" % int(reward["xp"]))
+	for it in reward.get("items", []):
+		parts.append(ItemsDB.item_name(String(it)))
+	return ", ".join(parts) if not parts.is_empty() else "no reward"
 
 
 # --- side-quest board (Phase F5) ---------------------------------------------------

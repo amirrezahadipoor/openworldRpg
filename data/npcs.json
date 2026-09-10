@@ -24,7 +24,8 @@
           0,
           0
         ]
-      }
+      },
+      "at_camp": true
     },
     "wren": {
       "display_name": "Wren",
@@ -54,7 +55,7 @@
     "hunter_kael": {
       "display_name": "Hunter Kael",
       "sheet": "res://assets/lpc/npc_hunter.png",
-      "settlement": "ashport",
+      "settlement": "millhaven",
       "role": "quest",
       "function": "Cull/run side-quest giver; scouts the barrens by day.",
       "schedule": {
@@ -74,14 +75,15 @@
           0,
           0
         ]
-      }
+      },
+      "at_camp": true
     },
     "merchant_bram": {
       "display_name": "Merchant Bram",
       "sheet": "res://assets/lpc/npc_vendor.png",
       "settlement": "millhaven",
       "role": "shop",
-      "function": "Vendor \u2014 general stock; trades at the camp fire.",
+      "function": "Vendor \u2014 general stock. Trades at the Millhaven camp fire.",
       "schedule": {
         "Dawn": [
           0,
@@ -99,14 +101,23 @@
           0,
           0
         ]
-      }
+      },
+      "stock": [
+        "health_potion",
+        "mana_potion",
+        "bandage",
+        "dried_meat",
+        "leather_armor",
+        "iron_sword"
+      ],
+      "at_camp": true
     },
     "ysolde": {
       "display_name": "Ysolde the Trader",
       "sheet": "res://assets/lpc/npc_trader.png",
       "settlement": "ashport",
       "role": "shop",
-      "function": "Vendor \u2014 barrens stock; only opens her stall once the sun is up.",
+      "function": "Vendor \u2014 barrens stock, priced for people who have to cross it.",
       "schedule": {
         "Dawn": [
           0,
@@ -124,7 +135,14 @@
           0,
           0
         ]
-      }
+      },
+      "stock": [
+        "greater_health_potion",
+        "greater_mana_potion",
+        "elixir_of_iron",
+        "scavengers_blade",
+        "ashwalkers_torc"
+      ]
     },
     "elder_fenwick": {
       "display_name": "Elder Fenwick",
@@ -269,6 +287,381 @@
         "Dusk": [
           0,
           0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "marget": {
+      "display_name": "Marget the Herbalist",
+      "sheet": "res://assets/lpc/npc_herbalist.png",
+      "settlement": "oakstead",
+      "role": "shop",
+      "function": "Vendor \u2014 herbs, tonics and field medicine. Keeps Oakstead's sick on their feet.",
+      "stock": [
+        "health_potion",
+        "bandage",
+        "ironskin_tonic",
+        "focus_draught",
+        "elixir_of_haste"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          -12,
+          -18
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "factor_orlan": {
+      "display_name": "Factor Orlan",
+      "sheet": "res://assets/lpc/npc_factor.png",
+      "settlement": "sunreach",
+      "role": "shop",
+      "function": "Vendor \u2014 city factor. Carries real gear, and prices it like he knows it.",
+      "stock": [
+        "iron_sword",
+        "short_sword",
+        "leather_armor",
+        "quilted_gambeson",
+        "traveler_ring",
+        "greater_health_potion"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          14,
+          -10
+        ],
+        "Night": [
+          -6,
+          0
+        ]
+      }
+    },
+    "smith_corvin": {
+      "display_name": "Corvin the Smith",
+      "sheet": "res://assets/lpc/npc_smith.png",
+      "settlement": "cinderhold",
+      "role": "shop",
+      "function": "Vendor \u2014 steel and plate, sharpened while you wait. The only forge this side of the ash road.",
+      "stock": [
+        "short_sword",
+        "mill_hammer",
+        "chain_vest",
+        "slaghide_cuirass",
+        "ironskin_tonic"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "trapper_vess": {
+      "display_name": "Trapper Vess",
+      "sheet": "res://assets/lpc/npc_trapper.png",
+      "settlement": "kilnrest",
+      "role": "shop",
+      "function": "Vendor \u2014 keeps a stall of frost gear and whatever she pulled off the last thing she caught.",
+      "stock": [
+        "chilled_greater_potion",
+        "greater_mana_potion",
+        "frosthide_jerkin",
+        "frost_hatchet",
+        "trappers_belt"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          -10,
+          -12
+        ],
+        "Night": [
+          -10,
+          -12
+        ]
+      }
+    },
+    "sister_halde": {
+      "display_name": "Sister Halde",
+      "sheet": "res://assets/lpc/npc_sister.png",
+      "settlement": "ashvow",
+      "role": "lore",
+      "function": "Lore \u2014 keeper of the Choir's hymn rolls, and the only person who will recite them.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "warden_clerk_pell": {
+      "display_name": "Warden-Clerk Pell",
+      "sheet": "res://assets/lpc/npc_clerk.png",
+      "settlement": "ashvow",
+      "role": "quest",
+      "function": "Quest \u2014 files the valley's dead, and needs someone to go and check the names he cannot.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          8,
+          -8
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "old_sorrel": {
+      "display_name": "Old Sorrel",
+      "sheet": "res://assets/lpc/npc_sorrel.png",
+      "settlement": "frosthaven",
+      "role": "lore",
+      "function": "Lore \u2014 was here before the frost set, and will tell you what the valley looked like.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "kiln_widow_sanna": {
+      "display_name": "Kiln-Widow Sanna",
+      "sheet": "res://assets/lpc/npc_widow.png",
+      "settlement": "kilnrest",
+      "role": "lore",
+      "function": "Lore \u2014 lost her husband to the kilns and keeps the fires he left burning.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "adept_nessa": {
+      "display_name": "Adept Nessa",
+      "sheet": "res://assets/lpc/npc_adept.png",
+      "settlement": "skyreach",
+      "role": "lore",
+      "function": "Lore \u2014 reads the Warden's binding from the citadel's own records, half of which contradict each other.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "quartermaster_rook": {
+      "display_name": "Quartermaster Rook",
+      "sheet": "res://assets/lpc/npc_quartermaster.png",
+      "settlement": "skyreach",
+      "role": "shop",
+      "function": "Vendor \u2014 the citadel's own stores: what the Wardens are issued, sold to whoever else can pay.",
+      "stock": [
+        "warden_steel_saber",
+        "cryptwarden_shield",
+        "slaghide_cuirass",
+        "greater_elixir",
+        "elixir_of_iron"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "relicmonger_tib": {
+      "display_name": "Tib the Relic-Monger",
+      "sheet": "res://assets/lpc/npc_relicmonger.png",
+      "settlement": "ashvow",
+      "role": "shop",
+      "function": "Vendor \u2014 buys what the Choir left and sells it to people who want to hold it.",
+      "stock": [
+        "bloodbound_ring",
+        "duskwarden_ring",
+        "embers_of_millhaven",
+        "phoenix_elixir",
+        "copper_ring"
+      ],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "dockhand_merrit": {
+      "display_name": "Dockhand Merrit",
+      "sheet": "res://assets/lpc/npc_dockhand.png",
+      "settlement": "ashport",
+      "role": "lore",
+      "function": "Lore \u2014 works the boats that used to come up the channel and does not believe they have stopped.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          0,
+          0
+        ],
+        "Night": [
+          0,
+          0
+        ]
+      }
+    },
+    "miller_hobb": {
+      "display_name": "Hobb the Miller",
+      "sheet": "res://assets/lpc/npc_miller.png",
+      "settlement": "millhaven",
+      "role": "lore",
+      "function": "Lore \u2014 ran the mill before the sluice broke, and will tell you exactly whose fault it was.",
+      "stock": [],
+      "schedule": {
+        "Dawn": [
+          0,
+          0
+        ],
+        "Day": [
+          0,
+          0
+        ],
+        "Dusk": [
+          -8,
+          -12
         ],
         "Night": [
           0,

@@ -75,6 +75,16 @@ static func roster_entry(id: String) -> Dictionary:
 	return (roster() as Dictionary).get(id, {})
 
 
+static func stock_for(id: String) -> Array:
+	## A vendor's own shelf, from data/npcs.json. Before this every shop in the
+	## valley sold the same four things (camp.gd's MERCHANT_STOCK).
+	return roster_entry(id).get("stock", []) as Array
+
+
+static func is_vendor_id(id: String) -> bool:
+	return not stock_for(id).is_empty()
+
+
 func _ready() -> void:
 	add_to_group("npc")
 	home = position

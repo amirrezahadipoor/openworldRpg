@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for factor_orlan.",
+  "barks": [
+    {
+      "text": "Everything in this tent crossed the ash road to be here.",
+      "when": []
+    },
+    {
+      "text": "I buy, I sell, I do not ask where it came from. Mostly.",
+      "when": []
+    },
+    {
+      "text": "Coin is honest. People are a rumour.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "factor_orlan_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Factor Orlan",
+          "text": "Orlan counts a stack of coin twice and looks at you once.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Factor Orlan",
+          "text": "By what it costs me to get it here. A sword is a sword; a sword that crossed the barrens is a story with an edge.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Factor Orlan",
+          "text": "Caravans that arrive, and caravans I have written off. The written-off ones are why my prices look the way they do.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Factor Orlan",
+          "text": "Wardens pay on time and never haggle. If you ever meet a buyer like that, ask what they are planning.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Factor Orlan",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "How do you price gear out here?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_orlan_pricing"
+                }
+              ]
+            },
+            {
+              "text": "Who moves your goods?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_orlan_caravans"
+                }
+              ]
+            },
+            {
+              "text": "Is the citadel good for business?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

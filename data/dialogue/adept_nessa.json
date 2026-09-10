@@ -1,0 +1,83 @@
+{
+  "_comment": "NPC dialogue for adept_nessa.",
+  "barks": [
+    {
+      "text": "Six accounts. Five agree. That worries me.",
+      "when": []
+    },
+    {
+      "text": "The Warden speaks in the cliff records, if you know where the chisel slipped.",
+      "when": []
+    },
+    {
+      "text": "Read the ink, not the words.",
+      "when": []
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "adept_nessa_hub",
+      "requires": {},
+      "nodes": {
+        "1": {
+          "speaker": "Adept Nessa",
+          "text": "Nessa has three accounts open at once and trusts none of them.",
+          "next": "2",
+          "choices": []
+        },
+        "3": {
+          "speaker": "Adept Nessa",
+          "text": "There are six accounts. Five say the Warden was bound as a punishment. The sixth is in a different hand and says it volunteered.",
+          "next": "",
+          "choices": []
+        },
+        "4": {
+          "speaker": "Adept Nessa",
+          "text": "Anything can be cut. The question the records never answer is what is on the other side of the thing you are cutting.",
+          "next": "",
+          "choices": []
+        },
+        "5": {
+          "speaker": "Adept Nessa",
+          "text": "Because the people writing them were paid by different people. Read the ink, not the words; the ink never lies about who was afraid.",
+          "next": "",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Adept Nessa",
+          "text": "Ask, then. I am not going anywhere the road goes.",
+          "next": "",
+          "choices": [
+            {
+              "text": "What do the records say about the binding?",
+              "next": "3",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_nessa_records"
+                }
+              ]
+            },
+            {
+              "text": "Can a binding be cut?",
+              "next": "4",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "flag_nessa_cut"
+                }
+              ]
+            },
+            {
+              "text": "Why are the accounts contradictory?",
+              "next": "5",
+              "actions": []
+            }
+          ]
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ]
+}

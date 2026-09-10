@@ -103,6 +103,23 @@ ARCHETYPES = {
     "npc_magistrate": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_GAUNT, EYES, (HAIR_PLAIN, {"hue": 0.0, "sat": 0.1, "val": 0.35})],
     "npc_mireille": [BODY_F, PANTS, ARMOR_LEATHER, BOOTS, HEAD_F, EYES, (HAIR_LONG, {"hue": 0.0, "sat": 1.0, "val": 1.0})],
     "npc_warden": [BODY_F, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_F, EYES, (HAIR_BANGS, {"hue": 0.45, "sat": 0.35, "val": 0.4})],
+    # --- the town cast: one body each for the nine local NPCs added so that no
+    # named character stands in two places at once (see DECISIONS #54). Reuses the
+    # same layer recipe as the rest of the cast with its own hair/torso so a
+    # village herbalist does not look like the camp vendor.
+    "npc_herbalist": [BODY_F, PANTS, SHIRT_LONG, BOOTS, HEAD_F, EYES, (HAIR_LONG, {"hue": 0.28, "sat": 0.9, "val": 0.75})],
+    "npc_factor": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_GAUNT, EYES, (HAIR_PLAIN, {"hue": 0.09, "sat": 0.25, "val": 0.6})],
+    "npc_smith": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS_REVISED, HEAD_M, EYES, (HAIR_BANGS, {"hue": 0.0, "sat": 0.4, "val": 0.3})],
+    "npc_trapper": [BODY_F, PANTS, SHIRT_SHORT, BOOTS_REVISED, HEAD_F, EYES, (HAIR_LONG, {"hue": 0.02, "sat": 0.35, "val": 0.45})],
+    "npc_sister": [BODY_F, PANTS, SHIRT_LONG, BOOTS, HEAD_F, EYES, (HAIR_PLAIN, {"hue": 0.55, "sat": 0.15, "val": 0.7})],
+    "npc_clerk": [BODY_M, PANTS, SHIRT_LONG, BOOTS, HEAD_GAUNT, EYES, (HAIR_BANGS, {"hue": 0.6, "sat": 0.12, "val": 0.5})],
+    "npc_sorrel": [BODY_F, PANTS, SHIRT_LONG, BOOTS, HEAD_ELDERLY, EYES, (HAIR_PLAIN, {"hue": 0.42, "sat": 0.2, "val": 0.95})],
+    "npc_widow": [BODY_F, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_F, EYES, (HAIR_LONG, {"hue": 0.95, "sat": 0.5, "val": 0.5})],
+    "npc_adept": [BODY_F, PANTS, ARMOR_LEATHER, BOOTS, HEAD_F, EYES, (HAIR_BANGS, {"hue": 0.62, "sat": 0.55, "val": 0.65})],
+    "npc_miller": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_M, EYES, (HAIR_PLAIN, {"hue": 0.12, "sat": 0.55, "val": 0.8})],
+    "npc_quartermaster": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_GAUNT, EYES, (HAIR_PLAIN, {"hue": 0.08, "sat": 0.2, "val": 0.55})],
+    "npc_relicmonger": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_M, EYES, (HAIR_BANGS, {"hue": 0.9, "sat": 0.75, "val": 0.6})],
+    "npc_dockhand": [BODY_F, PANTS, SHIRT_SHORT, BOOTS, HEAD_F, EYES, (HAIR_PLAIN, {"hue": 0.06, "sat": 0.8, "val": 0.5})],
     # --- enemies: distinct silhouettes, tinted per archetype at runtime ---
     "enemy_raider": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_GAUNT, EYES, HAIR_PLAIN],
     # raider_brute shares the raider *archetype* but not the silhouette.
