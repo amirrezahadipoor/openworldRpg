@@ -190,7 +190,7 @@ func _act3_warden_fall() -> void:
 	# Step out of melee range so the warden cannot kill the test player
 	# (a death screen would pause the tree and stall the death tween).
 	player.global_position = Vector2(2700, -2600)
-	boss.take_hit(99999.0, Vector2.RIGHT)
+	boss.take_hit(boss.max_hp * 2.0, Vector2.RIGHT)  # percent, not a magic number
 
 	# Death tween recycles the boss; poll up to ~3 s.
 	for i in 90:

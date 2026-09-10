@@ -634,3 +634,15 @@ Applies #43 to every later workflow edit: the new balance step was inserted by
 splitting a step's `name:` line, which YAML accepts and GitHub rejects (a run named
 `.github/workflows/ci.yml` with zero jobs). `actionlint` caught it before the push,
 as intended. The rule now holds for all three workflow files.
+
+**#47 — A pool test is a test of the pool, not of the world (Phase F7 CI)** · 2026-09-11
+CI failed F7 on `four pooled projectiles active` / `release returns nodes to pool`
+while the same suite passed eight times locally. The cause was not the balance
+change: the test counted *visible* members of the projectile pool, and the live
+world had one of its own in flight at that instant (an enemy shot, a player bolt —
+whichever the frame timing produced). The count is only meaningful if the pool is
+quiet, so the test now releases whatever is already in flight, awaits a frame, and
+baselines against that. It also asserts the boss kill with `max_hp * 2.0` instead
+of a literal `99,999`, which stopped being lethal the moment the Warden's pool went
+from 5,200 to 144,308 — a flat damage number in a test is a hidden coupling to the
+data it is testing.

@@ -513,6 +513,14 @@ func _test_perf() -> void:
 	var main_node = get_node_or_null("Main")
 	var holder := PoolManager.get_node("Projectiles")
 	var pool: ObjectPool = PoolManager._projectiles
+	# Hermetic: the live world is still shooting around us (an enemy projectile, a
+	# player bolt in flight) and those are *visible* pool members too, which made
+	# this count depend on what happened to be alive at that instant. Clear the
+	# pool first, then measure only what this test spawns.
+	for p in holder.get_children():
+		if p is Projectile and p.visible:
+			PoolManager.release_projectile(p)
+	await get_tree().process_frame
 	var free_before: int = pool._free.size()
 
 	var spawned := []
@@ -590,7 +598,9 @@ func _test_boss_phases_and_death() -> void:
 
 	# Lethal blow -> guaranteed loot (iron_sword + potion + gold).
 	boss._transform_invuln = 0.0
-	boss.take_hit(99999.0, Vector2.RIGHT)
+	# Percent, not a magic number: a flat 99,999 stopped being lethal the moment
+	# the balance pass raised the Warden's pool (144,308 at L92).
+	boss.take_hit(boss.max_hp * 2.0, Vector2.RIGHT)
 	var pickups := 0
 	var found_core := false
 	for child in host.get_children():
