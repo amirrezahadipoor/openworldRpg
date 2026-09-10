@@ -63,10 +63,6 @@ jobs:
       - name: Import project (headless)
         run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
 
-      # Gradle builds need the build template *inside* the project (res://android/).
-      - name: Install Android build template into project (Gradle)
-        run: /tmp/rpg-toolchain/bin/godot --headless --path . --install-android-build-template
-
       - name: Determine version tag
         id: ver
         run: |
@@ -74,10 +70,13 @@ jobs:
           [ "$TAG" = "$GITHUB_REF" ] && TAG="v1.0.0"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      # Gradle builds need the build template *inside* the project (res://android/);
+      # --install-android-build-template must ride along with the export command.
       - name: Export signed release APK (Gradle, ARM64 + ARMv7)
         run: |
           mkdir -p build
           /tmp/rpg-toolchain/bin/godot --headless --path . \
+            --install-android-build-template \
             --export-release "Android" "build/OpenWorldRPG-${{ steps.ver.outputs.tag }}.apk"
           ls -lh build/
 
