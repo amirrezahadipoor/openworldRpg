@@ -354,11 +354,15 @@ func _build_credits() -> void:
 	text.custom_minimum_size = Vector2(640, 0)
 	text.add_theme_font_size_override("font_size", 15)
 	text.text = """Engine: Godot 4.4 (MIT)
-Placeholder art: this project (MIT/CC0) — LPC & 0x72 CC0 art integrate later
+Character art: Liberated Pixel Cup (LPC) contributors —
+body, hair, clothing, armour, boots & sword layers,
+composited by tools/lpc_compose.py. License: CC-BY-SA-3.0 / GPL.
+https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator
+World tiles, UI art, audio: this project (CC0)
 Tooling: Tiled (GPL, authoring), Pixelorama (MIT, authoring),
 Universal LPC Generator (GPL), crunch (zlib)
-Audio: CC0 sources, logged in CREDITS.md
-Made with ❤ and GitHub Actions — see CREDITS.md for the full license list."""
+Font: Press Start 2P by CodeMan38 (OFL-1.1)
+See CREDITS.md for the full license list."""
 	box.add_child(text)
 
 	var close := Button.new()

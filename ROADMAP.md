@@ -126,7 +126,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Chunk streamer memory/CPU budget verified with 3×3 radius stress test
 
 ## Phase 13 — Ship It 🚀
-- [ ] Full playthrough validation (main quest start → finish)
+- [x] Full playthrough validation (main quest start → finish; automated q1→q4 + boss, CI-gated)
 - [ ] Signed debug `.apk` produced in CI and attached as **GitHub Release** artifact
 - [ ] `.aab` build verified (ARM64 + ARMv7)
 - [ ] `DECISIONS.md` + `CREDITS.md` final review

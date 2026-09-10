@@ -63,14 +63,21 @@ bash tools/bootstrap_toolchain.sh --authoring          # + Tiled/Pixelorama/LPC/
 /tmp/rpg-toolchain/bin/godot --path . --headless --import
 /tmp/rpg-toolchain/bin/godot --path . --headless --quit-after 300 res://scenes/main.tscn
 
-# 4. Repo size gate (must stay under 120 MB)
+# 4. Automated gameplay + full main-story playthrough validation
+/tmp/rpg-toolchain/bin/godot --path . --headless res://tests/CombatTest.tscn       # 120 checks
+/tmp/rpg-toolchain/bin/godot --path . --headless res://tests/PlaythroughTest.tscn  # q1->q4 + boss
+
+# 5. Repo size gate (must stay under 120 MB)
 bash tools/check_repo_size.sh
 ```
 
 ## CI
 
 Every push runs: repo-size gate → toolchain bootstrap → headless import → 300-frame headless
-smoke run. Pushes to `main` additionally produce a debug-signed **APK artifact**.
+smoke run → `CombatTest` (120 gameplay checks) → `PlaythroughTest` (full main-story
+validation, q1→q4 including the multi-phase Ember Warden). Pushes to `main` additionally
+produce a debug-signed **APK artifact**; `v*` tags produce the signed release **APK + AAB**
+attached to a GitHub Release.
 
 ## License
 
