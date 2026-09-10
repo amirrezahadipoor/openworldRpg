@@ -305,13 +305,27 @@
 
 **میانگین ساده: 7.5 / 10** (از 5.8) · **میانگین وزن‌دار (مکانیک ۴۰٪ → 8.3 · ارائه ۶۰٪ → 6.9): 7.5 / 10** (از 6.0)
 
+### دو باگی که خودِ CI در همین پاس گرفت
+1. **پرتابهٔ خرج‌شده دوباره آسیب می‌زد.** `projectile.gd` از داخل سیگنال `body_entered`
+   خودش به استخر برمی‌گشت و `monitoring = false` را مستقیم صدا می‌زد؛ Godot این انتساب را
+   در حین فلاش فیزیک رد می‌کند («Function blocked during in/out signal») و پرتابهٔ پارک‌شده
+   روی بازیکن زنده می‌ماند — تا حرکت بعدی، آسیب دوباره. شغل رندر CI به همین دلیل قفل می‌کرد
+   (مرگ بازیکن → صفحهٔ مرگ → توقف درخت → هنگ تا تایم‌اوت ۲۵ دقیقه‌ای). رفع شد با `_spent`
+   + `set_deferred("monitoring", false)` + تست جدید در `CombatTest` (یک برخورد، غیرفعال‌شدن
+   واقعی، صفر آسیب فانتوم) و هارنسِ رندر هم `PROCESS_MODE_ALWAYS` + watchdog ۹۰ ثانیه‌ای گرفت.
+2. **مرزِ بایوم مثل پله بود.** بعد از موج‌دار کردن مرزها، رندر CI نشان داد مرز در مقیاس
+   چانک پله‌پله است؛ مالکیت بایوم همان چانک‌به‌چانک ماند ولی *رنگ‌آمیزی* زمین به مقیاس
+   کاشی منتقل شد (دکمهٔ ۵۳ در `DECISIONS.md`). شاهدِ تصویری: `reports/rpg_shot_1.png`.
+
 ### راستی‌آزمایی پس از اصلاح
 ```
 --import                                  clean (pass 7)
-CombatTest 180 PASS   PlaythroughTest 37 PASS   NpcTest 32 PASS   WorldMapTest 44 PASS
+--import                                  clean
+CombatTest 185 PASS   PlaythroughTest 37 PASS   NpcTest 32 PASS   WorldMapTest 44 PASS
 QuestTest   56 PASS   ItemsTest      48 PASS   SecretTest 45 PASS  AudioTest    51 PASS
 main.tscn --quit-after 300 exit 0 · main_menu.tscn exit 0
 tools/balance_report.py --check           BALANCE CHECK: PASSED
 actionlint                                clean
+CI run 34539358678 (main @ 87e25f8)       سه جاب: smoke / Android APK / visual capture — success
 ```
 

@@ -740,3 +740,23 @@ Two fixes, because there were two faults:
 Lesson recorded: this is the same class of failure as `SecretSite._drop_loot`
 instantiated inside `body_entered` (see the secrets pass) — **anything that
 touches the scene tree or an Area2D from inside a physics signal has to defer**.
+
+**#53 — Coasts, not staircases: biome ownership is per chunk, biome paint is per tile** · 2026-09-11
+Decision #50 wobbled the borders, and the first render proved it only half-worked:
+because biome was decided per *chunk*, every seam became a 32-tile staircase — three
+rectangles replaced by a staircase is not obviously better. The fix separates two
+questions that had been one. **Ownership** stays per chunk: `Biome.biome_of()`, the
+`biome` property stamped in each `chunk_*.json`, music, ambience and the spawn tables
+all keep reading a single value per 1024-pixel chunk, so nothing about gameplay or
+streaming changes. **Paint** is now per tile: `tile_biome()` evaluates the same
+sinusoidal border with a smooth noise offset of up to ~0.4 chunk in both axes, and
+`neighbour_tile_biome()` finds the adjacent biome so the ground can blend across the
+seam. Roads, clearings and micro-location features paint on the tile's own biome for
+the same reason — a meadow-green road through snow was the alternative.
+
+Two guarantees were held while doing it: the chunk grid is byte-identical to the
+previous commit (same 8 chunks changed biome from the audit baseline), and the
+generator's RNG stream is untouched, so every spawner, chest and tree sits where it
+did and no balance number moves. The rendered capture from CI is the evidence —
+`reports/rpg_shot_1.png` / `rpg_shot_2.png` now show a wavy coast where the earlier
+capture showed steps.
