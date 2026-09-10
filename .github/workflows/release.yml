@@ -134,6 +134,19 @@ jobs:
             - `OpenWorldRPG-v*.aab` — Play Store bundle
 
             Built from `${{ github.sha }}` by the release workflow.
+
+            ---
+
+            **Status: pre-playtest.** The game is feature-complete and CI-green, and
+            this build carries the Phase B content pass (real 32 px LPC world art,
+            real NPC/enemy characters, real CC0/CC-BY music and SFX). It has
+            **not** yet been played through by a human on a device, and difficulty
+            balancing is untuned. See `ROADMAP.md` Phase C.
+
+            **Licensing:** assets include CC-BY-SA 3.0 (tiles, characters) and CC-BY
+            (music) material. Attribution ships in the in-game credits screen and in
+            `CREDITS.md`; these builds are redistributable as long as that
+            attribution is retained.
           files: |
             build/*.apk
             build/*.aab
