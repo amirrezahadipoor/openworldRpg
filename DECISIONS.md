@@ -237,3 +237,15 @@ Temporary combat sandbox: 3 enemies near spawn until chunk-based spawning ships.
 Tiny inline SVG placeholders (player, icons) keep the repo near-zero size while systems are built.
 They are replaced by LPC-generated character sheets and CC0 tilesets (0x72 DungeonTileset II, LPC
 collection — per-asset license verified before commit) in later phases; placeholders are then deleted.
+
+**#30 — LPC compositing pipeline (Phase 3)** · 2026-09-10
+The upstream Universal LPC generator is a Vite/TypeScript web app with no
+headless CLI, so `tools/lpc_compose.py` (PIL, toolchain-side) bakes the layer
+stack (body → pants → shirt/leather armour → boots → hair → steel arming
+sword) into four 832×1280 RGBA sheets: `assets/lpc/player_{none,leather}_{none,sword}.png`
+(idle/walk/slash/spellcast/hurt × n/w/s/e, 64 px frames). Weapons have no
+attack-row layers upstream, so attack/cast rows hold the combat-idle pose.
+At runtime `player.gd` builds `SpriteFrames` from the active variant and
+rebuilds within 0.5 s of an equipment change — equipment slots visibly drive
+the sprite (paper-doll). Sheets are ~90 KB each (repo stays far under the
+120 MB budget). All LPC layers are CC-BY-SA-3.0/GPL; attribution in CREDITS.md.

@@ -504,6 +504,15 @@ func _test_perf() -> void:
 		await get_tree().create_timer(0.6).timeout
 		check(streamer.get_loaded_chunk(Vector2i(0, 0)) != null, "village chunk re-streamed on return")
 
+		# 3x3 radius stress: sweep all neighbor chunks, loader must cap at 9.
+		for ox in [-1, 0, 1]:
+			for oy in [-1, 0, 1]:
+				walker.global_position = Vector2(700 + ox * 1024, 330 + oy * 1024)
+				streamer.set_target(walker)
+				await get_tree().create_timer(0.25).timeout
+		check(streamer._loaded.size() <= 9, "3x3 stress: loaded chunks capped at 9 (got %d)" % streamer._loaded.size())
+		check(streamer.get_loaded_chunk(Vector2i(1, 1)) != null, "3x3 stress: corner chunk (1,1) loaded")
+
 
 func _test_boss_phases_and_death() -> void:
 	print("[combat_test] boss phases + death")

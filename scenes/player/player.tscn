@@ -1,7 +1,6 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/player.svg" id="2_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(26, 20)
@@ -13,9 +12,6 @@ size = Vector2(38, 32)
 collision_layer = 1
 collision_mask = 1
 script = ExtResource("1_player")
-
-[node name="Sprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_tex")
 
 [node name="Body" type="CollisionShape2D" parent="."]
 position = Vector2(0, 4)

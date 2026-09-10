@@ -39,10 +39,24 @@ var _bolt_cd := 0.0
 
 signal ability_cooldowns_changed(whirl: float, bolt: float)
 
-@onready var sprite: Sprite2D = $Sprite
 @onready var attack_pivot: Node2D = $AttackPivot
 @onready var attack_area: Area2D = $AttackPivot/AttackArea
 @onready var attack_shape: CollisionShape2D = $AttackPivot/AttackArea/AttackShape
+
+# --- LPC animation (Phase 3) -------------------------------------------------
+# Composed sheets (tools/lpc_compose.py): 13 cols x 20 rows of 64 px frames.
+const LPC_SHEET := "res://assets/lpc/player_%s_%s.png"
+const LPC_ANIMS := ["idle", "walk", "slash", "spellcast", "hurt"]
+const LPC_FRAMES := {"idle": 2, "walk": 9, "slash": 6, "spellcast": 7, "hurt": 6}
+const LPC_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, "hurt": 10.0}
+const LPC_DIRS := ["n", "w", "s", "e"]
+
+var sprite: AnimatedSprite2D
+var _cast_anim := 0.0
+var _hurt_anim := 0.0
+var _dead := false
+var _last_variant := ""
+var _variant_timer := 0.0
 
 
 func _ready() -> void:
@@ -50,6 +64,11 @@ func _ready() -> void:
 	GameState.hp = GameState.max_hp()
 	GameState.mp = GameState.max_mp()
 	attack_shape.disabled = true
+	sprite = AnimatedSprite2D.new()
+	sprite.name = "LpcSprite"
+	add_child(sprite)
+	_rebuild_sprite_frames()
+	EventBus.player_died.connect(_on_died)
 
 
 func _physics_process(delta: float) -> void:
@@ -57,6 +76,14 @@ func _physics_process(delta: float) -> void:
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
 	_whirl_cd = maxf(_whirl_cd - delta, 0.0)
 	_bolt_cd = maxf(_bolt_cd - delta, 0.0)
+	_cast_anim = maxf(_cast_anim - delta, 0.0)
+	_hurt_anim = maxf(_hurt_anim - delta, 0.0)
+	_variant_timer -= delta
+	if _variant_timer <= 0.0:
+		_variant_timer = 0.5
+		if _variant_key() != _last_variant:
+			_rebuild_sprite_frames()
+	_update_anim()
 
 	if _dodge_timer > 0.0:
 		_dodge_timer -= delta
@@ -74,7 +101,6 @@ func _physics_process(delta: float) -> void:
 		if move.length_squared() > 0.01:
 			facing = move.normalized()
 			attack_pivot.rotation = facing.angle()
-			sprite.flip_h = facing.x < 0.0
 			var top_speed := GameState.move_speed()
 			velocity = velocity.move_toward(move * top_speed, ACCELERATION * delta)
 		else:
@@ -131,6 +157,7 @@ func cast_whirlwind() -> void:
 		return
 	GameState.mp -= WHIRL_MP
 	_whirl_cd = WHIRL_COOLDOWN
+	_cast_anim = 0.32
 	AudioManager.play_sfx("ability_whirl")
 	# Spin flourish.
 	var tw := create_tween()
@@ -150,6 +177,7 @@ func cast_firebolt() -> void:
 		return
 	GameState.mp -= BOLT_MP
 	_bolt_cd = BOLT_COOLDOWN
+	_cast_anim = 0.35
 	AudioManager.play_sfx("ability_bolt")
 	PoolManager.spawn_projectile(
 		global_position + facing * 22.0, facing,
@@ -184,6 +212,71 @@ func take_hit(amount: float, _dir: Vector2) -> void:
 	var dmg := maxf(1.0, amount - GameState.defense() * 0.5)
 	GameState.hp = clampf(GameState.hp - dmg, 0.0, GameState.max_hp())
 	EventBus.player_damaged.emit(dmg)
+	_hurt_anim = 0.3
 	_squash(Vector2(0.8, 1.22))
 	if GameState.hp <= 0.0:
 		EventBus.player_died.emit()
+
+
+# --- LPC animation (Phase 3) -------------------------------------------------
+
+func _update_anim() -> void:
+	if sprite == null or sprite.sprite_frames == null:
+		return
+	var anim := "idle"
+	if _dead or _hurt_anim > 0.0:
+		anim = "hurt"
+	elif _attack_active > 0.0:
+		anim = "slash"
+	elif _cast_anim > 0.0:
+		anim = "spellcast"
+	elif velocity.length_squared() > 4.0:
+		anim = "walk"
+	var name := "%s_%s" % [anim, _dir_key()]
+	if sprite.animation != name:
+		sprite.play(name)
+
+
+func _dir_key() -> String:
+	if absf(facing.x) > absf(facing.y):
+		return "e" if facing.x > 0.0 else "w"
+	return "s" if facing.y > 0.0 else "n"
+
+
+## Equipment -> composed sheet variant (rebuilds animation on change).
+func _variant_key() -> String:
+	var armor: String = GameState.equipment.get("armor", "")
+	var weapon: String = GameState.equipment.get("weapon", "")
+	var a := "leather" if armor == "leather_armor" else "none"
+	var w := "sword" if weapon in ["short_sword", "iron_sword"] else "none"
+	return "player_%s_%s" % [a, w]
+
+
+func _rebuild_sprite_frames() -> void:
+	_last_variant = _variant_key()
+	var tex := load(LPC_SHEET % [_last_variant.split("_")[1], _last_variant.split("_")[2]])
+	if tex == null:
+		return
+	var sf := SpriteFrames.new()
+	for a_i in LPC_ANIMS.size():
+		var anim: String = LPC_ANIMS[a_i]
+		for d_i in LPC_DIRS.size():
+			var name := "%s_%s" % [anim, LPC_DIRS[d_i]]
+			sf.add_animation(name)
+			sf.set_animation_speed(name, LPC_FPS[anim])
+			sf.set_animation_loop(name, anim in ["idle", "walk"])
+			for f in LPC_FRAMES[anim]:
+				var at := AtlasTexture.new()
+				at.atlas = tex
+				at.region = Rect2(f * 64.0, (a_i * 4 + d_i) * 64.0, 64.0, 64.0)
+				sf.add_frame(name, at)
+	sprite.sprite_frames = sf
+	sprite.centered = true
+	sprite.offset = Vector2(0, -10)  # LPC frames are taller than the body pivot
+
+
+func _on_died() -> void:
+	_dead = true
+	if sprite != null:
+		var tw := create_tween()
+		tw.tween_property(sprite, "rotation", deg_to_rad(90.0), 0.35)

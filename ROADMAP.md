@@ -48,7 +48,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Camera follow with smoothing + `shake(power)` API
 - [x] Virtual joystick (touch) feeding player input
 - [x] Tap/hold action buttons wired through Godot's `Input` actions
-- [ ] Player animation states (idle/walk/attack/hurt/death via LPC sheets)
+- [x] Player animation states (idle/walk/attack/hurt/death via LPC sheets)
 
 ## Phase 4 — Combat Core
 - [x] Directional melee attack with hit/hurtbox areas
@@ -73,7 +73,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] `ItemsDB` autoload (single source of truth for item lookups)
 - [x] Inventory UI screen (item rows, tooltips, Use/Equip/Drop, stat sheet, pauses game)
 - [x] Equipment slots (weapon/armor/accessory) affecting stats (atk/def/hp/mp/speed)
-- [ ] Equipment drives LPC sprite layers (paper-doll) *(waits for LPC art)*
+- [x] Equipment drives LPC sprite layers (paper-doll: armor/weapon sheet variants)
 - [x] Consumables (potions etc.) with effects (heal/mana, consumed on use)
 - [x] Loot drop system (drop tables in `data/enemies.json`)
 - [x] Currency (gold) — earned from kills, shown in HUD/inventory · vendor NPC with Phase 8
@@ -123,7 +123,7 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] World terrain in a single 256x96 atlas (all 3 biomes, Godot-compressed); entity art is tiny SVG/CPUParticles (few draw calls)
 - [x] Object pooling verified (pool reuse + zero-allocation reacquire asserted in CombatTest)
 - [x] 60 FPS profiling pass (headless frame-budget guard ~16.5 ms avg; DECISIONS #28)
-- [ ] Chunk streamer memory/CPU budget verified with 3×3 radius stress test
+- [x] Chunk streamer memory/CPU budget verified with 3×3 radius stress test
 
 ## Phase 13 — Ship It 🚀
 - [ ] Full playthrough validation (main quest start → finish)

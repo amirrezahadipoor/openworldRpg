@@ -22,9 +22,9 @@ license-verified before commit and logged below.
 | Placeholder SVG sprites (player, icons) | This project | MIT / CC0 | ✅ in repo (`assets/placeholder/`) |
 | World tile atlas (procedural, `tools/worldgen/make_tileset.py`) | This project | CC0 | ✅ in repo (`assets/tiles/atlas.png`) |
 | Authored world maps (Tiled JSON, `tools/worldgen/build_world.py`) | This project | CC0 (content) | ✅ in repo (`world/chunks/*.json` + compiled `.tscn`) |
-| LPC character sheets (walk/attack/cast/hurt/death + equipment layers) | Liberated Pixel Cup contributors | CC-BY-SA-3.0 + GPL dual (verify per file) | ⬜ pending Phase 3/6 |
+| LPC character layers composited into `assets/lpc/player_*.png` (body male, hair bedhead, pants, shortsleeve shirt, boots basic, leather armour, arming sword steel — idle/walk/slash/spellcast/hurt) | Liberated Pixel Cup contributors | CC-BY-SA-3.0 + GPL dual | ✅ shipped Phase 3 (composited by `tools/lpc_compose.py`) |
 | 0x72 DungeonTileset II | 0x72 (itch.io) | CC0 | ⬜ pending Phase 2 |
-| LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | ⬜ pending Phase 2 |
+| LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | not used (0x72 DungeonTileset II chosen for tiles) |
 | Music (title + 3 biome ambiences + combat; procedural `tools/gen_music.py`) | This project (synthesized) | CC0 | ✅ in repo (`assets/audio/music/`) |
 | SFX pack (13 procedural WAVs, `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ✅ in repo (`assets/audio/sfx/`) |
 
