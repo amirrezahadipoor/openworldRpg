@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="30" fill="rgba(20,24,32,0.55)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <rect x="16" y="18" width="32" height="22" rx="6" fill="#d9dee7"/>
+  <path d="M26 40 L26 50 L34 40 Z" fill="#d9dee7"/>
+  <text x="32" y="34" font-family="monospace" font-size="16" text-anchor="middle" fill="#1d2733">E</text>
+</svg>

@@ -1,0 +1,57 @@
+{
+  "_comment": "Item database (Phase 6 seeds this; consumed by inventory/equipment/shop systems).",
+  "items": {
+    "short_sword": {
+      "name": "Short Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 4,
+      "value": 30,
+      "stack": 1,
+      "desc": "A trusty blade. Better than sharp words."
+    },
+    "iron_sword": {
+      "name": "Iron Sword",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 8,
+      "value": 90,
+      "stack": 1,
+      "desc": "Forged in the Barrens. Keeps its edge."
+    },
+    "leather_armor": {
+      "name": "Leather Armor",
+      "type": "armor",
+      "slot": "armor",
+      "def": 3,
+      "value": 45,
+      "stack": 1,
+      "desc": "Boiled leather. Smells like adventure."
+    },
+    "traveler_ring": {
+      "name": "Traveler's Ring",
+      "type": "accessory",
+      "slot": "accessory",
+      "speed": 12,
+      "value": 70,
+      "stack": 1,
+      "desc": "Lightens the road ahead."
+    },
+    "health_potion": {
+      "name": "Health Potion",
+      "type": "consumable",
+      "heal": 40,
+      "value": 15,
+      "stack": 10,
+      "desc": "Restores 40 HP."
+    },
+    "mana_potion": {
+      "name": "Mana Potion",
+      "type": "consumable",
+      "restore_mp": 30,
+      "value": 15,
+      "stack": 10,
+      "desc": "Restores 30 MP."
+    }
+  }
+}
