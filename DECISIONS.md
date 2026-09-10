@@ -438,3 +438,56 @@ monster live" is answered in the roster, and a monster cannot appear outside its
   above them (`power_scale`), and the deep-floor/boss-floor `power_scale` must rise with
   depth — also asserted, so "the last floor is the hard one" is a property of the data.
 
+
+**#38 — The 100-step chain runs *inside* the four-beat spine (Phase F4)** · 2026-09-10
+The ask was a 100-step main chain "with the story progressing to the end", while
+the four-beat story (First Light → Ember Omen → Fall of the Warden → A New Dawn)
+and its quest ids are frozen content. The chain therefore threads *between* the
+first and second beats rather than replacing or renumbering anything:
+
+- `q1_first_light.next` now points at **MQ001**; `MQ100.next` points at
+  **q2_ember_omen**. q1–q4 keep their ids, names, objectives, rewards and
+  dialogue — `tests/PlaythroughTest.tscn` still walks them in the live world.
+- The 100 steps are **Act 2: the ash road** — Meadows (20), Barrens (32), Peaks
+  (48) — taking the player from Millhaven's farm roads to the scorched ring, and
+  ending on the line that hands over to the Ember Omen. The bible's Mireille
+  expose/protect fork lands exactly on **MQ065**, implemented with the existing
+  dialogue choice system: two branches, two branch flags, one shared resolution
+  flag that the step's objective waits on.
+- **Rewards are a slice of a level, not a level.** Each step pays 35% of
+  `GameState.xp_to_next()` at its level anchor (1 → 92 across the chain); walking
+  all 100 steps lands the character at ~level 60 with combat supplying the rest.
+  The old hand-written formula (`80*L^1.8` per step) would have paid millions.
+- **The chain is validated by walking it.** `tests/QuestTest.tscn` completes every
+  step through the real APIs; the author (`tools/gen_quests.py`) additionally
+  refuses to emit a step whose monster does not live in that region or whose
+  level band is not open by the step's anchor (+8 levels of tolerance for players
+  who wander off the road).
+- **Two engine fixes the chain forced.** (1) Interacting with an NPC now calls
+  `QuestManager.talk_to()`, so the 100 briefings' hand-ins do not each need
+  bespoke dialogue wiring. (2) `QuestManager.active_snapshot()`: a single world
+  event advances only the quests that were already active, because the chain's
+  steps routinely ask you to talk to the NPC who just handed them over — without
+  it, every hand-in auto-completed the next step in the same interaction.
+- **The world now raises place flags**: `visited_<settlement>` on walking into a
+  settlement, `entered_<dungeon>` on taking a stair, `cleared_<dungeon>` on
+  killing its floor boss, `cleared_ember_warden_keep` when the Warden falls.
+
+**#39 — `remove_item(id, 99)` is not "empty the bag"** · 2026-09-10
+Two CombatTest checks failed one run in three: `GameState.remove_item()` returns
+false and removes nothing when the bag holds fewer than the requested amount, so
+the test idiom "clear the bag with `remove_item(x, 99)`" silently left whatever
+the player happened to be carrying — including loot from an earlier section —
+in the bag. The API is right (over-removal should fail), the idiom was wrong; the
+tests now `GameState.inventory.erase(id)` to empty a slot. Found only because the
+suite was run repeatedly while chasing a different flake: a single green run is
+not evidence.
+
+**#40 — Two flaky tests, two real races, both fixed at the source** · 2026-09-10
+- *Melee hurtbox routing* called `player._resolve_attack_hits()` without awaiting
+  it: the method is a coroutine that waits a frame for the overlap set, so the
+  assertion raced its own attack, and the attack shape is only enabled during a
+  swing's active frames. The test now waits for `attack_area.get_overlapping_areas()`
+  to be non-empty (bounded retries) and awaits the coroutine.
+- *collect/deliver* flakiness was `#39` above.
+Both tests now pass 6 runs out of 6, which is the standard the suite is held to.

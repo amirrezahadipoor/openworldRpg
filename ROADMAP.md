@@ -83,7 +83,7 @@ Ember Warden keeps its own phase script in `boss.gd` untouched. Six floors gate 
 dungeons; `scorched_monastery` and `wardens_ascent` end on elite waves instead of
 pretending to have a boss.
 
-### F4. Main quest chain: 100 steps `[ ]`
+### F4. Main quest chain: 100 steps `[x]`
 - `MQ001`–`MQ100` with the story progressing to the end: Act 1 (Millhaven burns,
   Rowan dies, Wren taken) → Act 2 (Mireille, the expose/protect fork) → Act 3
   (Isolde, the binding) → Act 4 (free Wren).
@@ -91,7 +91,30 @@ pretending to have a boss.
   available in Act 3.
 - Each act is playable end-to-end before the next is written.
 
-### F5. Side quests: 100, easy → hard `[ ]`
+### F5. Side quests: 100, easy → hard `[~]`
+
+**F4 done.** `tools/gen_quests.py` authors MQ001–MQ100 — Act 2, the ash road — and
+threads them between the unchanged `q1_first_light` and `q2_ember_omen`
+(`q1.next = MQ001`, `MQ100.next = q2_ember_omen`). 20 Meadow / 32 Barrens / 48
+Peaks steps, 43 kill / 34 collect / 16 travel / 7 story objectives, each with a
+spoken briefing in its giver's dialogue file. **MQ065 is the Mireille
+expose/protect fork**: the choice lives in `data/dialogue/mireille.json`, both
+branches raise the same resolution flag, and both keep their own branch flag for
+later lines. Rewards are a fixed slice (35%) of the level-up cost at the step's
+level anchor, so the chain pays levels ~1→60 and leaves combat to close the rest.
+
+The world had to learn to notice the player: `main.gd` now raises
+`visited_<settlement>` on entering a settlement, `entered_<dungeon>` on taking a
+stair, `cleared_<dungeon>` when a floor boss dies, `cleared_ember_warden_keep`
+when the shipped Warden fight ends, and talking to an NPC advances any active
+`talk` objective for them. One world event now advances only the quests that were
+active when it fired (`QuestManager.active_snapshot()`), because otherwise handing
+in step N would start step N+1 and instantly complete it.
+
+`tests/QuestTest.tscn` (39 checks) walks all 100 steps through the real quest
+API — real enemy nodes, real pickup signal, real flags — and fails if any step
+cannot be reached or completed. `PlaythroughTest` now runs q1 → the chain → q2 →
+the Warden → A New Dawn in the live world (27 checks).
 - `SQ001`–`SQ100` across the bible's categories (Bounty, Fetch, Escort, Mystery,
   Faction, Collection, Companion, Repeatable), split ~30 Meadows / ~40 Barrens /
   ~30 Peaks.

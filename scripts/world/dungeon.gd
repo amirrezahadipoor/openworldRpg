@@ -30,6 +30,7 @@ var data: Dictionary = {}
 var floor_index := 1
 var floor_root: Node2D
 var _rng := RandomNumberGenerator.new()
+var _floor_boss: Node = null
 
 
 static func all() -> Dictionary:
@@ -245,6 +246,12 @@ func _populate(fd: Dictionary) -> void:
 		boss.position = Vector2.ZERO
 		arena.add_child(boss)
 		boss.setup_archetype(String(table[0]), power, int(fd.get("floor_index", floor_index)))
+		# Phase F4: killing the boss is the world state other systems read.
+		# Re-entering a boss floor must not stack connections, so the listener is
+		# the plain method (idempotent) and the boss is remembered in a member.
+		_floor_boss = boss
+		if not EventBus.enemy_died.is_connected(_on_enemy_died):
+			EventBus.enemy_died.connect(_on_enemy_died)
 		_spawn_boss_guards(table)
 		return
 
@@ -259,6 +266,11 @@ func _populate(fd: Dictionary) -> void:
 		spawner.floor_index = int(fd.get("floor_index", floor_index))
 		spawner.position = Vector2(ROOM * 0.5, ROOM * 0.5) + Vector2(cos(a), sin(a)) * r
 		floor_root.add_child(spawner)
+
+
+func _on_enemy_died(enemy: Node) -> void:
+	if _floor_boss != null and enemy == _floor_boss:
+		QuestManager.register_flag("cleared_%s" % dungeon_id)
 
 
 func _spawn_boss_guards(table: Array) -> void:

@@ -1,6 +1,547 @@
 {
-  "_comment": "NPC dialogue for mireille (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for mireille (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_fork_choice",
+      "requires": {
+        "quest_active": [
+          "MQ065"
+        ],
+        "flag_not": [
+          "mireille_decision"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "The ledger in my sleeve is every name the Choir paid for, mine included. Ashvow hangs people for less. Frosthaven burns them. Kill me, hand me over, or put me behind you -- I only want it decided out loud.",
+          "next": "",
+          "choices": [
+            {
+              "text": "I will take it to the magistrate. Let Ashvow decide.",
+              "next": "expose",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "expose_mireille"
+                },
+                {
+                  "action": "set_flag",
+                  "flag": "mireille_decision"
+                },
+                {
+                  "action": "complete_objective",
+                  "quest": "MQ065",
+                  "objective": "speak"
+                }
+              ]
+            },
+            {
+              "text": "Nobody else needs to know. Keep your ledger.",
+              "next": "protect",
+              "actions": [
+                {
+                  "action": "set_flag",
+                  "flag": "protect_mireille"
+                },
+                {
+                  "action": "set_flag",
+                  "flag": "mireille_decision"
+                },
+                {
+                  "action": "complete_objective",
+                  "quest": "MQ065",
+                  "objective": "speak"
+                }
+              ]
+            }
+          ]
+        },
+        "expose": {
+          "speaker": "Mireille",
+          "text": "Then it is a trial and not a grave. Walk ahead of me -- I would rather the magistrate saw me with you than without you.",
+          "next": "",
+          "choices": []
+        },
+        "protect": {
+          "speaker": "Mireille",
+          "text": "You have just made yourself responsible for every name in this book. I hope you understand that I will hold you to it.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_fork_exposed",
+      "requires": {
+        "flag": [
+          "expose_mireille"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Ashvow has my ledger and I have a date. Whatever you meet at the ring, remember which of us chose this.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_fork_protected",
+      "requires": {
+        "flag": [
+          "protect_mireille"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "The Choir still thinks I am theirs. That is worth something at the ring, and you have bought it.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ063",
+      "requires": {
+        "quest_active": [
+          "MQ063"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Mireille asked to meet at Kilnrest rather than at Frosthaven, and chose a night with no moon for it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Reach Visited Kilnrest. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ064",
+      "requires": {
+        "quest_active": [
+          "MQ064"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Ten revenants on the Kiln road. Mireille walks it every week and has never once been attacked, which she has stopped mentioning.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 10 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ065",
+      "requires": {
+        "quest_active": [
+          "MQ065"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Mireille was Choir before she was anything else, and the ledger in her sleeve is the reason she left. What you do with it is up to you.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Speak with Mireille. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ066",
+      "requires": {
+        "quest_active": [
+          "MQ066"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Five frost crystals to re-light the Kilnrest road markers, so the next caravan can find the town.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 5 Frost Crystal. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ074",
+      "requires": {
+        "quest_active": [
+          "MQ074"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Mireille is still standing where you left her. Whatever the ledger cost her, she is paying it now, one troll at a time.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 12 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ075",
+      "requires": {
+        "quest_active": [
+          "MQ075"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Five frost crystals are owed to a woman in Kilnrest who staked Mireille for a winter and never once asked why she left the Choir.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 5 Frost Crystal. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ076",
+      "requires": {
+        "quest_active": [
+          "MQ076"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Six rime cores, for the cold work of undoing a promise.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 6 Rime Core. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ079",
+      "requires": {
+        "quest_active": [
+          "MQ079"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Fourteen revenants between the Citadel and the ring. Mireille calls it a procession, not a patrol.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 14 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ080",
+      "requires": {
+        "quest_active": [
+          "MQ080"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Sixteen revenants on the last mile. Isolde will want their names, and you will want to have them.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 16 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ081",
+      "requires": {
+        "quest_active": [
+          "MQ081"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Eight hollow relics, to make the door of the ring openable by something other than the thing inside it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 8 Hollow Relic. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ084",
+      "requires": {
+        "quest_active": [
+          "MQ084"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Eighteen trolls walking a ring they did not draw. Mireille says the Choir pays them in something she does not want named.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 18 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ085",
+      "requires": {
+        "quest_active": [
+          "MQ085"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Archons answer to the sanctum and to nothing else. Mireille says that means someone in the sanctum is still giving orders.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 8 Ashen Archon. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ086",
+      "requires": {
+        "quest_active": [
+          "MQ086"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Six archons carrying sealed orders in the sanctum's own hand. Mireille wants one of those seals intact, and wants it more than she wants sleep.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 6 Ashen Archon. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ087",
+      "requires": {
+        "quest_active": [
+          "MQ087"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Five more ledgers, so the names of the taken survive the people who took them.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 5 Choir Ledger. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ090",
+      "requires": {
+        "quest_active": [
+          "MQ090"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Eight shards of the vessel the Choir has been building since the ash started falling. Mireille will not hold them.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 8 Vessel Shard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ092",
+      "requires": {
+        "quest_active": [
+          "MQ092"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Ten archons standing in a ring around the scorched ground. They are not guarding it. They are waiting for it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 10 Ashen Archon. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ097",
+      "requires": {
+        "quest_active": [
+          "MQ097"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Six heralds, and the last one has stopped moving its lips, because the message has been delivered.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Slay 6 Ashen Herald. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ098",
+      "requires": {
+        "quest_active": [
+          "MQ098"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Mireille",
+          "text": "Eight rime cores to hold open a door that was sealed warm and has hated it ever since.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Mireille",
+          "text": "Gather 8 Rime Core. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "I don't want your forgiveness. I want the door behind me closed.",

@@ -1,6 +1,607 @@
 {
-  "_comment": "NPC dialogue for high_warden_isolde (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for high_warden_isolde (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ057",
+      "requires": {
+        "quest_active": [
+          "MQ057"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The Warden-kin hold Skyreach. They have been expecting someone carrying warm shards for a long time, and they are not happy about it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Reach Visited Skyreach. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ058",
+      "requires": {
+        "quest_active": [
+          "MQ058"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Isolde tells you what a Warden is: a promise made into a person, and a promise can be broken.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Speak with High Warden Isolde. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ059",
+      "requires": {
+        "quest_active": [
+          "MQ059"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Three rime cores, so the Citadel's forge can burn cold enough to unmake warden steel.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 3 Rime Core. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ060",
+      "requires": {
+        "quest_active": [
+          "MQ060"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "A vault sealed with ice that was once a door. Isolde's grandmother helped seal it; Isolde wants to know why.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Reach Entered Rimevault. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ061",
+      "requires": {
+        "quest_active": [
+          "MQ061"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "A giant has been standing at the vault door since the ash came north. It has not eaten, and it has not moved.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 1 Jorunn the Frost Giant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ062",
+      "requires": {
+        "quest_active": [
+          "MQ062"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Six hollow relics out of the vault, all of them older than the door they were sealed behind.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 6 Hollow Relic. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ067",
+      "requires": {
+        "quest_active": [
+          "MQ067"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The switchback up to Warden's Ascent is held by trolls. Isolde's scouts counted ten before they stopped counting.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 10 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ068",
+      "requires": {
+        "quest_active": [
+          "MQ068"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Five rime cores, for the one forge in the peaks that can still work them.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 5 Rime Core. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ069",
+      "requires": {
+        "quest_active": [
+          "MQ069"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Isolde is reopening the old road to Warden's Ascent and the revenants have opinions about it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 8 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ070",
+      "requires": {
+        "quest_active": [
+          "MQ070"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Skyreach's scouts have not reported in for nine days. Clear whatever is sitting on their route.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 12 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ071",
+      "requires": {
+        "quest_active": [
+          "MQ071"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Ten revenants walking in file, none of them armed, all of them in Citadel grey. Isolde wants to know what they think they are marching to.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 10 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ072",
+      "requires": {
+        "quest_active": [
+          "MQ072"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The mile of road under the Citadel is walked by revenants in Citadel grey. Isolde wants to know which of her people they were.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 12 Frost Revenant. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ073",
+      "requires": {
+        "quest_active": [
+          "MQ073"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Six ward stones for the Citadel gate -- the last six, if the Choir's archons are counting the same way Isolde is.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 6 Frost Crystal. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ077",
+      "requires": {
+        "quest_active": [
+          "MQ077"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The switchback climb to the Citadel's undercroft. Isolde will not walk it; she says Wardens do not enter each other's graves.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Reach Entered Wardens Ascent. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ078",
+      "requires": {
+        "quest_active": [
+          "MQ078"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The switchback has to be broken behind you, and the trolls are in the way of the picks.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 14 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ082",
+      "requires": {
+        "quest_active": [
+          "MQ082"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Eight frost crystals to light the Citadel's gate wards one more time, for the people who will come back down this road without you.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 8 Frost Crystal. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ083",
+      "requires": {
+        "quest_active": [
+          "MQ083"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Sixteen trolls on the last of the switchback, with the ring warm underneath them and the snow steaming off the stone.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 16 Rime Troll. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ088",
+      "requires": {
+        "quest_active": [
+          "MQ088"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Five ingots of warden steel, drawn from the Choir's own store, to reforge the Citadel's broken gate.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 5 Warden-Steel Ingot. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ089",
+      "requires": {
+        "quest_active": [
+          "MQ089"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Four more of the Choir's ledgers, for the archive wing that is only opened for endings.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 4 Choir Ledger. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ091",
+      "requires": {
+        "quest_active": [
+          "MQ091"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Five heralds left, and every one of them is carrying the Warden's seal.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 5 Ashen Herald. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ093",
+      "requires": {
+        "quest_active": [
+          "MQ093"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Three Ashen Heralds, all carrying the same sealed order, all addressed to you by name.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 3 Ashen Herald. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ094",
+      "requires": {
+        "quest_active": [
+          "MQ094"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "The scorched ring, and under it the keep where the first promise is still being kept. Isolde's last order is one word: descend.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Reach Entered Ember Warden Keep. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ095",
+      "requires": {
+        "quest_active": [
+          "MQ095"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Fourteen archons between you and the stair down. Nobody is singing now.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Slay 14 Ashen Archon. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ096",
+      "requires": {
+        "quest_active": [
+          "MQ096"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Six Choir sigils, unbroken, for the Citadel's archive. The archive has a wing that is only opened for endings.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 6 Choir Sigil. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ099",
+      "requires": {
+        "quest_active": [
+          "MQ099"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "High Warden Isolde",
+          "text": "Six ingots left at the citadel, so the road back is a road and not a walk into nothing.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "High Warden Isolde",
+          "text": "Gather 6 Warden-Steel Ingot. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "A binding is a promise made with violence. Promises can be broken other ways.",

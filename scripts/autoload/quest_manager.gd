@@ -54,9 +54,8 @@ func _sync_collect(qid: String) -> void:
 
 
 func _on_item_picked_up(_item_id: String, _qty: int) -> void:
-	for qid in data.keys():
-		if is_active(qid):
-			_sync_collect(qid)
+	for qid in active_snapshot():
+		_sync_collect(qid)
 
 
 func start_quest(qid: String) -> void:
@@ -113,11 +112,21 @@ func _auto_flag(qid: String, oid: String) -> void:
 
 # --- Triggers -----------------------------------------------------------------
 
+func active_snapshot() -> Array:
+	## The quests that are in flight right now, frozen — so a cascade of
+	## auto-started follow-ups cannot be advanced by the event that triggered it.
+	var out := []
+	for qid in data.keys():
+		if is_active(qid):
+			out.append(qid)
+	return out
+
+
 func _on_enemy_died(enemy: Node) -> void:
 	var arch := ""
 	if "archetype" in enemy:
 		arch = String(enemy.archetype)
-	for qid in data.keys():
+	for qid in active_snapshot():
 		if not is_active(qid):
 			continue
 		for obj in _objectives(qid):
@@ -129,9 +138,7 @@ func _on_enemy_died(enemy: Node) -> void:
 
 
 func talk_to(npc_id: String) -> void:
-	for qid in data.keys():
-		if not is_active(qid):
-			continue
+	for qid in active_snapshot():
 		for obj in _objectives(qid):
 			if String(obj.get("type", "")) == "talk" and String(obj.get("target", "")) == npc_id:
 				var oid := String(obj.get("id", ""))
@@ -144,9 +151,7 @@ func register_flag(flag: String) -> void:
 	if bool(GameState.quest_flags.get(flag, false)):
 		return
 	GameState.quest_flags[flag] = true
-	for qid in data.keys():
-		if not is_active(qid):
-			continue
+	for qid in active_snapshot():
 		for obj in _objectives(qid):
 			if String(obj.get("type", "")) == "flag" and String(obj.get("target", "")) == flag:
 				var oid := String(obj.get("id", ""))

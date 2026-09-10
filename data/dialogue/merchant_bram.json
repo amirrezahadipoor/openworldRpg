@@ -1,6 +1,55 @@
 {
-  "_comment": "NPC dialogue for merchant_bram (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for merchant_bram (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ008",
+      "requires": {
+        "quest_active": [
+          "MQ008"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Merchant Bram",
+          "text": "Bram buys bone by the handful and sells it by the finger. He needs a consignment before the caravan leaves.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Merchant Bram",
+          "text": "Gather 5 Bone Fragment. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ018",
+      "requires": {
+        "quest_active": [
+          "MQ018"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Merchant Bram",
+          "text": "Bram has a standing order with the tanners and no patience for suppliers who stop supplying.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Merchant Bram",
+          "text": "Slay 10 Slime Grunt. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "Potion's brewed for people who come back. Buy two.",

@@ -1,6 +1,103 @@
 {
-  "_comment": "NPC dialogue for ysolde (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for ysolde (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ024",
+      "requires": {
+        "quest_active": [
+          "MQ024"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Ysolde the Trader",
+          "text": "Ysolde will trade with anyone who brings iron she can actually melt, and the slag fields are full of it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Ysolde the Trader",
+          "text": "Gather 5 Scrap Iron. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ039",
+      "requires": {
+        "quest_active": [
+          "MQ039"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Ysolde the Trader",
+          "text": "Ysolde buys raider insignia by weight -- brass is brass -- and the Choir's raiders are carrying more of it than they used to.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Ysolde the Trader",
+          "text": "Gather 8 Raider Insignia. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ040",
+      "requires": {
+        "quest_active": [
+          "MQ040"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Ysolde the Trader",
+          "text": "Ysolde's awning is lizard hide and the season has eaten through it. She would rather buy it off a hunter than a tanner.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Ysolde the Trader",
+          "text": "Slay 6 Slag Lizard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ051",
+      "requires": {
+        "quest_active": [
+          "MQ051"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Ysolde the Trader",
+          "text": "Ysolde's caravans have stopped coming. She can price a minotaur horn to the coin and would rather not have to.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Ysolde the Trader",
+          "text": "Slay 8 Ash Minotaur. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "Everything here came off a wagon that came off another wagon. Buy accordingly.",

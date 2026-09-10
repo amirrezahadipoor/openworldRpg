@@ -1,64 +1,3165 @@
 {
-  "_comment": "Quest definitions. Objective types: kill (archetype), talk (npc_id), flag (quest_flags key). complete_via for kill/flag is automatic; talk completes when QuestManager.mark_talk(npc) is called. 'next' auto-starts the follow-up quest.",
+  "_comment": "Quest definitions. Objective types: kill (archetype), talk (npc_id), flag (quest_flags key), collect (items held), deliver (consumes on completion). 'next' auto-starts the follow-up quest. MQ001-MQ100 are the main chain (Act 2: the ash road, the Choir, and the vessel), authored by tools/gen_quests.py; they run between q1_first_light and q2_ember_omen, which keep their original content unchanged. MQ065 is the Mireille expose/protect fork.",
   "quests": {
     "q1_first_light": {
       "name": "First Light",
       "desc": "Slimes are creeping too close to the camp. Thin them out.",
       "objectives": [
-        { "id": "kill_grunts", "type": "kill", "target": "grunt", "count": 3, "desc": "Slay the slimes near camp" },
-        { "id": "report_elder", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Report back to Elder Rowan" }
+        {
+          "id": "kill_grunts",
+          "type": "kill",
+          "target": "grunt",
+          "count": 3,
+          "desc": "Slay the slimes near camp"
+        },
+        {
+          "id": "report_elder",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report back to Elder Rowan"
+        }
       ],
-      "reward": { "xp": 60, "gold": 40, "items": ["short_sword"] },
-      "next": "q2_ember_omen"
+      "reward": {
+        "xp": 60,
+        "gold": 40,
+        "items": [
+          "short_sword"
+        ]
+      },
+      "next": "MQ001"
     },
     "q2_ember_omen": {
       "name": "The Ember Omen",
       "desc": "A scorched ring burns in the northeast. Investigate it, then return to the Elder.",
       "objectives": [
-        { "id": "reach_ring", "type": "flag", "target": "saw_warden_ring", "count": 1, "desc": "Reach the scorched ring" },
-        { "id": "confront_truth", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Confront Elder Rowan" }
+        {
+          "id": "reach_ring",
+          "type": "flag",
+          "target": "saw_warden_ring",
+          "count": 1,
+          "desc": "Reach the scorched ring"
+        },
+        {
+          "id": "confront_truth",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Confront Elder Rowan"
+        }
       ],
-      "reward": { "xp": 90, "gold": 60, "items": ["health_potion"] },
+      "reward": {
+        "xp": 90,
+        "gold": 60,
+        "items": [
+          "health_potion"
+        ]
+      },
       "next": "q3_warden_fall"
     },
     "q3_warden_fall": {
       "name": "Fall of the Warden",
       "desc": "The Ember Warden must be destroyed. Find it at the scorched ring.",
       "objectives": [
-        { "id": "boss_down", "type": "flag", "target": "boss_defeated", "count": 1, "desc": "Defeat the Ember Warden" }
+        {
+          "id": "boss_down",
+          "type": "flag",
+          "target": "boss_defeated",
+          "count": 1,
+          "desc": "Defeat the Ember Warden"
+        }
       ],
-      "reward": { "xp": 200, "gold": 120, "items": ["mana_potion"] },
+      "reward": {
+        "xp": 200,
+        "gold": 120,
+        "items": [
+          "mana_potion"
+        ]
+      },
       "next": "q4_new_dawn"
     },
     "q4_new_dawn": {
       "name": "A New Dawn",
       "desc": "Return to Elder Rowan with the news.",
       "objectives": [
-        { "id": "final_words", "type": "talk", "target": "elder_rowan", "count": 1, "desc": "Speak with Elder Rowan" }
+        {
+          "id": "final_words",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Speak with Elder Rowan"
+        }
       ],
-      "reward": { "xp": 120, "gold": 100, "items": [] },
+      "reward": {
+        "xp": 120,
+        "gold": 100,
+        "items": []
+      },
       "next": ""
     },
     "s_cull_scouts": {
       "name": "Scouts in the Barrens",
       "desc": "Hunter Kael wants the fast ones thinned out before they raid the camp.",
       "objectives": [
-        { "id": "kill_scouts", "type": "kill", "target": "scout", "count": 3, "desc": "Hunt Barrens Scouts" },
-        { "id": "report_kael", "type": "talk", "target": "hunter_kael", "count": 1, "desc": "Report to Hunter Kael" }
+        {
+          "id": "kill_scouts",
+          "type": "kill",
+          "target": "scout",
+          "count": 3,
+          "desc": "Hunt Barrens Scouts"
+        },
+        {
+          "id": "report_kael",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
       ],
-      "reward": { "xp": 80, "gold": 60, "items": ["health_potion"] },
+      "reward": {
+        "xp": 80,
+        "gold": 60,
+        "items": [
+          "health_potion"
+        ]
+      },
       "next": ""
     },
     "s_emberling_run": {
       "name": "Emberling Run",
-      "desc": "Emberlings keep crawling out of the ash. Kael pays per cull — again and again.",
+      "desc": "Emberlings keep crawling out of the ash. Kael pays per cull \u2014 again and again.",
       "repeatable": true,
       "objectives": [
-        { "id": "kill_emberlings", "type": "kill", "target": "emberling", "count": 4, "desc": "Cull Emberlings" },
-        { "id": "report_kael_run", "type": "talk", "target": "hunter_kael", "count": 1, "desc": "Collect from Hunter Kael" }
+        {
+          "id": "kill_emberlings",
+          "type": "kill",
+          "target": "emberling",
+          "count": 4,
+          "desc": "Cull Emberlings"
+        },
+        {
+          "id": "report_kael_run",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Collect from Hunter Kael"
+        }
       ],
-      "reward": { "xp": 60, "gold": 70, "items": [] },
+      "reward": {
+        "xp": 60,
+        "gold": 70,
+        "items": []
+      },
       "next": ""
+    },
+    "MQ001": {
+      "name": "Ash on the Wind",
+      "desc": "Grey flecks on the washing-line. Rowan says it is not woodsmoke, and he wants the slimes thinned before the village starts asking questions.",
+      "giver": "elder_rowan",
+      "step": 1,
+      "region": "meadow",
+      "level_anchor": 1,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "grunt",
+          "count": 4,
+          "desc": "Slay 4 Slime Grunt"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 30,
+        "gold": 15,
+        "items": []
+      },
+      "next": "MQ002"
+    },
+    "MQ002": {
+      "name": "Rendered Down",
+      "desc": "The tanner pays in coin for slime gel, and Rowan wants the stores full before the frost turns.",
+      "giver": "elder_rowan",
+      "step": 2,
+      "region": "meadow",
+      "level_anchor": 2,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "slime_gel",
+          "count": 3,
+          "desc": "Gather 3 Slime Gel"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 100,
+        "gold": 55,
+        "items": []
+      },
+      "next": "MQ003"
+    },
+    "MQ003": {
+      "name": "What Wren Saw",
+      "desc": "Your sibling swears the emberlings were walking in a line -- not scattering, walking -- and asks you to break the column.",
+      "giver": "wren",
+      "step": 3,
+      "region": "meadow",
+      "level_anchor": 3,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "emberling",
+          "count": 5,
+          "desc": "Slay 5 Emberling"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 200,
+        "gold": 110,
+        "items": []
+      },
+      "next": "MQ004"
+    },
+    "MQ004": {
+      "name": "Embers in a Jar",
+      "desc": "Wren wants four emberling embers sealed in a jar, to show Rowan the colour is wrong.",
+      "giver": "wren",
+      "step": 4,
+      "region": "meadow",
+      "level_anchor": 4,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "emberling_ember",
+          "count": 4,
+          "desc": "Gather 4 Emberling Ember"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 340,
+        "gold": 185,
+        "items": []
+      },
+      "next": "MQ005"
+    },
+    "MQ005": {
+      "name": "The Road to Oakstead",
+      "desc": "Fenwick of Oakstead sent word: the mill road is no longer safe, and the village wants a sword arm to walk it.",
+      "giver": "elder_fenwick",
+      "step": 5,
+      "region": "meadow",
+      "level_anchor": 5,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_oakstead",
+          "count": 1,
+          "desc": "Reach Visited Oakstead"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 505,
+        "gold": 275,
+        "items": [
+          "barrens_scimitar"
+        ]
+      },
+      "next": "MQ006"
+    },
+    "MQ006": {
+      "name": "Wolves at the Fold",
+      "desc": "The wolves have stopped hunting deer and started hunting pens.",
+      "giver": "elder_fenwick",
+      "step": 6,
+      "region": "meadow",
+      "level_anchor": 6,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "meadow_wolf",
+          "count": 5,
+          "desc": "Slay 5 Meadow Wolf"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 705,
+        "gold": 385,
+        "items": []
+      },
+      "next": "MQ007"
+    },
+    "MQ007": {
+      "name": "Moss for the Fever",
+      "desc": "Oakstead's fever wants cave moss, and the caves are full of things that want it too.",
+      "giver": "elder_fenwick",
+      "step": 7,
+      "region": "meadow",
+      "level_anchor": 7,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "cave_moss",
+          "count": 4,
+          "desc": "Gather 4 Cave Moss"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 930,
+        "gold": 510,
+        "items": []
+      },
+      "next": "MQ008"
+    },
+    "MQ008": {
+      "name": "Bram's Bone Trade",
+      "desc": "Bram buys bone by the handful and sells it by the finger. He needs a consignment before the caravan leaves.",
+      "giver": "merchant_bram",
+      "step": 8,
+      "region": "meadow",
+      "level_anchor": 7,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "bone_fragment",
+          "count": 5,
+          "desc": "Gather 5 Bone Fragment"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 930,
+        "gold": 510,
+        "items": []
+      },
+      "next": "MQ009"
+    },
+    "MQ009": {
+      "name": "The Walking Tired",
+      "desc": "Something is raising Millhaven's dead badly -- as if it had learned how from a book, not a rite. Put them down.",
+      "giver": "elder_rowan",
+      "step": 9,
+      "region": "meadow",
+      "level_anchor": 8,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "husk",
+          "count": 6,
+          "desc": "Slay 6 Rotting Husk"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 1180,
+        "gold": 645,
+        "items": []
+      },
+      "next": "MQ010"
+    },
+    "MQ010": {
+      "name": "Something Rotten",
+      "desc": "The glands in the husks are wrong for corpses this fresh. Rowan wants them on his table before the smell decides anything.",
+      "giver": "elder_rowan",
+      "step": 10,
+      "region": "meadow",
+      "level_anchor": 9,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "fetid_gland",
+          "count": 4,
+          "desc": "Gather 4 Fetid Gland"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 1460,
+        "gold": 800,
+        "items": [
+          "bonecrusher_maul"
+        ]
+      },
+      "next": "MQ011"
+    },
+    "MQ011": {
+      "name": "Down the Mill Stair",
+      "desc": "The mill's lower floor has been open since the sluice broke. Wren will not go down; you will.",
+      "giver": "wren",
+      "step": 11,
+      "region": "meadow",
+      "level_anchor": 10,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_drowned_mill",
+          "count": 1,
+          "desc": "Reach Entered Drowned Mill"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 1765,
+        "gold": 970,
+        "items": []
+      },
+      "next": "MQ012"
+    },
+    "MQ012": {
+      "name": "Skarn's Crown",
+      "desc": "A crowned goblin has been sitting in the mill's wheel-room, holding court over a drowned village.",
+      "giver": "wren",
+      "step": 12,
+      "region": "meadow",
+      "level_anchor": 11,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "goblin_king",
+          "count": 1,
+          "desc": "Slay 1 Skarn the Goblin King"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 2095,
+        "gold": 1150,
+        "items": []
+      },
+      "next": "MQ013"
+    },
+    "MQ013": {
+      "name": "Summons to Sunreach",
+      "desc": "A sealed writ arrives from Sunreach City. Rowan does not open it; he says the seal is on the inside.",
+      "giver": "elder_rowan",
+      "step": 13,
+      "region": "meadow",
+      "level_anchor": 12,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_sunreach",
+          "count": 1,
+          "desc": "Reach Visited Sunreach"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 2455,
+        "gold": 1350,
+        "items": []
+      },
+      "next": "MQ014"
+    },
+    "MQ014": {
+      "name": "Voss's Inventory",
+      "desc": "The magistrate will talk about the ash road once the ledger balances, and the ledger needs six bolts' worth of cloth.",
+      "giver": "magistrate_voss",
+      "step": 14,
+      "region": "meadow",
+      "level_anchor": 13,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "torn_cloth",
+          "count": 6,
+          "desc": "Gather 6 Torn Cloth"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "magistrate_voss",
+          "count": 1,
+          "desc": "Report to Magistrate Voss"
+        }
+      ],
+      "reward": {
+        "xp": 2835,
+        "gold": 1555,
+        "items": []
+      },
+      "next": "MQ015"
+    },
+    "MQ015": {
+      "name": "The Warrens Under the Road",
+      "desc": "Voss admits the warrens under the ash road are not a vermin problem. He wants to know what they actually are.",
+      "giver": "magistrate_voss",
+      "step": 15,
+      "region": "meadow",
+      "level_anchor": 14,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_emberling_warrens",
+          "count": 1,
+          "desc": "Reach Entered Emberling Warrens"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "magistrate_voss",
+          "count": 1,
+          "desc": "Report to Magistrate Voss"
+        }
+      ],
+      "reward": {
+        "xp": 3240,
+        "gold": 1780,
+        "items": [
+          "bread"
+        ]
+      },
+      "next": "MQ016"
+    },
+    "MQ016": {
+      "name": "Burn Them Out",
+      "desc": "The warrens are breathing. Every emberling you leave is a lungful of the thing coming up the road.",
+      "giver": "elder_rowan",
+      "step": 16,
+      "region": "meadow",
+      "level_anchor": 15,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "emberling",
+          "count": 8,
+          "desc": "Slay 8 Emberling"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 3665,
+        "gold": 2015,
+        "items": []
+      },
+      "next": "MQ017"
+    },
+    "MQ017": {
+      "name": "The Ember Tithe",
+      "desc": "Six embers, sealed and boxed, for the road wardens' braziers.",
+      "giver": "elder_rowan",
+      "step": 17,
+      "region": "meadow",
+      "level_anchor": 16,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "emberling_ember",
+          "count": 6,
+          "desc": "Gather 6 Emberling Ember"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 4115,
+        "gold": 2260,
+        "items": []
+      },
+      "next": "MQ018"
+    },
+    "MQ018": {
+      "name": "Bram's Standing Order",
+      "desc": "Bram has a standing order with the tanners and no patience for suppliers who stop supplying.",
+      "giver": "merchant_bram",
+      "step": 18,
+      "region": "meadow",
+      "level_anchor": 17,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "grunt",
+          "count": 10,
+          "desc": "Slay 10 Slime Grunt"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 4590,
+        "gold": 2520,
+        "items": []
+      },
+      "next": "MQ019"
+    },
+    "MQ019": {
+      "name": "The Fold Rebuilt",
+      "desc": "Oakstead rebuilt the fold where the wolves came through. Fenwick wants the pack that did it thinned to nothing.",
+      "giver": "elder_fenwick",
+      "step": 19,
+      "region": "meadow",
+      "level_anchor": 18,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "meadow_wolf",
+          "count": 8,
+          "desc": "Slay 8 Meadow Wolf"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 5090,
+        "gold": 2795,
+        "items": []
+      },
+      "next": "MQ020"
+    },
+    "MQ020": {
+      "name": "The Ash Road",
+      "desc": "Rowan finally opens the writ. Sunreach is sending someone east, and the road east does not stay in the Meadows.",
+      "giver": "elder_rowan",
+      "step": 20,
+      "region": "meadow",
+      "level_anchor": 18,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Speak with Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 5090,
+        "gold": 2795,
+        "items": [
+          "chain_vest"
+        ]
+      },
+      "next": "MQ021"
+    },
+    "MQ021": {
+      "name": "East to Ashport",
+      "desc": "Ashport is the last town before the salt flats, and the first one the ash reached. Kael is waiting at the gate.",
+      "giver": "hunter_kael",
+      "step": 21,
+      "region": "barrens",
+      "level_anchor": 19,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_ashport",
+          "count": 1,
+          "desc": "Reach Visited Ashport"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 5610,
+        "gold": 3085,
+        "items": []
+      },
+      "next": "MQ022"
+    },
+    "MQ022": {
+      "name": "Scouts on the Salt",
+      "desc": "The scouts are ranging further west than raiders ever did, and they are not carrying loot -- they are carrying orders.",
+      "giver": "hunter_kael",
+      "step": 22,
+      "region": "barrens",
+      "level_anchor": 20,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "scout",
+          "count": 6,
+          "desc": "Slay 6 Barrens Scout"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 6150,
+        "gold": 3380,
+        "items": []
+      },
+      "next": "MQ023"
+    },
+    "MQ023": {
+      "name": "Insignia of Meat and Iron",
+      "desc": "Kael wants four insignia off four different brutes. He says two matching ones will tell him which captain is moving.",
+      "giver": "hunter_kael",
+      "step": 23,
+      "region": "barrens",
+      "level_anchor": 21,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "raider_insignia",
+          "count": 4,
+          "desc": "Gather 4 Raider Insignia"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 6150,
+        "gold": 3380,
+        "items": []
+      },
+      "next": "MQ024"
+    },
+    "MQ024": {
+      "name": "Ysolde's Stock Pot",
+      "desc": "Ysolde will trade with anyone who brings iron she can actually melt, and the slag fields are full of it.",
+      "giver": "ysolde",
+      "step": 24,
+      "region": "barrens",
+      "level_anchor": 22,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "scrap_iron",
+          "count": 5,
+          "desc": "Gather 5 Scrap Iron"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 6555,
+        "gold": 3605,
+        "items": []
+      },
+      "next": "MQ025"
+    },
+    "MQ025": {
+      "name": "The Smokestack",
+      "desc": "The old smelting works has been lit for three weeks. It has no coal.",
+      "giver": "hunter_kael",
+      "step": 25,
+      "region": "barrens",
+      "level_anchor": 23,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_slagworks",
+          "count": 1,
+          "desc": "Reach Entered Slagworks"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 6965,
+        "gold": 3830,
+        "items": [
+          "chain_vest"
+        ]
+      },
+      "next": "MQ026"
+    },
+    "MQ026": {
+      "name": "The Wraith in the Slag",
+      "desc": "Whatever has been feeding the furnace has a shape, and the shape has a grudge.",
+      "giver": "hunter_kael",
+      "step": 26,
+      "region": "barrens",
+      "level_anchor": 24,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "slag_wraith",
+          "count": 1,
+          "desc": "Slay 1 The Slag Wraith"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 7380,
+        "gold": 4055,
+        "items": []
+      },
+      "next": "MQ027"
+    },
+    "MQ027": {
+      "name": "Cinderhold's Captain",
+      "desc": "Cinderhold's captain wants the ash road walked by someone who is not one of her own soldiers -- and she wants a witness.",
+      "giver": "captain_dael",
+      "step": 27,
+      "region": "barrens",
+      "level_anchor": 25,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_cinderhold",
+          "count": 1,
+          "desc": "Reach Visited Cinderhold"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 7795,
+        "gold": 4285,
+        "items": []
+      },
+      "next": "MQ028"
+    },
+    "MQ028": {
+      "name": "Silence the Chant",
+      "desc": "The chanting starts at dusk and the walls answer it. Dael wants it stopped, not studied.",
+      "giver": "captain_dael",
+      "step": 28,
+      "region": "barrens",
+      "level_anchor": 26,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "shaman",
+          "count": 7,
+          "desc": "Slay 7 Frost Shaman"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 8220,
+        "gold": 4520,
+        "items": []
+      },
+      "next": "MQ029"
+    },
+    "MQ029": {
+      "name": "Charms for the Wall",
+      "desc": "The charms Dael's smiths copy keep the mortar from singing, but the copies need originals.",
+      "giver": "captain_dael",
+      "step": 29,
+      "region": "barrens",
+      "level_anchor": 27,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "shaman_charm",
+          "count": 4,
+          "desc": "Gather 4 Shaman Charm"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 8650,
+        "gold": 4755,
+        "items": []
+      },
+      "next": "MQ030"
+    },
+    "MQ030": {
+      "name": "Scale and Sinew",
+      "desc": "Cinderhold's shields are laced with lizard hide. The lacing is wearing out.",
+      "giver": "captain_dael",
+      "step": 30,
+      "region": "barrens",
+      "level_anchor": 28,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "lizard",
+          "count": 8,
+          "desc": "Slay 8 Slag Lizard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 9085,
+        "gold": 4995,
+        "items": [
+          "chilled_greater_potion"
+        ]
+      },
+      "next": "MQ031"
+    },
+    "MQ031": {
+      "name": "Ash Shards",
+      "desc": "Six ash shards from the glass fields, for Dael's armourer to test a theory.",
+      "giver": "captain_dael",
+      "step": 31,
+      "region": "barrens",
+      "level_anchor": 29,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "ash_shard",
+          "count": 6,
+          "desc": "Gather 6 Ash Shard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 9525,
+        "gold": 5235,
+        "items": []
+      },
+      "next": "MQ032"
+    },
+    "MQ032": {
+      "name": "The Monastery Gate",
+      "desc": "Brother Ashe's order held the Scorched Monastery for eighty years. The gate is open, which is the first thing wrong with it.",
+      "giver": "hunter_kael",
+      "step": 32,
+      "region": "barrens",
+      "level_anchor": 29,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_scorched_monastery",
+          "count": 1,
+          "desc": "Reach Entered Scorched Monastery"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 9525,
+        "gold": 5235,
+        "items": []
+      },
+      "next": "MQ033"
+    },
+    "MQ033": {
+      "name": "Brutes at the Altar",
+      "desc": "The brutes have billeted themselves in the nave. Kael finds that obscene on grounds he refuses to explain.",
+      "giver": "hunter_kael",
+      "step": 33,
+      "region": "barrens",
+      "level_anchor": 30,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "raider_brute",
+          "count": 9,
+          "desc": "Slay 9 Raider Brute"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 9970,
+        "gold": 5480,
+        "items": []
+      },
+      "next": "MQ034"
+    },
+    "MQ034": {
+      "name": "Relics of the Order",
+      "desc": "Four relics out of the rubble, before the Choir gets a use out of them.",
+      "giver": "captain_dael",
+      "step": 34,
+      "region": "barrens",
+      "level_anchor": 31,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "scorched_relic",
+          "count": 4,
+          "desc": "Gather 4 Scorched Relic"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 10420,
+        "gold": 5730,
+        "items": []
+      },
+      "next": "MQ035"
+    },
+    "MQ035": {
+      "name": "The Chant Grows",
+      "desc": "The chant is louder than it was and it is coming from further away. Dael wants the mouth of it stopped.",
+      "giver": "captain_dael",
+      "step": 35,
+      "region": "barrens",
+      "level_anchor": 32,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "shaman",
+          "count": 10,
+          "desc": "Slay 10 Frost Shaman"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 10875,
+        "gold": 5980,
+        "items": [
+          "choir_stiletto"
+        ]
+      },
+      "next": "MQ036"
+    },
+    "MQ036": {
+      "name": "Warden Steel",
+      "desc": "Three ingots of warden steel, still warm, still in Choir hands. Dael wants to know how they are making it.",
+      "giver": "captain_dael",
+      "step": 36,
+      "region": "barrens",
+      "level_anchor": 33,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "warden_steel_ingot",
+          "count": 3,
+          "desc": "Gather 3 Warden-Steel Ingot"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 11335,
+        "gold": 6230,
+        "items": []
+      },
+      "next": "MQ037"
+    },
+    "MQ037": {
+      "name": "The Salt Beds",
+      "desc": "Something in the salt beds is drilling. Kael wants the drilling stopped before it reaches the water.",
+      "giver": "hunter_kael",
+      "step": 37,
+      "region": "barrens",
+      "level_anchor": 34,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "lizard",
+          "count": 12,
+          "desc": "Slay 12 Slag Lizard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 11795,
+        "gold": 6485,
+        "items": []
+      },
+      "next": "MQ038"
+    },
+    "MQ038": {
+      "name": "Glass From the Burn",
+      "desc": "Kael has a buyer for emberglass and, more tellingly, a buyer who is in a hurry.",
+      "giver": "hunter_kael",
+      "step": 38,
+      "region": "barrens",
+      "level_anchor": 35,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "emberglass_shard",
+          "count": 5,
+          "desc": "Gather 5 Emberglass Shard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 12265,
+        "gold": 6745,
+        "items": []
+      },
+      "next": "MQ039"
+    },
+    "MQ039": {
+      "name": "Brass by Weight",
+      "desc": "Ysolde buys raider insignia by weight -- brass is brass -- and the Choir's raiders are carrying more of it than they used to.",
+      "giver": "ysolde",
+      "step": 39,
+      "region": "barrens",
+      "level_anchor": 36,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "raider_insignia",
+          "count": 8,
+          "desc": "Gather 8 Raider Insignia"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 12735,
+        "gold": 7000,
+        "items": []
+      },
+      "next": "MQ040"
+    },
+    "MQ040": {
+      "name": "Hide for the Stalls",
+      "desc": "Ysolde's awning is lizard hide and the season has eaten through it. She would rather buy it off a hunter than a tanner.",
+      "giver": "ysolde",
+      "step": 40,
+      "region": "barrens",
+      "level_anchor": 37,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "lizard",
+          "count": 6,
+          "desc": "Slay 6 Slag Lizard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 13210,
+        "gold": 7265,
+        "items": [
+          "choirbane_mace"
+        ]
+      },
+      "next": "MQ041"
+    },
+    "MQ041": {
+      "name": "Horns on the Road",
+      "desc": "Cinderhold's road to Ashvow is shut by something with horns and a reasonable grasp of tactics.",
+      "giver": "captain_dael",
+      "step": 41,
+      "region": "barrens",
+      "level_anchor": 38,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "minotaur",
+          "count": 6,
+          "desc": "Slay 6 Ash Minotaur"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 13690,
+        "gold": 7525,
+        "items": []
+      },
+      "next": "MQ042"
+    },
+    "MQ042": {
+      "name": "Sigils in the Road Dust",
+      "desc": "Four Choir sigils off four different beasts. Dael says a sigil on a beast is a signature.",
+      "giver": "captain_dael",
+      "step": 42,
+      "region": "barrens",
+      "level_anchor": 39,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "choir_sigil",
+          "count": 4,
+          "desc": "Gather 4 Choir Sigil"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 14170,
+        "gold": 7790,
+        "items": []
+      },
+      "next": "MQ043"
+    },
+    "MQ043": {
+      "name": "Ashvow",
+      "desc": "Ashvow is where the ash started and where the money still is. Walk in with your hand off your sword.",
+      "giver": "captain_dael",
+      "step": 43,
+      "region": "barrens",
+      "level_anchor": 40,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_ashvow",
+          "count": 1,
+          "desc": "Reach Visited Ashvow"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 14655,
+        "gold": 8060,
+        "items": []
+      },
+      "next": "MQ044"
+    },
+    "MQ044": {
+      "name": "The Legion of Ash",
+      "desc": "The Choir has formed a legion out of people who used to be Cinderhold's. Kael asks you not to think about their faces.",
+      "giver": "hunter_kael",
+      "step": 44,
+      "region": "barrens",
+      "level_anchor": 41,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "legion",
+          "count": 8,
+          "desc": "Slay 8 Choir Legionnaire"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 15150,
+        "gold": 8330,
+        "items": []
+      },
+      "next": "MQ045"
+    },
+    "MQ045": {
+      "name": "Grey Coats, Ash Coats",
+      "desc": "The legion has started wearing Ashvow's colours under the Choir's grey. Kael wants the grey ones put down where the city can see it.",
+      "giver": "hunter_kael",
+      "step": 45,
+      "region": "barrens",
+      "level_anchor": 41,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "legion",
+          "count": 6,
+          "desc": "Slay 6 Choir Legionnaire"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 15150,
+        "gold": 8330,
+        "items": [
+          "cinderweave_robe"
+        ]
+      },
+      "next": "MQ046"
+    },
+    "MQ046": {
+      "name": "Salt, Ash and Iron",
+      "desc": "Dael's last sweep of the salt flats before she calls the road lost. She does not want company and she does not want witnesses left alive.",
+      "giver": "captain_dael",
+      "step": 46,
+      "region": "barrens",
+      "level_anchor": 42,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "raider_brute",
+          "count": 12,
+          "desc": "Slay 12 Raider Brute"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 15640,
+        "gold": 8600,
+        "items": []
+      },
+      "next": "MQ047"
+    },
+    "MQ047": {
+      "name": "What the Insignia Said",
+      "desc": "The insignia match. Two captains, one order, and the order came from Ashvow.",
+      "giver": "hunter_kael",
+      "step": 47,
+      "region": "barrens",
+      "level_anchor": 43,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Speak with Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 16140,
+        "gold": 8875,
+        "items": []
+      },
+      "next": "MQ048"
+    },
+    "MQ048": {
+      "name": "Beneath Ashvow",
+      "desc": "There is a sanctum under the city, and the singing in it keeps time with the chant you have been killing.",
+      "giver": "captain_dael",
+      "step": 48,
+      "region": "barrens",
+      "level_anchor": 44,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_choir_sanctum",
+          "count": 1,
+          "desc": "Reach Entered Choir Sanctum"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 16640,
+        "gold": 9150,
+        "items": []
+      },
+      "next": "MQ049"
+    },
+    "MQ049": {
+      "name": "Ashvow Burns Twice",
+      "desc": "Word from the south: Ashvow's own garrison turned. Dael asks for the ones in Choir grey to be dealt with first.",
+      "giver": "captain_dael",
+      "step": 49,
+      "region": "barrens",
+      "level_anchor": 45,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "legion",
+          "count": 10,
+          "desc": "Slay 10 Choir Legionnaire"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 17145,
+        "gold": 9425,
+        "items": []
+      },
+      "next": "MQ050"
+    },
+    "MQ050": {
+      "name": "Scrap for the Last Forge",
+      "desc": "Eight loads of scrap for the last forge still working west of Ashvow.",
+      "giver": "hunter_kael",
+      "step": 50,
+      "region": "barrens",
+      "level_anchor": 46,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "scrap_iron",
+          "count": 8,
+          "desc": "Gather 8 Scrap Iron"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 17655,
+        "gold": 9710,
+        "items": [
+          "choirbane_mace"
+        ]
+      },
+      "next": "MQ051"
+    },
+    "MQ051": {
+      "name": "The Ram's Head Road",
+      "desc": "Ysolde's caravans have stopped coming. She can price a minotaur horn to the coin and would rather not have to.",
+      "giver": "ysolde",
+      "step": 51,
+      "region": "barrens",
+      "level_anchor": 47,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "minotaur",
+          "count": 8,
+          "desc": "Slay 8 Ash Minotaur"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 18165,
+        "gold": 9990,
+        "items": []
+      },
+      "next": "MQ052"
+    },
+    "MQ052": {
+      "name": "What Kael Kept",
+      "desc": "Kael finally says the thing he has been walking around: the Choir takes people to make vessels, and the vessels are why the ash moves.",
+      "giver": "hunter_kael",
+      "step": 52,
+      "region": "barrens",
+      "level_anchor": 48,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Speak with Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 18680,
+        "gold": 10270,
+        "items": []
+      },
+      "next": "MQ053"
+    },
+    "MQ053": {
+      "name": "The Hollow Crypts",
+      "desc": "The crypts predate the Wardens. Wren wants to read what is on the door, and you would rather be standing next to Wren when it opens.",
+      "giver": "wren",
+      "step": 53,
+      "region": "frost",
+      "level_anchor": 49,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_hollow_crypts",
+          "count": 1,
+          "desc": "Reach Entered Hollow Crypts"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 19200,
+        "gold": 10560,
+        "items": []
+      },
+      "next": "MQ054"
+    },
+    "MQ054": {
+      "name": "Whatever Keeps Accounts",
+      "desc": "Something in the crypts has been keeping a ledger of the dead for four hundred years, and it has Wren's name in it.",
+      "giver": "wren",
+      "step": 54,
+      "region": "frost",
+      "level_anchor": 50,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "bone_titan",
+          "count": 1,
+          "desc": "Slay 1 The Bone Titan"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 19720,
+        "gold": 10845,
+        "items": []
+      },
+      "next": "MQ055"
+    },
+    "MQ055": {
+      "name": "Wren's Name",
+      "desc": "The ledger has Wren's name and a date that has not happened yet. Wren laughs. You notice Wren's hands are shaking.",
+      "giver": "wren",
+      "step": 55,
+      "region": "frost",
+      "level_anchor": 51,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Speak with Wren"
+        }
+      ],
+      "reward": {
+        "xp": 20245,
+        "gold": 11130,
+        "items": [
+          "cinderweave_robe"
+        ]
+      },
+      "next": "MQ056"
+    },
+    "MQ056": {
+      "name": "Hollow Relics",
+      "desc": "Four hollow relics off the cold ones -- Wren says they are the same metal as the shards, and Wren is right too often lately.",
+      "giver": "wren",
+      "step": 56,
+      "region": "frost",
+      "level_anchor": 52,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "hollow_relic",
+          "count": 4,
+          "desc": "Gather 4 Hollow Relic"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Report to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 20775,
+        "gold": 11425,
+        "items": []
+      },
+      "next": "MQ057"
+    },
+    "MQ057": {
+      "name": "Skyreach Citadel",
+      "desc": "The Warden-kin hold Skyreach. They have been expecting someone carrying warm shards for a long time, and they are not happy about it.",
+      "giver": "high_warden_isolde",
+      "step": 57,
+      "region": "frost",
+      "level_anchor": 52,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_skyreach",
+          "count": 1,
+          "desc": "Reach Visited Skyreach"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 20775,
+        "gold": 11425,
+        "items": []
+      },
+      "next": "MQ058"
+    },
+    "MQ058": {
+      "name": "The Binding",
+      "desc": "Isolde tells you what a Warden is: a promise made into a person, and a promise can be broken.",
+      "giver": "high_warden_isolde",
+      "step": 58,
+      "region": "frost",
+      "level_anchor": 53,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Speak with High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 21305,
+        "gold": 11715,
+        "items": []
+      },
+      "next": "MQ059"
+    },
+    "MQ059": {
+      "name": "Cores of Old Ice",
+      "desc": "Three rime cores, so the Citadel's forge can burn cold enough to unmake warden steel.",
+      "giver": "high_warden_isolde",
+      "step": 59,
+      "region": "frost",
+      "level_anchor": 54,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "rime_core",
+          "count": 3,
+          "desc": "Gather 3 Rime Core"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 21840,
+        "gold": 12010,
+        "items": []
+      },
+      "next": "MQ060"
+    },
+    "MQ060": {
+      "name": "The Rimevault",
+      "desc": "A vault sealed with ice that was once a door. Isolde's grandmother helped seal it; Isolde wants to know why.",
+      "giver": "high_warden_isolde",
+      "step": 60,
+      "region": "frost",
+      "level_anchor": 55,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_rimevault",
+          "count": 1,
+          "desc": "Reach Entered Rimevault"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 22375,
+        "gold": 12305,
+        "items": [
+          "cryptwarden_shield"
+        ]
+      },
+      "next": "MQ061"
+    },
+    "MQ061": {
+      "name": "Jorunn the Frost Giant",
+      "desc": "A giant has been standing at the vault door since the ash came north. It has not eaten, and it has not moved.",
+      "giver": "high_warden_isolde",
+      "step": 61,
+      "region": "frost",
+      "level_anchor": 56,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "frost_giant",
+          "count": 1,
+          "desc": "Slay 1 Jorunn the Frost Giant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 22915,
+        "gold": 12600,
+        "items": []
+      },
+      "next": "MQ062"
+    },
+    "MQ062": {
+      "name": "Trophies of the Vault",
+      "desc": "Six hollow relics out of the vault, all of them older than the door they were sealed behind.",
+      "giver": "high_warden_isolde",
+      "step": 62,
+      "region": "frost",
+      "level_anchor": 57,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "hollow_relic",
+          "count": 6,
+          "desc": "Gather 6 Hollow Relic"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 23460,
+        "gold": 12900,
+        "items": []
+      },
+      "next": "MQ063"
+    },
+    "MQ063": {
+      "name": "Kilnrest",
+      "desc": "Mireille asked to meet at Kilnrest rather than at Frosthaven, and chose a night with no moon for it.",
+      "giver": "mireille",
+      "step": 63,
+      "region": "frost",
+      "level_anchor": 58,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "visited_kilnrest",
+          "count": 1,
+          "desc": "Reach Visited Kilnrest"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 24005,
+        "gold": 13200,
+        "items": []
+      },
+      "next": "MQ064"
+    },
+    "MQ064": {
+      "name": "The Kiln Road",
+      "desc": "Ten revenants on the Kiln road. Mireille walks it every week and has never once been attacked, which she has stopped mentioning.",
+      "giver": "mireille",
+      "step": 64,
+      "region": "frost",
+      "level_anchor": 59,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 10,
+          "desc": "Slay 10 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 24555,
+        "gold": 13505,
+        "items": []
+      },
+      "next": "MQ065"
+    },
+    "MQ065": {
+      "name": "The Defector's Ledger",
+      "desc": "Mireille was Choir before she was anything else, and the ledger in her sleeve is the reason she left. What you do with it is up to you.",
+      "giver": "mireille",
+      "step": 65,
+      "region": "frost",
+      "level_anchor": 60,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Speak with Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 25105,
+        "gold": 13805,
+        "items": [
+          "duelists_signet"
+        ]
+      },
+      "next": "MQ066",
+      "branch_flags": [
+        "expose_mireille",
+        "protect_mireille"
+      ],
+      "resolution_flag": "mireille_decision"
+    },
+    "MQ066": {
+      "name": "Five Crystals for the Road",
+      "desc": "Five frost crystals to re-light the Kilnrest road markers, so the next caravan can find the town.",
+      "giver": "mireille",
+      "step": 66,
+      "region": "frost",
+      "level_anchor": 61,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "frost_crystal",
+          "count": 5,
+          "desc": "Gather 5 Frost Crystal"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 25105,
+        "gold": 13805,
+        "items": []
+      },
+      "next": "MQ067"
+    },
+    "MQ067": {
+      "name": "Trolls at the Switchback",
+      "desc": "The switchback up to Warden's Ascent is held by trolls. Isolde's scouts counted ten before they stopped counting.",
+      "giver": "high_warden_isolde",
+      "step": 67,
+      "region": "frost",
+      "level_anchor": 62,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 10,
+          "desc": "Slay 10 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 25590,
+        "gold": 14070,
+        "items": []
+      },
+      "next": "MQ068"
+    },
+    "MQ068": {
+      "name": "Cold Iron",
+      "desc": "Five rime cores, for the one forge in the peaks that can still work them.",
+      "giver": "high_warden_isolde",
+      "step": 68,
+      "region": "frost",
+      "level_anchor": 63,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "rime_core",
+          "count": 5,
+          "desc": "Gather 5 Rime Core"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 26070,
+        "gold": 14335,
+        "items": []
+      },
+      "next": "MQ069"
+    },
+    "MQ069": {
+      "name": "The Old Road North",
+      "desc": "Isolde is reopening the old road to Warden's Ascent and the revenants have opinions about it.",
+      "giver": "high_warden_isolde",
+      "step": 69,
+      "region": "frost",
+      "level_anchor": 64,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 8,
+          "desc": "Slay 8 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 26555,
+        "gold": 14605,
+        "items": []
+      },
+      "next": "MQ070"
+    },
+    "MQ070": {
+      "name": "Oaths in the Snow",
+      "desc": "Skyreach's scouts have not reported in for nine days. Clear whatever is sitting on their route.",
+      "giver": "high_warden_isolde",
+      "step": 70,
+      "region": "frost",
+      "level_anchor": 64,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 12,
+          "desc": "Slay 12 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 26555,
+        "gold": 14605,
+        "items": [
+          "duskwarden_ring"
+        ]
+      },
+      "next": "MQ071"
+    },
+    "MQ071": {
+      "name": "The Grey Procession",
+      "desc": "Ten revenants walking in file, none of them armed, all of them in Citadel grey. Isolde wants to know what they think they are marching to.",
+      "giver": "high_warden_isolde",
+      "step": 71,
+      "region": "frost",
+      "level_anchor": 65,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 10,
+          "desc": "Slay 10 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 27040,
+        "gold": 14870,
+        "items": []
+      },
+      "next": "MQ072"
+    },
+    "MQ072": {
+      "name": "The Silent Mile",
+      "desc": "The mile of road under the Citadel is walked by revenants in Citadel grey. Isolde wants to know which of her people they were.",
+      "giver": "high_warden_isolde",
+      "step": 72,
+      "region": "frost",
+      "level_anchor": 66,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 12,
+          "desc": "Slay 12 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 27525,
+        "gold": 15135,
+        "items": []
+      },
+      "next": "MQ073"
+    },
+    "MQ073": {
+      "name": "Ward Stones",
+      "desc": "Six ward stones for the Citadel gate -- the last six, if the Choir's archons are counting the same way Isolde is.",
+      "giver": "high_warden_isolde",
+      "step": 73,
+      "region": "frost",
+      "level_anchor": 67,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "frost_crystal",
+          "count": 6,
+          "desc": "Gather 6 Frost Crystal"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 28015,
+        "gold": 15405,
+        "items": []
+      },
+      "next": "MQ074"
+    },
+    "MQ074": {
+      "name": "What Mireille Chose",
+      "desc": "Mireille is still standing where you left her. Whatever the ledger cost her, she is paying it now, one troll at a time.",
+      "giver": "mireille",
+      "step": 74,
+      "region": "frost",
+      "level_anchor": 68,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 12,
+          "desc": "Slay 12 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 28505,
+        "gold": 15675,
+        "items": []
+      },
+      "next": "MQ075"
+    },
+    "MQ075": {
+      "name": "Crystal Debt",
+      "desc": "Five frost crystals are owed to a woman in Kilnrest who staked Mireille for a winter and never once asked why she left the Choir.",
+      "giver": "mireille",
+      "step": 75,
+      "region": "frost",
+      "level_anchor": 69,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "frost_crystal",
+          "count": 5,
+          "desc": "Gather 5 Frost Crystal"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 28995,
+        "gold": 15945,
+        "items": [
+          "emberglass_blade"
+        ]
+      },
+      "next": "MQ076"
+    },
+    "MQ076": {
+      "name": "Cold Work",
+      "desc": "Six rime cores, for the cold work of undoing a promise.",
+      "giver": "mireille",
+      "step": 76,
+      "region": "frost",
+      "level_anchor": 70,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "rime_core",
+          "count": 6,
+          "desc": "Gather 6 Rime Core"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 29485,
+        "gold": 16215,
+        "items": []
+      },
+      "next": "MQ077"
+    },
+    "MQ077": {
+      "name": "Warden's Ascent",
+      "desc": "The switchback climb to the Citadel's undercroft. Isolde will not walk it; she says Wardens do not enter each other's graves.",
+      "giver": "high_warden_isolde",
+      "step": 77,
+      "region": "frost",
+      "level_anchor": 71,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_wardens_ascent",
+          "count": 1,
+          "desc": "Reach Entered Wardens Ascent"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 29975,
+        "gold": 16485,
+        "items": []
+      },
+      "next": "MQ078"
+    },
+    "MQ078": {
+      "name": "The Switchback Broken",
+      "desc": "The switchback has to be broken behind you, and the trolls are in the way of the picks.",
+      "giver": "high_warden_isolde",
+      "step": 78,
+      "region": "frost",
+      "level_anchor": 72,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 14,
+          "desc": "Slay 14 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 30470,
+        "gold": 16755,
+        "items": []
+      },
+      "next": "MQ079"
+    },
+    "MQ079": {
+      "name": "The Long Quiet",
+      "desc": "Fourteen revenants between the Citadel and the ring. Mireille calls it a procession, not a patrol.",
+      "giver": "mireille",
+      "step": 79,
+      "region": "frost",
+      "level_anchor": 73,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 14,
+          "desc": "Slay 14 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 30965,
+        "gold": 17030,
+        "items": []
+      },
+      "next": "MQ080"
+    },
+    "MQ080": {
+      "name": "The Quietest Mile",
+      "desc": "Sixteen revenants on the last mile. Isolde will want their names, and you will want to have them.",
+      "giver": "mireille",
+      "step": 80,
+      "region": "frost",
+      "level_anchor": 74,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "revenant",
+          "count": 16,
+          "desc": "Slay 16 Frost Revenant"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 31460,
+        "gold": 17300,
+        "items": [
+          "monastery_aegis"
+        ]
+      },
+      "next": "MQ081"
+    },
+    "MQ081": {
+      "name": "Hollow Work",
+      "desc": "Eight hollow relics, to make the door of the ring openable by something other than the thing inside it.",
+      "giver": "mireille",
+      "step": 81,
+      "region": "frost",
+      "level_anchor": 75,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "hollow_relic",
+          "count": 8,
+          "desc": "Gather 8 Hollow Relic"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 31955,
+        "gold": 17575,
+        "items": []
+      },
+      "next": "MQ082"
+    },
+    "MQ082": {
+      "name": "The Citadel's Wards",
+      "desc": "Eight frost crystals to light the Citadel's gate wards one more time, for the people who will come back down this road without you.",
+      "giver": "high_warden_isolde",
+      "step": 82,
+      "region": "frost",
+      "level_anchor": 75,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "frost_crystal",
+          "count": 8,
+          "desc": "Gather 8 Frost Crystal"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 31955,
+        "gold": 17575,
+        "items": []
+      },
+      "next": "MQ083"
+    },
+    "MQ083": {
+      "name": "The Last Procession",
+      "desc": "Sixteen trolls on the last of the switchback, with the ring warm underneath them and the snow steaming off the stone.",
+      "giver": "high_warden_isolde",
+      "step": 83,
+      "region": "frost",
+      "level_anchor": 76,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 16,
+          "desc": "Slay 16 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 32450,
+        "gold": 17845,
+        "items": []
+      },
+      "next": "MQ084"
+    },
+    "MQ084": {
+      "name": "The Ring Wakes",
+      "desc": "Eighteen trolls walking a ring they did not draw. Mireille says the Choir pays them in something she does not want named.",
+      "giver": "mireille",
+      "step": 84,
+      "region": "frost",
+      "level_anchor": 77,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "troll",
+          "count": 18,
+          "desc": "Slay 18 Rime Troll"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 32950,
+        "gold": 18120,
+        "items": []
+      },
+      "next": "MQ085"
+    },
+    "MQ085": {
+      "name": "The Choir's Best",
+      "desc": "Archons answer to the sanctum and to nothing else. Mireille says that means someone in the sanctum is still giving orders.",
+      "giver": "mireille",
+      "step": 85,
+      "region": "frost",
+      "level_anchor": 78,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "archon",
+          "count": 8,
+          "desc": "Slay 8 Ashen Archon"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 33450,
+        "gold": 18395,
+        "items": [
+          "new_dawn_band"
+        ]
+      },
+      "next": "MQ086"
+    },
+    "MQ086": {
+      "name": "The Sanctum's Orders",
+      "desc": "Six archons carrying sealed orders in the sanctum's own hand. Mireille wants one of those seals intact, and wants it more than she wants sleep.",
+      "giver": "mireille",
+      "step": 86,
+      "region": "frost",
+      "level_anchor": 79,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "archon",
+          "count": 6,
+          "desc": "Slay 6 Ashen Archon"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 33950,
+        "gold": 18670,
+        "items": []
+      },
+      "next": "MQ087"
+    },
+    "MQ087": {
+      "name": "Names into Light",
+      "desc": "Five more ledgers, so the names of the taken survive the people who took them.",
+      "giver": "mireille",
+      "step": 87,
+      "region": "frost",
+      "level_anchor": 80,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "choir_ledger",
+          "count": 5,
+          "desc": "Gather 5 Choir Ledger"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 34450,
+        "gold": 18945,
+        "items": []
+      },
+      "next": "MQ088"
+    },
+    "MQ088": {
+      "name": "Replacing What Was Lost",
+      "desc": "Five ingots of warden steel, drawn from the Choir's own store, to reforge the Citadel's broken gate.",
+      "giver": "high_warden_isolde",
+      "step": 88,
+      "region": "frost",
+      "level_anchor": 81,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "warden_steel_ingot",
+          "count": 5,
+          "desc": "Gather 5 Warden-Steel Ingot"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 34950,
+        "gold": 19220,
+        "items": []
+      },
+      "next": "MQ089"
+    },
+    "MQ089": {
+      "name": "Ledgers for the Archive",
+      "desc": "Four more of the Choir's ledgers, for the archive wing that is only opened for endings.",
+      "giver": "high_warden_isolde",
+      "step": 89,
+      "region": "frost",
+      "level_anchor": 82,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "choir_ledger",
+          "count": 4,
+          "desc": "Gather 4 Choir Ledger"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 35455,
+        "gold": 19500,
+        "items": []
+      },
+      "next": "MQ090"
+    },
+    "MQ090": {
+      "name": "Eight Shards, One Vessel",
+      "desc": "Eight shards of the vessel the Choir has been building since the ash started falling. Mireille will not hold them.",
+      "giver": "mireille",
+      "step": 90,
+      "region": "frost",
+      "level_anchor": 83,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "vessel_shard",
+          "count": 8,
+          "desc": "Gather 8 Vessel Shard"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 35960,
+        "gold": 19775,
+        "items": [
+          "phoenix_elixir"
+        ]
+      },
+      "next": "MQ091"
+    },
+    "MQ091": {
+      "name": "Five Heralds Left",
+      "desc": "Five heralds left, and every one of them is carrying the Warden's seal.",
+      "giver": "high_warden_isolde",
+      "step": 91,
+      "region": "frost",
+      "level_anchor": 84,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 5,
+          "desc": "Slay 5 Ashen Herald"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 36465,
+        "gold": 20055,
+        "items": []
+      },
+      "next": "MQ092"
+    },
+    "MQ092": {
+      "name": "Archons at the Door",
+      "desc": "Ten archons standing in a ring around the scorched ground. They are not guarding it. They are waiting for it.",
+      "giver": "mireille",
+      "step": 92,
+      "region": "frost",
+      "level_anchor": 85,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "archon",
+          "count": 10,
+          "desc": "Slay 10 Ashen Archon"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 36970,
+        "gold": 20330,
+        "items": []
+      },
+      "next": "MQ093"
+    },
+    "MQ093": {
+      "name": "Three Heralds",
+      "desc": "Three Ashen Heralds, all carrying the same sealed order, all addressed to you by name.",
+      "giver": "high_warden_isolde",
+      "step": 93,
+      "region": "frost",
+      "level_anchor": 86,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 3,
+          "desc": "Slay 3 Ashen Herald"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 37475,
+        "gold": 20610,
+        "items": []
+      },
+      "next": "MQ094"
+    },
+    "MQ094": {
+      "name": "Warden's Keep",
+      "desc": "The scorched ring, and under it the keep where the first promise is still being kept. Isolde's last order is one word: descend.",
+      "giver": "high_warden_isolde",
+      "step": 94,
+      "region": "frost",
+      "level_anchor": 86,
+      "objectives": [
+        {
+          "id": "reach",
+          "type": "flag",
+          "target": "entered_ember_warden_keep",
+          "count": 1,
+          "desc": "Reach Entered Ember Warden Keep"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 37475,
+        "gold": 20610,
+        "items": []
+      },
+      "next": "MQ095"
+    },
+    "MQ095": {
+      "name": "Ash, Snow and Silence",
+      "desc": "Fourteen archons between you and the stair down. Nobody is singing now.",
+      "giver": "high_warden_isolde",
+      "step": 95,
+      "region": "frost",
+      "level_anchor": 87,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "archon",
+          "count": 14,
+          "desc": "Slay 14 Ashen Archon"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 37980,
+        "gold": 20885,
+        "items": [
+          "rimevault_greatsword"
+        ]
+      },
+      "next": "MQ096"
+    },
+    "MQ096": {
+      "name": "Seals and Sigils",
+      "desc": "Six Choir sigils, unbroken, for the Citadel's archive. The archive has a wing that is only opened for endings.",
+      "giver": "high_warden_isolde",
+      "step": 96,
+      "region": "frost",
+      "level_anchor": 88,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "choir_sigil",
+          "count": 6,
+          "desc": "Gather 6 Choir Sigil"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 38490,
+        "gold": 21165,
+        "items": []
+      },
+      "next": "MQ097"
+    },
+    "MQ097": {
+      "name": "Heralds of the End",
+      "desc": "Six heralds, and the last one has stopped moving its lips, because the message has been delivered.",
+      "giver": "mireille",
+      "step": 97,
+      "region": "frost",
+      "level_anchor": 89,
+      "objectives": [
+        {
+          "id": "hunt",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 6,
+          "desc": "Slay 6 Ashen Herald"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 39000,
+        "gold": 21450,
+        "items": []
+      },
+      "next": "MQ098"
+    },
+    "MQ098": {
+      "name": "The Cold That Remembers",
+      "desc": "Eight rime cores to hold open a door that was sealed warm and has hated it ever since.",
+      "giver": "mireille",
+      "step": 98,
+      "region": "frost",
+      "level_anchor": 90,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "rime_core",
+          "count": 8,
+          "desc": "Gather 8 Rime Core"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 39510,
+        "gold": 21730,
+        "items": []
+      },
+      "next": "MQ099"
+    },
+    "MQ099": {
+      "name": "Ingots for the Return Road",
+      "desc": "Six ingots left at the citadel, so the road back is a road and not a walk into nothing.",
+      "giver": "high_warden_isolde",
+      "step": 99,
+      "region": "frost",
+      "level_anchor": 91,
+      "objectives": [
+        {
+          "id": "gather",
+          "type": "collect",
+          "target": "warden_steel_ingot",
+          "count": 6,
+          "desc": "Gather 6 Warden-Steel Ingot"
+        },
+        {
+          "id": "report",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 40020,
+        "gold": 22010,
+        "items": []
+      },
+      "next": "MQ100"
+    },
+    "MQ100": {
+      "name": "The Ember Omen",
+      "desc": "You climb back into the snow at the scorched ring with the ledger, the shards and the word 'vessel' in your mouth. Rowan is waiting at the edge of the burn, and he already knows what you are going to say.",
+      "giver": "elder_rowan",
+      "step": 100,
+      "region": "frost",
+      "level_anchor": 92,
+      "objectives": [
+        {
+          "id": "speak",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Speak with Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 40530,
+        "gold": 22290,
+        "items": [
+          "sanguine_covenant"
+        ]
+      },
+      "next": "q2_ember_omen"
     }
+  },
+  "chain": {
+    "length": 100,
+    "starts_after": "q1_first_light",
+    "ends_with": "q2_ember_omen",
+    "fork_step": "MQ065",
+    "fork_flags": [
+      "expose_mireille",
+      "protect_mireille"
+    ],
+    "step_xp_fraction": 0.35,
+    "level_anchor_first": 1,
+    "level_anchor_last": 92
   }
 }

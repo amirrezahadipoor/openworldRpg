@@ -208,9 +208,22 @@ func _test_quests_and_dialogue() -> void:
 	var gold_before := GameState.gold
 	QuestManager.complete_objective("q1_first_light", "report_elder")
 	check(QuestManager.is_done("q1_first_light"), "q1 completed")
-	check(QuestManager.is_active("q2_ember_omen"), "q2 auto-started")
+	check(QuestManager.is_active("MQ001"), "the 100-step chain auto-started after q1")
 	check(GameState.gold == gold_before + 40, "q1 gold reward (+40)")
 	check(int(GameState.inventory.get("short_sword", 0)) >= 1, "q1 item reward delivered")
+
+	# Phase F4: the 100-step chain sits between q1 and q2. Walk it here to reach
+	# the Ember Omen, then put the character back where this test found them —
+	# the chain's own economy is QuestTest's and PlaythroughTest's business.
+	var gold_at_chain := GameState.gold
+	var level_at_chain := GameState.level
+	var xp_at_chain := GameState.xp
+	var walked := _fast_forward_chain()
+	check(walked == 100, "the whole chain walks (%d steps)" % walked)
+	check(QuestManager.is_active("q2_ember_omen"), "q2 auto-started after the chain")
+	GameState.gold = gold_at_chain
+	GameState.level = level_at_chain
+	GameState.xp = xp_at_chain
 
 	check(String(DialogueDB.pick("elder_rowan").get("id", "")) == "elder_q2_brief", "q2 briefing dialogue")
 	QuestManager.register_flag("saw_warden_ring")
@@ -248,6 +261,26 @@ func _test_quests_and_dialogue() -> void:
 	QuestManager.start_quest("s_emberling_run")
 	check(QuestManager.is_active("s_emberling_run"), "repeatable quest can be re-accepted")
 	check(QuestManager.marker_for("hunter_kael"), "marker shown for pending talk objective")
+
+
+func _fast_forward_chain() -> int:
+	## Completes each step's objectives directly — the engine paths are covered
+	## step-by-step in tests/QuestTest.tscn and tests/PlaythroughTest.tscn.
+	var walked := 0
+	for i in range(1, 101):
+		var qid := "MQ%03d" % i
+		if not QuestManager.is_active(qid):
+			return walked
+		var quest: Dictionary = QuestManager.data[qid]
+		for obj in (quest.get("objectives", []) as Array):
+			QuestManager.complete_objective(qid, String((obj as Dictionary).get("id", "")))
+		if i == 65:
+			QuestManager.register_flag("protect_mireille")
+			QuestManager.register_flag("mireille_decision")
+		if not QuestManager.is_done(qid):
+			return walked
+		walked += 1
+	return walked
 
 
 func _test_save_slots() -> void:
@@ -302,13 +335,26 @@ func _test_abilities() -> void:
 	host.add_child(melee_target)
 	melee_target.setup_archetype("grunt")
 	player.facing = Vector2.RIGHT
-	melee_target.global_position = player.global_position + Vector2(48, 0)
-	player.attack_shape.disabled = false
-	await get_tree().physics_frame
+	# The attack shape is only enabled during the active frames of a swing, and
+	# the overlap set is scanned at the end of a physics step, so wait for the
+	# overlap to actually exist rather than assuming one frame is enough. The
+	# guard being tested is the routing (hurtbox area -> its owner's take_hit).
 	var melee_before := melee_target.hp
-	player._resolve_attack_hits()
-	await get_tree().process_frame
-	check(melee_target.hp < melee_before, "melee hit lands via hurtbox routing")
+	var landed := false
+	for attempt in 8:
+		player.facing = Vector2.RIGHT
+		melee_target.global_position = player.global_position + Vector2(48, 0)
+		player.attack_shape.disabled = false
+		await get_tree().physics_frame
+		await get_tree().physics_frame
+		if player.attack_area.get_overlapping_areas().is_empty():
+			continue
+		await player._resolve_attack_hits()
+		await get_tree().process_frame
+		if melee_target.hp < melee_before:
+			landed = true
+			break
+	check(landed, "melee hit lands via hurtbox routing")
 	player.attack_shape.disabled = true
 
 	PoolManager.spawn_projectile(e2.global_position, Vector2.RIGHT, 12.0, 400.0, Color.WHITE, true)
@@ -798,7 +844,7 @@ func _test_quest_collect() -> void:
 				"desc": "Hand over a mana potion"},
 		],
 	}
-	GameState.remove_item("mana_potion", 99)
+	GameState.inventory.erase("mana_potion")   # remove_item(x, 99) is a no-op when you carry fewer than 99
 	QuestManager.start_quest(qid2)
 	check(QuestManager.objective_count(qid2, "handover") == 0,
 		"an empty bag leaves the deliver objective unmet")
@@ -817,7 +863,7 @@ func _test_quest_collect() -> void:
 				"desc": "Bring leather armor"},
 		],
 	}
-	GameState.remove_item("leather_armor", 99)
+	GameState.inventory.erase("leather_armor")   # remove_item(x, 99) is a no-op when you carry fewer than 99
 	QuestManager.start_quest(qid3)
 	check(QuestManager.objective_count(qid3, "gather") == 0, "starts at 0 with an empty bag")
 	GameState.add_item("leather_armor", 1)

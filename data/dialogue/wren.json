@@ -1,9 +1,202 @@
 {
-  "_comment": "NPC dialogue for wren (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for wren (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ003",
+      "requires": {
+        "quest_active": [
+          "MQ003"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "Your sibling swears the emberlings were walking in a line -- not scattering, walking -- and asks you to break the column.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Slay 5 Emberling. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ004",
+      "requires": {
+        "quest_active": [
+          "MQ004"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "Wren wants four emberling embers sealed in a jar, to show Rowan the colour is wrong.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Gather 4 Emberling Ember. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ011",
+      "requires": {
+        "quest_active": [
+          "MQ011"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "The mill's lower floor has been open since the sluice broke. Wren will not go down; you will.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Reach Entered Drowned Mill. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ012",
+      "requires": {
+        "quest_active": [
+          "MQ012"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "A crowned goblin has been sitting in the mill's wheel-room, holding court over a drowned village.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Slay 1 Skarn the Goblin King. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ053",
+      "requires": {
+        "quest_active": [
+          "MQ053"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "The crypts predate the Wardens. Wren wants to read what is on the door, and you would rather be standing next to Wren when it opens.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Reach Entered Hollow Crypts. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ054",
+      "requires": {
+        "quest_active": [
+          "MQ054"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "Something in the crypts has been keeping a ledger of the dead for four hundred years, and it has Wren's name in it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Slay 1 The Bone Titan. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ055",
+      "requires": {
+        "quest_active": [
+          "MQ055"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "The ledger has Wren's name and a date that has not happened yet. Wren laughs. You notice Wren's hands are shaking.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Speak with Wren. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ056",
+      "requires": {
+        "quest_active": [
+          "MQ056"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Wren",
+          "text": "Four hollow relics off the cold ones -- Wren says they are the same metal as the shards, and Wren is right too often lately.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Wren",
+          "text": "Gather 4 Hollow Relic. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
-      "text": "Race you to the well \u2014 no, actually, race you to the ridge.",
+      "text": "Race you to the well — no, actually, race you to the ridge.",
       "when": []
     },
     {

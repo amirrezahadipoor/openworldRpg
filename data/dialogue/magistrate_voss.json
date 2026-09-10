@@ -1,6 +1,55 @@
 {
-  "_comment": "NPC dialogue for magistrate_voss (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for magistrate_voss (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ014",
+      "requires": {
+        "quest_active": [
+          "MQ014"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Magistrate Voss",
+          "text": "The magistrate will talk about the ash road once the ledger balances, and the ledger needs six bolts' worth of cloth.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Magistrate Voss",
+          "text": "Gather 6 Torn Cloth. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ015",
+      "requires": {
+        "quest_active": [
+          "MQ015"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Magistrate Voss",
+          "text": "Voss admits the warrens under the ash road are not a vermin problem. He wants to know what they actually are.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Magistrate Voss",
+          "text": "Reach Entered Emberling Warrens. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "Order is not cruelty. Order is what keeps the chaos at the gate.",

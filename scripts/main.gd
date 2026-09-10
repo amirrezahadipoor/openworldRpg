@@ -59,12 +59,37 @@ func _ready() -> void:
 var _music_timer := 0.0
 
 
+var _place_timer := 0.0
+
+
 func _process(delta: float) -> void:
 	_music_timer += delta
+	_place_timer += delta
+	if _place_timer >= 0.5:
+		_place_timer = 0.0
+		_check_place_flags()
 	if _music_timer < 0.75:
 		return
 	_music_timer = 0.0
 	_update_music()
+
+
+func _check_place_flags() -> void:
+	## Phase F4: quest steps ask the player to *reach* places, so the world has
+	## to raise flags for arriving somewhere. Dungeon entry and boss kills raise
+	## their own (see enter_dungeon / _on_boss_defeated / Dungeon).
+	if player == null or _dungeon != null:
+		return
+	var p: Vector2 = player.global_position
+	for id in Settlement.all():
+		var d: Dictionary = Settlement.get_data(id)
+		var pos: Array = d.get("position", [0, 0])
+		var radius := float(d.get("radius", 300.0))
+		var flag := "visited_%s" % id
+		if bool(GameState.quest_flags.get(flag, false)):
+			continue
+		if p.distance_to(Vector2(float(pos[0]), float(pos[1]))) <= radius:
+			QuestManager.register_flag(flag)
 
 
 ## Boss music state. main.gd owns the music selection (it re-evaluates every
@@ -232,6 +257,9 @@ func _on_enemy_died(enemy: Node) -> void:
 
 
 func _on_npc_interacted(npc: NPC) -> void:
+	# Phase F4: interacting is what counts as talking, so any active `talk`
+	# objective for this NPC advances even when the reply is only a bark.
+	QuestManager.talk_to(npc.npc_id)
 	if npc.is_vendor:
 		shop_ui.open(npc.display_name, camp.get_vendor_stock())
 		return
@@ -366,6 +394,7 @@ func _quests_done() -> int:
 func _on_boss_defeated() -> void:
 	_boss_active = false
 	_boss_defeated = true
+	QuestManager.register_flag("cleared_ember_warden_keep")
 	_music_timer = 0.75      # let the biome theme return promptly
 	camera.shake(0.9)
 
@@ -457,6 +486,7 @@ func enter_dungeon(dungeon_id: String) -> void:
 	_dungeon.name = "Dungeon_%s" % dungeon_id
 	add_child(_dungeon)
 	_dungeon.exited.connect(_on_dungeon_exited)
+	QuestManager.register_flag("entered_%s" % dungeon_id)
 	_dungeon.setup(dungeon_id, 1)
 	# Important: setup() places the dungeon at its world position, so the
 	# off-map relocation has to happen AFTER it, or the room is left sitting on

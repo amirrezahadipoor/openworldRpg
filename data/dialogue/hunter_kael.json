@@ -1,6 +1,342 @@
 {
-  "_comment": "Hunter Kael \u2014 side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
+  "_comment": "Hunter Kael — side & repeatable quests. Order: reports first, then reminders, then offers (run offer is the catch-all).",
   "dialogues": [
+    {
+      "id": "mq_brief_MQ021",
+      "requires": {
+        "quest_active": [
+          "MQ021"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Ashport is the last town before the salt flats, and the first one the ash reached. Kael is waiting at the gate.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Reach Visited Ashport. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ022",
+      "requires": {
+        "quest_active": [
+          "MQ022"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The scouts are ranging further west than raiders ever did, and they are not carrying loot -- they are carrying orders.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 6 Barrens Scout. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ023",
+      "requires": {
+        "quest_active": [
+          "MQ023"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Kael wants four insignia off four different brutes. He says two matching ones will tell him which captain is moving.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Gather 4 Raider Insignia. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ025",
+      "requires": {
+        "quest_active": [
+          "MQ025"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The old smelting works has been lit for three weeks. It has no coal.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Reach Entered Slagworks. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ026",
+      "requires": {
+        "quest_active": [
+          "MQ026"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Whatever has been feeding the furnace has a shape, and the shape has a grudge.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 1 The Slag Wraith. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ032",
+      "requires": {
+        "quest_active": [
+          "MQ032"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Brother Ashe's order held the Scorched Monastery for eighty years. The gate is open, which is the first thing wrong with it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Reach Entered Scorched Monastery. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ033",
+      "requires": {
+        "quest_active": [
+          "MQ033"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The brutes have billeted themselves in the nave. Kael finds that obscene on grounds he refuses to explain.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 9 Raider Brute. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ037",
+      "requires": {
+        "quest_active": [
+          "MQ037"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Something in the salt beds is drilling. Kael wants the drilling stopped before it reaches the water.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 12 Slag Lizard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ038",
+      "requires": {
+        "quest_active": [
+          "MQ038"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Kael has a buyer for emberglass and, more tellingly, a buyer who is in a hurry.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Gather 5 Emberglass Shard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ044",
+      "requires": {
+        "quest_active": [
+          "MQ044"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The Choir has formed a legion out of people who used to be Cinderhold's. Kael asks you not to think about their faces.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 8 Choir Legionnaire. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ045",
+      "requires": {
+        "quest_active": [
+          "MQ045"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The legion has started wearing Ashvow's colours under the Choir's grey. Kael wants the grey ones put down where the city can see it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Slay 6 Choir Legionnaire. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ047",
+      "requires": {
+        "quest_active": [
+          "MQ047"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "The insignia match. Two captains, one order, and the order came from Ashvow.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Speak with Hunter Kael. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ050",
+      "requires": {
+        "quest_active": [
+          "MQ050"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Eight loads of scrap for the last forge still working west of Ashvow.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Gather 8 Scrap Iron. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ052",
+      "requires": {
+        "quest_active": [
+          "MQ052"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Hunter Kael",
+          "text": "Kael finally says the thing he has been walking around: the Choir takes people to make vessels, and the vessels are why the ash moves.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Hunter Kael",
+          "text": "Speak with Hunter Kael. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
     {
       "id": "kael_cull_report",
       "requires": {
@@ -14,7 +350,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "Three scouts down. Clean work \u2014 the barrens will feel that for a season.",
+          "text": "Three scouts down. Clean work — the barrens will feel that for a season.",
           "next": "2"
         },
         "2": {
@@ -45,7 +381,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "Four emberlings, ash to ash. Here's your pay \u2014 and if more crawl out of the cinders, you know where to find me.",
+          "text": "Four emberlings, ash to ash. Here's your pay — and if more crawl out of the cinders, you know where to find me.",
           "next": ""
         }
       },
@@ -68,7 +404,7 @@
       "nodes": {
         "1": {
           "speaker": "Hunter Kael",
-          "text": "The scouts run in the tan barrens, west and north. Fast little devils \u2014 wait for their lunge, then roll behind and cut.",
+          "text": "The scouts run in the tan barrens, west and north. Fast little devils — wait for their lunge, then roll behind and cut.",
           "next": ""
         }
       },

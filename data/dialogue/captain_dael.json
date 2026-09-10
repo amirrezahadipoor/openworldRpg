@@ -1,6 +1,343 @@
 {
-  "_comment": "NPC dialogue for captain_dael (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for captain_dael (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ027",
+      "requires": {
+        "quest_active": [
+          "MQ027"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Cinderhold's captain wants the ash road walked by someone who is not one of her own soldiers -- and she wants a witness.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Reach Visited Cinderhold. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ028",
+      "requires": {
+        "quest_active": [
+          "MQ028"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "The chanting starts at dusk and the walls answer it. Dael wants it stopped, not studied.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 7 Frost Shaman. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ029",
+      "requires": {
+        "quest_active": [
+          "MQ029"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "The charms Dael's smiths copy keep the mortar from singing, but the copies need originals.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Gather 4 Shaman Charm. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ030",
+      "requires": {
+        "quest_active": [
+          "MQ030"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Cinderhold's shields are laced with lizard hide. The lacing is wearing out.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 8 Slag Lizard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ031",
+      "requires": {
+        "quest_active": [
+          "MQ031"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Six ash shards from the glass fields, for Dael's armourer to test a theory.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Gather 6 Ash Shard. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ034",
+      "requires": {
+        "quest_active": [
+          "MQ034"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Four relics out of the rubble, before the Choir gets a use out of them.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Gather 4 Scorched Relic. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ035",
+      "requires": {
+        "quest_active": [
+          "MQ035"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "The chant is louder than it was and it is coming from further away. Dael wants the mouth of it stopped.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 10 Frost Shaman. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ036",
+      "requires": {
+        "quest_active": [
+          "MQ036"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Three ingots of warden steel, still warm, still in Choir hands. Dael wants to know how they are making it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Gather 3 Warden-Steel Ingot. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ041",
+      "requires": {
+        "quest_active": [
+          "MQ041"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Cinderhold's road to Ashvow is shut by something with horns and a reasonable grasp of tactics.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 6 Ash Minotaur. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ042",
+      "requires": {
+        "quest_active": [
+          "MQ042"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Four Choir sigils off four different beasts. Dael says a sigil on a beast is a signature.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Gather 4 Choir Sigil. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ043",
+      "requires": {
+        "quest_active": [
+          "MQ043"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Ashvow is where the ash started and where the money still is. Walk in with your hand off your sword.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Reach Visited Ashvow. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ046",
+      "requires": {
+        "quest_active": [
+          "MQ046"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Dael's last sweep of the salt flats before she calls the road lost. She does not want company and she does not want witnesses left alive.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 12 Raider Brute. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ048",
+      "requires": {
+        "quest_active": [
+          "MQ048"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "There is a sanctum under the city, and the singing in it keeps time with the chant you have been killing.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Reach Entered Choir Sanctum. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ049",
+      "requires": {
+        "quest_active": [
+          "MQ049"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Captain Dael",
+          "text": "Word from the south: Ashvow's own garrison turned. Dael asks for the ones in Choir grey to be dealt with first.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Captain Dael",
+          "text": "Slay 10 Choir Legionnaire. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "Cinderhold holds because someone stands on the wall. Today that's me.",

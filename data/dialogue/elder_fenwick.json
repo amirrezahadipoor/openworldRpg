@@ -1,6 +1,103 @@
 {
-  "_comment": "NPC dialogue for elder_fenwick (Phase E \u00a73 barks; quest lines land with Act 1).",
-  "dialogues": [],
+  "_comment": "NPC dialogue for elder_fenwick (Phase E §3 barks; quest lines land with Act 1).",
+  "dialogues": [
+    {
+      "id": "mq_brief_MQ005",
+      "requires": {
+        "quest_active": [
+          "MQ005"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Elder Fenwick",
+          "text": "Fenwick of Oakstead sent word: the mill road is no longer safe, and the village wants a sword arm to walk it.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Elder Fenwick",
+          "text": "Reach Visited Oakstead. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ006",
+      "requires": {
+        "quest_active": [
+          "MQ006"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Elder Fenwick",
+          "text": "The wolves have stopped hunting deer and started hunting pens.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Elder Fenwick",
+          "text": "Slay 5 Meadow Wolf. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ007",
+      "requires": {
+        "quest_active": [
+          "MQ007"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Elder Fenwick",
+          "text": "Oakstead's fever wants cave moss, and the caves are full of things that want it too.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Elder Fenwick",
+          "text": "Gather 4 Cave Moss. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ019",
+      "requires": {
+        "quest_active": [
+          "MQ019"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Elder Fenwick",
+          "text": "Oakstead rebuilt the fold where the wolves came through. Fenwick wants the pack that did it thinned to nothing.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Elder Fenwick",
+          "text": "Slay 8 Meadow Wolf. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    }
+  ],
   "barks": [
     {
       "text": "Oakstead was a mill before it was a village. We still grind what we can.",

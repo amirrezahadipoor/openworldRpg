@@ -2,6 +2,222 @@
   "_comment": "Elder Rowan conversations. DialogueDB picks the FIRST entry whose 'requires' match (most specific must come first). Flag '<quest>_<objective>' is auto-raised when that objective completes.",
   "dialogues": [
     {
+      "id": "mq_brief_MQ001",
+      "requires": {
+        "quest_active": [
+          "MQ001"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "Grey flecks on the washing-line. Rowan says it is not woodsmoke, and he wants the slimes thinned before the village starts asking questions.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Slay 4 Slime Grunt. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ002",
+      "requires": {
+        "quest_active": [
+          "MQ002"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "The tanner pays in coin for slime gel, and Rowan wants the stores full before the frost turns.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Gather 3 Slime Gel. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ009",
+      "requires": {
+        "quest_active": [
+          "MQ009"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "Something is raising Millhaven's dead badly -- as if it had learned how from a book, not a rite. Put them down.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Slay 6 Rotting Husk. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ010",
+      "requires": {
+        "quest_active": [
+          "MQ010"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "The glands in the husks are wrong for corpses this fresh. Rowan wants them on his table before the smell decides anything.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Gather 4 Fetid Gland. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ013",
+      "requires": {
+        "quest_active": [
+          "MQ013"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "A sealed writ arrives from Sunreach City. Rowan does not open it; he says the seal is on the inside.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Reach Visited Sunreach. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ016",
+      "requires": {
+        "quest_active": [
+          "MQ016"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "The warrens are breathing. Every emberling you leave is a lungful of the thing coming up the road.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Slay 8 Emberling. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ017",
+      "requires": {
+        "quest_active": [
+          "MQ017"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "Six embers, sealed and boxed, for the road wardens' braziers.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Gather 6 Emberling Ember. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ020",
+      "requires": {
+        "quest_active": [
+          "MQ020"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "Rowan finally opens the writ. Sunreach is sending someone east, and the road east does not stay in the Meadows.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Speak with Old Rowan. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
+      "id": "mq_brief_MQ100",
+      "requires": {
+        "quest_active": [
+          "MQ100"
+        ]
+      },
+      "nodes": {
+        "1": {
+          "speaker": "Old Rowan",
+          "text": "You climb back into the snow at the scorched ring with the ledger, the shards and the word 'vessel' in your mouth. Rowan is waiting at the edge of the burn, and he already knows what you are going to say.",
+          "next": "2",
+          "choices": []
+        },
+        "2": {
+          "speaker": "Old Rowan",
+          "text": "Speak with Old Rowan. Come back to me when it is done.",
+          "next": "",
+          "choices": []
+        }
+      },
+      "start": "1",
+      "on_complete": []
+    },
+    {
       "id": "elder_after_end",
       "requires": {
         "quest_done": [
@@ -31,7 +247,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian \u2014 corrupted by my old mistake.",
+          "text": "It is done, then... and you chose mercy over vengeance. The Warden was once our guardian — corrupted by my old mistake.",
           "next": "2"
         },
         "2": {
@@ -71,7 +287,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "It is done. You burned the corruption out root and branch \u2014 just as you swore.",
+          "text": "It is done. You burned the corruption out root and branch — just as you swore.",
           "next": "2"
         },
         "2": {
@@ -108,7 +324,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes \u2014 that's your window to roll aside.",
+          "text": "The Warden waits at the scorched ring, northeast of here. Watch for the gold glow before it strikes — that's your window to roll aside.",
           "next": ""
         }
       },
@@ -202,7 +418,7 @@
         },
         "2": {
           "speaker": "Elder Rowan",
-          "text": "Go. See it with your own eyes. Then come back to me \u2014 you deserve the truth of it.",
+          "text": "Go. See it with your own eyes. Then come back to me — you deserve the truth of it.",
           "next": ""
         }
       },
@@ -222,7 +438,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "You've done it \u2014 the camp can breathe again. You fight like someone the road has sharpened.",
+          "text": "You've done it — the camp can breathe again. You fight like someone the road has sharpened.",
           "next": "2"
         },
         "2": {
@@ -250,7 +466,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge \u2014 that's your cue to roll aside.",
+          "text": "The slimes still prowl just beyond the firelight. Watch for their wind-up glow before they lunge — that's your cue to roll aside.",
           "next": ""
         }
       },
@@ -263,7 +479,7 @@
       "nodes": {
         "1": {
           "speaker": "Elder Rowan",
-          "text": "Ah \u2014 a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.",
+          "text": "Ah — a new face on the road. Welcome to our little fire, traveler. I am Rowan, elder of what's left of this camp.",
           "next": "2"
         },
         "2": {
@@ -287,12 +503,12 @@
         },
         "3b": {
           "speaker": "Elder Rowan",
-          "text": "Fair. Coin, then \u2014 and my thanks when it's done. We take care of those who take care of us.",
+          "text": "Fair. Coin, then — and my thanks when it's done. We take care of those who take care of us.",
           "next": "4"
         },
         "4": {
           "speaker": "Elder Rowan",
-          "text": "They prowl just outside the firelight. And traveler \u2014 roll aside when they glow. They always lunge after.",
+          "text": "They prowl just outside the firelight. And traveler — roll aside when they glow. They always lunge after.",
           "next": ""
         }
       },
@@ -311,7 +527,7 @@
       "when": []
     },
     {
-      "text": "Millhaven has stood through three winters like this one. Stand, or fall \u2014 that is all the world asks.",
+      "text": "Millhaven has stood through three winters like this one. Stand, or fall — that is all the world asks.",
       "when": []
     },
     {

@@ -82,6 +82,12 @@ jobs:
           grep -q "WORLDMAP RESULT: PASS" worldmap.log || { echo "::error::settlement/dungeon validation failed"; exit 1; }
           echo "worldmap ✓"
 
+      - name: "Main quest chain: 100 steps, region/level fit, walkable end to end (Phase F)"
+        run: |
+          timeout 120 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/QuestTest.tscn | tee quests.log
+          grep -q "QUEST RESULT: PASS" quests.log || { echo "::error::main quest chain validation failed"; exit 1; }
+          echo "100-step chain ✓"
+
       - name: "Items, monsters and bosses: rarity ladder, placement, loot reachability (Phase F)"
         run: |
           timeout 120 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/ItemsTest.tscn | tee items.log

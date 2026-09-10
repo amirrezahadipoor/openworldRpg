@@ -1,5 +1,5 @@
 extends Node
-## Headless full main-story playthrough: q1 -> q4.
+## Headless full main-story playthrough: q1 -> the 100-step chain -> q2 -> q4.
 ## Exercises the real flow: dialogue-driven quest starts, kill objectives via
 ## enemy deaths, auto-flags, boss-arena summon + multi-phase kill, quest
 ## chaining, rewards (xp/gold/items). Exits 0 on PASS, 1 on FAIL. Run:
@@ -36,6 +36,7 @@ func _ready() -> void:
 	check(arena != null, "boss arena present in world")
 
 	await _act1_thin_the_slimes()
+	await _act1b_the_ash_road()
 	await _act2_scorched_ring()
 	await _act3_warden_fall()
 	await _act4_new_dawn()
@@ -70,10 +71,87 @@ func _act1_thin_the_slimes() -> void:
 	QuestManager.talk_to("elder_rowan")  # dialogue action complete_objective(report_elder)
 	await get_tree().physics_frame
 	check(QuestManager.is_done("q1_first_light"), "q1 complete after reporting")
-	check(QuestManager.is_active("q2_ember_omen"), "q2 auto-started (quest chain)")
+	check(QuestManager.is_active("MQ001"), "the 100-step chain starts (MQ001)")
 	check(GameState.gold >= gold_before + 40, "gold reward granted (+40)")
 	check(int(GameState.inventory.get("short_sword", 0)) >= 1, "short_sword reward in inventory")
 	host.queue_free()
+
+
+## Act 1b: the 100-step chain, walked the way world events would drive it.
+func _act1b_the_ash_road() -> void:
+	print("[playthrough] Act 1b — the ash road (MQ001-MQ100)")
+	var gold_before := GameState.gold
+	var xp_level_before := GameState.level
+	var host := Node2D.new()
+	add_child(host)
+
+	var walker := _ChainWalker.new()
+	walker.host = host
+	walker.player_pos_callable = func() -> Vector2: return player.global_position
+	var walked: int = await walker.walk_all()
+	host.queue_free()
+
+	check(walked == 100, "all 100 chain steps completed in order (%d)" % walked)
+	check(QuestManager.is_active("q2_ember_omen"), "the Ember Omen starts after the chain")
+	check(GameState.level > xp_level_before, "the chain granted levels (L%d -> L%d)" %
+		[xp_level_before, GameState.level])
+	check(GameState.gold > gold_before, "the chain paid gold (+%d)" %
+		int(GameState.gold - gold_before))
+
+
+class _ChainWalker:
+	## Drives the chain through the real quest API — real enemy nodes for kills,
+	## the pickup signal for collects, register_flag for travel, talk_to for
+	## hand-ins — so the test exercises the same paths the game does.
+	var host: Node2D
+	var player_pos_callable: Callable
+
+	func _wait(tree: SceneTree) -> void:
+		await tree.physics_frame
+
+	func walk_all() -> int:
+		var tree: SceneTree = Engine.get_main_loop() as SceneTree
+		var walked := 0
+		for i in range(1, 101):
+			var qid := "MQ%03d" % i
+			if not QuestManager.is_active(qid):
+				return walked
+			var quest: Dictionary = QuestManager.data[qid]
+			for obj in (quest.get("objectives", []) as Array):
+				var o: Dictionary = obj
+				var kind := String(o.get("type", ""))
+				var target := String(o.get("target", ""))
+				var need := int(o.get("count", 1))
+				match kind:
+					"kill":
+						for n in need:
+							var e: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+							host.add_child(e)
+							var pos: Vector2 = player_pos_callable.call()
+							e.global_position = pos + Vector2(40 + n * 12, 0)
+							e.setup_archetype(target)
+							e.take_hit(999999.0, Vector2.RIGHT)
+							await tree.physics_frame
+					"collect", "deliver":
+						GameState.add_item(target, need)
+						EventBus.item_picked_up.emit(target, need)
+						await tree.physics_frame
+					"flag":
+						QuestManager.register_flag(target)
+						await tree.physics_frame
+					"talk":
+						QuestManager.talk_to(target)
+						await tree.physics_frame
+			if i == 65:
+				# The fork: pick the protect branch.
+				QuestManager.register_flag("protect_mireille")
+				QuestManager.register_flag("mireille_decision")
+				await tree.physics_frame
+			if not QuestManager.is_done(qid):
+				print("  [chain] stuck at %s" % qid)
+				return walked
+			walked += 1
+		return walked
 
 
 ## q2: travel to the scorched ring (flag via arena sighting), confront elder.
