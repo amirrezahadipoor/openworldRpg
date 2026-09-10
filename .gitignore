@@ -1,0 +1,24 @@
+# --- Godot 4 ---
+.godot/
+*.tmp
+*.translation
+export_credentials.cfg
+
+# --- Build output (produced by CI/local exports, never committed) ---
+build/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# --- Toolchain & heavy binaries must NEVER enter the repo ---
+rpg-toolchain/
+*.tpz
+*.AppImage
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
