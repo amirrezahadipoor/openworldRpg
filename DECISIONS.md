@@ -263,3 +263,28 @@ scorched ring (arena sighting flag), Ember Warden summon + 3-phase kill via
 the real `BossArena`, and the closing elder conversation (q1→q4, 23 checks).
 Runs in CI after the combat suite. The test player steps out of melee range
 before the lethal blow so a death screen can never pause the tree mid-tween.
+
+**#32 — Level curve re-tapered to 1-100 + milestone rewards (Phase E §6)** · 2026-09-10
+The shipped curve (`100 × 1.35^(L-1)`) was a launch-scale formula that cannot
+support 100 levels: `xp_to_next(100)` came out at **7.999×10^14 XP**, roughly
+6.7×10^12 typical kills for the final level alone. It is replaced by the content
+bible's three tapering segments — 1-20 `80 × L^1.8`, 21-60 growth ×1.3,
+61-100 growth ×1.15 — for a total climb of **~5.71M XP** (was ~3.09×10^15,
+a 540-million-fold reduction).
+
+The bible's mid/late formulas restart from a small constant, which makes the
+curve *decrease* at the seams (L20 costs 17,576 XP, but the authored L21 formula
+wants 1,500 — leveling up would make the next level 12× cheaper, and the same
+again at 60/61). Each segment is therefore **anchored to the previous segment's
+terminal cost** while keeping the authored exponents and segment boundaries, so
+`xp_to_next` is continuous and strictly non-decreasing. Both seams are asserted
+in `tests/combat_test.gd`, as is a sanity ceiling on the level-99 cost.
+
+`XP_MAX_LEVEL = 100` is now enforced (`add_xp` discards overflow instead of
+looping forever on a 0-cost level). `data/milestones.json` adds 10 milestone
+rewards (every 10 levels: gold, bonus talent points, a title, and permanent stat
+effects summed by `GameState.milestone_bonus()`); claimed milestones are stored
+in the save and shown as a HUD banner. `data/enemies.json` gains
+`floor_multiplier` and `EnemyDB.floor_scale()`, so dungeon floor N scales
+hp/damage/xp by `1 + floor_multiplier × (N-1)` — `Enemy.setup_archetype()`
+takes an optional floor, and `EnemySpawner.floor_index` exposes it per scene.

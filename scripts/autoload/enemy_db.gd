@@ -20,6 +20,13 @@ func get_archetype(id: String) -> Dictionary:
 	return archetypes.get(id, {})
 
 
+func floor_scale(id: String, floor: int) -> float:
+	## Phase E §6: deeper dungeon floors scale hp/damage/xp.
+	## scale = 1.0 + floor_multiplier * (floor - 1)
+	var fm := float(get_archetype(id).get("floor_multiplier", 0.0))
+	return 1.0 + fm * float(maxi(1, floor) - 1)
+
+
 func roll_drops(id: String) -> Dictionary:
 	## Returns {"gold": int, "items": [item_id, ...]} rolled from drop tables.
 	var cfg: Dictionary = get_archetype(id)

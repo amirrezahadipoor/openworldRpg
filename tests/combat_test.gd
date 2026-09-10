@@ -52,6 +52,10 @@ func _ready() -> void:
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
+	_test_xp_curve()
+	_test_milestones()
+	_test_floor_scaling()
+
 	_report()
 
 
@@ -557,3 +561,112 @@ func _report() -> void:
 	else:
 		print("TEST RESULT: FAIL (%d/%d checks failed)" % [failures, checks])
 		get_tree().quit(1)
+
+
+# --- Phase E §6: level curve, milestones, floor scaling ----------------------
+
+func _test_xp_curve() -> void:
+	print("[combat_test] XP curve (Phase E §6)")
+	check(GameState.xp_to_next(1) == 80, "level 1 costs 80 XP")
+	check(GameState.xp_to_next(GameState.XP_MAX_LEVEL) == 0, "level cap needs no more XP")
+
+	# Monotonic and continuous: the authored segment formulas restart from small
+	# constants, which would make a level cheaper after level 20/60. Guard it.
+	var previous := 0
+	var monotone := true
+	var worst_drop := 0
+	for lv in range(1, GameState.XP_MAX_LEVEL):
+		var cost := GameState.xp_to_next(lv)
+		if cost < previous:
+			monotone = false
+			worst_drop = mini(worst_drop, cost - previous)
+		previous = cost
+	check(monotone, "xp_to_next never decreases (worst drop %d)" % worst_drop)
+
+	# Exact seam continuity — both boundaries must not regress.
+	check(GameState.xp_to_next(21) == GameState.xp_to_next(20),
+		"segment 1→2 seam is seamless at level 20/21")
+	check(GameState.xp_to_next(61) == GameState.xp_to_next(60),
+		"segment 2→3 seam is seamless at level 60/61")
+
+	# No runaway exponent, unlike the old 1.35^L curve (which asked 8e14 at L100).
+	check(GameState.xp_to_next(99) < 250000,
+		"level 99 cost stays sane (%d)" % GameState.xp_to_next(99))
+	var total := 0
+	for lv in range(1, GameState.XP_MAX_LEVEL):
+		total += GameState.xp_to_next(lv)
+	check(total < 8000000, "full 1-100 climb is %d XP" % total)
+
+
+func _test_milestones() -> void:
+	print("[combat_test] milestone rewards (Phase E §6)")
+	var saved := {
+		"level": GameState.level, "xp": GameState.xp, "gold": GameState.gold,
+		"tp": GameState.talent_points, "hp": GameState.hp, "mp": GameState.mp,
+		"milestones": GameState.milestones_claimed.duplicate(),
+	}
+	GameState.level = 1
+	GameState.xp = 0
+	GameState.milestones_claimed.clear()
+	GameState.talent_points = 0
+	var gold_before := GameState.gold
+	var hp_before := GameState.max_hp()
+
+	var to_ten := 0
+	for lv in range(1, 10):
+		to_ten += GameState.xp_to_next(lv)
+	GameState.add_xp(to_ten)
+	check(GameState.level == 10, "climbed to level 10")
+	check(GameState.milestones_claimed.has(10), "level 10 milestone claimed")
+	check(GameState.talent_points == 10, "9 level points + 1 milestone point (got %d)" % GameState.talent_points)
+	check(GameState.gold >= gold_before + 150, "milestone gold granted")
+	check(GameState.milestone_bonus("hp") == 25.0, "+25 max HP from Wayfarer milestone")
+	check(GameState.max_hp() == hp_before + 9.0 * 12.0 + 25.0, "milestone HP stacks on level HP")
+
+	# Re-entering the same level must not double-grant.
+	GameState.add_xp(1)
+	check(GameState.milestones_claimed.count(10) == 1, "milestone is not granted twice")
+
+	# Save shape: claimed milestones must survive a round-trip.
+	var snapshot := GameState.to_dict()
+	var claimed := GameState.milestones_claimed.duplicate()
+	GameState.milestones_claimed.clear()
+	GameState.from_dict(snapshot)
+	check(GameState.milestones_claimed == claimed, "milestones survive a save round-trip")
+
+	# Cap: dumping absurd XP at level 100 must not hang or overflow.
+	GameState.level = GameState.XP_MAX_LEVEL
+	GameState.add_xp(999999999)
+	check(GameState.level == GameState.XP_MAX_LEVEL and GameState.xp == 0,
+		"level cap absorbs excess XP")
+
+	GameState.level = int(saved["level"])
+	GameState.xp = int(saved["xp"])
+	GameState.gold = int(saved["gold"])
+	GameState.talent_points = int(saved["tp"])
+	GameState.milestones_claimed = saved["milestones"]
+	GameState.hp = float(saved["hp"])
+	GameState.mp = float(saved["mp"])
+	GameState.stats_changed.emit()
+
+
+func _test_floor_scaling() -> void:
+	print("[combat_test] dungeon floor scaling (Phase E §6)")
+	check(EnemyDB.floor_scale("grunt", 1) == 1.0, "floor 1 is unscaled")
+	check(absf(EnemyDB.floor_scale("grunt", 3) - 1.22) < 0.001, "floor 3 = +22%")
+	check(EnemyDB.floor_scale("ember_warden", 10) == 1.0, "boss has no floor scaling")
+
+	var host := Node2D.new()
+	add_child(host)
+	var shallow: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	var deep: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(shallow)
+	host.add_child(deep)
+	shallow.setup_archetype("grunt", 1.0, 1)
+	deep.setup_archetype("grunt", 1.0, 6)
+	check(deep.max_hp > shallow.max_hp, "deeper floor enemies have more HP")
+	check(deep.xp_reward > shallow.xp_reward, "deeper floor enemies award more XP")
+	check(deep.floor_index == 6 and shallow.floor_index == 1, "floor index recorded")
+	shallow.setup_floor(6)
+	check(absf(shallow.max_hp - deep.max_hp) < 0.001, "setup_floor re-scales in place")
+	host.queue_free()

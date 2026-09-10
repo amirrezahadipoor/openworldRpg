@@ -2,8 +2,23 @@ extends Node
 ## GameState — central runtime state: stats, leveling, inventory, quests, talents.
 ## Serialized by SaveSystem (see DECISIONS.md #5, #7).
 
-const XP_BASE: int = 100
-const XP_GROWTH: float = 1.35
+# --- Level curve (Phase E §6, DECISIONS #21) --------------------------------
+# Three tapering segments over levels 1-100, exactly as the content bible
+# specifies: 1-20 (80 x L^1.8), 21-60 (x1.3 growth), 61-100 (x1.15 growth).
+# The bible's literal mid/late formulas restart from a small constant, which
+# makes the curve *decrease* at the 20->21 and 60->61 seams (L20 costs 17,576 XP
+# but L21 would cost 1,500). Each segment is therefore anchored to the previous
+# segment's terminal cost, which keeps the curves monotonic and seamless while
+# preserving the authored exponents and segment boundaries.
+const XP_BASE: float = 80.0
+const XP_EXP_EARLY: float = 1.8
+const XP_EXP_MID: float = 1.3
+const XP_EXP_LATE: float = 1.15
+const XP_SEG1_END: int = 20
+const XP_SEG2_END: int = 60
+const XP_MAX_LEVEL: int = 100
+const MILESTONE_STEP: int = 10
+const MILESTONES_PATH: String = "res://data/milestones.json"
 
 signal stats_changed
 
@@ -11,6 +26,7 @@ var level: int = 1
 var xp: int = 0
 var gold: int = 50
 var talent_points: int = 0
+var milestones_claimed: Array[int] = []
 
 # Meta (not serialized inside saves — chosen per session)
 var current_slot := 1
@@ -52,6 +68,7 @@ func reset() -> void:
 	xp = 0
 	gold = 50
 	talent_points = 0
+	milestones_claimed = []
 	hp = max_hp()
 	mp = max_mp()
 	inventory = {"health_potion": 2}
@@ -71,15 +88,34 @@ func _process(delta: float) -> void:
 
 # --- Progression ------------------------------------------------------------
 
-func xp_to_next() -> int:
-	return int(XP_BASE * pow(XP_GROWTH, level - 1))
+func xp_to_next(at_level: int = -1) -> int:
+	## XP required to advance FROM the given level. 0 at the level cap.
+	var lv: int = level if at_level < 0 else at_level
+	if lv >= XP_MAX_LEVEL:
+		return 0
+	if lv <= XP_SEG1_END:
+		return int(round(XP_BASE * pow(float(lv), XP_EXP_EARLY)))
+	if lv <= XP_SEG2_END:
+		return int(round(float(_seg1_end()) * pow(float(lv - 1) / float(XP_SEG1_END), XP_EXP_MID)))
+	return int(round(float(_seg2_end()) * pow(float(lv - 1) / float(XP_SEG2_END), XP_EXP_LATE)))
+
+
+func _seg1_end() -> int:
+	return int(round(XP_BASE * pow(float(XP_SEG1_END), XP_EXP_EARLY)))
+
+
+func _seg2_end() -> int:
+	return int(round(float(_seg1_end()) * pow(float(XP_SEG2_END - 1) / float(XP_SEG1_END), XP_EXP_MID)))
 
 
 func add_xp(amount: int) -> void:
 	if amount <= 0:
 		return
+	if level >= XP_MAX_LEVEL:
+		xp = 0  # capped: excess XP is discarded rather than looping
+		return
 	xp += amount
-	while xp >= xp_to_next():
+	while level < XP_MAX_LEVEL and xp >= xp_to_next() and xp_to_next() > 0:
 		xp -= xp_to_next()
 		level += 1
 		talent_points += 1
@@ -87,7 +123,56 @@ func add_xp(amount: int) -> void:
 		mp = max_mp()
 		AudioManager.play_sfx("level_up")
 		EventBus.player_leveled_up.emit(level)
+		_grant_milestone(level)
+	if level >= XP_MAX_LEVEL:
+		xp = 0
 	stats_changed.emit()
+
+
+# --- Milestone rewards (Phase E §6) -----------------------------------------
+
+func milestone_data() -> Array:
+	var f := FileAccess.open(MILESTONES_PATH, FileAccess.READ)
+	if f == null:
+		push_error("GameState: cannot open %s" % MILESTONES_PATH)
+		return []
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_error("GameState: %s is not a JSON object" % MILESTONES_PATH)
+		return []
+	return (parsed as Dictionary).get("milestones", [])
+
+
+func milestone_for(lv: int) -> Dictionary:
+	for m in milestone_data():
+		if int((m as Dictionary).get("level", -1)) == lv:
+			return m
+	return {}
+
+
+func milestone_bonus(key: String) -> float:
+	## Sum of every claimed milestone's permanent stat effects.
+	var total := 0.0
+	for m in milestone_data():
+		if not milestones_claimed.has(int((m as Dictionary).get("level", -1))):
+			continue
+		total += float(((m as Dictionary).get("effects", {}) as Dictionary).get(key, 0.0))
+	return total
+
+
+func _grant_milestone(lv: int) -> void:
+	if lv % MILESTONE_STEP != 0 or milestones_claimed.has(lv):
+		return
+	var m := milestone_for(lv)
+	if m.is_empty():
+		return
+	milestones_claimed.append(lv)
+	talent_points += int(m.get("talent_points", 0))
+	var gold_grant := int(m.get("gold", 0))
+	if gold_grant > 0:
+		add_gold(gold_grant)
+	_clamp_pools()
+	EventBus.milestone_reached.emit(lv, String(m.get("title", "")), String(m.get("text", "")))
 
 
 func spend_talent(branch: String) -> bool:
@@ -104,27 +189,27 @@ func spend_talent(branch: String) -> bool:
 
 func max_hp() -> float:
 	var bonus := 15.0 if node_active("combat", 2) else 0.0  # Iron Skin
-	return base_hp + (level - 1) * 12.0 + bonus + equipment_bonus("hp")
+	return base_hp + (level - 1) * 12.0 + bonus + milestone_bonus("hp") + equipment_bonus("hp")
 
 
 func max_mp() -> float:
 	var bonus := 20.0 if node_active("magic", 1) else 0.0  # Arcane Focus
-	return base_mp + (level - 1) * 6.0 + bonus + equipment_bonus("mp")
+	return base_mp + (level - 1) * 6.0 + bonus + milestone_bonus("mp") + equipment_bonus("mp")
 
 
 func attack() -> float:
 	var bonus := 4.0 if node_active("combat", 1) else 0.0  # Power Strikes
-	return base_attack + (level - 1) * 1.5 + bonus + equipment_bonus("atk")
+	return base_attack + (level - 1) * 1.5 + bonus + milestone_bonus("atk") + equipment_bonus("atk")
 
 
 func defense() -> float:
 	var bonus := 4.0 if node_active("combat", 2) else 0.0  # Iron Skin
-	return base_defense + (level - 1) * 1.0 + bonus + equipment_bonus("def")
+	return base_defense + (level - 1) * 1.0 + bonus + milestone_bonus("def") + equipment_bonus("def")
 
 
 func move_speed() -> float:
 	var bonus := 22.0 if node_active("utility", 1) else 0.0  # Fleet Foot
-	return base_speed + bonus + equipment_bonus("speed")
+	return base_speed + bonus + milestone_bonus("speed") + equipment_bonus("speed")
 
 
 # --- Talent tree (node-active model, DECISIONS #19) ---------------------------
@@ -242,6 +327,7 @@ func _clamp_pools() -> void:
 func to_dict() -> Dictionary:
 	return {
 		"level": level, "xp": xp, "gold": gold, "talent_points": talent_points,
+		"milestones_claimed": milestones_claimed.duplicate(),
 		"hp": hp, "mp": mp,
 		"inventory": inventory.duplicate(),
 		"equipment": equipment.duplicate(),
@@ -259,6 +345,9 @@ func from_dict(d: Dictionary) -> void:
 	xp = int(d.get("xp", 0))
 	gold = int(d.get("gold", 50))
 	talent_points = int(d.get("talent_points", 0))
+	milestones_claimed.clear()
+	for m in (d.get("milestones_claimed", []) as Array):
+		milestones_claimed.append(int(m))
 	inventory = (d.get("inventory", {}) as Dictionary).duplicate()
 	equipment = (d.get("equipment", {"weapon": "", "armor": "", "accessory": ""}) as Dictionary).duplicate()
 	quests = (d.get("quests", {}) as Dictionary).duplicate()

@@ -43,8 +43,8 @@ func take_hit(amount: float, dir: Vector2) -> void:
 		_enter_phase(3)
 
 
-func setup_archetype(id: String, power_scale: float = 1.0) -> void:
-	super.setup_archetype(id, power_scale)
+func setup_archetype(id: String, power_scale: float = 1.0, floor: int = 1) -> void:
+	super.setup_archetype(id, power_scale, floor)
 	base_scale = Vector2(2.2, 2.2)   # after super: it assigns base_scale itself
 	scale = base_scale
 	phase = 1

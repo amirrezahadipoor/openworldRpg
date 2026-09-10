@@ -1,0 +1,108 @@
+{
+  "_comment": "Phase E s6 - milestone rewards, granted the moment the player reaches each level. Sum of effects is added on top of level/talent/gear stats and is stored in the save (GameState.milestones_claimed).",
+  "milestones": [
+    {
+      "level": 10,
+      "title": "Wayfarer",
+      "text": "The road knows your name now.",
+      "gold": 150,
+      "talent_points": 1,
+      "effects": {
+        "hp": 25.0
+      }
+    },
+    {
+      "level": 20,
+      "title": "Ember-Touched",
+      "text": "Ash still clings to your cloak.",
+      "gold": 300,
+      "talent_points": 1,
+      "effects": {
+        "atk": 3.0
+      }
+    },
+    {
+      "level": 30,
+      "title": "Shield of Millhaven",
+      "text": "Oakstead's gate opens before you ask.",
+      "gold": 450,
+      "talent_points": 1,
+      "effects": {
+        "def": 4.0
+      }
+    },
+    {
+      "level": 40,
+      "title": "Barrens-Rider",
+      "text": "You cross the slag without a guide.",
+      "gold": 600,
+      "talent_points": 1,
+      "effects": {
+        "speed": 18.0
+      }
+    },
+    {
+      "level": 50,
+      "title": "Choir-Breaker",
+      "text": "Wards you once feared now break at your word.",
+      "gold": 800,
+      "talent_points": 2,
+      "effects": {
+        "mp": 30.0
+      }
+    },
+    {
+      "level": 60,
+      "title": "Frostbound",
+      "text": "The peaks let you pass.",
+      "gold": 1000,
+      "talent_points": 1,
+      "effects": {
+        "hp": 60.0
+      }
+    },
+    {
+      "level": 70,
+      "title": "Keeper of the Flame",
+      "text": "Soldiers of Cinderhold salute you first.",
+      "gold": 1300,
+      "talent_points": 1,
+      "effects": {
+        "atk": 6.0
+      }
+    },
+    {
+      "level": 80,
+      "title": "Vessel-Warden",
+      "text": "You have learned what the Choir whispers.",
+      "gold": 1600,
+      "talent_points": 1,
+      "effects": {
+        "def": 7.0
+      }
+    },
+    {
+      "level": 90,
+      "title": "Skyreach",
+      "text": "Nothing above the clouds bars your way.",
+      "gold": 2000,
+      "talent_points": 1,
+      "effects": {
+        "speed": 25.0
+      }
+    },
+    {
+      "level": 100,
+      "title": "Embers of Millhaven",
+      "text": "You came home.",
+      "gold": 3000,
+      "talent_points": 3,
+      "effects": {
+        "hp": 120.0,
+        "mp": 60.0,
+        "atk": 8.0,
+        "def": 8.0
+      }
+    }
+  ]
+}

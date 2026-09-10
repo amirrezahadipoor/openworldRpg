@@ -1,5 +1,5 @@
 {
-  "_comment": "Enemy archetype database (data-driven, not hardcoded). behavior: melee | ranged. drops.gold = [min,max], drops.items = [ [item_id, chance], ... ].",
+  "_comment": "Enemy archetype database (data-driven, not hardcoded). behavior: melee | ranged. drops.gold = [min,max], drops.items = [ [item_id, chance], ... ]. Phase E s6: 'floor_multiplier' is the per-dungeon-floor scaling rate for hp/damage/xp (scale = 1.0 + floor_multiplier * (floor - 1)), applied by Enemy.setup_floor().",
   "archetypes": {
     "grunt": {
       "display_name": "Slime Grunt",
@@ -29,7 +29,8 @@
         ]
       },
       "sheet": "res://assets/lpc/enemy_goblin.png",
-      "sprite_scale": 1.0
+      "sprite_scale": 1.0,
+      "floor_multiplier": 0.11
     },
     "scout": {
       "display_name": "Barrens Scout",
@@ -59,7 +60,8 @@
         ]
       },
       "sheet": "res://assets/lpc/enemy_raider.png",
-      "sprite_scale": 1.0
+      "sprite_scale": 1.0,
+      "floor_multiplier": 0.12
     },
     "shaman": {
       "display_name": "Frost Shaman",
@@ -91,7 +93,8 @@
         ]
       },
       "sheet": "res://assets/lpc/enemy_shaman.png",
-      "sprite_scale": 1.0
+      "sprite_scale": 1.0,
+      "floor_multiplier": 0.1
     },
     "ember_warden": {
       "display_name": "The Ember Warden",
@@ -131,7 +134,8 @@
         ]
       },
       "sheet": "res://assets/lpc/enemy_orc.png",
-      "sprite_scale": 1.7
+      "sprite_scale": 1.7,
+      "floor_multiplier": 0.0
     },
     "emberling": {
       "display_name": "Emberling",
@@ -161,7 +165,8 @@
         ]
       },
       "sheet": "res://assets/lpc/enemy_skeleton.png",
-      "sprite_scale": 0.8
+      "sprite_scale": 0.8,
+      "floor_multiplier": 0.09
     }
   }
 }

@@ -188,9 +188,41 @@ The world is visually new and mechanically untouched. This was verified, not ass
 
 ---
 
+## Phase E — Content Bible & Deep Roadmap  ← **in progress**
+
+Executed in the bible's own §9 order; each numbered item is committed and pushed
+on its own. Items 2 and 3 were taken before item 1 because they were already
+analysed and have no dependency on the NPC work.
+
+### E§6. Re-tapered level curve + milestones ✅ DONE
+- Three tapering segments (1-20 / 21-60 / 61-100), **seamless and monotonic** — the
+  authored formulas as literally written drop 12× at the 20→21 and 60→61 seams, so each
+  segment is anchored to the previous one's terminal cost (constant exponents kept).
+- Full 1-100 climb: **5,711,771 XP** (old curve: 3.09×10^15 — level 100 alone wanted
+  8.0×10^14 XP, ≈6.7×10^12 kills).
+- Level cap 100 enforced; overflow XP discarded rather than looping on a 0-cost level.
+- `data/milestones.json`: 10 milestone rewards (gold + bonus talent points + permanent
+  stats + title), granted once, stored in the save, surfaced as a HUD banner.
+- `floor_multiplier` per archetype + `EnemyDB.floor_scale()` + `EnemySpawner.floor_index`
+  → dungeon floor N scales enemy hp/damage/xp by `1 + fm × (N-1)`.
+- Guarded by 12 new headless checks (seams, monotonicity, cap, milestone idempotency,
+  save round-trip, floor scaling).
+
+### E§7. Expanded talent trees (60 nodes) `[ ]`
+### E§3. NPC schedule + bark system `[ ]`
+### E§1. World map settlements `[ ]`
+### E§4/5. Main quest chain + side quests `[ ]`
+### E§8. Reputation + companions `[ ]`
+### E§9. Weather + secrets `[ ]`
+
+---
+
 ## What's left, in one line
 
-Phase B is done: the game now has a real 32 px LPC world, real characters and enemies,
-a real CC0/CC-BY score, a visual-capture harness, and shipped attribution. Remaining work
-is **Phase C (a human playtest on a device, difficulty tuning, perf profiling on real
-hardware) and Phase D (signed APK/AAB release)** — grind and QA, not architectural risk.
+Phase B and the CI/release half of Phase D are done: a real 32 px LPC world, real characters
+and enemies, a real CC0/CC-BY score, a visual-capture harness, shipped attribution, and a
+published `v0.2.0` prerelease with signed APK/AAB. **Phase E (the content bible)** is now the
+active work: the level curve is re-tapered and milestones ship (§6); 60 talent nodes, the NPC
+schedule/bark system, the world-map settlements, the 100-step main chain, 100 side quests,
+reputation/companions and the weather/secret pass all follow in the bible's §9 order.
+**Phase C — a human playtest on a real device — is still the one thing an agent cannot do.**

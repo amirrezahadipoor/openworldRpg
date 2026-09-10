@@ -8,6 +8,7 @@ signal player_healed(amount: float)
 signal player_died
 signal player_dodged(player: Node)
 signal player_leveled_up(new_level: int)
+signal milestone_reached(level: int, title: String, text: String)
 
 # --- Combat ---
 signal attack_swung(attacker: Node)

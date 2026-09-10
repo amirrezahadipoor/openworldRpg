@@ -19,6 +19,10 @@ var joystick: VirtualJoystick
 var minimap: Minimap
 var _whirl_btn: ActionButton
 var _bolt_btn: ActionButton
+var toast_label: Label
+var _toast_time := 0.0
+
+const TOAST_SECONDS := 4.5
 
 
 func setup(p: Player, s: ChunkStreamer = null) -> void:
@@ -29,9 +33,16 @@ func setup(p: Player, s: ChunkStreamer = null) -> void:
 	_build_touch_controls()
 	if player != null:
 		player.external_input = Vector2.ZERO
+	_build_toast()
+	if not EventBus.milestone_reached.is_connected(_on_milestone):
+		EventBus.milestone_reached.connect(_on_milestone)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if _toast_time > 0.0:
+		_toast_time -= delta
+		if _toast_time <= 0.0 and toast_label != null:
+			toast_label.visible = false
 	if hp_bar != null:
 		hp_bar.max_value = GameState.max_hp()
 		hp_bar.value = GameState.hp
@@ -224,3 +235,37 @@ func _load_icon(n: String) -> Texture2D:
 func set_quest_text(text: String) -> void:
 	if quest_label != null:
 		quest_label.text = text
+
+
+# --- Milestone banner (Phase E §6) -------------------------------------------
+
+func _build_toast() -> void:
+	toast_label = Label.new()
+	toast_label.visible = false
+	toast_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	toast_label.anchor_left = 0.0
+	toast_label.anchor_right = 1.0
+	var m := _safe_margins()
+	toast_label.offset_left = 24.0 + m.x
+	toast_label.offset_right = -24.0 - m.x
+	toast_label.offset_top = 96.0 + m.y
+	toast_label.offset_bottom = 140.0 + m.y
+	toast_label.add_theme_font_size_override("font_size", 19)
+	toast_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.55))
+	toast_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	toast_label.add_theme_constant_override("outline_size", 5)
+	add_child(toast_label)
+
+
+func show_toast(text: String) -> void:
+	if toast_label == null:
+		return
+	toast_label.text = text
+	toast_label.visible = true
+	_toast_time = TOAST_SECONDS
+
+
+func _on_milestone(lv: int, title: String, text: String) -> void:
+	## "Level 20 — Ember-Touched: Ash still clings to your cloak."
+	show_toast("Level %d · %s — %s" % [lv, title, text])

@@ -10,6 +10,9 @@ const RESPAWN_TIME := 40.0
 @export var count := 2
 @export var spread := 180.0
 @export var power_scale := 1.0
+## Phase E §6: 1 = overworld, 2+ = dungeon floor number (scales hp/damage/xp
+## through the archetype's floor_multiplier).
+@export var floor_index := 1
 
 var _pool: ObjectPool
 var _slots: Array = []
@@ -34,7 +37,7 @@ func _spawn_at(slot_idx: int) -> void:
 		return
 	var e: Enemy = _pool.acquire()
 	e.global_position = global_position + _slots[slot_idx]
-	e.setup_archetype(archetype, power_scale)
+	e.setup_archetype(archetype, power_scale, floor_index)
 	e.set_meta("slot", slot_idx)
 	if not e.recycled.is_connected(_on_enemy_recycled):
 		e.recycled.connect(_on_enemy_recycled)

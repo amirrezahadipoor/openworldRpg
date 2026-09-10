@@ -37,6 +37,8 @@ var chase_radius := 300.0
 var attack_radius := 56.0
 var attack_cooldown := 1.2
 var xp_reward := 18
+var floor_index := 1
+var _base_power_scale := 1.0
 var behavior := "melee"
 var projectile_damage := 0.0
 var projectile_speed := 240.0
@@ -191,9 +193,14 @@ func _apply_sheet(path: String) -> void:
 	sprite.frame = int(DIR_ROW["s"]) * SHEET_COLS
 
 
-func setup_archetype(id: String, power_scale: float = 1.0) -> void:
+func setup_archetype(id: String, power_scale: float = 1.0, floor: int = 1) -> void:
 	## (Re)configure from EnemyDB — used on spawn AND on pool reuse.
+	## `floor` applies the archetype's floor_multiplier (Phase E §6), so dungeon
+	## spawners only have to set a floor index and get hp/damage/xp scaling.
 	archetype = id
+	floor_index = maxi(1, floor)
+	_base_power_scale = power_scale
+	power_scale *= EnemyDB.floor_scale(id, floor_index)
 	var cfg := EnemyDB.get_archetype(id)
 	if cfg.is_empty():
 		push_error("Enemy: unknown archetype '%s'" % id)
@@ -223,6 +230,12 @@ func setup_archetype(id: String, power_scale: float = 1.0) -> void:
 	scale = base_scale
 	show()
 	set_physics_process(true)
+
+
+func setup_floor(floor: int) -> void:
+	## Re-apply this archetype's scaling for a deeper dungeon floor, keeping the
+	## power_scale the spawner originally asked for.
+	setup_archetype(archetype, _base_power_scale, floor)
 	for child in get_children():
 		if child is CollisionShape2D:
 			child.set_deferred("disabled", false)
