@@ -71,6 +71,14 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#29 — Release builds & signing** · 2026-09-10
+`v*` tags trigger `release.yml`: Gradle-based `--export-release` produces both the signed
+APK and the Play-Store AAB from one run; a release keystore is generated per-run with
+`keytool` (alias `openworldrpg`) so CI never stores secrets, and both binaries are attached to
+an auto-created GitHub Release plus a 90-day artifact. Tradeoff documented: per-run keys are
+fine for sideload/testing builds; a Play Store launch would rotate to a persistent upload key
+(Play App Signing makes that safe). Version 1.0.0 / code 1 shipped with the tag.
+
 **#28 — Performance strategy & validation** · 2026-09-10
 Low-end Android target: GL Compatibility renderer, one shared texture atlas for all world
 terrain (single bind, batched `draw_texture_rect_region` per chunk; chunk `_draw` is cached by
