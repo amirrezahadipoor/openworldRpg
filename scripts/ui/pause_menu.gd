@@ -4,6 +4,8 @@ extends CanvasLayer
 ## Stays interactive while the tree is paused (PROCESS_MODE_ALWAYS).
 
 signal quest_log_requested
+signal settings_requested
+signal quit_title_requested
 
 var player: Node2D
 
@@ -68,7 +70,9 @@ func _build() -> void:
 	box.add_child(_button("Resume", func() -> void: toggle()))
 	box.add_child(_button("Save Game", func() -> void: _save()))
 	box.add_child(_button("Quest Log", func() -> void: quest_log_requested.emit()))
+	box.add_child(_button("Settings", func() -> void: settings_requested.emit()))
 	box.add_child(_button("Quit to Last Save", func() -> void: _quit_to_save()))
+	box.add_child(_button("Quit to Title", func() -> void: _quit_to_title()))
 
 	_status = Label.new()
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -93,4 +97,11 @@ func _save() -> void:
 
 func _quit_to_save() -> void:
 	get_tree().paused = false
+	GameState.pending_load = true  # reload the game scene from the slot save
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+func _quit_to_title() -> void:
+	get_tree().paused = false
+	GameState.pending_load = false
+	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")

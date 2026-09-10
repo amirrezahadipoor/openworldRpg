@@ -95,21 +95,21 @@ Legend: `[x]` done & pushed · `[ ]` todo · commits referenced inline where use
 - [x] Main story arc authored (First Light → Ember Omen twist → Fall of the Warden → A New Dawn), English
 
 ## Phase 9 — Save/Load & Meta
-- [x] `SaveSystem` — JSON at `user://save.json` (state + position; versioned)
-- [x] Save on demand from pause menu; auto-load on boot
-- [ ] Save slots (≥2) + overwrite confirm
-- [ ] Settings menu: music/SFX volume, control sensitivity, language toggle stub
-- [ ] Settings persistence
+- [x] `SaveSystem` — versioned JSON (state + position) at `user://save_N.json`
+- [x] Save on demand from pause menu (shows slot); legacy save migrates to slot 1
+- [x] Save slots (3) + overwrite confirm dialog; slot picker with level/gold previews
+- [x] Settings menu: music/SFX volume, control size, language stub (English)
+- [x] Settings persistence (`user://settings.json`, applied on boot)
 
 ## Phase 10 — UI/UX & Responsive Layout
 - [x] HUD scaffold: HP/MP bars, XP/gold readout, quest tracker, minimap placeholder
-- [x] Pause menu (resume/save/quit) with correct `process_mode`
+- [x] Pause menu (resume/save/quest log/settings/quit) with correct `process_mode`
 - [x] Anchors/margins + `DisplayServer` safe-area handling (notch/cutout)
 - [ ] Minimap (real: chunk map + player arrow + POIs)
-- [ ] Main menu (New Game / Continue / Settings / Credits)
-- [ ] Inventory screen (see Phase 6)
-- [ ] Talent tree screen (see Phase 7)
-- [ ] Death / game-over screen with respawn flow
+- [x] Main menu (Continue / New Game + slot picker / Settings / Credits) — new game entry point
+- [x] Inventory screen (Phase 6)
+- [x] Talent tree screen (Phase 7)
+- [x] Death / game-over screen (respawn / load last save / quit to title)
 - [ ] UI polish pass: fonts, 9-patch panels, consistent theme across 720p→1440p+ & 16:9→20:9
 
 ## Phase 11 — Audio & Polish

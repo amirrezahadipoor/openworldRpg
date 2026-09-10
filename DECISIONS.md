@@ -71,6 +71,22 @@ Decision: ship the **non-Gradle template export** (faster CI, no Gradle wrapper
 in the repo) and let Godot's engine defaults set min/target SDK. Gradle build can
 be enabled later if plugins require it.
 
+**#23 — Game flow architecture** · 2026-09-10
+Entry point is now `scenes/menus/main_menu.tscn` (title → Continue/New Game
+slot picker → game). Scene transitions carry intent through GameState:
+`current_slot` + `pending_load` (Continue & "quit to last save" reload the
+slot; New Game resets state first). Death shows a screen with three exits
+(respawn at camp / load last save / quit to title) instead of silent respawn.
+Settings live in their own autoload (`SettingsManager`) applied on boot, and
+screens that open from an already-paused context restore the prior pause
+state on close (no accidental unpauses).
+
+**#22 — Save slots** · 2026-09-10
+3 slots (`user://save_N.json`), same versioned JSON schema as before; the
+legacy single `save.json` migrates to slot 1 on first boot so no progress is
+lost. Slot picker shows level/gold previews; New Game over an occupied slot
+requires explicit confirmation.
+
 **#21 — Story arc & content authoring** · 2026-09-10
 Main arc in 4 quests: **First Light** (clear slimes, earn trust) → **The Ember
 Omen** (midpoint twist: the "monster" is a corrupted guardian created by the

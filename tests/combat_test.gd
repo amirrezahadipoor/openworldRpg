@@ -39,6 +39,8 @@ func _ready() -> void:
 
 	_test_quests_and_dialogue()
 
+	_test_save_slots()
+
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -232,6 +234,23 @@ func _test_quests_and_dialogue() -> void:
 	QuestManager.start_quest("s_emberling_run")
 	check(QuestManager.is_active("s_emberling_run"), "repeatable quest can be re-accepted")
 	check(QuestManager.marker_for("hunter_kael"), "marker shown for pending talk objective")
+
+
+func _test_save_slots() -> void:
+	print("[combat_test] save slots + reset")
+	var player: Player = get_tree().get_first_node_in_group("player")
+	check(player != null, "player exists for save test")
+	GameState.gold = 777
+	check(SaveSystem.save_game(player, 2), "save to slot 2")
+	check(SaveSystem.has_save(2), "slot 2 file exists")
+	var sum := SaveSystem.slot_summary(2)
+	check(bool(sum.get("exists", false)) and int(sum.get("gold", 0)) == 777, "slot summary round-trip")
+	GameState.gold = 5
+	check(SaveSystem.load_game(player, 2), "load slot 2")
+	check(GameState.gold == 777, "gold restored from slot 2")
+	GameState.reset()
+	check(GameState.gold == 50 and GameState.level == 1, "reset yields fresh state")
+	check(GameState.quests.is_empty() and GameState.quest_flags.is_empty(), "reset clears story state")
 
 
 func _test_boss_phases_and_death() -> void:

@@ -8,7 +8,7 @@ config_version=5
 config/name="OpenWorld RPG"
 config/description="A complete 2D open-world action RPG for Android."
 config/version="0.1.0"
-run/main_scene="res://scenes/main.tscn"
+run/main_scene="res://scenes/menus/main_menu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 boot_splash/bg_color=Color(0.07, 0.09, 0.12, 1)
 config/icon="res://icon.svg"
@@ -24,6 +24,7 @@ DialogueDB="*res://scripts/autoload/dialogue_db.gd"
 PoolManager="*res://scripts/autoload/pool_manager.gd"
 SaveSystem="*res://scripts/autoload/save_system.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
+SettingsManager="*res://scripts/autoload/settings_manager.gd"
 
 [display]
 

@@ -36,8 +36,9 @@ func _ready() -> void:
 	EventBus.quest_completed.connect(_on_quest_completed)
 	EventBus.dialogue_closed.connect(_refresh_markers)
 
-	if SaveSystem.has_save():
-		SaveSystem.load_game(player)
+	if GameState.pending_load:
+		SaveSystem.load_game(player, GameState.current_slot)
+		GameState.pending_load = false
 	_refresh_quest_ui()
 	_refresh_markers()
 
@@ -114,6 +115,19 @@ func _build_ui() -> void:
 	quest_log.name = "QuestLogScreen"
 	add_child(quest_log)
 	pause.quest_log_requested.connect(quest_log.open)
+
+	var settings_ui := SettingsScreen.new()
+	settings_ui.name = "SettingsScreen"
+	add_child(settings_ui)
+	pause.settings_requested.connect(settings_ui.open)
+	pause.quit_title_requested.connect(func() -> void: pass)  # handled inside PauseMenu
+
+	var death_ui := DeathScreen.new()
+	death_ui.name = "DeathScreen"
+	add_child(death_ui)
+	death_ui.respawn_requested.connect(_on_respawn)
+	death_ui.load_last_requested.connect(_on_load_last)
+	death_ui.quit_title_requested.connect(_on_quit_title)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -245,7 +259,25 @@ func _on_boss_phase(_phase: int) -> void:
 
 
 func _on_player_died() -> void:
-	# Death screen is Phase 10; for now respawn at spawn with full HP.
-	GameState.hp = GameState.max_hp()
-	player.global_position = SPAWN_POINT
+	var death_ui: DeathScreen = get_node_or_null("DeathScreen")
+	if death_ui:
+		death_ui.show_death()
 	camera.shake(0.6)
+
+
+func _on_respawn() -> void:
+	GameState.hp = GameState.max_hp()
+	GameState.mp = GameState.max_mp()
+	player.global_position = SPAWN_POINT
+	camera.global_position = SPAWN_POINT
+	player.velocity = Vector2.ZERO
+
+
+func _on_load_last() -> void:
+	GameState.pending_load = true
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+func _on_quit_title() -> void:
+	GameState.pending_load = false
+	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")

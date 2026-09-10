@@ -12,6 +12,10 @@ var xp: int = 0
 var gold: int = 50
 var talent_points: int = 0
 
+# Meta (not serialized inside saves — chosen per session)
+var current_slot := 1
+var pending_load := false
+
 # Base stats (before level/talent/gear modifiers).
 var base_hp: float = 100.0
 var base_mp: float = 50.0
@@ -40,6 +44,23 @@ var talents: Dictionary = {"combat": 0, "magic": 0, "utility": 0}
 func _ready() -> void:
 	hp = max_hp()
 	mp = max_mp()
+
+
+func reset() -> void:
+	## Fresh-game state (New Game from the main menu).
+	level = 1
+	xp = 0
+	gold = 50
+	talent_points = 0
+	hp = max_hp()
+	mp = max_mp()
+	inventory = {"health_potion": 2}
+	equipment = {"weapon": "", "armor": "", "accessory": ""}
+	quests = {}
+	quest_progress = {}
+	quest_flags = {}
+	talents = {"combat": 0, "magic": 0, "utility": 0}
+	stats_changed.emit()
 
 
 func _process(delta: float) -> void:

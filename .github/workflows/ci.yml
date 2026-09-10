@@ -40,7 +40,15 @@ jobs:
           fi
           echo "smoke run clean ✓"
 
-      - name: Automated gameplay tests (combat / loot / economy)
+      - name: Headless smoke run — main menu scene
+        run: |
+          timeout 60 /tmp/rpg-toolchain/bin/godot --headless --path . res://scenes/menus/main_menu.tscn --quit-after 120 | tee menu.log
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error" menu.log; then
+            echo "::error::Script errors in main menu"; exit 1
+          fi
+          echo "main menu clean ✓"
+
+      - name: Automated gameplay tests (combat / loot / economy / quests / saves)
         run: |
           timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/CombatTest.tscn | tee tests.log
           grep -q "TEST RESULT: PASS" tests.log || { echo "::error::gameplay tests failed"; exit 1; }
