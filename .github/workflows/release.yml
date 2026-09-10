@@ -51,13 +51,15 @@ jobs:
           export/android/debug_keystore="$HOME/release.keystore"
           export/android/debug_keystore_user="openworldrpg"
           export/android/debug_keystore_pass="openworldrpg"
+          export/android/release_keystore="$HOME/release.keystore"
+          export/android/release_keystore_user="openworldrpg"
+          export/android/release_keystore_password="openworldrpg"
           EOF
           sed -i "s|keystore/debug=\"\"|keystore/debug=\"$HOME/release.keystore\"|" export_presets.cfg
           sed -i 's|keystore/debug_user=""|keystore/debug_user="openworldrpg"|' export_presets.cfg
           sed -i 's|keystore/debug_password=""|keystore/debug_password="openworldrpg"|' export_presets.cfg
-          sed -i "s|keystore/release=\"\"|keystore/release=\"$HOME/release.keystore\"|" export_presets.cfg
-          sed -i 's|keystore/release_user=""|keystore/release_user="openworldrpg"|' export_presets.cfg
-          sed -i 's|keystore/release_password=""|keystore/release_password="openworldrpg"|' export_presets.cfg
+          # Release keystore comes from editor settings above (the committed
+          # preset carries no keystore/release lines for sed to match).
           sed -i 's|gradle_build/use_gradle_build=false|gradle_build/use_gradle_build=true|' export_presets.cfg
 
       - name: Import project (headless)
