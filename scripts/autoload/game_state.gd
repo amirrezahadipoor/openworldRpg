@@ -408,6 +408,11 @@ func add_item(item_id: String, qty: int = 1) -> void:
 		inventory.erase(item_id)
 
 
+func item_count(item_id: String) -> int:
+	## How many of an item the player is carrying (Phase E §5 collect quests).
+	return int(inventory.get(item_id, 0))
+
+
 func remove_item(item_id: String, qty: int = 1) -> bool:
 	if int(inventory.get(item_id, 0)) < qty:
 		return false

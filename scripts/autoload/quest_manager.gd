@@ -1,9 +1,14 @@
 extends Node
 ## QuestManager — data-driven quest engine (data/quests.json).
 ## Objective types:
-##   kill  — increments on EventBus.enemy_died when archetype matches target
-##   talk  — completed via talk_to(npc_id)
-##   flag  — completed via register_flag(flag) (quest_flags key)
+##   kill    — increments on EventBus.enemy_died when archetype matches target
+##   talk    — completed via talk_to(npc_id)
+##   flag    — completed via register_flag(flag) (quest_flags key)
+##   collect — counts items held of `target` (Phase E §5: Fetch/Collection
+##             quests). Recomputed from the inventory, so handing items over
+##             (or dropping them) is reflected immediately.
+##   deliver — like collect, but consumes the items when the objective lands,
+##             which is what a trade quest needs.
 ## Rewards (xp/gold/items) granted on completion; "next" auto-starts.
 ## State lives in GameState (quests / quest_progress / quest_flags) so it
 ## save/loads automatically.
@@ -19,6 +24,7 @@ func _ready() -> void:
 		if typeof(parsed) == TYPE_DICTIONARY:
 			data = (parsed as Dictionary).get("quests", {})
 	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.item_picked_up.connect(_on_item_picked_up)
 
 
 func quests() -> Dictionary:
@@ -33,6 +39,26 @@ func is_done(qid: String) -> bool:
 	return GameState.quests.get(qid, "") == "done"
 
 
+## Progress for a collect/deliver objective that is already satisfied by the
+## player's bag (picking the items up before accepting the quest must count).
+func _sync_collect(qid: String) -> void:
+	for obj in _objectives(qid):
+		var t := String(obj.get("type", ""))
+		if t != "collect" and t != "deliver":
+			continue
+		var oid := String(obj.get("id", ""))
+		var need := int(obj.get("count", 1))
+		var have := GameState.item_count(String(obj.get("target", "")))
+		if have >= need and objective_count(qid, oid) < need:
+			_set_done_obj(qid, oid, need)
+
+
+func _on_item_picked_up(_item_id: String, _qty: int) -> void:
+	for qid in data.keys():
+		if is_active(qid):
+			_sync_collect(qid)
+
+
 func start_quest(qid: String) -> void:
 	if not data.has(qid) or is_active(qid) or is_done(qid):
 		return
@@ -43,6 +69,7 @@ func start_quest(qid: String) -> void:
 	GameState.quest_progress[qid] = prog
 	EventBus.quest_started.emit(qid)
 	EventBus.quest_updated.emit(qid)
+	_sync_collect(qid)
 
 
 func _objectives(qid: String) -> Array:
@@ -150,6 +177,10 @@ func _check_complete(qid: String) -> void:
 
 func _complete(qid: String) -> void:
 	var quest: Dictionary = data.get(qid, {})
+	# Deliver objectives hand the goods over as the quest closes.
+	for obj in _objectives(qid):
+		if String(obj.get("type", "")) == "deliver":
+			GameState.remove_item(String(obj.get("target", "")), int(obj.get("count", 1)))
 	var reward: Dictionary = quest.get("reward", {})
 	if int(reward.get("xp", 0)) > 0:
 		GameState.add_xp(int(reward["xp"]))

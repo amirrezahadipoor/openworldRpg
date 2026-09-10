@@ -52,6 +52,7 @@ func _ready() -> void:
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
+	_test_quest_collect()
 	_test_xp_curve()
 	_test_milestones()
 	_test_floor_scaling()
@@ -764,3 +765,65 @@ func _test_talent_tree() -> void:
 	GameState.talent_points = int(saved["tp"])
 	GameState.talents = saved["talents"]
 	GameState.stats_changed.emit()
+
+# --- Phase E §5: collect / deliver objectives --------------------------------
+
+func _test_quest_collect() -> void:
+	print("[combat_test] collect + deliver objectives (Phase E §5)")
+	# --- collect: requires the items, does not consume them ---
+	var qid := "__t_collect"
+	QuestManager.data[qid] = {
+		"name": "Test Gathering",
+		"objectives": [
+			{"id": "gather", "type": "collect", "target": "health_potion", "count": 2,
+				"desc": "Bring 2 potions"},
+		],
+		"reward": {"xp": 5},
+	}
+	GameState.add_item("health_potion", 5)
+	var potions_before := GameState.item_count("health_potion")
+	QuestManager.start_quest(qid)
+	check(QuestManager.objective_count(qid, "gather") == 2,
+		"items already in the bag satisfy a collect objective on accept")
+	check(QuestManager.is_done(qid), "quest completes when the objective is met")
+	check(GameState.item_count("health_potion") == potions_before,
+		"a collect objective does NOT consume the items")
+
+	# --- deliver: consumes on completion ---
+	var qid2 := "__t_deliver"
+	QuestManager.data[qid2] = {
+		"name": "Test Handover",
+		"objectives": [
+			{"id": "handover", "type": "deliver", "target": "mana_potion", "count": 1,
+				"desc": "Hand over a mana potion"},
+		],
+	}
+	GameState.remove_item("mana_potion", 99)
+	QuestManager.start_quest(qid2)
+	check(QuestManager.objective_count(qid2, "handover") == 0,
+		"an empty bag leaves the deliver objective unmet")
+	GameState.add_item("mana_potion", 2)
+	EventBus.item_picked_up.emit("mana_potion", 2)
+	check(QuestManager.is_done(qid2), "deliver completes once the item is carried")
+	check(GameState.item_count("mana_potion") == 1,
+		"a deliver objective consumes exactly what it asked for (2 -> 1)")
+
+	# --- live pickup mid-quest ---
+	var qid3 := "__t_collect_live"
+	QuestManager.data[qid3] = {
+		"name": "Test Live Gathering",
+		"objectives": [
+			{"id": "gather", "type": "collect", "target": "leather_armor", "count": 1,
+				"desc": "Bring leather armor"},
+		],
+	}
+	GameState.remove_item("leather_armor", 99)
+	QuestManager.start_quest(qid3)
+	check(QuestManager.objective_count(qid3, "gather") == 0, "starts at 0 with an empty bag")
+	GameState.add_item("leather_armor", 1)
+	EventBus.item_picked_up.emit("leather_armor", 1)
+	check(QuestManager.objective_count(qid3, "gather") == 1, "pickup advances the collect objective")
+	check(QuestManager.is_done(qid3), "quest completes on pickup")
+
+	for q in [qid, qid2, qid3]:
+		QuestManager.data.erase(q)
