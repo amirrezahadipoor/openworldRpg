@@ -3,7 +3,9 @@ extends Node
 ## pause menu; loads an existing save on boot (DECISIONS.md #5).
 
 const PLAYER_SCENE := "res://scenes/player/player.tscn"
+const BOSS_ARENA_SCENE := "res://scenes/enemies/boss_arena.tscn"
 const SPAWN_POINT := Vector2(512, 512)
+const BOSS_POS := Vector2(2700, -1500)
 
 var player: Player
 var camera: FollowCamera
@@ -20,6 +22,8 @@ func _ready() -> void:
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.enemy_hurt.connect(_on_enemy_hurt)
 	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.boss_defeated.connect(_on_boss_defeated)
+	EventBus.boss_phase_changed.connect(_on_boss_phase)
 
 	if SaveSystem.has_save():
 		SaveSystem.load_game(player)
@@ -32,6 +36,11 @@ func _build_world() -> void:
 	streamer = ChunkStreamer.new()
 	streamer.name = "ChunkStreamer"
 	world.add_child(streamer)
+
+	var arena: BossArena = (load(BOSS_ARENA_SCENE) as PackedScene).instantiate()
+	arena.name = "BossArena"
+	world.add_child(arena)
+	arena.global_position = BOSS_POS
 
 
 func _build_player() -> void:
@@ -77,6 +86,14 @@ func _on_enemy_died(enemy: Node) -> void:
 	if enemy is Node2D:
 		DamageNumber.spawn(self, (enemy as Node2D).global_position + Vector2(0, -34), "+%d XP" % (enemy as Enemy).xp_reward, Color(0.55, 0.95, 0.55))
 	camera.shake(0.2)
+
+
+func _on_boss_defeated() -> void:
+	camera.shake(0.9)
+
+
+func _on_boss_phase(_phase: int) -> void:
+	camera.shake(0.5)
 
 
 func _on_player_died() -> void:

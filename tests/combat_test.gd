@@ -31,6 +31,9 @@ func _ready() -> void:
 
 	_test_consumable_inventory()
 
+	_test_boss_phases_and_death()
+	await get_tree().physics_frame
+
 	_report()
 
 
@@ -101,6 +104,42 @@ func _test_consumable_inventory() -> void:
 	check(int(GameState.inventory.get("health_potion", 0)) == before + 1, "potion stacked in inventory")
 	check(GameState.remove_item("health_potion", 1), "potion removable")
 	check(int(GameState.inventory.get("health_potion", 0)) == before, "stack restored after removal")
+
+
+func _test_boss_phases_and_death() -> void:
+	print("[combat_test] boss phases + death")
+	var host := Node2D.new()
+	add_child(host)
+
+	var boss: Boss = load("res://scenes/enemies/boss.tscn").instantiate()
+	host.add_child(boss)
+	boss.global_position = Vector2(3000, -3000)
+	boss.setup_archetype("ember_warden")
+
+	check(boss.behavior == "boss", "boss behavior configured")
+	check(boss.max_hp >= 500.0, "boss has a boss-sized HP pool")
+
+	# Phase 1 -> 2 (below 60%).
+	boss.take_hit(boss.max_hp * 0.45, Vector2.RIGHT)
+	check(boss.phase == 2, "phase 2 below 60%% HP (phase=%d)" % boss.phase)
+
+	# Phase 2 -> 3 (below 25%). Clear transformation i-frames for the test.
+	boss._transform_invuln = 0.0
+	boss.take_hit(boss.max_hp * 0.4, Vector2.RIGHT)
+	check(boss.phase == 3, "phase 3 below 25%% HP (phase=%d)" % boss.phase)
+
+	# Lethal blow -> guaranteed loot (iron_sword + potion + gold).
+	boss._transform_invuln = 0.0
+	boss.take_hit(99999.0, Vector2.RIGHT)
+	var pickups := 0
+	var found_iron_sword := false
+	for child in host.get_children():
+		if child is Pickup:
+			pickups += 1
+			if (child as Pickup).item_id == "iron_sword":
+				found_iron_sword = true
+	check(pickups >= 3, "boss death dropped >=3 pickups (got %d)" % pickups)
+	check(found_iron_sword, "boss guaranteed iron_sword drop present")
 
 
 func _report() -> void:

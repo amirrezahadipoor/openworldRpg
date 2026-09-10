@@ -26,6 +26,10 @@ signal quest_completed(quest_id: String)
 signal dialogue_opened
 signal dialogue_closed
 
+# --- Boss ---
+signal boss_phase_changed(phase: int)
+signal boss_defeated
+
 # --- World ---
 signal chunk_loaded(chunk_key: Vector2i)
 signal chunk_unloaded(chunk_key: Vector2i)

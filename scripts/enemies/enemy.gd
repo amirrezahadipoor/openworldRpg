@@ -10,9 +10,12 @@ enum State { IDLE, PATROL, CHASE, ATTACK, FLEE, DEAD }
 
 signal recycled(enemy: Enemy)
 
-const TELEGRAPH_TIME := 0.45
+const DEFAULT_TELEGRAPH := 0.45
 const FLEE_TIME := 1.6
 const FLEE_THRESHOLD := 0.25
+
+var telegraph_time := DEFAULT_TELEGRAPH
+var base_scale := Vector2.ONE
 
 var archetype := "grunt"
 
@@ -89,18 +92,10 @@ func _physics_process(delta: float) -> void:
 			velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
 			var pulse := 0.5 + 0.5 * sin(_state_time * 24.0)
 			sprite.modulate = body_color.lerp(Color(1.0, 0.85, 0.2), pulse)
-			if _state_time >= TELEGRAPH_TIME:
+			if _state_time >= telegraph_time:
 				sprite.modulate = body_color
 				_attack_cd = attack_cooldown
-				if _player:
-					if behavior == "ranged":
-						PoolManager.spawn_projectile(
-							global_position, to_player.normalized(),
-							projectile_damage, projectile_speed, body_color.lightened(0.2)
-						)
-						AudioManager.play_sfx("enemy_cast")
-					elif dist < attack_radius + 18.0:
-						_player.take_hit(contact_damage, to_player.normalized())
+				_finish_attack(to_player, dist)
 				_change_state(State.CHASE)
 
 		State.FLEE:
@@ -139,12 +134,26 @@ func setup_archetype(id: String, power_scale: float = 1.0) -> void:
 	_origin = global_position
 	sprite.modulate = body_color
 	modulate.a = 1.0
-	scale = Vector2.ONE
+	scale = base_scale
 	show()
 	set_physics_process(true)
 	for child in get_children():
 		if child is CollisionShape2D:
 			child.set_deferred("disabled", false)
+
+
+## Attack resolution hook — Boss overrides this for phase patterns.
+func _finish_attack(to_player: Vector2, dist: float) -> void:
+	if _player == null:
+		return
+	if behavior == "ranged":
+		PoolManager.spawn_projectile(
+			global_position, to_player.normalized(),
+			projectile_damage, projectile_speed, body_color.lightened(0.2)
+		)
+		AudioManager.play_sfx("enemy_cast")
+	elif dist < attack_radius + 18.0:
+		_player.take_hit(contact_damage, to_player.normalized())
 
 
 func _change_state(s: State) -> void:
@@ -174,7 +183,7 @@ func take_hit(amount: float, dir: Vector2) -> void:
 	EventBus.enemy_hurt.emit(self, amount, dir)
 	if hp <= 0.0:
 		_die()
-	elif hp < max_hp * FLEE_THRESHOLD and state != State.FLEE:
+	elif hp < max_hp * FLEE_THRESHOLD and state != State.FLEE and behavior != "boss":
 		_change_state(State.FLEE)
 
 
