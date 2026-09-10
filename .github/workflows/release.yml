@@ -141,11 +141,16 @@ jobs:
 
             ---
 
-            **Status: pre-playtest.** The game is feature-complete and CI-green, and
-            this build carries the Phase B content pass (real 32 px LPC world art,
-            real NPC/enemy characters, real CC0/CC-BY music and SFX). It has
-            **not** yet been played through by a human on a device, and difficulty
-            balancing is untuned. See `ROADMAP.md` Phase C.
+            **Status: content-complete, pre-device-playtest.** This build carries the whole
+            Phase F content pass: 120 items in five rarity tiers (a strict power ordering,
+            lifesteal only as a rare-or-better find), 14 monsters placed by biome and level,
+            6 escalating bosses, a 100-step main chain (MQ001-MQ100), 100 side quests, 40
+            secrets, and a full economy + power balance pass (`tools/balance_report.py`,
+            results in `reports/`). Everything is CI-green.
+
+            What has **not** happened yet is the part CI cannot do: a human playing it on a
+            device. Difficulty is measured, not felt - see `PLAYTEST.md` for the checklist
+            and `ROADMAP.md` Phase G for what is left.
 
             **Licensing:** assets include CC-BY-SA 3.0 (tiles, characters) and CC-BY
             (music) material. Attribution ships in the in-game credits screen and in

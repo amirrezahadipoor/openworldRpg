@@ -4,12 +4,15 @@ A complete, polished **2D open-world action RPG for Android**, built with **Godo
 combat with dodge i-frames, a chunk-streamed seamless world with 3 biomes, talent trees, quests
 with branching dialogue, loot, shops, and full save/load. Built to ship: signed APK/AAB from CI.
 
-> 📍 Status: **feature-complete, not yet shippable.** All game systems are built and covered
-> by CI, and the world now uses a real 32 px LPC tileset — but character/audio breadth is
-> unfinished, the game has never been played by a human on a device, and the CC-BY-SA credits
-> screen does not exist yet (a release blocker). See [ROADMAP.md](ROADMAP.md) for the honest
-> current state, [DECISIONS.md](DECISIONS.md) for design decisions, and [CREDITS.md](CREDITS.md)
-> for third-party licenses. Signed APK/AAB are produced by the `release` workflow on `v*` tags.
+> 📍 Status: **content-complete and CI-green; nothing ships until a human plays it.** The
+> Phase F content build is finished — 120 items across five rarity tiers, 14 monsters placed by
+> biome and level, 6 escalating bosses, a 100-step main chain, 100 side quests, 40 secrets and a
+> full economy/power balance pass (`tools/balance_report.py`) — and every one of those is guarded
+> in CI. What remains is the part nobody can do from a CI runner: **playing it on a real device**
+> and profiling it there (see `PLAYTEST.md`, ROADMAP Phase G). See [ROADMAP.md](ROADMAP.md) for
+> the current state, [DECISIONS.md](DECISIONS.md) for design decisions, and
+> [CREDITS.md](CREDITS.md) for third-party licenses (attribution also ships in the in-game
+> credits screen). Signed APK/AAB are produced by the `release` workflow on `v*` tags.
 
 ![OpenWorld RPG — the Verdant Meadows starting camp](docs/screenshot-meadows.png)
 
@@ -23,6 +26,8 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 | Target | Android (ARM64 + ARMv7), 60 FPS on mid-range hardware |
 | Design resolution | 1280×720, `canvas_items` stretch, `expand` aspect, landscape |
 | Repo budget | < 120 MB total (enforced in CI); toolchain lives in `/tmp/rpg-toolchain/` |
+| Content | 120 items / 5 rarities · 14 monsters · 6 bosses · 100-step main chain · 100 side quests · 40 secrets |
+| Performance | ~60 FPS target; balance measured in `reports/balance-*.md` (`tools/balance_report.py --check`) |
 | Language | English |
 
 ## What's in the game
@@ -33,13 +38,23 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 - **Combat** — directional melee, dodge with i-frames, Whirlwind + Firebolt cooldown
   abilities, telegraphed enemy AI (idle/patrol/chase/attack/flee), the three-phase
   Ember Warden boss, damage numbers, hit-stop, particles and squash-and-stretch.
-- **Progression** — XP/levels, 3-branch talent tree, stats (HP/MP/stamina/ATK/DEF/SPD),
-  loot chests, stacking inventory, equipment affecting stats, consumables, shop economy.
-- **Story** — 4-part main questline with branching, consequential dialogue, side and
-  repeatable quests, tracked objectives, data-driven JSON dialogue.
+- **Progression** — XP/levels on a re-tapered 1–100 curve, 3-branch talent tree (60 nodes),
+  stats (HP/MP/stamina/ATK/DEF/SPD), loot chests, stacking inventory, equipment affecting
+  stats, consumables, shop economy.
+- **Loot** — 120 items in five tiers that are a *strict power ordering* (weighted stat budgets:
+  12 / 26 / 48 / 78 / 120), every one lootable from monsters, with **lifesteal only ever a
+  chance find on rare-or-better gear**. Rarity is colour-coded in the inventory.
+- **Monsters & bosses** — 14 types from Slime Grunts to Ashen Heralds, placed by biome and
+  level band (nothing spawns outside its band), and 6 bosses escalating from the Goblin King to
+  the Ember Warden's unchanged three-phase fight.
+- **Story** — 4-part main questline with branching, consequential dialogue, plus a **100-step
+  main chain** (MQ001–MQ100, with the Mireille expose/protect fork) and **100 side quests**
+  served from a runtime board, all data-driven JSON with level-gated dialogue.
+- **Secrets** — 40 of them: buried caches you walk over, carvings that read as lore and point at
+  the next one, landmarks with a view, and locked vaults that want a key *and* a level.
 - **Meta** — 3 save slots, settings (volume/joystick/language stub), main menu with slot
-  picker, pause, death and fast-travel screens. *Music + SFX are still synthesised
-  placeholders (`tools/gen_music.py`, `tools/gen_sfx.py`) — real CC0 audio is Phase B5.*
+  picker, pause, death and fast-travel screens, and a credits screen carrying the CC-BY-SA
+  attribution that ships with the art and music.
 - **Controls** — keyboard or touch: left virtual joystick; right buttons for attack,
   dodge, interact and the two abilities (with live cooldown readouts).
 

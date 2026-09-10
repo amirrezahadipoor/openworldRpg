@@ -190,18 +190,28 @@ leaves its band (DECISIONS #44/#45).
 
 ---
 
-## Phase G — Ship (unchanged targets)
+## Phase G — Ship
 
-- Playtest on a real device (the one thing that cannot be done here).
-- Performance profile on Android hardware.
-- Signed release: the `release` workflow already builds signed APK/AAB on a `v*`
-  tag; `v0.2.0` is published as a prerelease.
+- **Playtest on a real device** `[ ]` — the one thing that cannot be done here.
+  `PLAYTEST.md` is the checklist (performance, touch controls, readability, and
+  whether the balanced numbers are the right *experience*).
+- **Performance profile on Android hardware** `[ ]` — folded into PLAYTEST.md §1;
+  the numbers it produces are what a Phase H would tune against.
+- **Signed release** `[x]` — the `release` workflow builds signed APK/AAB on a `v*`
+  tag and publishes 0.x tags as prereleases. `v0.3.0` carries the whole Phase F
+  content pass (120 items / 5 rarities, 14 monsters, 6 bosses, the 100-step chain,
+  100 side quests, 40 secrets, the balance pass). `v0.2.0` was the pre-F build.
+- **Docs tell the truth** `[x]` — README, release notes and the roadmap were
+  rewritten this pass; the old text still described the pre-Phase-B game (audio
+  "placeholders", a missing credits screen, "difficulty untuned").
 
 ---
 
 ## What's left, in one line
 
-Phase F is the remaining content build: 100+ rarity-tiered items that drop from
-≥10 monsters and 6 escalating bosses, a 100-step main chain, 100 side quests,
-secrets, and a full balance pass — layered on top of the shipped systems, never
-replacing them.
+Everything that can be built and measured is built and measured — what remains is
+**a human playing it on a device** and the tuning that follows from actually
+feeling it (`PLAYTEST.md`, Phase G). Phase F is complete and green: 120 items in
+five rarity tiers that drop from 14 monsters and 6 escalating bosses, a 100-step
+main chain, 100 side quests, 40 secrets, and a full economy + power balance pass
+that CI now enforces.
