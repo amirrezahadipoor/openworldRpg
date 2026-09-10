@@ -63,6 +63,10 @@ jobs:
       - name: Import project (headless)
         run: /tmp/rpg-toolchain/bin/godot --headless --path . --import
 
+      # Gradle builds need the build template *inside* the project (res://android/).
+      - name: Install Android build template into project (Gradle)
+        run: /tmp/rpg-toolchain/bin/godot --headless --path . --install-android-build-template
+
       - name: Determine version tag
         id: ver
         run: |
