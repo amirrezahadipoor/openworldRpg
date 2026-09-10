@@ -91,7 +91,7 @@ pretending to have a boss.
   available in Act 3.
 - Each act is playable end-to-end before the next is written.
 
-### F5. Side quests: 100, easy → hard `[~]`
+### F5. Side quests: 100, easy → hard `[x]`
 
 **F4 done.** `tools/gen_quests.py` authors MQ001–MQ100 — Act 2, the ash road — and
 threads them between the unchanged `q1_first_light` and `q2_ember_omen`
@@ -120,6 +120,25 @@ the Warden → A New Dawn in the live world (27 checks).
   ~30 Peaks.
 - Difficulty ramps with the region and the level band; rewards scale with
   difficulty, not with quest order.
+
+**F5 done.** `tools/gen_side_quests.py` authors SQ001–SQ100 on the sanctioned
+template model: **eight category models written out in full** (Bounty, Fetch,
+Escort, Mystery, Faction, Collection, Companion, Repeatable) plus one authored
+`twist` clause per quest. 30 Meadow / 39 Barrens / 31 Peaks, opening at level 3
+and closing at 92: Bounty 27, Mystery 14, Faction 12, Fetch 12, Collection 10,
+Repeatable 10, Companion 8, Escort 7. Every kill target lives in the quest's
+region and is open by its level anchor, which the author asserts before writing
+and `tests/QuestTest.tscn` re-asserts from the shipped JSON.
+
+The board is served at **runtime**, not baked into dialogue files:
+`QuestManager.next_offer(npc_id)` hands out the easiest job that NPC holds which
+the player has not taken and is high enough level for, and `main.gd` shows it
+through the existing dialogue/choice UI. Baking 100 offer entries into
+`data/dialogue/*.json` would have shadowed the hand-written lines those files end
+with (several NPCs' catch-alls have no conditions at all). Goods quests use
+`deliver` (consumes) rather than `collect`, so goods you never gave up cannot be
+turned into a payout. `QuestManager._sync_flags()` also means a "reach X" step is
+already satisfied if you have been there — the same rule collect already used.
 
 ### F6. Secrets `[ ]`
 - Hidden caches, locked vaults, lever/gate puzzles, lore fragments, secret

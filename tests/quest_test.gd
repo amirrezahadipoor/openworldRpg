@@ -30,6 +30,8 @@ func _ready() -> void:
 	_test_fork()
 	_test_dialogue_wired()
 	await _test_chain_is_walkable()
+	_test_side_quests()
+	await _test_side_quests_walk()
 	_report()
 
 
@@ -404,6 +406,185 @@ func _test_chain_is_walkable() -> void:
 	check(GameState.level > 1, "walking the chain granted xp (level %d)" % GameState.level)
 	host.queue_free()
 	await get_tree().process_frame
+
+
+func _test_side_quests() -> void:
+	print("[quest_test] 100 side quests, easy -> hard")
+	var ids := []
+	for i in range(1, 101):
+		ids.append("SQ%03d" % i)
+	var missing := []
+	for id in ids:
+		if not QuestManager.data.has(id):
+			missing.append(id)
+	check(missing.is_empty(), "every SQ001-SQ100 exists (missing: %s)" % str(missing))
+
+	# Categories and regions must both be spread out, and the ladder must rise.
+	var cats := {}
+	var regions := {}
+	var bad_region := []
+	var bad_level := []
+	var repeatables := 0
+	var prev_anchor := 0
+	var rising := true
+	for id in ids:
+		var q: Dictionary = QuestManager.data[id]
+		cats[String(q.get("category", ""))] = int(cats.get(String(q.get("category", "")), 0)) + 1
+		regions[String(q.get("region", ""))] = int(regions.get(String(q.get("region", "")), 0)) + 1
+		if bool(q.get("repeatable", false)):
+			repeatables += 1
+		var anchor := int(q.get("level_anchor", 0))
+		if anchor < prev_anchor:
+			rising = false
+		prev_anchor = anchor
+		for obj in (q.get("objectives", []) as Array):
+			var o: Dictionary = obj
+			var region := String(q.get("region", ""))
+			if String(o.get("type", "")) == "kill":
+				var arch := EnemyDB.get_archetype(String(o.get("target", "")))
+				if String(arch.get("biome", "")) != region:
+					bad_region.append("%s: %s lives in %s" % [id, o.get("target", ""), arch.get("biome", "?")])
+				var band: Array = arch.get("level_band", [1, 100])
+				if int(band[0]) > anchor + 8:
+					bad_level.append("%s: %s opens at L%d, anchor L%d" % [id, o.get("target", ""), band[0], anchor])
+	check(cats.size() >= 6, "side quests use 6+ category models (%s)" % str(cats))
+	check(regions.size() == 3, "side quests cover all three regions (%s)" % str(regions))
+	check(rising, "the board opens at rising levels (SQ001 L%d -> SQ100 L%d)" %
+		[int((QuestManager.data["SQ001"] as Dictionary).get("level_anchor", 0)),
+		 int((QuestManager.data["SQ100"] as Dictionary).get("level_anchor", 0))])
+	check(repeatables >= 5, "repeatable work exists (%d)" % repeatables)
+	check(bad_region.is_empty(), "every side-quest kill target lives in its region (%s)" % str(bad_region.slice(0, 3)))
+	check(bad_level.is_empty(), "every side-quest target is level-appropriate (%s)" % str(bad_level.slice(0, 3)))
+
+	# Rewards: a slice of a level, smaller than the main chain's, and rising.
+	var too_big := []
+	var first_xp := int((QuestManager.data["SQ001"] as Dictionary).get("reward", {}).get("xp", 0))
+	var last_xp := int((QuestManager.data["SQ100"] as Dictionary).get("reward", {}).get("xp", 0))
+	for id in ids:
+		var q: Dictionary = QuestManager.data[id]
+		var xp := int((q.get("reward", {}) as Dictionary).get("xp", 0))
+		var need := GameState.xp_to_next(clampi(int(q.get("level_anchor", 1)), 1, 99))
+		if need > 0 and xp > need:
+			too_big.append(id)
+	check(too_big.is_empty(), "no side quest pays a whole level (%s)" % str(too_big))
+	check(last_xp > first_xp, "late side quests pay more (%d -> %d)" % [first_xp, last_xp])
+
+	# The board: every quest has a real giver, and it hands out the easiest first.
+	var bad_giver := []
+	for id in ids:
+		var giver := String((QuestManager.data[id] as Dictionary).get("giver", ""))
+		if not NPCController.roster().has(giver):
+			bad_giver.append("%s -> %s" % [id, giver])
+	check(bad_giver.is_empty(), "every side quest has a real giver (%s)" % str(bad_giver.slice(0, 3)))
+
+	# Empty the board, then let each giver hand out everything they hold: the
+	# board must serve every quest they are the giver for, easiest first.
+	var saved_level2 := GameState.level
+	var saved_flags: Dictionary = GameState.quest_flags.duplicate()
+	GameState.level = 100
+	var served := {}
+	var order_ok := true
+	for id in ids:
+		GameState.quest_flags.erase("took_%s" % id)
+	for i in 200:
+		var progress := false
+		var givers := ["elder_rowan", "elder_fenwick", "merchant_bram", "wren",
+			"magistrate_voss", "hunter_kael", "ysolde", "brother_ashe",
+			"captain_dael", "mireille", "high_warden_isolde"]
+		for g in givers:
+			var o := QuestManager.next_offer(g)
+			if o == "":
+				continue
+			var lvl := int((QuestManager.data[o] as Dictionary).get("level_anchor", 0))
+			if served.has(g) and lvl < int(served[g][-1][1]):
+				order_ok = false
+			if not served.has(g):
+				served[g] = []
+			(served[g] as Array).append([o, lvl])
+			GameState.quest_flags["took_%s" % o] = true
+			progress = true
+		if not progress:
+			break
+	var served_total := 0
+	for g in served:
+		served_total += (served[g] as Array).size()
+	check(served_total == 100, "the board serves all 100 quests, one at a time (%d)" % served_total)
+	check(order_ok, "each giver's board is served easiest-first")
+	GameState.level = saved_level2
+	GameState.quest_flags = saved_flags
+
+	# Gating: a level-1 player is offered the easiest job, not the endgame.
+	var saved_level := GameState.level
+	GameState.level = 1
+	var early := QuestManager.next_offer("elder_fenwick")
+	check(early == "", "a level-1 player is too green for the opening job")
+	GameState.level = 3
+	early = QuestManager.next_offer("elder_fenwick")
+	check(early == "SQ001", "a level-3 player is offered the opening job (%s)" % early)
+	GameState.level = 100
+	var late := ""
+	for id in ["high_warden_isolde", "mireille"]:
+		var o := QuestManager.next_offer(id)
+		if o != "":
+			late = o
+	check(late != "", "an endgame player is offered endgame work (%s)" % late)
+	GameState.level = saved_level
+
+	# Taking a job takes it off the board.
+	GameState.level = 3
+	var first := QuestManager.next_offer("elder_fenwick")
+	QuestManager.start_quest(first)
+	GameState.quest_flags["took_%s" % first] = true
+	var second := QuestManager.next_offer("elder_fenwick")
+	check(second != first, "a taken job leaves the board (%s -> %s)" % [first, second])
+	QuestManager.complete_objective(first, String(((QuestManager.data[first] as Dictionary)
+		.get("objectives", []) as Array)[0].get("id", "")))
+	GameState.quests.erase(first)
+	GameState.quest_progress.erase(first)
+	GameState.quest_flags.erase("took_%s" % first)
+	GameState.level = saved_level
+
+
+func _test_side_quests_walk() -> void:
+	print("[quest_test] side quests complete, and repeatables reset")
+	var walked := 0
+	var stuck := []
+	for i in range(1, 101):
+		var qid := "SQ%03d" % i
+		var quest: Dictionary = QuestManager.data[qid]
+		QuestManager.start_quest(qid)
+		if not QuestManager.is_active(qid):
+			# Legitimate: a quest whose objective the player already satisfies
+			# (goods in the bag, a place already visited) completes on accept —
+			# `deliver` then takes the goods, so it is not a free payout.
+			if QuestManager.is_done(qid):
+				walked += 1
+				continue
+			stuck.append("%s would not start (state '%s')" %
+				[qid, str(GameState.quests.get(qid, "<unset>"))])
+			break
+		for obj in (quest.get("objectives", []) as Array):
+			var o: Dictionary = obj
+			match String(o.get("type", "")):
+				"kill":
+					for n in int(o.get("count", 1)):
+						QuestManager._on_enemy_died(_fake_enemy(String(o.get("target", ""))))
+				"flag":
+					QuestManager.register_flag(String(o.get("target", "")))
+				"talk":
+					QuestManager.talk_to(String(o.get("target", "")))
+				"collect", "deliver":
+					GameState.add_item(String(o.get("target", "")), int(o.get("count", 1)))
+					EventBus.item_picked_up.emit(String(o.get("target", "")), int(o.get("count", 1)))
+		await get_tree().process_frame
+		var repeatable := bool(quest.get("repeatable", false))
+		var ok := (not GameState.quests.has(qid)) if repeatable else QuestManager.is_done(qid)
+		if not ok:
+			stuck.append("%s did not complete" % qid)
+			break
+		walked += 1
+	check(walked == 100, "all 100 side quests complete (%d walked, stuck: %s)" %
+		[walked, str(stuck.slice(0, 2))])
 
 
 func _fake_enemy(archetype: String) -> Node:

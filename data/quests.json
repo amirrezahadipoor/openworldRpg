@@ -152,6 +152,3028 @@
       },
       "next": ""
     },
+    "SQ001": {
+      "name": "Fold Work",
+      "desc": "Elder Fenwick wants 5 Slime Grunt cleared out of Oakstead's sheep pens, and pays the same whether you come back happy or honest. (Bounty, Fold Work)",
+      "giver": "elder_fenwick",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 3,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "grunt",
+          "count": 5,
+          "desc": "Hunt 5 Slime Grunt"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 125,
+        "gold": 70,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ002": {
+      "name": "The Tanner's Ledger",
+      "desc": "Merchant Bram needs 4 Slime Gel and needs them in hand, not in rumour. (Fetch, The Tanner's Ledger)",
+      "giver": "merchant_bram",
+      "category": "Fetch",
+      "region": "meadow",
+      "level_anchor": 4,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "slime_gel",
+          "count": 4,
+          "desc": "Gather 4 Slime Gel"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "slime_gel",
+          "count": 4,
+          "desc": "Hand them over to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 175,
+        "gold": 140,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ003": {
+      "name": "Teeth for the Wall",
+      "desc": "Hunter Kael wants 6 Meadow Wolf cleared out of the treeline above Oakstead, and pays the same whether you come back happy or honest. (Bounty, Teeth for the Wall)",
+      "giver": "hunter_kael",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 5,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "meadow_wolf",
+          "count": 6,
+          "desc": "Hunt 6 Meadow Wolf"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 320,
+        "gold": 175,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ004": {
+      "name": "Ash Cull",
+      "desc": "The same work again: Hunter Kael will pay on the spot for 5 Emberling. (Repeatable, Ash Cull)",
+      "giver": "hunter_kael",
+      "category": "Repeatable",
+      "region": "meadow",
+      "level_anchor": 5,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "emberling",
+          "count": 5,
+          "desc": "Cull 5 Emberling"
+        }
+      ],
+      "reward": {
+        "xp": 145,
+        "gold": 85,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ005": {
+      "name": "Grain for Oakstead",
+      "desc": "Old Rowan asked you to see a party safely to Oakstead and to stop asking who they are. (Escort, Grain for Oakstead)",
+      "giver": "elder_rowan",
+      "category": "Escort",
+      "region": "meadow",
+      "level_anchor": 6,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_oakstead",
+          "count": 1,
+          "desc": "See it safely to Oakstead"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report back to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 405,
+        "gold": 365,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ006": {
+      "name": "Fever Rations",
+      "desc": "Elder Fenwick is assembling something out of the cave mouth east of the fold, and older hands say it has been tried before and gone badly. (Collection, Fever Rations)",
+      "giver": "elder_fenwick",
+      "category": "Collection",
+      "region": "meadow",
+      "level_anchor": 7,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "bone_fragment",
+          "count": 3,
+          "desc": "Deliver 3 Bone Fragment"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "bone_fragment",
+          "count": 3,
+          "desc": "Deliver 3 Bone Fragment"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 635,
+        "gold": 320,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ007": {
+      "name": "The Warren Door",
+      "desc": "Old Rowan will not say what happened at the old mill's lower floor. Go and find out, and come back with something that can be held. (Mystery, The Warren Door)",
+      "giver": "elder_rowan",
+      "category": "Mystery",
+      "region": "meadow",
+      "level_anchor": 8,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_drowned_mill",
+          "count": 1,
+          "desc": "Get inside The Drowned Mill"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "torn_cloth",
+          "count": 2,
+          "desc": "Bring back 2 Torn Cloth"
+        }
+      ],
+      "reward": {
+        "xp": 945,
+        "gold": 565,
+        "items": []
+      },
+      "next": "SQ008"
+    },
+    "SQ008": {
+      "name": "Wren's Walk",
+      "desc": "Wren wants company on the road to Wren and will not say why. (Companion, Wren's Walk)",
+      "giver": "wren",
+      "category": "Companion",
+      "region": "meadow",
+      "level_anchor": 8,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Walk with Wren"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Finish the road with Wren"
+        }
+      ],
+      "reward": {
+        "xp": 540,
+        "gold": 215,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ009": {
+      "name": "Road Tax",
+      "desc": "Merchant Bram wants 8 Slime Grunt cleared out of the Sunreach road cut, and pays the same whether you come back happy or honest. (Bounty, Road Tax)",
+      "giver": "merchant_bram",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 9,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "grunt",
+          "count": 8,
+          "desc": "Hunt 8 Slime Grunt"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 920,
+        "gold": 505,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ010": {
+      "name": "Marrow for the Kiln",
+      "desc": "Elder Fenwick needs 6 Bone Fragment and needs them in hand, not in rumour. (Fetch, Marrow for the Kiln)",
+      "giver": "elder_fenwick",
+      "category": "Fetch",
+      "region": "meadow",
+      "level_anchor": 10,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "bone_fragment",
+          "count": 6,
+          "desc": "Gather 6 Bone Fragment"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "bone_fragment",
+          "count": 6,
+          "desc": "Hand them over to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 910,
+        "gold": 730,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ011": {
+      "name": "Voss's Quiet Ledger",
+      "desc": "Magistrate Voss has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Voss's Quiet Ledger)",
+      "giver": "magistrate_voss",
+      "category": "Faction",
+      "region": "meadow",
+      "level_anchor": 11,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "emberling",
+          "count": 8,
+          "desc": "Break 8 Emberling"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "emberling_ember",
+          "count": 2,
+          "desc": "Hand over 2 Emberling Ember"
+        }
+      ],
+      "reward": {
+        "xp": 1560,
+        "gold": 1090,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ012": {
+      "name": "The Kindness",
+      "desc": "Old Rowan wants 6 Rotting Husk cleared out of the old graves behind Millhaven, and pays the same whether you come back happy or honest. (Bounty, The Kindness)",
+      "giver": "elder_rowan",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 11,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "husk",
+          "count": 6,
+          "desc": "Hunt 6 Rotting Husk"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 1320,
+        "gold": 725,
+        "items": [
+          "smugglers_satchel"
+        ]
+      },
+      "next": ""
+    },
+    "SQ013": {
+      "name": "Gel by the Barrel",
+      "desc": "The same work again: Merchant Bram will pay on the spot for 6 Emberling. (Repeatable, Gel by the Barrel)",
+      "giver": "merchant_bram",
+      "category": "Repeatable",
+      "region": "meadow",
+      "level_anchor": 12,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "emberling",
+          "count": 6,
+          "desc": "Cull 6 Emberling"
+        }
+      ],
+      "reward": {
+        "xp": 700,
+        "gold": 420,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ014": {
+      "name": "The Caravan's Ledger",
+      "desc": "Merchant Bram asked you to see a party safely to Sunreach City and to stop asking who they are. (Escort, The Caravan's Ledger)",
+      "giver": "merchant_bram",
+      "category": "Escort",
+      "region": "meadow",
+      "level_anchor": 13,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_sunreach",
+          "count": 1,
+          "desc": "See it safely to Sunreach City"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report back to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 1620,
+        "gold": 1460,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ015": {
+      "name": "Embers and Bones",
+      "desc": "Old Rowan is assembling something out of the warren mouths, and older hands say it has been tried before and gone badly. (Collection, Embers and Bones)",
+      "giver": "elder_rowan",
+      "category": "Collection",
+      "region": "meadow",
+      "level_anchor": 14,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "bone_fragment",
+          "count": 3,
+          "desc": "Deliver 3 Bone Fragment"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "bone_fragment",
+          "count": 3,
+          "desc": "Deliver 3 Bone Fragment"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 2220,
+        "gold": 1110,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ016": {
+      "name": "What Voss Heard",
+      "desc": "Magistrate Voss will not say what happened at the warrens under the road. Go and find out, and come back with something that can be held. (Mystery, What Voss Heard)",
+      "giver": "magistrate_voss",
+      "category": "Mystery",
+      "region": "meadow",
+      "level_anchor": 14,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_emberling_warrens",
+          "count": 1,
+          "desc": "Get inside Emberling Warrens"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "fetid_gland",
+          "count": 1,
+          "desc": "Bring back 1 Fetid Gland"
+        }
+      ],
+      "reward": {
+        "xp": 2590,
+        "gold": 1555,
+        "items": []
+      },
+      "next": "SQ017"
+    },
+    "SQ017": {
+      "name": "Long Ash",
+      "desc": "Hunter Kael wants 10 Emberling cleared out of the burn line east of Millhaven, and pays the same whether you come back happy or honest. (Bounty, Long Ash)",
+      "giver": "hunter_kael",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 15,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "emberling",
+          "count": 10,
+          "desc": "Hunt 10 Emberling"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 2305,
+        "gold": 1270,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ018": {
+      "name": "Oakstead's Dowry",
+      "desc": "Elder Fenwick wants company on the road to Wren and will not say why. (Companion, Oakstead's Dowry)",
+      "giver": "elder_fenwick",
+      "category": "Companion",
+      "region": "meadow",
+      "level_anchor": 16,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Walk with Wren"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Finish the road with Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 1880,
+        "gold": 750,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ019": {
+      "name": "Bought Silence",
+      "desc": "Old Rowan has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Bought Silence)",
+      "giver": "elder_rowan",
+      "category": "Faction",
+      "region": "meadow",
+      "level_anchor": 17,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "husk",
+          "count": 8,
+          "desc": "Break 8 Rotting Husk"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "fetid_gland",
+          "count": 2,
+          "desc": "Hand over 2 Fetid Gland"
+        }
+      ],
+      "reward": {
+        "xp": 3410,
+        "gold": 2385,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ020": {
+      "name": "The Magistrate's Uniform",
+      "desc": "Magistrate Voss needs 8 Torn Cloth and needs them in hand, not in rumour. (Fetch, The Magistrate's Uniform)",
+      "giver": "magistrate_voss",
+      "category": "Fetch",
+      "region": "meadow",
+      "level_anchor": 17,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "torn_cloth",
+          "count": 8,
+          "desc": "Gather 8 Torn Cloth"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "torn_cloth",
+          "count": 8,
+          "desc": "Hand them over to Magistrate Voss"
+        }
+      ],
+      "reward": {
+        "xp": 2360,
+        "gold": 1890,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ021": {
+      "name": "The Pack That Stayed",
+      "desc": "Elder Fenwick wants 10 Meadow Wolf cleared out of the ridge past Oakstead, and pays the same whether you come back happy or honest. (Bounty, The Pack That Stayed)",
+      "giver": "elder_fenwick",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 18,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "meadow_wolf",
+          "count": 10,
+          "desc": "Hunt 10 Meadow Wolf"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_fenwick",
+          "count": 1,
+          "desc": "Report to Elder Fenwick"
+        }
+      ],
+      "reward": {
+        "xp": 3200,
+        "gold": 1760,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ022": {
+      "name": "Standing Cull",
+      "desc": "The same work again: Hunter Kael will pay on the spot for 8 Slime Grunt. (Repeatable, Standing Cull)",
+      "giver": "hunter_kael",
+      "category": "Repeatable",
+      "region": "meadow",
+      "level_anchor": 19,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "grunt",
+          "count": 8,
+          "desc": "Cull 8 Slime Grunt"
+        }
+      ],
+      "reward": {
+        "xp": 1605,
+        "gold": 965,
+        "items": []
+      },
+      "next": "SQ023",
+      "repeatable": true
+    },
+    "SQ023": {
+      "name": "Moss and Embers",
+      "desc": "Merchant Bram is assembling something out of the bone yards, and older hands say it has been tried before and gone badly. (Collection, Moss and Embers)",
+      "giver": "merchant_bram",
+      "category": "Collection",
+      "region": "meadow",
+      "level_anchor": 20,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "emberling_ember",
+          "count": 4,
+          "desc": "Deliver 4 Emberling Ember"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "emberling_ember",
+          "count": 4,
+          "desc": "Deliver 4 Emberling Ember"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 4220,
+        "gold": 2110,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ024": {
+      "name": "Wren's Question",
+      "desc": "Wren will not say what happened at the mill's drowned wheel-room. Go and find out, and come back with something that can be held. (Mystery, Wren's Question)",
+      "giver": "wren",
+      "category": "Mystery",
+      "region": "meadow",
+      "level_anchor": 20,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_drowned_mill",
+          "count": 1,
+          "desc": "Get inside The Drowned Mill"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "cave_moss",
+          "count": 2,
+          "desc": "Bring back 2 Cave Moss"
+        }
+      ],
+      "reward": {
+        "xp": 4920,
+        "gold": 2950,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ025": {
+      "name": "The Second Grave",
+      "desc": "Old Rowan wants 10 Rotting Husk cleared out of the flooded fields, and pays the same whether you come back happy or honest. (Bounty, The Second Grave)",
+      "giver": "elder_rowan",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 21,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "husk",
+          "count": 10,
+          "desc": "Hunt 10 Rotting Husk"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Report to Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 3865,
+        "gold": 2125,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ026": {
+      "name": "An Escort of Paperwork",
+      "desc": "Magistrate Voss asked you to see a party safely to Millhaven and to stop asking who they are. (Escort, An Escort of Paperwork)",
+      "giver": "magistrate_voss",
+      "category": "Escort",
+      "region": "meadow",
+      "level_anchor": 22,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_millhaven",
+          "count": 1,
+          "desc": "See it safely to Millhaven"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "magistrate_voss",
+          "count": 1,
+          "desc": "Report back to Magistrate Voss"
+        }
+      ],
+      "reward": {
+        "xp": 3745,
+        "gold": 3370,
+        "items": []
+      },
+      "next": "SQ027"
+    },
+    "SQ027": {
+      "name": "Kael's Grey Ledger",
+      "desc": "Hunter Kael has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Kael's Grey Ledger)",
+      "giver": "hunter_kael",
+      "category": "Faction",
+      "region": "meadow",
+      "level_anchor": 23,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "emberling",
+          "count": 12,
+          "desc": "Break 12 Emberling"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "emberling_ember",
+          "count": 2,
+          "desc": "Hand over 2 Emberling Ember"
+        }
+      ],
+      "reward": {
+        "xp": 5175,
+        "gold": 3620,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ028": {
+      "name": "Wren's Specimens",
+      "desc": "Wren needs 5 Fetid Gland and needs them in hand, not in rumour. (Fetch, Wren's Specimens)",
+      "giver": "wren",
+      "category": "Fetch",
+      "region": "meadow",
+      "level_anchor": 23,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "fetid_gland",
+          "count": 5,
+          "desc": "Gather 5 Fetid Gland"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "fetid_gland",
+          "count": 5,
+          "desc": "Hand them over to Wren"
+        }
+      ],
+      "reward": {
+        "xp": 3580,
+        "gold": 2865,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ029": {
+      "name": "Bram's Insurance",
+      "desc": "Merchant Bram wants 1 Skarn the Goblin King cleared out of the mill's wheel-room, and pays the same whether you come back happy or honest. (Bounty, Bram's Insurance)",
+      "giver": "merchant_bram",
+      "category": "Bounty",
+      "region": "meadow",
+      "level_anchor": 24,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "goblin_king",
+          "count": 1,
+          "desc": "Hunt 1 Skarn the Goblin King"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "merchant_bram",
+          "count": 1,
+          "desc": "Report to Merchant Bram"
+        }
+      ],
+      "reward": {
+        "xp": 4635,
+        "gold": 2550,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ030": {
+      "name": "Before the Road",
+      "desc": "Old Rowan wants company on the road to Wren and will not say why. (Companion, Before the Road)",
+      "giver": "elder_rowan",
+      "category": "Companion",
+      "region": "meadow",
+      "level_anchor": 25,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "wren",
+          "count": 1,
+          "desc": "Walk with Wren"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "elder_rowan",
+          "count": 1,
+          "desc": "Finish the road with Old Rowan"
+        }
+      ],
+      "reward": {
+        "xp": 3565,
+        "gold": 1425,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ031": {
+      "name": "Scout Sweep",
+      "desc": "Hunter Kael wants 6 Barrens Scout cleared out of the salt flats' western edge, and pays the same whether you come back happy or honest. (Bounty, Scout Sweep)",
+      "giver": "hunter_kael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 25,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "scout",
+          "count": 6,
+          "desc": "Hunt 6 Barrens Scout"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 4900,
+        "gold": 2695,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ032": {
+      "name": "Ysolde's Second Pot",
+      "desc": "Ysolde the Trader needs 6 Scrap Iron and needs them in hand, not in rumour. (Fetch, Ysolde's Second Pot)",
+      "giver": "ysolde",
+      "category": "Fetch",
+      "region": "barrens",
+      "level_anchor": 26,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "scrap_iron",
+          "count": 6,
+          "desc": "Gather 6 Scrap Iron"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "scrap_iron",
+          "count": 6,
+          "desc": "Hand them over to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 4230,
+        "gold": 3385,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ033": {
+      "name": "Brother Ashe's List",
+      "desc": "Brother Ashe will not say what happened at the Scorched Monastery. Go and find out, and come back with something that can be held. (Mystery, Brother Ashe's List)",
+      "giver": "brother_ashe",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 27,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_scorched_monastery",
+          "count": 1,
+          "desc": "Get inside The Scorched Monastery"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "scorched_relic",
+          "count": 1,
+          "desc": "Bring back 1 Scorched Relic"
+        }
+      ],
+      "reward": {
+        "xp": 6920,
+        "gold": 4150,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ034": {
+      "name": "The Dusk Chant",
+      "desc": "Captain Dael wants 8 Frost Shaman cleared out of the wall's shadow, and pays the same whether you come back happy or honest. (Bounty, The Dusk Chant)",
+      "giver": "captain_dael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 28,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "shaman",
+          "count": 8,
+          "desc": "Hunt 8 Frost Shaman"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 5710,
+        "gold": 3140,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ035": {
+      "name": "Grey Before Grey",
+      "desc": "Captain Dael has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Grey Before Grey)",
+      "giver": "captain_dael",
+      "category": "Faction",
+      "region": "barrens",
+      "level_anchor": 29,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "shaman",
+          "count": 10,
+          "desc": "Break 10 Frost Shaman"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "shaman_charm",
+          "count": 2,
+          "desc": "Hand over 2 Shaman Charm"
+        }
+      ],
+      "reward": {
+        "xp": 7075,
+        "gold": 4950,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ036": {
+      "name": "Salt Money",
+      "desc": "The same work again: Hunter Kael will pay on the spot for 8 Barrens Scout. (Repeatable, Salt Money)",
+      "giver": "hunter_kael",
+      "category": "Repeatable",
+      "region": "barrens",
+      "level_anchor": 30,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "scout",
+          "count": 8,
+          "desc": "Cull 8 Barrens Scout"
+        }
+      ],
+      "reward": {
+        "xp": 2850,
+        "gold": 1710,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ037": {
+      "name": "Charms and Relics",
+      "desc": "Ysolde the Trader is assembling something out of the chant circles, and older hands say it has been tried before and gone badly. (Collection, Charms and Relics)",
+      "giver": "ysolde",
+      "category": "Collection",
+      "region": "barrens",
+      "level_anchor": 31,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "scorched_relic",
+          "count": 3,
+          "desc": "Deliver 3 Scorched Relic"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "scorched_relic",
+          "count": 3,
+          "desc": "Deliver 3 Scorched Relic"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 7145,
+        "gold": 3570,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ038": {
+      "name": "The Stock Cart",
+      "desc": "Ysolde the Trader asked you to see a party safely to Cinderhold and to stop asking who they are. (Escort, The Stock Cart)",
+      "giver": "ysolde",
+      "category": "Escort",
+      "region": "barrens",
+      "level_anchor": 32,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_cinderhold",
+          "count": 1,
+          "desc": "See it safely to Cinderhold"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report back to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 6215,
+        "gold": 5595,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ039": {
+      "name": "Scale Contract",
+      "desc": "Captain Dael wants 10 Slag Lizard cleared out of the glass fields, and pays the same whether you come back happy or honest. (Bounty, Scale Contract)",
+      "giver": "captain_dael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 33,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "lizard",
+          "count": 10,
+          "desc": "Hunt 10 Slag Lizard"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 7125,
+        "gold": 3920,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ040": {
+      "name": "The Order's Ledger",
+      "desc": "Brother Ashe will not say what happened at the monastery's nave. Go and find out, and come back with something that can be held. (Mystery, The Order's Ledger)",
+      "giver": "brother_ashe",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 34,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_scorched_monastery",
+          "count": 1,
+          "desc": "Get inside The Scorched Monastery"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "ash_shard",
+          "count": 4,
+          "desc": "Bring back 4 Ash Shard"
+        }
+      ],
+      "reward": {
+        "xp": 9435,
+        "gold": 5660,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ041": {
+      "name": "Dael's Test Bars",
+      "desc": "Captain Dael needs 8 Ash Shard and needs them in hand, not in rumour. (Fetch, Dael's Test Bars)",
+      "giver": "captain_dael",
+      "category": "Fetch",
+      "region": "barrens",
+      "level_anchor": 35,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "ash_shard",
+          "count": 8,
+          "desc": "Gather 8 Ash Shard"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "ash_shard",
+          "count": 8,
+          "desc": "Hand them over to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 6305,
+        "gold": 5045,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ042": {
+      "name": "The Long Walk South",
+      "desc": "Brother Ashe wants company on the road to Hunter Kael and will not say why. (Companion, The Long Walk South)",
+      "giver": "brother_ashe",
+      "category": "Companion",
+      "region": "barrens",
+      "level_anchor": 36,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Walk with Hunter Kael"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "brother_ashe",
+          "count": 1,
+          "desc": "Finish the road with Brother Ashe"
+        }
+      ],
+      "reward": {
+        "xp": 5820,
+        "gold": 2330,
+        "items": []
+      },
+      "next": "SQ043"
+    },
+    "SQ043": {
+      "name": "Salt and Scales",
+      "desc": "Hunter Kael wants 12 Slag Lizard cleared out of the drilling grounds, and pays the same whether you come back happy or honest. (Bounty, Salt and Scales)",
+      "giver": "hunter_kael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 37,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "lizard",
+          "count": 12,
+          "desc": "Hunt 12 Slag Lizard"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 8305,
+        "gold": 4570,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ044": {
+      "name": "Insignia Audit",
+      "desc": "Captain Dael has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Insignia Audit)",
+      "giver": "captain_dael",
+      "category": "Faction",
+      "region": "barrens",
+      "level_anchor": 38,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "lizard",
+          "count": 10,
+          "desc": "Break 10 Slag Lizard"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "emberglass_shard",
+          "count": 2,
+          "desc": "Hand over 2 Emberglass Shard"
+        }
+      ],
+      "reward": {
+        "xp": 10170,
+        "gold": 7120,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ045": {
+      "name": "Brass on Account",
+      "desc": "The same work again: Ysolde the Trader will pay on the spot for 6 Raider Brute. (Repeatable, Brass on Account)",
+      "giver": "ysolde",
+      "category": "Repeatable",
+      "region": "barrens",
+      "level_anchor": 39,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "raider_brute",
+          "count": 6,
+          "desc": "Cull 6 Raider Brute"
+        }
+      ],
+      "reward": {
+        "xp": 4050,
+        "gold": 2430,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ046": {
+      "name": "Who Lit the Works",
+      "desc": "Hunter Kael will not say what happened at the slagworks' furnace floor. Go and find out, and come back with something that can be held. (Mystery, Who Lit the Works)",
+      "giver": "hunter_kael",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 40,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_slagworks",
+          "count": 1,
+          "desc": "Get inside The Slagworks"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "raider_insignia",
+          "count": 3,
+          "desc": "Bring back 3 Raider Insignia"
+        }
+      ],
+      "reward": {
+        "xp": 11725,
+        "gold": 7035,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ047": {
+      "name": "The Nave Billet",
+      "desc": "Captain Dael wants 12 Raider Brute cleared out of the monastery's nave, and pays the same whether you come back happy or honest. (Bounty, The Nave Billet)",
+      "giver": "captain_dael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 41,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "raider_brute",
+          "count": 12,
+          "desc": "Hunt 12 Raider Brute"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 9520,
+        "gold": 5235,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ048": {
+      "name": "Relics, Not Souvenirs",
+      "desc": "Captain Dael is assembling something out of the rubble lines, and older hands say it has been tried before and gone badly. (Collection, Relics, Not Souvenirs)",
+      "giver": "captain_dael",
+      "category": "Collection",
+      "region": "barrens",
+      "level_anchor": 42,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "shaman_charm",
+          "count": 4,
+          "desc": "Deliver 4 Shaman Charm"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "shaman_charm",
+          "count": 4,
+          "desc": "Deliver 4 Shaman Charm"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 10725,
+        "gold": 5360,
+        "items": [
+          "slaghide_cuirass"
+        ]
+      },
+      "next": ""
+    },
+    "SQ049": {
+      "name": "Warm Steel",
+      "desc": "Hunter Kael needs 3 Warden-Steel Ingot and needs them in hand, not in rumour. (Fetch, Warm Steel)",
+      "giver": "hunter_kael",
+      "category": "Fetch",
+      "region": "barrens",
+      "level_anchor": 43,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "warden_steel_ingot",
+          "count": 3,
+          "desc": "Gather 3 Warden-Steel Ingot"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 3,
+          "desc": "Hand them over to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 8300,
+        "gold": 6640,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ050": {
+      "name": "The Witness Walk",
+      "desc": "Captain Dael asked you to see a party safely to Ashvow and to stop asking who they are. (Escort, The Witness Walk)",
+      "giver": "captain_dael",
+      "category": "Escort",
+      "region": "barrens",
+      "level_anchor": 44,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_ashvow",
+          "count": 1,
+          "desc": "See it safely to Ashvow"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report back to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 9510,
+        "gold": 8560,
+        "items": []
+      },
+      "next": "SQ051"
+    },
+    "SQ051": {
+      "name": "Silence for the Office",
+      "desc": "Brother Ashe wants 12 Frost Shaman cleared out of the monastery's cloister, and pays the same whether you come back happy or honest. (Bounty, Silence for the Office)",
+      "giver": "brother_ashe",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 46,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "shaman",
+          "count": 12,
+          "desc": "Hunt 12 Frost Shaman"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "brother_ashe",
+          "count": 1,
+          "desc": "Report to Brother Ashe"
+        }
+      ],
+      "reward": {
+        "xp": 11095,
+        "gold": 6100,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ052": {
+      "name": "Under the Street",
+      "desc": "Captain Dael will not say what happened at the sanctum under Ashvow. Go and find out, and come back with something that can be held. (Mystery, Under the Street)",
+      "giver": "captain_dael",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 47,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_choir_sanctum",
+          "count": 1,
+          "desc": "Get inside Choir Sanctum"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "choir_sigil",
+          "count": 2,
+          "desc": "Bring back 2 Choir Sigil"
+        }
+      ],
+      "reward": {
+        "xp": 14535,
+        "gold": 8720,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ053": {
+      "name": "Horns Bought and Paid",
+      "desc": "Hunter Kael has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Horns Bought and Paid)",
+      "giver": "hunter_kael",
+      "category": "Faction",
+      "region": "barrens",
+      "level_anchor": 48,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "scout",
+          "count": 10,
+          "desc": "Break 10 Barrens Scout"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "raider_insignia",
+          "count": 2,
+          "desc": "Hand over 2 Raider Insignia"
+        }
+      ],
+      "reward": {
+        "xp": 13875,
+        "gold": 9710,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ054": {
+      "name": "Ashe's Last Mile",
+      "desc": "Hunter Kael wants company on the road to Brother Ashe and will not say why. (Companion, Ashe's Last Mile)",
+      "giver": "hunter_kael",
+      "category": "Companion",
+      "region": "barrens",
+      "level_anchor": 49,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "brother_ashe",
+          "count": 1,
+          "desc": "Walk with Brother Ashe"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Finish the road with Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 8775,
+        "gold": 3510,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ055": {
+      "name": "The Ram's Head Debt",
+      "desc": "Captain Dael wants 12 Ash Minotaur cleared out of the ram road, and pays the same whether you come back happy or honest. (Bounty, The Ram's Head Debt)",
+      "giver": "captain_dael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 50,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "minotaur",
+          "count": 12,
+          "desc": "Hunt 12 Ash Minotaur"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 12395,
+        "gold": 6815,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ056": {
+      "name": "Wall Duty",
+      "desc": "The same work again: Captain Dael will pay on the spot for 10 Slag Lizard. (Repeatable, Wall Duty)",
+      "giver": "captain_dael",
+      "category": "Repeatable",
+      "region": "barrens",
+      "level_anchor": 51,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "lizard",
+          "count": 10,
+          "desc": "Cull 10 Slag Lizard"
+        }
+      ],
+      "reward": {
+        "xp": 5785,
+        "gold": 3470,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ057": {
+      "name": "Emberglass, Whole",
+      "desc": "Ysolde the Trader needs 6 Emberglass Shard and needs them in hand, not in rumour. (Fetch, Emberglass, Whole)",
+      "giver": "ysolde",
+      "category": "Fetch",
+      "region": "barrens",
+      "level_anchor": 52,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "emberglass_shard",
+          "count": 6,
+          "desc": "Gather 6 Emberglass Shard"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "emberglass_shard",
+          "count": 6,
+          "desc": "Hand them over to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 10685,
+        "gold": 8550,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ058": {
+      "name": "A Full Set of Brass",
+      "desc": "Ysolde the Trader is assembling something out of the raid lines, and older hands say it has been tried before and gone badly. (Collection, A Full Set of Brass)",
+      "giver": "ysolde",
+      "category": "Collection",
+      "region": "barrens",
+      "level_anchor": 53,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "scrap_iron",
+          "count": 5,
+          "desc": "Deliver 5 Scrap Iron"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "scrap_iron",
+          "count": 5,
+          "desc": "Deliver 5 Scrap Iron"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Report to Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 14610,
+        "gold": 7305,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ059": {
+      "name": "The Vessel Question",
+      "desc": "Brother Ashe will not say what happened at the sanctum's lowest floor. Go and find out, and come back with something that can be held. (Mystery, The Vessel Question)",
+      "giver": "brother_ashe",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 54,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_choir_sanctum",
+          "count": 1,
+          "desc": "Get inside Choir Sanctum"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "choir_sigil",
+          "count": 1,
+          "desc": "Bring back 1 Choir Sigil"
+        }
+      ],
+      "reward": {
+        "xp": 17470,
+        "gold": 10480,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ060": {
+      "name": "The Ashvow Grey",
+      "desc": "Captain Dael wants 14 Choir Legionnaire cleared out of Ashvow's garrison yard, and pays the same whether you come back happy or honest. (Bounty, The Ashvow Grey)",
+      "giver": "captain_dael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 55,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "legion",
+          "count": 14,
+          "desc": "Hunt 14 Choir Legionnaire"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 14065,
+        "gold": 7735,
+        "items": [
+          "seers_eye"
+        ]
+      },
+      "next": ""
+    },
+    "SQ061": {
+      "name": "North With the Caravan",
+      "desc": "Captain Dael asked you to see a party safely to Kilnrest and to stop asking who they are. (Escort, North With the Caravan)",
+      "giver": "captain_dael",
+      "category": "Escort",
+      "region": "frost",
+      "level_anchor": 56,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_kilnrest",
+          "count": 1,
+          "desc": "See it safely to Kilnrest"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report back to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 13095,
+        "gold": 11785,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ062": {
+      "name": "The Officer's Coat",
+      "desc": "Captain Dael has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, The Officer's Coat)",
+      "giver": "captain_dael",
+      "category": "Faction",
+      "region": "barrens",
+      "level_anchor": 57,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "legion",
+          "count": 12,
+          "desc": "Break 12 Choir Legionnaire"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "torn_cloth",
+          "count": 2,
+          "desc": "Hand over 2 Torn Cloth"
+        }
+      ],
+      "reward": {
+        "xp": 17425,
+        "gold": 12200,
+        "items": []
+      },
+      "next": "SQ063"
+    },
+    "SQ063": {
+      "name": "Horns to the Pass",
+      "desc": "Hunter Kael wants 14 Ash Minotaur cleared out of the northern pass, and pays the same whether you come back happy or honest. (Bounty, Horns to the Pass)",
+      "giver": "hunter_kael",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 58,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "minotaur",
+          "count": 14,
+          "desc": "Hunt 14 Ash Minotaur"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "hunter_kael",
+          "count": 1,
+          "desc": "Report to Hunter Kael"
+        }
+      ],
+      "reward": {
+        "xp": 15090,
+        "gold": 8300,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ064": {
+      "name": "Names in the Floor",
+      "desc": "Captain Dael will not say what happened at the sanctum's archive floor. Go and find out, and come back with something that can be held. (Mystery, Names in the Floor)",
+      "giver": "captain_dael",
+      "category": "Mystery",
+      "region": "barrens",
+      "level_anchor": 59,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_choir_sanctum",
+          "count": 1,
+          "desc": "Get inside Choir Sanctum"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 2,
+          "desc": "Bring back 2 Warden-Steel Ingot"
+        }
+      ],
+      "reward": {
+        "xp": 19645,
+        "gold": 11785,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ065": {
+      "name": "Sigil Study",
+      "desc": "Captain Dael is assembling something out of the sanctum's outer ring, and older hands say it has been tried before and gone badly. (Collection, Sigil Study)",
+      "giver": "captain_dael",
+      "category": "Collection",
+      "region": "barrens",
+      "level_anchor": 60,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 4,
+          "desc": "Deliver 4 Warden-Steel Ingot"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 4,
+          "desc": "Deliver 4 Warden-Steel Ingot"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Report to Captain Dael"
+        }
+      ],
+      "reward": {
+        "xp": 17215,
+        "gold": 8610,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ066": {
+      "name": "The Office of Ash",
+      "desc": "Brother Ashe wants 16 Choir Legionnaire cleared out of the monastery's chapter house, and pays the same whether you come back happy or honest. (Bounty, The Office of Ash)",
+      "giver": "brother_ashe",
+      "category": "Bounty",
+      "region": "barrens",
+      "level_anchor": 61,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "legion",
+          "count": 16,
+          "desc": "Hunt 16 Choir Legionnaire"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "brother_ashe",
+          "count": 1,
+          "desc": "Report to Brother Ashe"
+        }
+      ],
+      "reward": {
+        "xp": 15780,
+        "gold": 8680,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ067": {
+      "name": "Road Clearing",
+      "desc": "The same work again: Captain Dael will pay on the spot for 12 Raider Brute. (Repeatable, Road Clearing)",
+      "giver": "captain_dael",
+      "category": "Repeatable",
+      "region": "barrens",
+      "level_anchor": 62,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "raider_brute",
+          "count": 12,
+          "desc": "Cull 12 Raider Brute"
+        }
+      ],
+      "reward": {
+        "xp": 7310,
+        "gold": 4385,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ068": {
+      "name": "Dael Off Duty",
+      "desc": "Ysolde the Trader wants company on the road to Captain Dael and will not say why. (Companion, Dael Off Duty)",
+      "giver": "ysolde",
+      "category": "Companion",
+      "region": "barrens",
+      "level_anchor": 63,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "captain_dael",
+          "count": 1,
+          "desc": "Walk with Captain Dael"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "ysolde",
+          "count": 1,
+          "desc": "Finish the road with Ysolde the Trader"
+        }
+      ],
+      "reward": {
+        "xp": 11920,
+        "gold": 4770,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ069": {
+      "name": "The Missing Volume",
+      "desc": "Brother Ashe needs 6 Ash Shard and needs them in hand, not in rumour. (Fetch, The Missing Volume)",
+      "giver": "brother_ashe",
+      "category": "Fetch",
+      "region": "barrens",
+      "level_anchor": 64,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "ash_shard",
+          "count": 6,
+          "desc": "Gather 6 Ash Shard"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "ash_shard",
+          "count": 6,
+          "desc": "Hand them over to Brother Ashe"
+        }
+      ],
+      "reward": {
+        "xp": 13655,
+        "gold": 10925,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ070": {
+      "name": "The Order Answers",
+      "desc": "Brother Ashe has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, The Order Answers)",
+      "giver": "brother_ashe",
+      "category": "Faction",
+      "region": "barrens",
+      "level_anchor": 65,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "legion",
+          "count": 18,
+          "desc": "Break 18 Choir Legionnaire"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "torn_cloth",
+          "count": 2,
+          "desc": "Hand over 2 Torn Cloth"
+        }
+      ],
+      "reward": {
+        "xp": 20085,
+        "gold": 14060,
+        "items": [
+          "frostguard_plate"
+        ]
+      },
+      "next": ""
+    },
+    "SQ071": {
+      "name": "Cold Numbers",
+      "desc": "Mireille wants 10 Frost Revenant cleared out of the Kiln road, and pays the same whether you come back happy or honest. (Bounty, Cold Numbers)",
+      "giver": "mireille",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 65,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "revenant",
+          "count": 10,
+          "desc": "Hunt 10 Frost Revenant"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 16995,
+        "gold": 9345,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ072": {
+      "name": "The Ledger of the Dead",
+      "desc": "High Warden Isolde will not say what happened at the Hollow Crypts. Go and find out, and come back with something that can be held. (Mystery, The Ledger of the Dead)",
+      "giver": "high_warden_isolde",
+      "category": "Mystery",
+      "region": "frost",
+      "level_anchor": 66,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_hollow_crypts",
+          "count": 1,
+          "desc": "Get inside The Hollow Crypts"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 2,
+          "desc": "Bring back 2 Hollow Relic"
+        }
+      ],
+      "reward": {
+        "xp": 22020,
+        "gold": 13210,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ073": {
+      "name": "Kilnrest's Lamp Oil",
+      "desc": "Mireille needs 6 Frost Crystal and needs them in hand, not in rumour. (Fetch, Kilnrest's Lamp Oil)",
+      "giver": "mireille",
+      "category": "Fetch",
+      "region": "frost",
+      "level_anchor": 67,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "frost_crystal",
+          "count": 6,
+          "desc": "Gather 6 Frost Crystal"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "frost_crystal",
+          "count": 6,
+          "desc": "Hand them over to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 14405,
+        "gold": 11525,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ074": {
+      "name": "Switchback Patrol",
+      "desc": "High Warden Isolde wants 12 Rime Troll cleared out of the switchback, and pays the same whether you come back happy or honest. (Bounty, Switchback Patrol)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 68,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "troll",
+          "count": 12,
+          "desc": "Hunt 12 Rime Troll"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 17915,
+        "gold": 9855,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ075": {
+      "name": "Kiln Road Sweep",
+      "desc": "The same work again: Mireille will pay on the spot for 10 Frost Revenant. (Repeatable, Kiln Road Sweep)",
+      "giver": "mireille",
+      "category": "Repeatable",
+      "region": "frost",
+      "level_anchor": 69,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "revenant",
+          "count": 10,
+          "desc": "Cull 10 Frost Revenant"
+        }
+      ],
+      "reward": {
+        "xp": 8285,
+        "gold": 4970,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ076": {
+      "name": "Seals in the Snow",
+      "desc": "High Warden Isolde has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Seals in the Snow)",
+      "giver": "high_warden_isolde",
+      "category": "Faction",
+      "region": "frost",
+      "level_anchor": 70,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "revenant",
+          "count": 3,
+          "desc": "Break 3 Frost Revenant"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "frost_crystal",
+          "count": 2,
+          "desc": "Hand over 2 Frost Crystal"
+        }
+      ],
+      "reward": {
+        "xp": 21900,
+        "gold": 15330,
+        "items": []
+      },
+      "next": "SQ077"
+    },
+    "SQ077": {
+      "name": "Forge Cold",
+      "desc": "High Warden Isolde is assembling something out of the vault's edge, and older hands say it has been tried before and gone badly. (Collection, Forge Cold)",
+      "giver": "high_warden_isolde",
+      "category": "Collection",
+      "region": "frost",
+      "level_anchor": 71,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 4,
+          "desc": "Deliver 4 Hollow Relic"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 4,
+          "desc": "Deliver 4 Hollow Relic"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 20555,
+        "gold": 10280,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ078": {
+      "name": "The Defector's Road",
+      "desc": "Mireille asked you to see a party safely to Skyreach Citadel and to stop asking who they are. (Escort, The Defector's Road)",
+      "giver": "mireille",
+      "category": "Escort",
+      "region": "frost",
+      "level_anchor": 72,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "visited_skyreach",
+          "count": 1,
+          "desc": "See it safely to Skyreach Citadel"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report back to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 17410,
+        "gold": 15670,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ079": {
+      "name": "Citadel Grey",
+      "desc": "High Warden Isolde wants 14 Frost Revenant cleared out of the under-Citadel mile, and pays the same whether you come back happy or honest. (Bounty, Citadel Grey)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 72,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "revenant",
+          "count": 14,
+          "desc": "Hunt 14 Frost Revenant"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 19150,
+        "gold": 10530,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ080": {
+      "name": "What Grandmother Sealed",
+      "desc": "High Warden Isolde will not say what happened at the Rimevault. Go and find out, and come back with something that can be held. (Mystery, What Grandmother Sealed)",
+      "giver": "high_warden_isolde",
+      "category": "Mystery",
+      "region": "frost",
+      "level_anchor": 73,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_rimevault",
+          "count": 1,
+          "desc": "Get inside The Rimevault"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "rime_core",
+          "count": 3,
+          "desc": "Bring back 3 Rime Core"
+        }
+      ],
+      "reward": {
+        "xp": 24770,
+        "gold": 14860,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ081": {
+      "name": "Warm Glass, Cold Hands",
+      "desc": "Mireille needs 4 Hollow Relic and needs them in hand, not in rumour. (Fetch, Warm Glass, Cold Hands)",
+      "giver": "mireille",
+      "category": "Fetch",
+      "region": "frost",
+      "level_anchor": 74,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "hollow_relic",
+          "count": 4,
+          "desc": "Gather 4 Hollow Relic"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 4,
+          "desc": "Hand them over to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 16180,
+        "gold": 12945,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ082": {
+      "name": "The Long Switchback",
+      "desc": "High Warden Isolde wants 16 Rime Troll cleared out of the upper switchback, and pays the same whether you come back happy or honest. (Bounty, The Long Switchback)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 75,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "troll",
+          "count": 16,
+          "desc": "Hunt 16 Rime Troll"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 20085,
+        "gold": 11045,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ083": {
+      "name": "Mireille's Silence",
+      "desc": "High Warden Isolde wants company on the road to Mireille and will not say why. (Companion, Mireille's Silence)",
+      "giver": "high_warden_isolde",
+      "category": "Companion",
+      "region": "frost",
+      "level_anchor": 76,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Walk with Mireille"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Finish the road with High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 14835,
+        "gold": 5935,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ084": {
+      "name": "The Sanctum's Hand",
+      "desc": "Mireille has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, The Sanctum's Hand)",
+      "giver": "mireille",
+      "category": "Faction",
+      "region": "frost",
+      "level_anchor": 77,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "troll",
+          "count": 10,
+          "desc": "Break 10 Rime Troll"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "frost_crystal",
+          "count": 2,
+          "desc": "Hand over 2 Frost Crystal"
+        }
+      ],
+      "reward": {
+        "xp": 24475,
+        "gold": 17130,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ085": {
+      "name": "Gate Watch",
+      "desc": "The same work again: High Warden Isolde will pay on the spot for 12 Rime Troll. (Repeatable, Gate Watch)",
+      "giver": "high_warden_isolde",
+      "category": "Repeatable",
+      "region": "frost",
+      "level_anchor": 78,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "troll",
+          "count": 12,
+          "desc": "Cull 12 Rime Troll"
+        }
+      ],
+      "reward": {
+        "xp": 9555,
+        "gold": 5735,
+        "items": []
+      },
+      "next": "",
+      "repeatable": true
+    },
+    "SQ086": {
+      "name": "The Ascent's Names",
+      "desc": "Mireille will not say what happened at Warden's Ascent. Go and find out, and come back with something that can be held. (Mystery, The Ascent's Names)",
+      "giver": "mireille",
+      "category": "Mystery",
+      "region": "frost",
+      "level_anchor": 79,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_wardens_ascent",
+          "count": 1,
+          "desc": "Get inside Warden's Ascent"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 3,
+          "desc": "Bring back 3 Hollow Relic"
+        }
+      ],
+      "reward": {
+        "xp": 27160,
+        "gold": 16295,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ087": {
+      "name": "Archons in the Snow",
+      "desc": "High Warden Isolde wants 12 Ashen Archon cleared out of the ring road, and pays the same whether you come back happy or honest. (Bounty, Archons in the Snow)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 80,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "archon",
+          "count": 12,
+          "desc": "Hunt 12 Ashen Archon"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 21655,
+        "gold": 11910,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ088": {
+      "name": "Lamps for the Return",
+      "desc": "Mireille is assembling something out of the frost fields, and older hands say it has been tried before and gone badly. (Collection, Lamps for the Return)",
+      "giver": "mireille",
+      "category": "Collection",
+      "region": "frost",
+      "level_anchor": 81,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "rime_core",
+          "count": 8,
+          "desc": "Deliver 8 Rime Core"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "rime_core",
+          "count": 8,
+          "desc": "Deliver 8 Rime Core"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 23965,
+        "gold": 11980,
+        "items": [
+          "choir_shroud"
+        ]
+      },
+      "next": "SQ089"
+    },
+    "SQ089": {
+      "name": "Gate Cold",
+      "desc": "High Warden Isolde needs 5 Rime Core and needs them in hand, not in rumour. (Fetch, Gate Cold)",
+      "giver": "high_warden_isolde",
+      "category": "Fetch",
+      "region": "frost",
+      "level_anchor": 82,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "collect",
+          "target": "rime_core",
+          "count": 5,
+          "desc": "Gather 5 Rime Core"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "rime_core",
+          "count": 5,
+          "desc": "Hand them over to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 18235,
+        "gold": 14590,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ090": {
+      "name": "Heralds Kept",
+      "desc": "High Warden Isolde has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, Heralds Kept)",
+      "giver": "high_warden_isolde",
+      "category": "Faction",
+      "region": "frost",
+      "level_anchor": 83,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 5,
+          "desc": "Break 5 Ashen Herald"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 2,
+          "desc": "Hand over 2 Warden-Steel Ingot"
+        }
+      ],
+      "reward": {
+        "xp": 26710,
+        "gold": 18695,
+        "items": [
+          "monastery_aegis"
+        ]
+      },
+      "next": ""
+    },
+    "SQ091": {
+      "name": "The Message Delivered",
+      "desc": "Mireille wants 6 Ashen Herald cleared out of the ring's edge, and pays the same whether you come back happy or honest. (Bounty, The Message Delivered)",
+      "giver": "mireille",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 84,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 6,
+          "desc": "Hunt 6 Ashen Herald"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 22920,
+        "gold": 12605,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ092": {
+      "name": "What the Warden Kept",
+      "desc": "High Warden Isolde will not say what happened at Warden's Keep. Go and find out, and come back with something that can be held. (Mystery, What the Warden Kept)",
+      "giver": "high_warden_isolde",
+      "category": "Mystery",
+      "region": "frost",
+      "level_anchor": 85,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_ember_warden_keep",
+          "count": 1,
+          "desc": "Get inside Warden's Keep"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "hollow_relic",
+          "count": 1,
+          "desc": "Bring back 1 Hollow Relic"
+        }
+      ],
+      "reward": {
+        "xp": 29575,
+        "gold": 17745,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ093": {
+      "name": "The Sanctum's Last Orders",
+      "desc": "High Warden Isolde wants 14 Ashen Archon cleared out of the ring's inner line, and pays the same whether you come back happy or honest. (Bounty, The Sanctum's Last Orders)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 85,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "archon",
+          "count": 14,
+          "desc": "Hunt 14 Ashen Archon"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 23235,
+        "gold": 12780,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ094": {
+      "name": "Ring Duty",
+      "desc": "The same work again: Mireille will pay on the spot for 12 Ashen Archon. (Repeatable, Ring Duty)",
+      "giver": "mireille",
+      "category": "Repeatable",
+      "region": "frost",
+      "level_anchor": 86,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "archon",
+          "count": 12,
+          "desc": "Cull 12 Ashen Archon"
+        }
+      ],
+      "reward": {
+        "xp": 10705,
+        "gold": 6425,
+        "items": []
+      },
+      "next": "SQ095",
+      "repeatable": true
+    },
+    "SQ095": {
+      "name": "Seals for the Archive",
+      "desc": "High Warden Isolde is assembling something out of the heralds' route, and older hands say it has been tried before and gone badly. (Collection, Seals for the Archive)",
+      "giver": "high_warden_isolde",
+      "category": "Collection",
+      "region": "frost",
+      "level_anchor": 87,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 6,
+          "desc": "Deliver 6 Warden-Steel Ingot"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "warden_steel_ingot",
+          "count": 6,
+          "desc": "Deliver 6 Warden-Steel Ingot"
+        },
+        {
+          "id": "obj3",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 26045,
+        "gold": 13020,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ096": {
+      "name": "The Choir's Best, Counted",
+      "desc": "Mireille has been paying the Choir's dues in ways that leave names. Break the arrangement where people can see it. (Faction, The Choir's Best, Counted)",
+      "giver": "mireille",
+      "category": "Faction",
+      "region": "frost",
+      "level_anchor": 88,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "archon",
+          "count": 16,
+          "desc": "Break 16 Ashen Archon"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "choir_ledger",
+          "count": 2,
+          "desc": "Hand over 2 Choir Ledger"
+        }
+      ],
+      "reward": {
+        "xp": 28595,
+        "gold": 20015,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ097": {
+      "name": "Eight Seals",
+      "desc": "High Warden Isolde wants 8 Ashen Herald cleared out of the ring's outer line, and pays the same whether you come back happy or honest. (Bounty, Eight Seals)",
+      "giver": "high_warden_isolde",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 89,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "ashen_herald",
+          "count": 8,
+          "desc": "Hunt 8 Ashen Herald"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Report to High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 24515,
+        "gold": 13485,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ098": {
+      "name": "The Vessel, Counted",
+      "desc": "Mireille will not say what happened at Warden's Keep. Go and find out, and come back with something that can be held. (Mystery, The Vessel, Counted)",
+      "giver": "mireille",
+      "category": "Mystery",
+      "region": "frost",
+      "level_anchor": 90,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "flag",
+          "target": "entered_ember_warden_keep",
+          "count": 1,
+          "desc": "Get inside Warden's Keep"
+        },
+        {
+          "id": "obj2",
+          "type": "deliver",
+          "target": "vessel_shard",
+          "count": 6,
+          "desc": "Bring back 6 Vessel Shard"
+        }
+      ],
+      "reward": {
+        "xp": 31610,
+        "gold": 18965,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ099": {
+      "name": "Isolde's Oath",
+      "desc": "High Warden Isolde wants company on the road to High Warden Isolde and will not say why. (Companion, Isolde's Oath)",
+      "giver": "high_warden_isolde",
+      "category": "Companion",
+      "region": "frost",
+      "level_anchor": 91,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Walk with High Warden Isolde"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "high_warden_isolde",
+          "count": 1,
+          "desc": "Finish the road with High Warden Isolde"
+        }
+      ],
+      "reward": {
+        "xp": 18295,
+        "gold": 7320,
+        "items": []
+      },
+      "next": ""
+    },
+    "SQ100": {
+      "name": "The Last Procession",
+      "desc": "Mireille wants 18 Rime Troll cleared out of the ring's outer walk, and pays the same whether you come back happy or honest. (Bounty, The Last Procession)",
+      "giver": "mireille",
+      "category": "Bounty",
+      "region": "frost",
+      "level_anchor": 92,
+      "objectives": [
+        {
+          "id": "obj1",
+          "type": "kill",
+          "target": "troll",
+          "count": 18,
+          "desc": "Hunt 18 Rime Troll"
+        },
+        {
+          "id": "obj2",
+          "type": "talk",
+          "target": "mireille",
+          "count": 1,
+          "desc": "Report to Mireille"
+        }
+      ],
+      "reward": {
+        "xp": 25480,
+        "gold": 14015,
+        "items": []
+      },
+      "next": ""
+    },
     "MQ001": {
       "name": "Ash on the Wind",
       "desc": "Grey flecks on the washing-line. Rowan says it is not woodsmoke, and he wants the slimes thinned before the village starts asking questions.",

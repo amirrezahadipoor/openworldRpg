@@ -72,6 +72,12 @@ func _conditions_met(req: Dictionary) -> bool:
 	for flag in req.get("flag_not", []):
 		if bool(GameState.quest_flags.get(flag, false)):
 			return false
+	# Phase F5: side-quest offers are gated by level, so the board grows with the
+	# player instead of dumping 100 jobs on them in Millhaven.
+	if req.has("min_level") and GameState.level < int(req.get("min_level", 1)):
+		return false
+	if req.has("max_level") and GameState.level > int(req.get("max_level", 100)):
+		return false
 	return true
 
 

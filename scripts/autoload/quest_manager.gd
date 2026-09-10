@@ -53,6 +53,19 @@ func _sync_collect(qid: String) -> void:
 			_set_done_obj(qid, oid, need)
 
 
+func _sync_flags(qid: String) -> void:
+	## A quest that asks you to reach somewhere you have already been is already
+	## satisfied — the same rule collect objectives use for items in the bag.
+	for obj in _objectives(qid):
+		if String(obj.get("type", "")) != "flag":
+			continue
+		var flag := String(obj.get("target", ""))
+		if bool(GameState.quest_flags.get(flag, false)):
+			var need := int(obj.get("count", 1))
+			if objective_count(qid, String(obj.get("id", ""))) < need:
+				_set_done_obj(qid, String(obj.get("id", "")), need)
+
+
 func _on_item_picked_up(_item_id: String, _qty: int) -> void:
 	for qid in active_snapshot():
 		_sync_collect(qid)
@@ -67,8 +80,9 @@ func start_quest(qid: String) -> void:
 		prog[String(obj.get("id", ""))] = 0
 	GameState.quest_progress[qid] = prog
 	EventBus.quest_started.emit(qid)
-	EventBus.quest_updated.emit(qid)
 	_sync_collect(qid)
+	_sync_flags(qid)
+	EventBus.quest_updated.emit(qid)
 
 
 func _objectives(qid: String) -> Array:
@@ -206,6 +220,83 @@ func _complete(qid: String) -> void:
 		start_quest(nxt)
 
 
+# --- side-quest board (Phase F5) ---------------------------------------------------
+
+func side_quests() -> Array:
+	## Every authored side quest id, in board order.
+	var out := []
+	for qid in data.keys():
+		if String(qid).begins_with("SQ"):
+			out.append(String(qid))
+	return out
+
+
+func next_offer(npc_id: String) -> String:
+	## The next job this NPC has for the player: authored for them, not taken,
+	## not already done, and at or below the player's level. Easiest first, so the
+	## board grows with the player instead of dumping 100 jobs in Millhaven.
+	var best := ""
+	var best_level := 9999
+	for qid in data.keys():
+		var quest: Dictionary = data[qid]
+		if String(qid).begins_with("SQ") == false:
+			continue
+		if String(quest.get("giver", "")) != npc_id:
+			continue
+		if is_active(String(qid)) or is_done(String(qid)):
+			continue
+		if bool(GameState.quest_flags.get("took_%s" % qid, false)):
+			continue
+		var lvl := int(quest.get("level_anchor", 1))
+		if lvl > GameState.level:
+			continue
+		if lvl < best_level:
+			best_level = lvl
+			best = String(qid)
+	return best
+
+
+func offer_dialogue(npc_id: String, display_name: String) -> Dictionary:
+	## Wrap an offer in the same shape the dialogue box already understands, so
+	## the board uses the existing choice UI rather than a second one.
+	var qid := next_offer(npc_id)
+	if qid == "":
+		return {}
+	var quest: Dictionary = data.get(qid, {})
+	var first_obj: Dictionary = (quest.get("objectives", []) as Array)[0] if \
+		not (quest.get("objectives", []) as Array).is_empty() else {}
+	return {
+		"start": "root",
+		"nodes": {
+			"root": {
+				"speaker": display_name,
+				"text": "%s — %s" % [String(quest.get("name", qid)),
+					String(quest.get("desc", ""))],
+				"next": "accept",
+			},
+			"accept": {
+				"speaker": display_name,
+				"text": String(first_obj.get("desc", "Come back when it is done.")),
+				"choices": [
+					{
+						"text": "I will take it.",
+						"next": "",
+						"actions": [
+							{"action": "start_quest", "quest": qid},
+							{"action": "set_flag", "flag": "took_%s" % qid},
+						],
+					},
+					{
+						"text": "Not today.",
+						"next": "",
+						"actions": [],
+					},
+				],
+			},
+		},
+	}
+
+
 # --- NPC markers ------------------------------------------------------------------
 
 func marker_for(npc_id: String) -> bool:
@@ -222,6 +313,8 @@ func marker_for(npc_id: String) -> bool:
 	for a in d.get("on_complete", []):
 		if String(a.get("action", "")) == "start_quest":
 			return true
+	if next_offer(npc_id) != "":
+		return true
 	return false
 
 

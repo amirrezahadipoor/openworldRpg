@@ -491,3 +491,34 @@ not evidence.
   to be non-empty (bounded retries) and awaits the coroutine.
 - *collect/deliver* flakiness was `#39` above.
 Both tests now pass 6 runs out of 6, which is the standard the suite is held to.
+
+**#41 — 100 side quests: eight models in full, one twist each (Phase F5)** · 2026-09-10
+"100 side quests, easy → hard" plus the standing instruction that bulk content
+uses the template system. The implementation is eight **category models** written
+out in full — objective shape, reward shape, voice — and 100 authored entries that
+supply targets, counts, giver and one `twist` clause carrying that quest's own
+story. `tools/gen_side_quests.py` refuses to emit a quest whose kill target does
+not live in the quest's region, whose item nobody in that region drops, whose
+place flag has no producer, or whose target is not open by the quest's level
+anchor — so "easy → hard" and "in the right place" are properties of the data,
+not of the prose.
+
+- **Region comes from the work, not the giver.** `region_of_quest()` reads the
+  monster's biome, the dungeon's biome, or where the item actually drops. People
+  hire you for work that is not on their doorstep, and deriving region from the
+  giver's settlement made a meadow bounty "belong" to a barrens NPC.
+- **The board is a runtime board.** The first attempt wrote a level-gated offer
+  entry into each NPC's dialogue file, which *silently shadowed hand-written
+  lines*: DialogueDB picks the first matching entry, and several NPCs' files end
+  with catch-alls that have no conditions at all. Ten of the eleven files would
+  have lost their fallback dialogue. Instead `QuestManager.next_offer(npc_id)`
+  serves the easiest untaken job the NPC holds, `offer_dialogue()` wraps it in the
+  shape the dialogue box already understands, and `main.gd` shows it when nothing
+  in the data wants the NPC — no second UI, no data duplication.
+- **Goods quests hand goods over.** Fetch, Collection and Mystery use `deliver`,
+  which consumes on completion. Used `collect` (non-consuming) instead, a player
+  could accept "bring 4 slime gel" while carrying four, get paid, and keep them.
+- **`_sync_flags()`.** A quest that asks you to reach somewhere you have already
+  been is already satisfied — the rule `collect` has used since Phase E. Without
+  it, escorts and mysteries could be impossible to finish for a player who had
+  explored first, which is exactly the player these quests are for.

@@ -267,6 +267,12 @@ func _on_npc_interacted(npc: NPC) -> void:
 	if not d.is_empty():
 		dialogue_box.start(d)
 		return
+	# Phase F5: nothing in the dialogue data wants this NPC right now, so check
+	# the side-quest board before falling back to a bark.
+	var offer := QuestManager.offer_dialogue(npc.npc_id, npc.display_name)
+	if not offer.is_empty():
+		dialogue_box.start(offer)
+		return
 	# No quest line right now -> answer with an idle bark instead of silence
 	# (Phase E §3: every named NPC has something to say, always).
 	var line := DialogueDB.pick_bark(npc.npc_id, npc.time_of_day())
