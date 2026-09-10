@@ -39,6 +39,11 @@ signal interactable_used(node: Node)
 signal gate_opened(gate_id: String)
 signal world_interacted(node: Node)
 
+## Phase F6: secrets. `secret_found` fires once per secret, ever; `secret_hinted`
+## fires when a carving or landmark points at the next one.
+signal secret_found(secret_id: String, secret_name: String, index: int, total: int)
+signal secret_hinted(secret_id: String)
+
 # --- Meta ---
 signal game_saved
 signal game_loaded

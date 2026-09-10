@@ -522,3 +522,36 @@ not of the prose.
   been is already satisfied — the rule `collect` has used since Phase E. Without
   it, escorts and mysteries could be impossible to finish for a player who had
   explored first, which is exactly the player these quests are for.
+
+**#42 — Secrets are places, not a list: streamed, idempotent, never on the map (Phase F6)** · 2026-09-11
+"Lots of secrets" is a promise about the *world*, so the implementation is 40
+physical sites streamed in by `ChunkStreamer`, not 40 entries in a table the game
+reads out. `tools/gen_secrets.py` authors them into `data/secrets.json` and refuses
+to emit one that would be unreachable: wrong biome for its region, inside a
+settlement's safe ring, or crowding another secret. Four kinds, deliberately
+different verbs — walk over a cache, read a carving, stand at a landmark, pick a
+vault's lock — so exploring is not 40 instances of the same interaction.
+
+- **The live world had zero secrets.** The first version spawned them inside
+  `_build_placeholder_chunk()`, which only runs when an authored chunk is missing —
+  and the real map *is* authored (`res://world/chunks/*.tscn`). Streaming them from
+  `_load_chunk()` instead covers both paths. The integration assertion that caught
+  it (`streaming a chunk builds the secrets that live in it`) is in CI now; a unit
+  test over the JSON alone would have reported everything fine forever.
+- **Found is a flag, and finding is idempotent.** Discovery writes
+  `secret_<id>` into `GameState.quest_flags`, which already rides the save blob, so
+  reloading a chunk or a save cannot re-pay a find. `discover()` returns
+  `{ok, already}` rather than throwing, and the test asserts the second call is
+  refused *and* the purse did not grow.
+- **Illegal-to-spawn during a physics flush.** Caches are found from
+  `body_entered`, and instantiating an `Area2D` (the loot `Pickup`) inside a physics
+  callback produces `Can't change this state while flushing queries`. The loot drop
+  is deferred.
+- **Secrets pay exploration, not the wallet.** Total secret xp stays below the main
+  chain's total (asserted), and a vault's key is a material that genuinely drops in
+  that region — so a vault is a lock you can actually open, not a decoration.
+- **The playthrough test was running a paused tree.** Act 3 leaves the player in the
+  warden's arena and the death screen pauses the game; Act 5 now takes the game's
+  own respawn path (hide screen + emit `respawn_requested`) before walking to a
+  secret, which is also why the streamer had silently frozen around the old
+  position.

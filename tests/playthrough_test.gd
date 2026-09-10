@@ -1,5 +1,6 @@
 extends Node
-## Headless full main-story playthrough: q1 -> the 100-step chain -> q2 -> q4.
+## Headless full main-story playthrough: q1 -> the 100-step chain -> q2 -> q4,
+## then a secret found the way a player finds one: by walking onto it.
 ## Exercises the real flow: dialogue-driven quest starts, kill objectives via
 ## enemy deaths, auto-flags, boss-arena summon + multi-phase kill, quest
 ## chaining, rewards (xp/gold/items). Exits 0 on PASS, 1 on FAIL. Run:
@@ -40,6 +41,7 @@ func _ready() -> void:
 	await _act2_scorched_ring()
 	await _act3_warden_fall()
 	await _act4_new_dawn()
+	await _act5_secrets()
 
 	print("PLAYTHROUGH RESULT: %s (%d checks)" % ["PASS" if failures == 0 else "FAIL", checks])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -199,6 +201,84 @@ func _act3_warden_fall() -> void:
 	await get_tree().physics_frame
 	check(QuestManager.is_done("q3_warden_fall"), "q3 complete")
 	check(QuestManager.is_active("q4_new_dawn"), "q4 auto-started")
+
+
+## Act 5 (Phase F6): a secret, found by walking over it in the real world.
+func _act5_secrets() -> void:
+	print("[playthrough] Act 5 — What the World Hides")
+	# Acts 3-4 leave the player standing in the warden's arena, so the tree can be
+	# paused on the death screen. Take the game's own respawn path rather than
+	# writing around it: same code the button runs.
+	var death: DeathScreen = main_node.get_node_or_null("DeathScreen")
+	if get_tree().paused:
+		if death != null:
+			death._hide_screen()
+			death.respawn_requested.emit()
+		else:
+			get_tree().paused = false
+		check(not get_tree().paused, "the world is running again (respawned at camp)")
+	await get_tree().physics_frame
+
+	var streamer: ChunkStreamer = main_node.get_node_or_null("World/ChunkStreamer")
+	if streamer == null:
+		streamer = main_node.get_node_or_null("ChunkStreamer")
+	check(streamer != null, "chunk streamer present")
+	if streamer == null:
+		return
+
+	# Stand where the first secret is, and let the world stream in around us.
+	var sid := String(SecretsDB.all()[0])
+	var target := SecretsDB.position_of(sid)
+	var gold_before := GameState.gold
+	var found_before := SecretsDB.found_count()
+	GameState.quest_flags.erase(SecretsDB.flag_of(sid))
+	player.global_position = target + Vector2(0, 220)
+	await get_tree().create_timer(0.9).timeout
+	var sites := _count_secret_sites(streamer)
+	check(sites > 0, "secrets exist in the live world (%d sites near %s)" % [sites, sid])
+
+	# Walk onto it: the player's own body overlap is what finds a cache.
+	player.global_position = target
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().create_timer(0.4).timeout
+	var probe := _find_site(streamer, sid)
+	check(probe != null, "the secret's own site is streamed in where it sits (%s)" % sid)
+	if probe != null:
+		check(probe.global_position.distance_to(target) < 1.0,
+			"the site stands at the secret's authored position")
+	check(SecretsDB.is_found(sid), "walking over the secret found it (%s)" % sid)
+	check(SecretsDB.found_count() == found_before + 1, "the world's found counter rose")
+	check(GameState.gold >= gold_before, "the find did not cost anything")
+
+	# Leave and come back: the chunk reloads, and the secret stays found.
+	player.global_position = target + Vector2(4000, 0)
+	await get_tree().create_timer(0.6).timeout
+	var gold_after := GameState.gold
+	player.global_position = target
+	await get_tree().create_timer(0.9).timeout
+	check(SecretsDB.is_found(sid), "the secret is still found after a chunk reload")
+	check(GameState.gold == gold_after, "re-streaming the chunk did not pay twice")
+
+
+func _find_site(node: Node, sid: String) -> SecretSite:
+	for child in node.get_children():
+		if child is SecretSite and String(child.secret_id) == sid:
+			return child
+		var deeper := _find_site(child, sid)
+		if deeper != null:
+			return deeper
+	return null
+
+
+func _count_secret_sites(node: Node) -> int:
+	var n := 0
+	for child in node.get_children():
+		if child is SecretSite:
+			n += 1
+		else:
+			n += _count_secret_sites(child)
+	return n
 
 
 ## q4: final words with the elder close the arc.

@@ -85,6 +85,37 @@ func _refresh() -> void:
 		child.queue_free()
 	for qid in QuestManager.data.keys():
 		_list.add_child(_quest_block(String(qid)))
+	_list.add_child(_secrets_block())
+
+
+func _secrets_block() -> Control:
+	## Phase F6: the world's secrets, as a count you can watch climb. Found ones
+	## are named; unfound ones stay a dash, in region order, so the list says how
+	## much is out there without saying where.
+	var v := VBoxContainer.new()
+	var head := Label.new()
+	head.text = "%s   (%d kinds: %s)" % [SecretsDB.summary(),
+		SecretsDB.by_kind().size(), _kind_summary()]
+	v.add_child(head)
+	for sid in SecretsDB.all():
+		var secret: Dictionary = SecretsDB.get_secret(String(sid))
+		var row := Label.new()
+		if SecretsDB.is_found(String(sid)):
+			row.text = "  * %s  [%s]" % [String(secret.get("name", sid)),
+				String(secret.get("region", "?"))]
+		else:
+			row.text = "  - ? ? ?  [%s]" % String(secret.get("region", "?"))
+			row.modulate = Color(1, 1, 1, 0.45)
+		v.add_child(row)
+	return v
+
+
+func _kind_summary() -> String:
+	var parts := []
+	for k in SecretsDB.by_kind().keys():
+		parts.append("%s %d" % [k, int(SecretsDB.by_kind()[k])])
+	parts.sort()
+	return ", ".join(parts)
 
 
 func _quest_block(qid: String) -> Control:

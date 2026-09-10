@@ -62,6 +62,11 @@ func _load_chunk(key: Vector2i) -> void:
 	chunk.position = Vector2(key.x * CHUNK_SIZE, key.y * CHUNK_SIZE)
 	add_child(chunk)
 	_loaded[key] = chunk
+	# Phase F6: secrets belong to the chunk they sit in, whether that chunk is an
+	# authored scene (res://world/chunks) or a generated placeholder — spawning
+	# them inside the placeholder builder alone would have meant the real map,
+	# which *is* authored, had no secrets in it at all.
+	_populate_secrets(chunk, key)
 	EventBus.chunk_loaded.emit(key)
 
 
@@ -108,6 +113,19 @@ func _build_placeholder_chunk(key: Vector2i) -> Node2D:
 	if key != Vector2i.ZERO:
 		_populate_enemies(root, rng, biome)
 	return root
+
+
+func _populate_secrets(root: Node2D, key: Vector2i) -> void:
+	## Phase F6: the world's secrets stream in with the chunk that holds them, so a
+	## secret is a place in the world, not a list entry — walk to it or do not find
+	## it. Found/not-found lives in GameState, so re-streaming a chunk after a save
+	## never resurrects a secret or pays one twice.
+	for sid in SecretsDB.secrets_in_chunk(key):
+		var site := SecretSite.new()
+		site.name = "Secret_%s" % sid
+		site.secret_id = String(sid)
+		site.position = SecretsDB.position_of(String(sid)) - root.position
+		root.add_child(site)
 
 
 func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> void:

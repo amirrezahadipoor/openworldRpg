@@ -36,6 +36,8 @@ func setup(p: Player, s: ChunkStreamer = null) -> void:
 	_build_toast()
 	if not EventBus.milestone_reached.is_connected(_on_milestone):
 		EventBus.milestone_reached.connect(_on_milestone)
+	if not EventBus.secret_found.is_connected(_on_secret_found):
+		EventBus.secret_found.connect(_on_secret_found)
 
 
 func _process(delta: float) -> void:
@@ -256,6 +258,10 @@ func _build_toast() -> void:
 	toast_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	toast_label.add_theme_constant_override("outline_size", 5)
 	add_child(toast_label)
+
+
+func _on_secret_found(_secret_id: String, secret_name: String, index: int, total: int) -> void:
+	show_toast("Secret found - %s  (%d/%d)" % [secret_name, index, total])
 
 
 func show_toast(text: String) -> void:

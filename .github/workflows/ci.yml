@@ -94,7 +94,22 @@ jobs:
           grep -q "ITEMS RESULT: PASS" items.log || { echo "::error::item/monster/boss validation failed"; exit 1; }
           echo "items + monsters + bosses ✓"
 
-      - name: Audio integrity (every play_music/play_sfx id is registered)
+      - name: "Side quests: 100 jobs across three regions, served by a runtime board (Phase F5)"
+        run: |
+          timeout 120 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/QuestTest.tscn | tee sidequests.log
+          grep -q "QUEST RESULT: PASS" sidequests.log || { echo "::error::side quest validation failed"; exit 1; }
+          grep -q "side quests use 6+ category models" sidequests.log || { echo "::error::side quest categories missing"; exit 1; }
+          grep -q "the board serves all 100 quests" sidequests.log || { echo "::error::quest board incomplete"; exit 1; }
+          echo "side quests + 100-step chain ok"
+
+      - name: "World secrets: 40 authored, placed in-region, findable exactly once (Phase F6)"
+        run: |
+          timeout 120 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/SecretTest.tscn | tee secrets.log
+          grep -q "SECRET RESULT: PASS" secrets.log || { echo "::error::secret validation failed"; exit 1; }
+          grep -q "streaming a chunk builds the secrets that live in it" secrets.log || { echo "::error::secrets do not spawn in the world"; exit 1; }
+          echo "world secrets ok"
+
+
         run: |
           timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/AudioTest.tscn | tee audio.log
           grep -q "AUDIO RESULT: PASS" audio.log || { echo "::error::audio integrity check failed"; exit 1; }
