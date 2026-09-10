@@ -10,8 +10,9 @@ SIZE_MB=$(du -sm . | cut -f1)
 echo "repo size: ${SIZE_MB} MB (limit ${LIMIT_MB} MB)"
 
 # List the 10 heaviest paths to make pruning easy when we're near budget.
+# (|| true: head exits early -> SIGPIPE in sort must not trip pipefail.)
 echo "--- heaviest paths ---"
-du -ah . 2>/dev/null | sort -rh | head -n 10
+{ du -ah . 2>/dev/null | sort -rh | head -n 10; } || true
 
 if [ "$SIZE_MB" -gt "$LIMIT_MB" ]; then
   echo "::error::Repo exceeds the ${LIMIT_MB} MB budget — prune/re-encode before pushing."
