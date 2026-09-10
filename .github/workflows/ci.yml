@@ -70,6 +70,12 @@ jobs:
           grep -q "PLAYTHROUGH RESULT: PASS" playthrough.log || { echo "::error::playthrough validation failed"; exit 1; }
           echo "playthrough ✓"
 
+      - name: Audio integrity (every play_music/play_sfx id is registered)
+        run: |
+          timeout 90 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/AudioTest.tscn | tee audio.log
+          grep -q "AUDIO RESULT: PASS" audio.log || { echo "::error::audio integrity check failed"; exit 1; }
+          echo "audio ✓"
+
   android-export:
     name: Android debug APK (main only)
     runs-on: ubuntu-latest

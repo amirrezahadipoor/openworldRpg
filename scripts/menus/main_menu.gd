@@ -349,21 +349,66 @@ func _build_credits() -> void:
 	box.add_theme_constant_override("separation", 10)
 	panel.add_child(box)
 
+	var title := Label.new()
+	title.text = "CREDITS"
+	title.add_theme_font_size_override("font_size", 22)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+
+	# Scrollable: the attribution below is deliberately complete. The world tile
+	# atlas contains CC-BY-SA 3.0 material, so every upstream author must be
+	# credited in shipped builds — see CREDITS.md.
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(760, 380)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(scroll)
+
 	var text := Label.new()
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	text.custom_minimum_size = Vector2(640, 0)
-	text.add_theme_font_size_override("font_size", 15)
-	text.text = """Engine: Godot 4.4 (MIT)
-Character art: Liberated Pixel Cup (LPC) contributors —
-body, hair, clothing, armour, boots & sword layers,
-composited by tools/lpc_compose.py. License: CC-BY-SA-3.0 / GPL.
-https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator
-World tiles, UI art, audio: this project (CC0)
-Tooling: Tiled (GPL, authoring), Pixelorama (MIT, authoring),
-Universal LPC Generator (GPL), crunch (zlib)
-Font: Press Start 2P by CodeMan38 (OFL-1.1)
-See CREDITS.md for the full license list."""
-	box.add_child(text)
+	text.custom_minimum_size = Vector2(736, 0)
+	text.add_theme_font_size_override("font_size", 14)
+	text.text = """ENGINE
+Godot Engine 4.4.1 — MIT — godotengine.org
+
+CHARACTER ART
+Liberated Pixel Cup (LPC) contributors: body, hair, clothing, armour,
+boots and sword layers, composited by tools/lpc_compose.py.
+License: CC-BY-SA 3.0 / GPL.
+github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator
+
+WORLD TILES — CC-BY-SA 3.0 / GPL
+"LPC terrain extension": Lanea Zimmerman (Sharm), Daniel Eddeland,
+Connor Sherson, Johann Charlot, Jonas Klinger, Mark Weyer,
+Cem Kalyoncu, Juan Rodriguez, Skyler Robert Colladay.
+"[LPC] Conifers": bluecarrot16, b_o, Lanea Zimmerman (Sharm),
+Johann Charlot, Yar, Jetrel, Zabin, Hyptosis, Surt, KnoblePersona.
+"[LPC] Forest tiles": Reemax, Sharm, Hyptosis, Johann C, Beast,
+William.Thompsonj, Tuomo Untinen.
+"[LPC] Trees": bluecarrot16, Jetrel, Zabin, Hyptosis, Surt, Buch,
+Johann Charlot, Stephen Challener, Gaurav Munjal, Ivan Voirol,
+Guido Bos, Yar, Paulina Riva, William.Thompsonj, Casper Nilsson,
+ansimuz, qubodup, Bart K., Blarumyrran, Leonard Pabin,
+Chris Phillips, Barbara Rivera, Talosaurus.
+opengameart.org
+
+MUSIC — CC-BY 3.0 / 4.0
+"Generic 8-bit JRPG Soundtrack" by Avgvst
+opengameart.org/content/generic-8-bit-jrpg-soundtrack
+
+SOUND EFFECTS — CC0
+Kenney ("RPG Audio", "Interface Sounds", "Impact Sounds")
+kenney.nl
+
+FONT
+Press Start 2P by CodeMan38 — SIL Open Font License 1.1
+
+TOOLS (authoring only, not distributed)
+Tiled (GPL) · Pixelorama (MIT) · Universal LPC Generator (GPL)
+crunch (zlib/libpng)
+
+Placeholder SVG sprites, UI frames and world layout: this project (CC0).
+Full license list: see CREDITS.md in the project repository."""
+	scroll.add_child(text)
 
 	var close := Button.new()
 	close.text = "Close"

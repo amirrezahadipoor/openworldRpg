@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
-"""Procedural SFX generator for OpenWorld RPG.
+"""DEPRECATED — replaced by real CC0/CC-BY audio (Phase B5).
 
-Synthesizes every game sound effect as a tiny 16-bit mono WAV (22050 Hz)
-using only the Python standard library. All output is ORIGINAL work,
-released CC0 — logged in CREDITS.md. Re-run any time to regenerate:
+The placeholder score and SFX are superseded by:
+    bash tools/audio/vendor_audio.sh
 
-    python3 tools/gen_sfx.py
+Music: "Generic 8-bit JRPG Soundtrack" by Avgvst (CC-BY), Kenney SFX (CC0).
+See CREDITS.md. Running this script regenerates placeholder audio that the game
+no longer loads; it refuses to run without --force.
 """
+import sys
+if "--force" not in sys.argv:
+    sys.exit(
+        "refusing to run: superseded by tools/audio/vendor_audio.sh (real audio).\n"
+        "  pass --force to regenerate placeholder audio deliberately."
+    )
+
 import math
 import os
 import random

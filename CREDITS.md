@@ -49,19 +49,42 @@ and two different palettes on screen at once. The LPC outdoor family was chosen 
 world, the props and the characters all share one style.
 
 **Share-alike note:** the atlas contains CC-BY-SA 3.0 material. It must not be relicensed as
-CC0, and the attribution above must ship with the game (in-app credits screen, Phase D).
-Per-file provenance is preserved in `assets/source/CREDITS-*.txt` and `assets/source/lpc_terrain/COPYRIGHT`.
+CC0, and the attribution above must ship with the game. Per-file provenance is preserved in
+`assets/source/CREDITS-*.txt` and `assets/source/lpc_terrain/COPYRIGHT`.
 
-> ⚠️ **The in-game credits screen does not exist yet.** Until it does, this repo is not
-> compliant with the CC-BY-SA attribution requirement for a *distributed* build. This is
-> tracked in ROADMAP.md Phase D and is a release blocker, not a nice-to-have.
+**Attribution is now shipped:** the in-game credits screen (`scripts/menus/main_menu.gd`)
+lists every author above, plus Avgvst for the score and Kenney for SFX, and labels the
+CC-BY-SA content explicitly as such. An earlier revision of that screen claimed
+*"World tiles, UI art, audio: this project (CC0)"* — which became false (and a share-alike
+violation) as soon as the real LPC atlas landed. Corrected in the Phase B5 pass.
 
 | Asset | Author | License | Status |
 |---|---|---|---|
 | 0x72 DungeonTileset II | 0x72 (itch.io) | CC0 | not used (LPC 32 px outdoors family chosen for style consistency — see above) |
 | LPC tileset collection | LPC contributors | CC-BY-SA-3.0 / GPL (verify per file) | superseded by the specific sheets listed above |
-| Music (title + 3 biome ambiences + combat; procedural `tools/gen_music.py`) | This project (synthesized) | CC0 | ✅ in repo (`assets/audio/music/`) |
-| SFX pack (13 procedural WAVs, `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ✅ in repo (`assets/audio/sfx/`) |
+| Music — **superseded, see below** (was procedural `tools/gen_music.py`) | This project (synthesized) | CC0 | ❌ removed in Phase B5 |
+| SFX — **superseded, see below** (was procedural `tools/gen_sfx.py`) | This project (procedurally generated, seed 7) | CC0 | ❌ removed in Phase B5 |
+
+### Audio (Phase B5) — real score and SFX
+
+Vendored by `tools/audio/vendor_audio.sh`. Six tracks are committed (renamed to the ids
+`AudioManager` registers); the 26 MB upstream OST archive is **not** committed, only the
+selected tracks, so attribution below is what satisfies the licence.
+
+| Asset | Author | Licence | Status |
+|---|---|---|---|
+| Score: `title`, `meadow`, `barrens`, `frost`, `combat`, `boss` | **Avgvst** — "Generic 8-bit JRPG Soundtrack" ([OpenGameArt](https://opengameart.org/content/generic-8-bit-jrpg-soundtrack)) | **CC-BY 3.0 / 4.0** | ✅ in repo (`assets/audio/music/*.ogg`) |
+| SFX (13): attack_swing, hit, player_hurt, dodge, pickup, ui_click, item_use, purchase, level_up, enemy_cast, boss_roar, ability_whirl, ability_bolt | **Kenney** — "RPG Audio", "Interface Sounds", "Impact Sounds" ([kenney.nl](https://kenney.nl/assets/rpg-audio)) | **CC0** | ✅ in repo (`assets/audio/sfx/*.ogg`) |
+
+**CC-BY obligation:** the score requires attribution, which is shipped in the in-game
+credits screen (`scripts/menus/main_menu.gd`) **and** in this file. Do not remove either.
+
+> Note: Kenney's packs are generic sound libraries, not fantasy-specific. The mappings
+> above are intentional substitutions (e.g. a heavy bell impact for the boss roar, a
+> knife draw for an attack swing) — they read correctly in play but are not bespoke.
+
+`tools/gen_music.py` and `tools/gen_sfx.py` are deprecated and now refuse to run without
+`--force`, so they cannot silently regenerate placeholders over the real audio.
 
 > ⚠️ Anything CC-BY-SA additionally requires attribution in-game (credits screen) — handled
 > when the assets are integrated, and noted here per asset.

@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Procedural music pack (pure stdlib, deterministic) — Phase 11.
+"""DEPRECATED — replaced by real CC0/CC-BY audio (Phase B5).
 
-Synthesizes five seamless-loop ambience/combat tracks to assets/audio/music/:
-  title, meadow, barrens, frost, combat
-22050 Hz mono 16-bit WAV, loop-safe via tail->head crossfade. CC0 by
-construction (all generated here; see CREDITS.md).
+The placeholder score and SFX are superseded by:
+    bash tools/audio/vendor_audio.sh
+
+Music: "Generic 8-bit JRPG Soundtrack" by Avgvst (CC-BY), Kenney SFX (CC0).
+See CREDITS.md. Running this script regenerates placeholder audio that the game
+no longer loads; it refuses to run without --force.
 """
+import sys
+if "--force" not in sys.argv:
+    sys.exit(
+        "refusing to run: superseded by tools/audio/vendor_audio.sh (real audio).\n"
+        "  pass --force to regenerate placeholder audio deliberately."
+    )
+
 import math
 import os
 import random

@@ -58,11 +58,21 @@ func _process(delta: float) -> void:
 	_update_music()
 
 
+## Boss music state. main.gd owns the music selection (it re-evaluates every
+## 0.75 s), so BossArena requesting tracks itself would be overwritten — the
+## boss theme has to be decided here.
+var _boss_active := false
+var _boss_defeated := false
+
+
 func _update_music() -> void:
 	if player == null:
 		return
-	var near_boss := player.global_position.distance_to(BOSS_POS) < 1250.0
-	var track := "combat" if near_boss else _biome_track(player.global_position)
+	var track := _biome_track(player.global_position)
+	if _boss_active:
+		track = "boss"
+	elif not _boss_defeated and player.global_position.distance_to(BOSS_POS) < 1250.0:
+		track = "combat"
 	AudioManager.play_music(track)
 
 
@@ -321,10 +331,14 @@ func _quests_done() -> int:
 
 
 func _on_boss_defeated() -> void:
+	_boss_active = false
+	_boss_defeated = true
+	_music_timer = 0.75      # let the biome theme return promptly
 	camera.shake(0.9)
 
 
 func _on_boss_phase(_phase: int) -> void:
+	_boss_active = true
 	camera.shake(0.5)
 	_hit_stop(0.09)
 
