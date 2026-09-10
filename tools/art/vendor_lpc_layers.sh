@@ -33,11 +33,18 @@ LAYERS=(
   head/heads/skeleton/adult
   head/heads/goblin/adult
   head/heads/orc/male
+  head/heads/zombie/adult
+  head/heads/wolf/male
+  head/heads/lizard/male
+  head/heads/minotaur/male
+  head/heads/troll/adult
   eyes/human/adult/neutral
   legs/pants/male
   torso/clothes/shortsleeve/shortsleeve/male
   torso/clothes/longsleeve/longsleeve/male
   torso/armour/leather/male
+  torso/armour/plate/male
+  torso/armour/legion/male
   feet/boots/basic/male
   feet/boots/revised/male
   hair/bedhead/adult

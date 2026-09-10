@@ -1,14 +1,74 @@
 {
-  "_comment": "Enemy archetype database (data-driven, not hardcoded). behavior: melee | ranged. drops.gold = [min,max], drops.items = [ [item_id, chance], ... ]. Phase E s6: 'floor_multiplier' is the per-dungeon-floor scaling rate for hp/damage/xp (scale = 1.0 + floor_multiplier * (floor - 1)), applied by Enemy.setup_floor().",
+  "_comment": "Monster roster. Every archetype declares tier (1-6), biome and level_band; spawn placement is derived from those, so nothing can spawn outside its band. `drops.rarity_table` holds relative weights for one bonus gear roll \u2014 better tiers weight rare/mythical/legendary higher, and lifesteal only exists on rare-or-better items, so leeching gear is a genuine late-game find. `floor_multiplier` scales hp/damage/xp per dungeon floor. Bosses list their phases; the Ember Warden's phases live in scripts/enemies/boss.gd and are deliberately NOT restated here.",
+  "spawns": {
+    "meadow": {
+      "level_band": [
+        1,
+        22
+      ],
+      "archetypes": [
+        "grunt",
+        "emberling",
+        "meadow_wolf",
+        "husk"
+      ]
+    },
+    "barrens": {
+      "level_band": [
+        8,
+        68
+      ],
+      "archetypes": [
+        "scout",
+        "shaman",
+        "lizard",
+        "raider_brute",
+        "minotaur",
+        "legion"
+      ]
+    },
+    "frost": {
+      "level_band": [
+        38,
+        100
+      ],
+      "archetypes": [
+        "revenant",
+        "troll",
+        "archon",
+        "ashen_herald"
+      ]
+    }
+  },
+  "biome_level_band": {
+    "meadow": [
+      1,
+      22
+    ],
+    "barrens": [
+      8,
+      68
+    ],
+    "frost": [
+      38,
+      100
+    ]
+  },
   "archetypes": {
     "grunt": {
       "display_name": "Slime Grunt",
+      "tier": 1,
+      "biome": "meadow",
+      "level_band": [
+        1,
+        8
+      ],
       "max_hp": 30.0,
       "move_speed": 95.0,
       "contact_damage": 8.0,
-      "chase_radius": 300.0,
+      "chase_radius": 340.0,
       "attack_radius": 56.0,
-      "attack_cooldown": 1.2,
+      "attack_cooldown": 1.25,
       "xp_reward": 18,
       "body_color": [
         0.78,
@@ -16,6 +76,9 @@
         0.28
       ],
       "behavior": "melee",
+      "floor_multiplier": 0.11,
+      "sheet": "res://assets/lpc/enemy_goblin.png",
+      "sprite_scale": 1.0,
       "drops": {
         "gold": [
           2,
@@ -23,23 +86,173 @@
         ],
         "items": [
           [
+            "slime_gel",
+            0.55
+          ],
+          [
             "health_potion",
-            0.35
+            0.18
+          ],
+          [
+            "bread",
+            0.2
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "mana_potion",
+            0.1
           ]
-        ]
-      },
-      "sheet": "res://assets/lpc/enemy_goblin.png",
-      "sprite_scale": 1.0,
-      "floor_multiplier": 0.11
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 10,
+          "rare": 0,
+          "mythical": 0,
+          "legendary": 0
+        }
+      }
+    },
+    "emberling": {
+      "display_name": "Emberling",
+      "tier": 1,
+      "biome": "meadow",
+      "level_band": [
+        1,
+        8
+      ],
+      "max_hp": 14.0,
+      "move_speed": 220.0,
+      "contact_damage": 4.0,
+      "chase_radius": 340.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.25,
+      "xp_reward": 14,
+      "body_color": [
+        0.95,
+        0.45,
+        0.2
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.09,
+      "sheet": "res://assets/lpc/enemy_skeleton.png",
+      "sprite_scale": 0.8,
+      "drops": {
+        "gold": [
+          1,
+          4
+        ],
+        "items": [
+          [
+            "emberling_ember",
+            0.5
+          ],
+          [
+            "health_potion",
+            0.15
+          ],
+          [
+            "bone_fragment",
+            0.25
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "mana_potion",
+            0.1
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 10,
+          "rare": 0,
+          "mythical": 0,
+          "legendary": 0
+        }
+      }
+    },
+    "meadow_wolf": {
+      "display_name": "Meadow Wolf",
+      "tier": 1,
+      "biome": "meadow",
+      "level_band": [
+        3,
+        10
+      ],
+      "max_hp": 22.0,
+      "move_speed": 185.0,
+      "contact_damage": 6.0,
+      "chase_radius": 340.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.25,
+      "xp_reward": 20,
+      "body_color": [
+        0.62,
+        0.55,
+        0.4
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.1,
+      "sheet": "res://assets/lpc/enemy_wolf.png",
+      "sprite_scale": 0.95,
+      "drops": {
+        "gold": [
+          3,
+          7
+        ],
+        "items": [
+          [
+            "torn_cloth",
+            0.3
+          ],
+          [
+            "dried_meat",
+            0.25
+          ],
+          [
+            "bone_fragment",
+            0.3
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "health_potion",
+            0.18
+          ],
+          [
+            "mana_potion",
+            0.1
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 10,
+          "rare": 0,
+          "mythical": 0,
+          "legendary": 0
+        }
+      }
     },
     "scout": {
       "display_name": "Barrens Scout",
+      "tier": 2,
+      "biome": "barrens",
+      "level_band": [
+        8,
+        20
+      ],
       "max_hp": 20.0,
       "move_speed": 180.0,
       "contact_damage": 6.0,
       "chase_radius": 380.0,
-      "attack_radius": 48.0,
-      "attack_cooldown": 0.9,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.15,
       "xp_reward": 22,
       "body_color": [
         0.85,
@@ -47,6 +260,9 @@
         0.2
       ],
       "behavior": "melee",
+      "floor_multiplier": 0.12,
+      "sheet": "res://assets/lpc/enemy_raider.png",
+      "sprite_scale": 1.0,
       "drops": {
         "gold": [
           3,
@@ -54,23 +270,125 @@
         ],
         "items": [
           [
-            "mana_potion",
+            "raider_insignia",
             0.3
+          ],
+          [
+            "scrap_iron",
+            0.4
+          ],
+          [
+            "mana_potion",
+            0.22
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "health_potion",
+            0.18
+          ],
+          [
+            "elixir_of_haste",
+            0.06
           ]
-        ]
-      },
-      "sheet": "res://assets/lpc/enemy_raider.png",
-      "sprite_scale": 1.0,
-      "floor_multiplier": 0.12
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 24,
+          "rare": 3,
+          "mythical": 0,
+          "legendary": 0
+        }
+      }
+    },
+    "husk": {
+      "display_name": "Rotting Husk",
+      "tier": 2,
+      "biome": "meadow",
+      "level_band": [
+        10,
+        22
+      ],
+      "max_hp": 46.0,
+      "move_speed": 78.0,
+      "contact_damage": 9.0,
+      "chase_radius": 380.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.15,
+      "xp_reward": 30,
+      "body_color": [
+        0.45,
+        0.55,
+        0.4
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.13,
+      "sheet": "res://assets/lpc/enemy_husk.png",
+      "sprite_scale": 1.05,
+      "drops": {
+        "gold": [
+          5,
+          11
+        ],
+        "items": [
+          [
+            "bone_fragment",
+            0.5
+          ],
+          [
+            "cave_moss",
+            0.3
+          ],
+          [
+            "fetid_gland",
+            0.25
+          ],
+          [
+            "greater_health_potion",
+            0.12
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "health_potion",
+            0.18
+          ],
+          [
+            "mana_potion",
+            0.12
+          ],
+          [
+            "elixir_of_haste",
+            0.06
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 24,
+          "rare": 3,
+          "mythical": 0,
+          "legendary": 0
+        }
+      }
     },
     "shaman": {
       "display_name": "Frost Shaman",
+      "tier": 3,
+      "biome": "barrens",
+      "level_band": [
+        20,
+        40
+      ],
       "max_hp": 26.0,
       "move_speed": 82.0,
       "contact_damage": 5.0,
       "chase_radius": 420.0,
       "attack_radius": 320.0,
-      "attack_cooldown": 2.0,
+      "attack_cooldown": 1.05,
       "xp_reward": 30,
       "body_color": [
         0.35,
@@ -78,8 +396,11 @@
         0.85
       ],
       "behavior": "ranged",
-      "projectile_damage": 10.0,
-      "projectile_speed": 240.0,
+      "projectile_damage": 5.0,
+      "projectile_speed": 276.0,
+      "floor_multiplier": 0.1,
+      "sheet": "res://assets/lpc/enemy_shaman.png",
+      "sprite_scale": 1.0,
       "drops": {
         "gold": [
           4,
@@ -87,38 +408,634 @@
         ],
         "items": [
           [
+            "shaman_charm",
+            0.3
+          ],
+          [
+            "scorched_relic",
+            0.25
+          ],
+          [
             "mana_potion",
-            0.5
+            0.3
+          ],
+          [
+            "greater_mana_potion",
+            0.15
+          ],
+          [
+            "greater_health_potion",
+            0.15
+          ],
+          [
+            "elixir_of_haste",
+            0.08
+          ],
+          [
+            "elixir_of_iron",
+            0.08
           ]
-        ]
-      },
-      "sheet": "res://assets/lpc/enemy_shaman.png",
-      "sprite_scale": 1.0,
-      "floor_multiplier": 0.1
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 40,
+          "rare": 11,
+          "mythical": 1,
+          "legendary": 0
+        }
+      }
     },
-    "ember_warden": {
-      "display_name": "The Ember Warden",
-      "max_hp": 550.0,
-      "move_speed": 110.0,
-      "contact_damage": 16.0,
-      "chase_radius": 560.0,
-      "attack_radius": 96.0,
-      "attack_cooldown": 1.6,
-      "xp_reward": 250,
-      "body_color": [
-        0.9,
-        0.35,
-        0.15
+    "lizard": {
+      "display_name": "Slag Lizard",
+      "tier": 3,
+      "biome": "barrens",
+      "level_band": [
+        22,
+        42
       ],
-      "behavior": "boss",
-      "projectile_damage": 12.0,
-      "projectile_speed": 270.0,
+      "max_hp": 58.0,
+      "move_speed": 140.0,
+      "contact_damage": 11.0,
+      "chase_radius": 420.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.05,
+      "xp_reward": 40,
+      "body_color": [
+        0.55,
+        0.7,
+        0.35
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.14,
+      "sheet": "res://assets/lpc/enemy_lizard.png",
+      "sprite_scale": 1.1,
       "drops": {
         "gold": [
-          60,
-          90
+          6,
+          14
         ],
         "items": [
+          [
+            "ash_shard",
+            0.5
+          ],
+          [
+            "fetid_gland",
+            0.35
+          ],
+          [
+            "emberglass_shard",
+            0.15
+          ],
+          [
+            "greater_health_potion",
+            0.18
+          ],
+          [
+            "greater_mana_potion",
+            0.12
+          ],
+          [
+            "elixir_of_haste",
+            0.08
+          ],
+          [
+            "elixir_of_iron",
+            0.08
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 40,
+          "rare": 11,
+          "mythical": 1,
+          "legendary": 0
+        }
+      }
+    },
+    "raider_brute": {
+      "display_name": "Raider Brute",
+      "tier": 3,
+      "biome": "barrens",
+      "level_band": [
+        24,
+        45
+      ],
+      "max_hp": 90.0,
+      "move_speed": 105.0,
+      "contact_damage": 14.0,
+      "chase_radius": 420.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 1.05,
+      "xp_reward": 48,
+      "body_color": [
+        0.72,
+        0.4,
+        0.22
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.15,
+      "sheet": "res://assets/lpc/enemy_raider.png",
+      "sprite_scale": 1.3,
+      "drops": {
+        "gold": [
+          8,
+          16
+        ],
+        "items": [
+          [
+            "raider_insignia",
+            0.45
+          ],
+          [
+            "scrap_iron",
+            0.5
+          ],
+          [
+            "greater_health_potion",
+            0.15
+          ],
+          [
+            "warden_steel_ingot",
+            0.06
+          ],
+          [
+            "greater_mana_potion",
+            0.12
+          ],
+          [
+            "elixir_of_haste",
+            0.08
+          ],
+          [
+            "elixir_of_iron",
+            0.08
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 40,
+          "rare": 11,
+          "mythical": 1,
+          "legendary": 0
+        }
+      }
+    },
+    "minotaur": {
+      "display_name": "Ash Minotaur",
+      "tier": 4,
+      "biome": "barrens",
+      "level_band": [
+        40,
+        65
+      ],
+      "max_hp": 150.0,
+      "move_speed": 120.0,
+      "contact_damage": 19.0,
+      "chase_radius": 460.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 0.95,
+      "xp_reward": 78,
+      "body_color": [
+        0.6,
+        0.35,
+        0.25
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.16,
+      "sheet": "res://assets/lpc/enemy_minotaur.png",
+      "sprite_scale": 1.45,
+      "drops": {
+        "gold": [
+          12,
+          24
+        ],
+        "items": [
+          [
+            "ash_shard",
+            0.6
+          ],
+          [
+            "scorched_relic",
+            0.4
+          ],
+          [
+            "warden_steel_ingot",
+            0.12
+          ],
+          [
+            "emberglass_shard",
+            0.3
+          ],
+          [
+            "greater_health_potion",
+            0.18
+          ],
+          [
+            "greater_mana_potion",
+            0.15
+          ],
+          [
+            "elixir_of_iron",
+            0.1
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 55,
+          "rare": 20,
+          "mythical": 4,
+          "legendary": 0.2
+        }
+      }
+    },
+    "legion": {
+      "display_name": "Choir Legionnaire",
+      "tier": 4,
+      "biome": "barrens",
+      "level_band": [
+        45,
+        68
+      ],
+      "max_hp": 175.0,
+      "move_speed": 100.0,
+      "contact_damage": 21.0,
+      "chase_radius": 460.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 0.95,
+      "xp_reward": 88,
+      "body_color": [
+        0.55,
+        0.5,
+        0.62
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.17,
+      "sheet": "res://assets/lpc/enemy_legion.png",
+      "sprite_scale": 1.25,
+      "drops": {
+        "gold": [
+          14,
+          26
+        ],
+        "items": [
+          [
+            "choir_sigil",
+            0.3
+          ],
+          [
+            "torn_cloth",
+            0.5
+          ],
+          [
+            "warden_steel_ingot",
+            0.15
+          ],
+          [
+            "greater_health_potion",
+            0.25
+          ],
+          [
+            "greater_mana_potion",
+            0.15
+          ],
+          [
+            "elixir_of_iron",
+            0.1
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 55,
+          "rare": 20,
+          "mythical": 4,
+          "legendary": 0.2
+        }
+      }
+    },
+    "revenant": {
+      "display_name": "Frost Revenant",
+      "tier": 5,
+      "biome": "frost",
+      "level_band": [
+        65,
+        85
+      ],
+      "max_hp": 240.0,
+      "move_speed": 115.0,
+      "contact_damage": 27.0,
+      "chase_radius": 500.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.85,
+      "xp_reward": 140,
+      "body_color": [
+        0.62,
+        0.72,
+        0.92
+      ],
+      "behavior": "ranged",
+      "projectile_damage": 27.0,
+      "projectile_speed": 300.0,
+      "floor_multiplier": 0.16,
+      "sheet": "res://assets/lpc/enemy_revenant.png",
+      "sprite_scale": 1.3,
+      "drops": {
+        "gold": [
+          18,
+          34
+        ],
+        "items": [
+          [
+            "frost_crystal",
+            0.45
+          ],
+          [
+            "rime_core",
+            0.15
+          ],
+          [
+            "hollow_relic",
+            0.06
+          ],
+          [
+            "greater_mana_potion",
+            0.35
+          ],
+          [
+            "greater_elixir",
+            0.12
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 70,
+          "rare": 33,
+          "mythical": 8,
+          "legendary": 1
+        }
+      }
+    },
+    "troll": {
+      "display_name": "Rime Troll",
+      "tier": 5,
+      "biome": "frost",
+      "level_band": [
+        68,
+        88
+      ],
+      "max_hp": 420.0,
+      "move_speed": 92.0,
+      "contact_damage": 34.0,
+      "chase_radius": 500.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 0.85,
+      "xp_reward": 185,
+      "body_color": [
+        0.48,
+        0.58,
+        0.66
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.18,
+      "sheet": "res://assets/lpc/enemy_troll.png",
+      "sprite_scale": 1.6,
+      "drops": {
+        "gold": [
+          22,
+          42
+        ],
+        "items": [
+          [
+            "frost_crystal",
+            0.5
+          ],
+          [
+            "rime_core",
+            0.22
+          ],
+          [
+            "hollow_relic",
+            0.1
+          ],
+          [
+            "greater_elixir",
+            0.18
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 70,
+          "rare": 33,
+          "mythical": 8,
+          "legendary": 1
+        }
+      }
+    },
+    "archon": {
+      "display_name": "Ashen Archon",
+      "tier": 6,
+      "biome": "frost",
+      "level_band": [
+        85,
+        100
+      ],
+      "max_hp": 520.0,
+      "move_speed": 130.0,
+      "contact_damage": 42.0,
+      "chase_radius": 540.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.75,
+      "xp_reward": 260,
+      "body_color": [
+        0.85,
+        0.45,
+        0.3
+      ],
+      "behavior": "ranged",
+      "projectile_damage": 42.0,
+      "projectile_speed": 312.0,
+      "floor_multiplier": 0.15,
+      "sheet": "res://assets/lpc/enemy_archon.png",
+      "sprite_scale": 1.45,
+      "drops": {
+        "gold": [
+          30,
+          55
+        ],
+        "items": [
+          [
+            "choir_ledger",
+            0.12
+          ],
+          [
+            "vessel_shard",
+            0.15
+          ],
+          [
+            "rime_core",
+            0.4
+          ],
+          [
+            "hollow_relic",
+            0.25
+          ],
+          [
+            "phoenix_elixir",
+            0.08
+          ],
+          [
+            "greater_elixir",
+            0.15
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 85,
+          "rare": 45,
+          "mythical": 15,
+          "legendary": 2.5
+        }
+      }
+    },
+    "ashen_herald": {
+      "display_name": "Ashen Herald",
+      "tier": 6,
+      "biome": "frost",
+      "level_band": [
+        88,
+        100
+      ],
+      "max_hp": 600.0,
+      "move_speed": 118.0,
+      "contact_damage": 46.0,
+      "chase_radius": 540.0,
+      "attack_radius": 56.0,
+      "attack_cooldown": 0.75,
+      "xp_reward": 300,
+      "body_color": [
+        0.8,
+        0.5,
+        0.35
+      ],
+      "behavior": "melee",
+      "floor_multiplier": 0.16,
+      "sheet": "res://assets/lpc/boss_ashen_herald.png",
+      "sprite_scale": 1.5,
+      "drops": {
+        "gold": [
+          35,
+          60
+        ],
+        "items": [
+          [
+            "choir_ledger",
+            0.15
+          ],
+          [
+            "vessel_shard",
+            0.2
+          ],
+          [
+            "choir_sigil",
+            0.5
+          ],
+          [
+            "warden_steel_ingot",
+            0.4
+          ],
+          [
+            "greater_elixir",
+            0.15
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ],
+          [
+            "phoenix_elixir",
+            0.06
+          ]
+        ],
+        "rarity_table": {
+          "common": 100,
+          "uncommon": 85,
+          "rare": 45,
+          "mythical": 15,
+          "legendary": 2.5
+        }
+      }
+    },
+    "goblin_king": {
+      "display_name": "Skarn the Goblin King",
+      "tier": 2,
+      "biome": "meadow",
+      "level_band": [
+        8,
+        14
+      ],
+      "max_hp": 260.0,
+      "move_speed": 105.0,
+      "contact_damage": 12.0,
+      "chase_radius": 380.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 1.15,
+      "xp_reward": 180,
+      "body_color": [
+        0.45,
+        0.72,
+        0.3
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.05,
+      "sheet": "res://assets/lpc/boss_goblin_king.png",
+      "sprite_scale": 1.7,
+      "boss": true,
+      "phases": [
+        {
+          "hp_above": 0.6,
+          "speed_mult": 1.0,
+          "radial": 0,
+          "telegraph": 0.45,
+          "charge": false
+        },
+        {
+          "hp_above": 0.25,
+          "speed_mult": 1.25,
+          "radial": 6,
+          "telegraph": 0.36,
+          "charge": false
+        },
+        {
+          "hp_above": 0.0,
+          "speed_mult": 1.45,
+          "radial": 8,
+          "telegraph": 0.28,
+          "charge": true
+        }
+      ],
+      "rarity_weight": 3,
+      "drops": {
+        "gold": [
+          40,
+          70
+        ],
+        "items": [
+          [
+            "goblin_fang",
+            1.0
+          ],
           [
             "iron_sword",
             1.0
@@ -130,43 +1047,447 @@
           [
             "traveler_ring",
             0.5
+          ],
+          [
+            "bandage",
+            0.12
+          ],
+          [
+            "mana_potion",
+            0.12
+          ],
+          [
+            "elixir_of_haste",
+            0.06
           ]
-        ]
-      },
-      "sheet": "res://assets/lpc/enemy_orc.png",
-      "sprite_scale": 1.7,
-      "floor_multiplier": 0.0
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 100,
+          "rare": 84,
+          "mythical": 20,
+          "legendary": 3.0
+        }
+      }
     },
-    "emberling": {
-      "display_name": "Emberling",
-      "max_hp": 14.0,
-      "move_speed": 220.0,
-      "contact_damage": 4.0,
-      "chase_radius": 360.0,
-      "attack_radius": 40.0,
-      "attack_cooldown": 0.7,
-      "xp_reward": 14,
-      "body_color": [
-        0.95,
-        0.45,
-        0.2
+    "slag_wraith": {
+      "display_name": "The Slag Wraith",
+      "tier": 3,
+      "biome": "barrens",
+      "level_band": [
+        20,
+        28
       ],
-      "behavior": "melee",
+      "max_hp": 620.0,
+      "move_speed": 118.0,
+      "contact_damage": 20.0,
+      "chase_radius": 420.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 1.05,
+      "xp_reward": 420,
+      "body_color": [
+        0.7,
+        0.4,
+        0.35
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.1,
+      "sheet": "res://assets/lpc/boss_slag_wraith.png",
+      "sprite_scale": 1.9,
+      "boss": true,
+      "phases": [
+        {
+          "hp_above": 0.6,
+          "speed_mult": 1.0,
+          "radial": 4,
+          "telegraph": 0.42,
+          "charge": false
+        },
+        {
+          "hp_above": 0.25,
+          "speed_mult": 1.3,
+          "radial": 8,
+          "telegraph": 0.34,
+          "charge": true
+        },
+        {
+          "hp_above": 0.0,
+          "speed_mult": 1.5,
+          "radial": 10,
+          "telegraph": 0.26,
+          "charge": true
+        }
+      ],
+      "rarity_weight": 4,
       "drops": {
         "gold": [
-          1,
-          4
+          80,
+          130
         ],
         "items": [
           [
-            "health_potion",
-            0.2
+            "emberglass_shard",
+            1.0
+          ],
+          [
+            "ashsteel_longsword",
+            1.0
+          ],
+          [
+            "choir_sigil",
+            0.5
+          ],
+          [
+            "greater_health_potion",
+            0.15
+          ],
+          [
+            "greater_mana_potion",
+            0.12
+          ],
+          [
+            "elixir_of_haste",
+            0.08
+          ],
+          [
+            "elixir_of_iron",
+            0.08
           ]
-        ]
-      },
-      "sheet": "res://assets/lpc/enemy_skeleton.png",
-      "sprite_scale": 0.8,
-      "floor_multiplier": 0.09
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 100,
+          "rare": 96,
+          "mythical": 30,
+          "legendary": 4.5
+        }
+      }
+    },
+    "bone_titan": {
+      "display_name": "The Bone Titan",
+      "tier": 5,
+      "biome": "frost",
+      "level_band": [
+        58,
+        72
+      ],
+      "max_hp": 1400.0,
+      "move_speed": 88.0,
+      "contact_damage": 30.0,
+      "chase_radius": 500.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.85,
+      "xp_reward": 900,
+      "body_color": [
+        0.72,
+        0.7,
+        0.62
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.11,
+      "sheet": "res://assets/lpc/boss_bone_titan.png",
+      "sprite_scale": 2.1,
+      "boss": true,
+      "phases": [
+        {
+          "hp_above": 0.65,
+          "speed_mult": 1.0,
+          "radial": 0,
+          "telegraph": 0.5,
+          "charge": false
+        },
+        {
+          "hp_above": 0.3,
+          "speed_mult": 1.15,
+          "radial": 8,
+          "telegraph": 0.4,
+          "charge": false
+        },
+        {
+          "hp_above": 0.0,
+          "speed_mult": 1.3,
+          "radial": 12,
+          "telegraph": 0.3,
+          "charge": true
+        }
+      ],
+      "rarity_weight": 6,
+      "drops": {
+        "gold": [
+          140,
+          210
+        ],
+        "items": [
+          [
+            "hollow_relic",
+            1.0
+          ],
+          [
+            "choirbane_mace",
+            1.0
+          ],
+          [
+            "greater_elixir",
+            1.0
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 100,
+          "rare": 120,
+          "mythical": 50,
+          "legendary": 7.5
+        }
+      }
+    },
+    "frost_giant": {
+      "display_name": "Jorunn the Frost Giant",
+      "tier": 5,
+      "biome": "frost",
+      "level_band": [
+        60,
+        72
+      ],
+      "max_hp": 2600.0,
+      "move_speed": 96.0,
+      "contact_damage": 42.0,
+      "chase_radius": 500.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.85,
+      "xp_reward": 1700,
+      "body_color": [
+        0.6,
+        0.78,
+        0.95
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.12,
+      "sheet": "res://assets/lpc/boss_frost_giant.png",
+      "sprite_scale": 2.2,
+      "boss": true,
+      "phases": [
+        {
+          "hp_above": 0.6,
+          "speed_mult": 1.0,
+          "radial": 6,
+          "telegraph": 0.5,
+          "charge": false
+        },
+        {
+          "hp_above": 0.28,
+          "speed_mult": 1.2,
+          "radial": 10,
+          "telegraph": 0.38,
+          "charge": true
+        },
+        {
+          "hp_above": 0.0,
+          "speed_mult": 1.4,
+          "radial": 14,
+          "telegraph": 0.28,
+          "charge": true
+        }
+      ],
+      "rarity_weight": 6,
+      "drops": {
+        "gold": [
+          220,
+          320
+        ],
+        "items": [
+          [
+            "rime_core",
+            1.0
+          ],
+          [
+            "rimeguard_axe",
+            1.0
+          ],
+          [
+            "phoenix_elixir",
+            0.5
+          ],
+          [
+            "greater_elixir",
+            0.12
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 100,
+          "rare": 120,
+          "mythical": 50,
+          "legendary": 7.5
+        }
+      }
+    },
+    "choir_priest": {
+      "display_name": "High Priest Cindral",
+      "tier": 5,
+      "biome": "barrens",
+      "level_band": [
+        76,
+        88
+      ],
+      "max_hp": 3600.0,
+      "move_speed": 112.0,
+      "contact_damage": 50.0,
+      "chase_radius": 500.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.85,
+      "xp_reward": 2600,
+      "body_color": [
+        0.72,
+        0.35,
+        0.55
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.13,
+      "sheet": "res://assets/lpc/boss_choir_priest.png",
+      "sprite_scale": 2.0,
+      "boss": true,
+      "phases": [
+        {
+          "hp_above": 0.65,
+          "speed_mult": 1.0,
+          "radial": 8,
+          "telegraph": 0.45,
+          "charge": false
+        },
+        {
+          "hp_above": 0.3,
+          "speed_mult": 1.25,
+          "radial": 12,
+          "telegraph": 0.34,
+          "charge": false
+        },
+        {
+          "hp_above": 0.0,
+          "speed_mult": 1.5,
+          "radial": 16,
+          "telegraph": 0.24,
+          "charge": true
+        }
+      ],
+      "rarity_weight": 6,
+      "drops": {
+        "gold": [
+          300,
+          430
+        ],
+        "items": [
+          [
+            "ashen_choir_heart",
+            0.3
+          ],
+          [
+            "choir_ledger",
+            1.0
+          ],
+          [
+            "choir_sever",
+            1.0
+          ],
+          [
+            "bloodmoon_amulet",
+            0.5
+          ],
+          [
+            "greater_elixir",
+            0.12
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ]
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 100,
+          "rare": 120,
+          "mythical": 50,
+          "legendary": 7.5
+        }
+      }
+    },
+    "ember_warden": {
+      "display_name": "The Ember Warden",
+      "tier": 6,
+      "biome": "frost",
+      "level_band": [
+        92,
+        100
+      ],
+      "max_hp": 5200.0,
+      "move_speed": 128.0,
+      "contact_damage": 58.0,
+      "chase_radius": 540.0,
+      "attack_radius": 320.0,
+      "attack_cooldown": 0.75,
+      "xp_reward": 4200,
+      "body_color": [
+        0.9,
+        0.35,
+        0.15
+      ],
+      "behavior": "boss",
+      "floor_multiplier": 0.0,
+      "sheet": "res://assets/lpc/enemy_orc.png",
+      "sprite_scale": 1.7,
+      "boss": true,
+      "phases": [],
+      "rarity_weight": 7,
+      "drops": {
+        "gold": [
+          400,
+          600
+        ],
+        "items": [
+          [
+            "warden_core",
+            1.0
+          ],
+          [
+            "warden_steel_ingot",
+            1.0
+          ],
+          [
+            "greater_health_potion",
+            1.0
+          ],
+          [
+            "worlds_end",
+            0.35
+          ],
+          [
+            "greater_elixir",
+            0.15
+          ],
+          [
+            "chilled_greater_potion",
+            0.12
+          ],
+          [
+            "phoenix_elixir",
+            0.06
+          ]
+        ],
+        "rarity_table": {
+          "common": 0,
+          "uncommon": 0,
+          "rare": 100,
+          "mythical": 100,
+          "legendary": 25
+        }
+      }
     }
   }
 }

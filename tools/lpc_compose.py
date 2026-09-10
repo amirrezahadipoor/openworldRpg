@@ -54,11 +54,18 @@ HEAD_GAUNT = "head/heads/human/male_gaunt/%s.png"
 HEAD_SKELETON = "head/heads/skeleton/adult/%s.png"
 HEAD_GOBLIN = "head/heads/goblin/adult/%s.png"
 HEAD_ORC = "head/heads/orc/male/%s.png"
+HEAD_ZOMBIE = "head/heads/zombie/adult/%s.png"
+HEAD_WOLF = "head/heads/wolf/male/%s.png"
+HEAD_LIZARD = "head/heads/lizard/male/%s.png"
+HEAD_MINOTAUR = "head/heads/minotaur/male/%s.png"
+HEAD_TROLL = "head/heads/troll/adult/%s.png"
 EYES = "eyes/human/adult/neutral/%s.png"
 PANTS = "legs/pants/male/%s.png"
 SHIRT_SHORT = "torso/clothes/shortsleeve/shortsleeve/male/%s.png"
 SHIRT_LONG = "torso/clothes/longsleeve/longsleeve/male/%s.png"
 ARMOR_LEATHER = "torso/armour/leather/male/%s.png"
+ARMOR_PLATE = "torso/armour/plate/male/%s.png"
+ARMOR_LEGION = "torso/armour/legion/male/%s.png"
 BOOTS = "feet/boots/basic/male/%s.png"
 BOOTS_REVISED = "feet/boots/revised/male/%s.png"
 HAIR_BEDHEAD = "hair/bedhead/adult/%s.png"
@@ -83,6 +90,23 @@ ARCHETYPES = {
     "enemy_goblin": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_GOBLIN, EYES],
     "enemy_skeleton": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_SKELETON, EYES],
     "enemy_orc": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_ORC, EYES],
+    # --- Phase F2/F3: the wider monster roster -------------------------------
+    # (each keeps a distinct silhouette so a new kind reads on screen)
+    "enemy_husk": [BODY_M, PANTS, SHIRT_SHORT, BOOTS, HEAD_ZOMBIE, EYES],
+    "enemy_wolf": [BODY_M, PANTS, SHIRT_LONG, BOOTS_REVISED, HEAD_WOLF, EYES],
+    "enemy_lizard": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_LIZARD, EYES],
+    "enemy_minotaur": [BODY_M, PANTS, ARMOR_PLATE, BOOTS, HEAD_MINOTAUR, EYES],
+    "enemy_troll": [BODY_M, PANTS, ARMOR_LEATHER, BOOTS, HEAD_TROLL, EYES],
+    "enemy_legion": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_SKELETON, EYES],
+    "enemy_revenant": [BODY_F, PANTS, ARMOR_PLATE, BOOTS, HEAD_ZOMBIE, EYES, HAIR_LONG],
+    "enemy_archon": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_ORC, EYES, HAIR_BANGS],
+    # bosses
+    "boss_goblin_king": [BODY_M, PANTS, ARMOR_PLATE, BOOTS, HEAD_GOBLIN, EYES],
+    "boss_slag_wraith": [BODY_M, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_ZOMBIE, EYES, HAIR_LONG],
+    "boss_frost_giant": [BODY_M, PANTS, ARMOR_PLATE, BOOTS, HEAD_TROLL, EYES],
+    "boss_bone_titan": [BODY_M, PANTS, ARMOR_LEGION, BOOTS, HEAD_SKELETON, EYES],
+    "boss_choir_priest": [BODY_F, PANTS, ARMOR_LEGION, BOOTS_REVISED, HEAD_ZOMBIE, EYES, HAIR_LONG],
+    "boss_ashen_herald": [BODY_M, PANTS, ARMOR_PLATE, BOOTS_REVISED, HEAD_MINOTAUR, EYES],
 }
 
 

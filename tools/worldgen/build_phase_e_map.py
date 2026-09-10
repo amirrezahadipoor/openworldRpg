@@ -83,52 +83,69 @@ with open(os.path.join(ROOT, "data", "settlements.json"), "w") as f:
 # --- Dungeons ----------------------------------------------------------------
 # (id, name, biome, entrance position, floors, acts/notes, floor plans)
 # Floor plans: (enemy table, spawners, power, boss)
+# (id, name, biome, pos, floors, desc, level_band, floor plans)
+# `level_band` is the level range the dungeon is authored for; every monster on
+# every floor must have a level band that overlaps it (tests/items_test.gd).
+# `boss: true` marks the single floor that gates the dungeon, and it must hold
+# exactly one named boss.
 DUNGEONS = [
     ("drowned_mill", "The Drowned Mill", "meadow", (620, 1520), 2,
      "Millhaven's old mill, flooded when the sluice broke. Rats and worse.",
+     (1, 14),
      [(["grunt", "emberling"], 3, 1.0, False),
-      (["grunt", "shaman"], 4, 1.3, True)]),
+      (["goblin_king"], 1, 1.3, True)]),
+    ("emberling_warrens", "Emberling Warrens", "meadow", (3150, 1400), 2,
+     "Tunnels the Emberlings dug under the ash road.",
+     (1, 22),
+     [(["emberling", "meadow_wolf"], 5, 1.0, False),
+      (["husk", "emberling"], 6, 1.7, False)]),
     ("slagworks", "The Slagworks", "barrens", (2600, 200), 3,
      "Abandoned smelting works; the Choir forges there now.",
-     [(["scout", "grunt"], 4, 1.1, False),
-      (["grunt", "shaman"], 5, 1.4, False),
-      (["shaman", "scout"], 5, 1.8, True)]),
-    ("emberling_warrens", "Emberling Warrens", "barrens", (3150, 1400), 2,
-     "Tunnels the Emberlings dug under the ash road.",
-     [(["emberling", "emberling"], 5, 1.0, False),
-      (["emberling", "scout"], 6, 1.5, True)]),
+     (8, 42),
+     [(["scout", "lizard"], 4, 1.1, False),
+      (["lizard", "shaman"], 5, 1.4, False),
+      (["slag_wraith"], 1, 1.8, True)]),
     ("scorched_monastery", "The Scorched Monastery", "barrens", (3750, 1750), 3,
      "Brother Ashe's order held it for eighty years. Now half rubble.",
+     (20, 68),
      [(["scout", "shaman"], 4, 1.2, False),
-      (["shaman", "emberling"], 5, 1.6, False),
-      (["grunt", "shaman", "scout"], 5, 2.0, True)]),
+      (["lizard", "raider_brute"], 5, 1.6, False),
+      # No named boss lives here (all six are accounted for elsewhere): the
+      # deepest floor is an elite wave, so it is honestly flagged not-a-boss.
+      (["legion", "shaman", "raider_brute"], 6, 2.2, False)]),
     ("choir_sanctum", "Choir Sanctum", "barrens", (4500, 1600), 4,
      "Beneath Ashvow: where Wren is kept and groomed as the vessel.",
-     [(["scout", "shaman"], 4, 1.4, False),
-      (["shaman", "emberling"], 5, 1.8, False),
-      (["grunt", "scout", "shaman"], 6, 2.2, False),
-      (["shaman", "scout"], 5, 2.6, True)]),
+     (38, 88),
+     [(["legion", "shaman"], 4, 1.4, False),
+      (["minotaur", "legion"], 5, 1.8, False),
+      (["legion", "minotaur", "shaman"], 6, 2.2, False),
+      (["choir_priest"], 1, 2.6, True)]),
     ("hollow_crypts", "The Hollow Crypts", "frost", (900, -1400), 3,
      "Older than the Wardens. Something down there still keeps accounts.",
-     [(["emberling", "grunt"], 4, 1.5, False),
-      (["shaman", "emberling"], 5, 1.9, False),
-      (["shaman", "grunt", "scout"], 6, 2.3, True)]),
+     (55, 85),
+     [(["revenant", "troll"], 4, 1.5, False),
+      (["troll", "revenant"], 5, 1.9, False),
+      (["bone_titan"], 1, 2.3, True)]),
     ("rimevault", "The Rimevault", "frost", (2100, -2600), 3,
      "A vault sealed with ice that was once a door.",
-     [(["scout", "shaman"], 4, 1.7, False),
-      (["shaman", "scout", "emberling"], 5, 2.1, False),
-      (["shaman", "emberling"], 6, 2.5, True)]),
+     (60, 90),
+     [(["revenant", "troll"], 4, 1.7, False),
+      (["troll", "revenant"], 5, 2.1, False),
+      (["frost_giant"], 1, 2.5, True)]),
     ("wardens_ascent", "Warden's Ascent", "frost", (2900, -1900), 3,
      "The switchback climb to the citadel's undercroft.",
-     [(["scout", "grunt"], 5, 2.0, False),
-      (["shaman", "scout"], 6, 2.4, False),
-      (["grunt", "shaman"], 6, 2.8, True)]),
+     (65, 100),
+     [(["troll", "archon"], 5, 2.0, False),
+      (["archon", "revenant"], 6, 2.4, False),
+      # The Ashen Herald is an elite, not one of the six named bosses.
+      (["ashen_herald", "archon"], 2, 2.8, False)]),
     ("ember_warden_keep", "Warden's Keep", "frost", (2700, -1500), 3,
      "The scorched ring. The existing three-phase Ember Warden fight lives here "
      "unchanged; only the framing around it changed in Phase E.",
-     [(["scout", "grunt", "shaman"], 5, 2.6, False),
-      (["shaman", "emberling", "scout"], 6, 3.0, False),
-      (["ember_warden"], 1, 3.4, True)]),
+     (85, 100),
+     [(["archon", "troll"], 5, 2.6, False),
+      (["ashen_herald", "archon", "troll"], 6, 3.0, False),
+      (["ember_warden"], 1, 1.0, True)]),
 ]
 
 dout = collections.OrderedDict()
@@ -136,12 +153,12 @@ dout["_comment"] = (
     "Phase E §1 - dungeons. `floor` is the 1-based floor index fed to "
     "EnemySpawner.floor_index, which multiplies enemy hp/damage/xp through the "
     "archetype's floor_multiplier (Phase E §6). `boss: true` marks the floor "
-    "that gates the dungeon. Boss floors for ember_warden_keep use the existing "
+    "`level_band` is the level range the dungeon is authored for - every monster "    "on every floor must overlap it. `boss: true` marks the single floor that "    "gates the dungeon and it holds exactly one named boss. Boss floors for "    "ember_warden_keep use the existing "
     "BossArena three-phase fight - it is NOT reimplemented here."
 )
 dungeons = collections.OrderedDict()
 total_floors = 0
-for did, name, biome, pos, floors, desc, plans in DUNGEONS:
+for did, name, biome, pos, floors, desc, band, plans in DUNGEONS:
     assert len(plans) == floors, (did, floors, len(plans))
     fl = []
     for i, (table, spawners, power, boss) in enumerate(plans, start=1):
@@ -158,6 +175,7 @@ for did, name, biome, pos, floors, desc, plans in DUNGEONS:
     total_floors += floors
     dungeons[did] = collections.OrderedDict([
         ("id", did), ("name", name), ("biome", biome), ("desc", desc),
+        ("level_band", [band[0], band[1]]),
         ("position", [pos[0], pos[1]]),
         ("floors", fl),
     ])

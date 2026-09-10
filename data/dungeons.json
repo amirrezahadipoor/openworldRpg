@@ -1,11 +1,15 @@
 {
-  "_comment": "Phase E \u00a71 - dungeons. `floor` is the 1-based floor index fed to EnemySpawner.floor_index, which multiplies enemy hp/damage/xp through the archetype's floor_multiplier (Phase E \u00a76). `boss: true` marks the floor that gates the dungeon. Boss floors for ember_warden_keep use the existing BossArena three-phase fight - it is NOT reimplemented here.",
+  "_comment": "Phase E \u00a71 - dungeons. `floor` is the 1-based floor index fed to EnemySpawner.floor_index, which multiplies enemy hp/damage/xp through the archetype's floor_multiplier (Phase E \u00a76). `boss: true` marks the floor `level_band` is the level range the dungeon is authored for - every monster on every floor must overlap it. `boss: true` marks the single floor that gates the dungeon and it holds exactly one named boss. Boss floors for ember_warden_keep use the existing BossArena three-phase fight - it is NOT reimplemented here.",
   "dungeons": {
     "drowned_mill": {
       "id": "drowned_mill",
       "name": "The Drowned Mill",
       "biome": "meadow",
       "desc": "Millhaven's old mill, flooded when the sluice broke. Rats and worse.",
+      "level_band": [
+        1,
+        14
+      ],
       "position": [
         620,
         1520
@@ -28,13 +32,54 @@
           "floor": 2,
           "name": "The Drowned Mill \u2014 Floor 2",
           "enemies": [
-            "grunt",
-            "shaman"
+            "goblin_king"
           ],
-          "spawner_count": 4,
+          "spawner_count": 1,
           "power_scale": 1.3,
           "floor_index": 2,
           "boss": true,
+          "exit_to": "surface"
+        }
+      ]
+    },
+    "emberling_warrens": {
+      "id": "emberling_warrens",
+      "name": "Emberling Warrens",
+      "biome": "meadow",
+      "desc": "Tunnels the Emberlings dug under the ash road.",
+      "level_band": [
+        1,
+        22
+      ],
+      "position": [
+        3150,
+        1400
+      ],
+      "floors": [
+        {
+          "floor": 1,
+          "name": "Emberling Warrens \u2014 Floor 1",
+          "enemies": [
+            "emberling",
+            "meadow_wolf"
+          ],
+          "spawner_count": 5,
+          "power_scale": 1.0,
+          "floor_index": 1,
+          "boss": false,
+          "exit_to": "floor_2"
+        },
+        {
+          "floor": 2,
+          "name": "Emberling Warrens \u2014 Floor 2",
+          "enemies": [
+            "husk",
+            "emberling"
+          ],
+          "spawner_count": 6,
+          "power_scale": 1.7,
+          "floor_index": 2,
+          "boss": false,
           "exit_to": "surface"
         }
       ]
@@ -44,6 +89,10 @@
       "name": "The Slagworks",
       "biome": "barrens",
       "desc": "Abandoned smelting works; the Choir forges there now.",
+      "level_band": [
+        8,
+        42
+      ],
       "position": [
         2600,
         200
@@ -54,7 +103,7 @@
           "name": "The Slagworks \u2014 Floor 1",
           "enemies": [
             "scout",
-            "grunt"
+            "lizard"
           ],
           "spawner_count": 4,
           "power_scale": 1.1,
@@ -66,7 +115,7 @@
           "floor": 2,
           "name": "The Slagworks \u2014 Floor 2",
           "enemies": [
-            "grunt",
+            "lizard",
             "shaman"
           ],
           "spawner_count": 5,
@@ -79,50 +128,11 @@
           "floor": 3,
           "name": "The Slagworks \u2014 Floor 3",
           "enemies": [
-            "shaman",
-            "scout"
+            "slag_wraith"
           ],
-          "spawner_count": 5,
+          "spawner_count": 1,
           "power_scale": 1.8,
           "floor_index": 3,
-          "boss": true,
-          "exit_to": "surface"
-        }
-      ]
-    },
-    "emberling_warrens": {
-      "id": "emberling_warrens",
-      "name": "Emberling Warrens",
-      "biome": "barrens",
-      "desc": "Tunnels the Emberlings dug under the ash road.",
-      "position": [
-        3150,
-        1400
-      ],
-      "floors": [
-        {
-          "floor": 1,
-          "name": "Emberling Warrens \u2014 Floor 1",
-          "enemies": [
-            "emberling",
-            "emberling"
-          ],
-          "spawner_count": 5,
-          "power_scale": 1.0,
-          "floor_index": 1,
-          "boss": false,
-          "exit_to": "floor_2"
-        },
-        {
-          "floor": 2,
-          "name": "Emberling Warrens \u2014 Floor 2",
-          "enemies": [
-            "emberling",
-            "scout"
-          ],
-          "spawner_count": 6,
-          "power_scale": 1.5,
-          "floor_index": 2,
           "boss": true,
           "exit_to": "surface"
         }
@@ -133,6 +143,10 @@
       "name": "The Scorched Monastery",
       "biome": "barrens",
       "desc": "Brother Ashe's order held it for eighty years. Now half rubble.",
+      "level_band": [
+        20,
+        68
+      ],
       "position": [
         3750,
         1750
@@ -155,8 +169,8 @@
           "floor": 2,
           "name": "The Scorched Monastery \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "emberling"
+            "lizard",
+            "raider_brute"
           ],
           "spawner_count": 5,
           "power_scale": 1.6,
@@ -168,14 +182,14 @@
           "floor": 3,
           "name": "The Scorched Monastery \u2014 Floor 3",
           "enemies": [
-            "grunt",
+            "legion",
             "shaman",
-            "scout"
+            "raider_brute"
           ],
-          "spawner_count": 5,
-          "power_scale": 2.0,
+          "spawner_count": 6,
+          "power_scale": 2.2,
           "floor_index": 3,
-          "boss": true,
+          "boss": false,
           "exit_to": "surface"
         }
       ]
@@ -185,6 +199,10 @@
       "name": "Choir Sanctum",
       "biome": "barrens",
       "desc": "Beneath Ashvow: where Wren is kept and groomed as the vessel.",
+      "level_band": [
+        38,
+        88
+      ],
       "position": [
         4500,
         1600
@@ -194,7 +212,7 @@
           "floor": 1,
           "name": "Choir Sanctum \u2014 Floor 1",
           "enemies": [
-            "scout",
+            "legion",
             "shaman"
           ],
           "spawner_count": 4,
@@ -207,8 +225,8 @@
           "floor": 2,
           "name": "Choir Sanctum \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "emberling"
+            "minotaur",
+            "legion"
           ],
           "spawner_count": 5,
           "power_scale": 1.8,
@@ -220,8 +238,8 @@
           "floor": 3,
           "name": "Choir Sanctum \u2014 Floor 3",
           "enemies": [
-            "grunt",
-            "scout",
+            "legion",
+            "minotaur",
             "shaman"
           ],
           "spawner_count": 6,
@@ -234,10 +252,9 @@
           "floor": 4,
           "name": "Choir Sanctum \u2014 Floor 4",
           "enemies": [
-            "shaman",
-            "scout"
+            "choir_priest"
           ],
-          "spawner_count": 5,
+          "spawner_count": 1,
           "power_scale": 2.6,
           "floor_index": 4,
           "boss": true,
@@ -250,6 +267,10 @@
       "name": "The Hollow Crypts",
       "biome": "frost",
       "desc": "Older than the Wardens. Something down there still keeps accounts.",
+      "level_band": [
+        55,
+        85
+      ],
       "position": [
         900,
         -1400
@@ -259,8 +280,8 @@
           "floor": 1,
           "name": "The Hollow Crypts \u2014 Floor 1",
           "enemies": [
-            "emberling",
-            "grunt"
+            "revenant",
+            "troll"
           ],
           "spawner_count": 4,
           "power_scale": 1.5,
@@ -272,8 +293,8 @@
           "floor": 2,
           "name": "The Hollow Crypts \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "emberling"
+            "troll",
+            "revenant"
           ],
           "spawner_count": 5,
           "power_scale": 1.9,
@@ -285,11 +306,9 @@
           "floor": 3,
           "name": "The Hollow Crypts \u2014 Floor 3",
           "enemies": [
-            "shaman",
-            "grunt",
-            "scout"
+            "bone_titan"
           ],
-          "spawner_count": 6,
+          "spawner_count": 1,
           "power_scale": 2.3,
           "floor_index": 3,
           "boss": true,
@@ -302,6 +321,10 @@
       "name": "The Rimevault",
       "biome": "frost",
       "desc": "A vault sealed with ice that was once a door.",
+      "level_band": [
+        60,
+        90
+      ],
       "position": [
         2100,
         -2600
@@ -311,8 +334,8 @@
           "floor": 1,
           "name": "The Rimevault \u2014 Floor 1",
           "enemies": [
-            "scout",
-            "shaman"
+            "revenant",
+            "troll"
           ],
           "spawner_count": 4,
           "power_scale": 1.7,
@@ -324,9 +347,8 @@
           "floor": 2,
           "name": "The Rimevault \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "scout",
-            "emberling"
+            "troll",
+            "revenant"
           ],
           "spawner_count": 5,
           "power_scale": 2.1,
@@ -338,10 +360,9 @@
           "floor": 3,
           "name": "The Rimevault \u2014 Floor 3",
           "enemies": [
-            "shaman",
-            "emberling"
+            "frost_giant"
           ],
-          "spawner_count": 6,
+          "spawner_count": 1,
           "power_scale": 2.5,
           "floor_index": 3,
           "boss": true,
@@ -354,6 +375,10 @@
       "name": "Warden's Ascent",
       "biome": "frost",
       "desc": "The switchback climb to the citadel's undercroft.",
+      "level_band": [
+        65,
+        100
+      ],
       "position": [
         2900,
         -1900
@@ -363,8 +388,8 @@
           "floor": 1,
           "name": "Warden's Ascent \u2014 Floor 1",
           "enemies": [
-            "scout",
-            "grunt"
+            "troll",
+            "archon"
           ],
           "spawner_count": 5,
           "power_scale": 2.0,
@@ -376,8 +401,8 @@
           "floor": 2,
           "name": "Warden's Ascent \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "scout"
+            "archon",
+            "revenant"
           ],
           "spawner_count": 6,
           "power_scale": 2.4,
@@ -389,13 +414,13 @@
           "floor": 3,
           "name": "Warden's Ascent \u2014 Floor 3",
           "enemies": [
-            "grunt",
-            "shaman"
+            "ashen_herald",
+            "archon"
           ],
-          "spawner_count": 6,
+          "spawner_count": 2,
           "power_scale": 2.8,
           "floor_index": 3,
-          "boss": true,
+          "boss": false,
           "exit_to": "surface"
         }
       ]
@@ -405,6 +430,10 @@
       "name": "Warden's Keep",
       "biome": "frost",
       "desc": "The scorched ring. The existing three-phase Ember Warden fight lives here unchanged; only the framing around it changed in Phase E.",
+      "level_band": [
+        85,
+        100
+      ],
       "position": [
         2700,
         -1500
@@ -414,9 +443,8 @@
           "floor": 1,
           "name": "Warden's Keep \u2014 Floor 1",
           "enemies": [
-            "scout",
-            "grunt",
-            "shaman"
+            "archon",
+            "troll"
           ],
           "spawner_count": 5,
           "power_scale": 2.6,
@@ -428,9 +456,9 @@
           "floor": 2,
           "name": "Warden's Keep \u2014 Floor 2",
           "enemies": [
-            "shaman",
-            "emberling",
-            "scout"
+            "ashen_herald",
+            "archon",
+            "troll"
           ],
           "spawner_count": 6,
           "power_scale": 3.0,
@@ -445,7 +473,7 @@
             "ember_warden"
           ],
           "spawner_count": 1,
-          "power_scale": 3.4,
+          "power_scale": 1.0,
           "floor_index": 3,
           "boss": true,
           "exit_to": "surface"

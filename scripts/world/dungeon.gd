@@ -21,6 +21,7 @@ const ROOM := 900.0          # interior size of one floor
 const WALL := 48.0
 const STAIR_UP := Vector2(96, 96)
 const STAIR_DOWN := Vector2(900 - 96, 900 - 96)
+const BOSS_SCENE := preload("res://scenes/enemies/data_boss.tscn")
 
 static var _cache: Dictionary = {}
 
@@ -233,6 +234,20 @@ func _populate(fd: Dictionary) -> void:
 			floor_root.add_child(arena)
 			return
 
+	# Phase F3: a named boss gates the floor. DataBoss reads its phase table from
+	# the roster, so five of the six bosses are authored entirely in data.
+	if is_boss and table.size() >= 1 and EnemyDB.is_boss(String(table[0])):
+		var arena := Node2D.new()
+		arena.name = "BossArena_%s" % String(table[0])
+		arena.position = Vector2(ROOM * 0.5, ROOM * 0.5)
+		floor_root.add_child(arena)
+		var boss: DataBoss = BOSS_SCENE.instantiate() as DataBoss
+		boss.position = Vector2.ZERO
+		arena.add_child(boss)
+		boss.setup_archetype(String(table[0]), power, int(fd.get("floor_index", floor_index)))
+		_spawn_boss_guards(table)
+		return
+
 	# Ring the floor with spawners, avoiding the stairs.
 	for i in count:
 		var a := TAU * float(i) / float(count) + 0.4
@@ -244,6 +259,28 @@ func _populate(fd: Dictionary) -> void:
 		spawner.floor_index = int(fd.get("floor_index", floor_index))
 		spawner.position = Vector2(ROOM * 0.5, ROOM * 0.5) + Vector2(cos(a), sin(a)) * r
 		floor_root.add_child(spawner)
+
+
+func _spawn_boss_guards(table: Array) -> void:
+	## A couple of the boss's kin so the arena is not a bare duel.
+	var guards: Array = []
+	for m in EnemyDB.monsters():
+		if EnemyDB.biome_of(String(m)) == biome_name() and not table.has(m):
+			guards.append(m)
+	if guards.is_empty():
+		return
+	for i in 2:
+		var spawner := EnemySpawner.new()
+		spawner.archetype = String(guards[_rng.randi_range(0, guards.size() - 1)])
+		spawner.count = 1
+		spawner.floor_index = floor_index
+		var a := TAU * float(i) / 2.0 + 0.6
+		spawner.position = Vector2(ROOM * 0.5, ROOM * 0.5) + Vector2(cos(a), sin(a)) * ROOM * 0.3
+		floor_root.add_child(spawner)
+
+
+func biome_name() -> String:
+	return String(data.get("biome", "meadow"))
 
 
 func _build_torches() -> void:

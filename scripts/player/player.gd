@@ -12,6 +12,7 @@ const DODGE_DURATION := 0.28
 const DODGE_COOLDOWN := 0.6
 const ATTACK_COOLDOWN := 0.35
 const ATTACK_ACTIVE_TIME := 0.12
+const CRIT_MULT := 1.8
 
 # Abilities (Phase 4): cooldown-based, MP-fueled.
 const WHIRL_COOLDOWN := 4.0
@@ -148,7 +149,7 @@ func _resolve_attack_hits() -> void:
 		if area.is_in_group("hurtbox"):
 			var target: Node = area.get_parent()
 			if target != null and target.has_method("take_hit"):
-				var dmg := GameState.attack()
+				var dmg := roll_damage(GameState.attack())
 				target.take_hit(dmg, facing)
 				_apply_lifesteal(dmg)
 
@@ -171,7 +172,7 @@ func cast_whirlwind() -> void:
 			if global_position.distance_to(e.global_position) <= WHIRL_RADIUS:
 				var dir := (e.global_position - global_position).normalized()
 				if e.has_method("take_hit"):
-					var wdmg := GameState.attack() * WHIRL_MULT * GameState.whirl_mult()
+					var wdmg := roll_damage(GameState.attack() * WHIRL_MULT * GameState.whirl_mult())
 					e.take_hit(wdmg, dir)
 					_apply_lifesteal(wdmg)
 
@@ -218,6 +219,18 @@ func whirl_mp_cost() -> float:
 
 func bolt_mp_cost() -> float:
 	return maxf(1.0, BOLT_MP * GameState.mp_cost_mult())
+
+
+func roll_damage(base: float) -> float:
+	## Applies the crit chance from gear + talents (Phase F1). A crit lands 1.8x
+	## and shows a bigger, brighter number so the loot that caused it reads.
+	var dmg := base
+	if randf() < GameState.crit_chance():
+		dmg = base * CRIT_MULT
+		if is_inside_tree():
+			DamageNumber.spawn(get_parent(), global_position + Vector2(0, -34),
+				"CRIT %d" % int(dmg), Color(1.0, 0.75, 0.25))
+	return dmg
 
 
 func _apply_lifesteal(dmg: float) -> void:

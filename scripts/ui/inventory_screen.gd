@@ -185,7 +185,27 @@ func _item_row(item_id: String, qty: int) -> Control:
 	name_label.text = "%s ×%d" % [ItemsDB.item_name(item_id), qty]
 	name_label.custom_minimum_size = Vector2(190, 0)
 	name_label.tooltip_text = ItemsDB.get_desc(item_id)
+	# Rarity is the power ordering, so it is the thing the player scans for.
+	# Legendary/mythical gear also gets a marker so it reads at a glance.
+	name_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
+	if ItemsDB.rarity_rank(item_id) >= 3:
+		name_label.text = "★ " + name_label.text
 	row.add_child(name_label)
+
+	var rarity_label := Label.new()
+	rarity_label.text = ItemsDB.get_rarity(item_id).capitalize()
+	rarity_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
+	rarity_label.add_theme_font_size_override("font_size", 12)
+	rarity_label.custom_minimum_size = Vector2(78, 0)
+	row.add_child(rarity_label)
+
+	var stat_text := _stat_line(it)
+	var stat_label := Label.new()
+	stat_label.text = stat_text
+	stat_label.add_theme_font_size_override("font_size", 12)
+	stat_label.add_theme_color_override("font_color", Color(0.85, 0.95, 0.85, 0.9))
+	stat_label.custom_minimum_size = Vector2(200, 0)
+	row.add_child(stat_label)
 
 	var type_label := Label.new()
 	type_label.text = "[%s]" % String(it.get("type", "?"))
@@ -217,3 +237,26 @@ func _item_row(item_id: String, qty: int) -> Control:
 	)
 	row.add_child(drop)
 	return row
+
+
+func _stat_line(it: Dictionary) -> String:
+	## Compact "+4 ATK · +12 HP · 4% lifesteal" summary shown in the row, so the
+	## power ordering is visible without opening a tooltip.
+	var parts := []
+	var names := {
+		"atk": "ATK", "def": "DEF", "hp": "HP", "mp": "MP",
+		"speed": "SPD", "mp_regen": "MP/s", "crit": "CRIT",
+	}
+	for key in ["atk", "def", "hp", "mp", "speed", "mp_regen"]:
+		if it.has(key):
+			parts.append("%+d %s" % [int(it[key]), names[key]])
+	if it.has("crit"):
+		parts.append("%d%% CRIT" % int(round(float(it["crit"]) * 100.0)))
+	if it.has("lifesteal"):
+		parts.append("%d%% LEECH" % int(round(float(it["lifesteal"]) * 100.0)))
+	if it.get("type", "") == "consumable":
+		if it.has("heal"):
+			parts.append("+%d HP" % int(it["heal"]))
+		if it.has("restore_mp"):
+			parts.append("+%d MP" % int(it["restore_mp"]))
+	return " · ".join(parts)

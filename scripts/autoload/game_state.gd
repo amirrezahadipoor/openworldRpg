@@ -335,7 +335,14 @@ func damage_taken_mult() -> float:
 
 
 func lifesteal() -> float:
-	return clampf(talent_sum("lifesteal"), 0.0, 0.5)        # Bloodletter, Sanguine Edge
+	## Talent lifesteal (Bloodletter / Sanguine Edge) plus any gear affix.
+	## The bible's rule: lifesteal exists only as a rare-or-better find.
+	return clampf(talent_sum("lifesteal") + equipment_bonus("lifesteal"), 0.0, 0.5)
+
+
+func crit_chance() -> float:
+	## Equipment + talent crit, capped so it can never become a guarantee.
+	return clampf(equipment_bonus("crit") + talent_sum("crit"), 0.0, 0.60)
 
 
 func xp_mult() -> float:

@@ -546,14 +546,14 @@ func _test_boss_phases_and_death() -> void:
 	boss._transform_invuln = 0.0
 	boss.take_hit(99999.0, Vector2.RIGHT)
 	var pickups := 0
-	var found_iron_sword := false
+	var found_core := false
 	for child in host.get_children():
 		if child is Pickup:
 			pickups += 1
-			if (child as Pickup).item_id == "iron_sword":
-				found_iron_sword = true
+			if (child as Pickup).item_id == "warden_core":
+				found_core = true
 	check(pickups >= 3, "boss death dropped >=3 pickups (got %d)" % pickups)
-	check(found_iron_sword, "boss guaranteed iron_sword drop present")
+	check(found_core, "boss guaranteed warden_core drop present")
 
 
 func _report() -> void:

@@ -1,57 +1,1254 @@
 {
-  "_comment": "Item database (Phase 6 seeds this; consumed by inventory/equipment/shop systems).",
+  "_comment": "Item catalogue. `rarity` is a strict power ordering: common < uncommon < rare < mythical < legendary, each with a weighted stat budget enforced by tests/items_test.gd. `lifesteal` is a fractional heal-per-damage-dealt and appears ONLY on rare-or-better items, and only as a chance affix rolled at drop time. Stats are read directly by GameState.equipment_bonus().",
   "items": {
-    "short_sword": {
-      "name": "Short Sword",
+    "wooden_club": {
+      "name": "Wooden Club",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 3,
+      "stack": 1,
+      "value": 24,
+      "desc": "A branch with ambitions."
+    },
+    "rusty_dagger": {
+      "name": "Rusty Dagger",
+      "rarity": "common",
       "type": "weapon",
       "slot": "weapon",
       "atk": 4,
-      "value": 30,
       "stack": 1,
-      "desc": "A trusty blade. Better than sharp words."
+      "value": 28,
+      "desc": "Sharp enough for slimes. Barely."
     },
-    "iron_sword": {
-      "name": "Iron Sword",
+    "short_sword": {
+      "name": "Short Sword",
+      "rarity": "common",
       "type": "weapon",
       "slot": "weapon",
-      "atk": 8,
-      "value": 90,
+      "atk": 4,
       "stack": 1,
-      "desc": "Forged in the Barrens. Keeps its edge."
+      "value": 28,
+      "desc": "A trusty blade. Better than sharp words."
+    },
+    "hunting_knife": {
+      "name": "Hunting Knife",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 3,
+      "crit": 0.05,
+      "stack": 1,
+      "value": 28,
+      "desc": "Kael's spare. Good for skinning, fine for stabbing."
+    },
+    "farmers_pitchfork": {
+      "name": "Farmer's Pitchfork",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 4,
+      "stack": 1,
+      "value": 28,
+      "desc": "Millhaven issue. Smells of hay."
+    },
+    "miners_pick": {
+      "name": "Miner's Pick",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 3,
+      "hp": 8,
+      "stack": 1,
+      "value": 28,
+      "desc": "Kilnrest steel. Doubles as a climbing tool."
+    },
+    "cloth_tunic": {
+      "name": "Cloth Tunic",
+      "rarity": "common",
+      "type": "armor",
+      "slot": "armor",
+      "def": 2,
+      "hp": 8,
+      "stack": 1,
+      "value": 22,
+      "desc": "Home-woven. Better than nothing."
     },
     "leather_armor": {
       "name": "Leather Armor",
+      "rarity": "common",
       "type": "armor",
       "slot": "armor",
       "def": 3,
-      "value": 45,
       "stack": 1,
+      "value": 22,
       "desc": "Boiled leather. Smells like adventure."
     },
-    "traveler_ring": {
-      "name": "Traveler's Ring",
+    "padded_hood": {
+      "name": "Padded Hood",
+      "rarity": "common",
+      "type": "armor",
+      "slot": "armor",
+      "def": 2,
+      "hp": 10,
+      "stack": 1,
+      "value": 23,
+      "desc": "Keeps the ash out of your eyes."
+    },
+    "travelers_boots": {
+      "name": "Traveler's Boots",
+      "rarity": "common",
+      "type": "armor",
+      "slot": "armor",
+      "def": 1,
+      "speed": 6,
+      "stack": 1,
+      "value": 25,
+      "desc": "Broken in by someone who never came back."
+    },
+    "copper_ring": {
+      "name": "Copper Ring",
+      "rarity": "common",
       "type": "accessory",
       "slot": "accessory",
-      "speed": 12,
-      "value": 70,
+      "hp": 12,
       "stack": 1,
-      "desc": "Lightens the road ahead."
+      "value": 17,
+      "desc": "Warm to the touch for no good reason."
+    },
+    "simple_charm": {
+      "name": "Simple Charm",
+      "rarity": "common",
+      "type": "accessory",
+      "slot": "accessory",
+      "mp": 12,
+      "stack": 1,
+      "value": 16,
+      "desc": "A knot of string and a prayer."
+    },
+    "wooden_talisman": {
+      "name": "Wooden Talisman",
+      "rarity": "common",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 2,
+      "hp": 6,
+      "stack": 1,
+      "value": 21,
+      "desc": "Carved with a name worn smooth."
     },
     "health_potion": {
       "name": "Health Potion",
+      "rarity": "common",
       "type": "consumable",
       "heal": 40,
-      "value": 15,
       "stack": 10,
+      "value": 12,
       "desc": "Restores 40 HP."
     },
     "mana_potion": {
       "name": "Mana Potion",
+      "rarity": "common",
       "type": "consumable",
       "restore_mp": 30,
-      "value": 15,
       "stack": 10,
+      "value": 12,
       "desc": "Restores 30 MP."
+    },
+    "bread": {
+      "name": "Loaf of Bread",
+      "rarity": "common",
+      "type": "consumable",
+      "heal": 15,
+      "stack": 10,
+      "value": 12,
+      "desc": "Restores 15 HP. Tastes like a kitchen."
+    },
+    "bandage": {
+      "name": "Clean Bandage",
+      "rarity": "common",
+      "type": "consumable",
+      "heal": 25,
+      "stack": 10,
+      "value": 12,
+      "desc": "Stops the bleeding. Mostly."
+    },
+    "iron_sword": {
+      "name": "Iron Sword",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 8,
+      "stack": 1,
+      "value": 78,
+      "desc": "Forged in the Barrens. Keeps its edge."
+    },
+    "barrens_scimitar": {
+      "name": "Barrens Scimitar",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 7,
+      "crit": 0.06,
+      "stack": 1,
+      "value": 79,
+      "desc": "Curved for salvage work. Works on people too."
+    },
+    "frost_hatchet": {
+      "name": "Frost Hatchet",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 6,
+      "speed": 5,
+      "stack": 1,
+      "value": 78,
+      "desc": "Chips ice and armor alike."
+    },
+    "wardens_spear": {
+      "name": "Warden's Spear",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 7,
+      "def": 2,
+      "stack": 1,
+      "value": 81,
+      "desc": "Issued by the Citadel. Long reach, longer history."
+    },
+    "mill_hammer": {
+      "name": "Mill Hammer",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 7,
+      "speed": -4,
+      "stack": 1,
+      "value": 81,
+      "desc": "Heavy. Slow. Final."
+    },
+    "scavengers_blade": {
+      "name": "Scavenger's Blade",
+      "rarity": "uncommon",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 6,
+      "hp": 20,
+      "stack": 1,
+      "value": 80,
+      "desc": "Ground down from something larger."
+    },
+    "chain_vest": {
+      "name": "Chain Vest",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 6,
+      "hp": 12,
+      "stack": 1,
+      "value": 71,
+      "desc": "Rings of Ashport salvage."
+    },
+    "hunters_cloak": {
+      "name": "Hunter's Cloak",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 4,
+      "speed": 8,
+      "stack": 1,
+      "value": 72,
+      "desc": "Grey as the ash road at dawn."
+    },
+    "frosthide_jerkin": {
+      "name": "Frosthide Jerkin",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 5,
+      "hp": 20,
+      "stack": 1,
+      "value": 72,
+      "desc": "The hide still hates the cold."
+    },
+    "quilted_gambeson": {
+      "name": "Quilted Gambeson",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 7,
+      "stack": 1,
+      "value": 69,
+      "desc": "Thirty layers of cloth. Surprisingly stubborn."
+    },
+    "ember_ward_pendant": {
+      "name": "Ember Ward Pendant",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 3,
+      "mp": 20,
+      "stack": 1,
+      "value": 62,
+      "desc": "Keeps the heat off your neck."
+    },
+    "traveler_ring": {
+      "name": "Traveler's Ring",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "speed": 12,
+      "stack": 1,
+      "value": 65,
+      "desc": "Lightens the road ahead."
+    },
+    "scholars_lens": {
+      "name": "Scholar's Lens",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "mp": 24,
+      "mp_regen": 0.3,
+      "stack": 1,
+      "value": 63,
+      "desc": "Brother Ashe ground it himself."
+    },
+    "trappers_belt": {
+      "name": "Trapper's Belt",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 24,
+      "stack": 1,
+      "value": 56,
+      "desc": "Hooks for everything you'll ever need."
+    },
+    "greater_health_potion": {
+      "name": "Greater Health Potion",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "heal": 90,
+      "stack": 10,
+      "value": 45,
+      "desc": "Restores 90 HP."
+    },
+    "greater_mana_potion": {
+      "name": "Greater Mana Potion",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "restore_mp": 70,
+      "stack": 10,
+      "value": 45,
+      "desc": "Restores 70 MP."
+    },
+    "elixir_of_haste": {
+      "name": "Elixir of Haste",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "heal": 20,
+      "restore_mp": 20,
+      "stack": 10,
+      "value": 45,
+      "desc": "A short burst of speed for the long walk home."
+    },
+    "ashsteel_longsword": {
+      "name": "Ashsteel Longsword",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 13,
+      "crit": 0.07,
+      "stack": 1,
+      "value": 220,
+      "desc": "Quenched in slag. It remembers being slag."
+    },
+    "rimeguard_axe": {
+      "name": "Rimeguard Axe",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 12,
+      "def": 3,
+      "stack": 1,
+      "value": 220,
+      "desc": "Cold enough to bite through whatever it hits."
+    },
+    "choirbane_mace": {
+      "name": "Choirbane Mace",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 13,
+      "hp": 20,
+      "stack": 1,
+      "value": 224,
+      "desc": "Made for breaking rites, and the ribcages that perform them."
+    },
+    "warden_steel_saber": {
+      "name": "Warden-Steel Saber",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 11,
+      "crit": 0.1,
+      "stack": 1,
+      "value": 214,
+      "desc": "Citadel-forged. The edge knows its business."
+    },
+    "leechthorn_dagger": {
+      "name": "Leechthorn Dagger",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 8,
+      "lifesteal": 0.04,
+      "stack": 1,
+      "value": 205,
+      "desc": "It drinks. You mend."
+    },
+    "emberglass_blade": {
+      "name": "Emberglass Blade",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 12,
+      "mp": 20,
+      "stack": 1,
+      "value": 217,
+      "desc": "Volcanic glass, still faintly warm."
+    },
+    "slaghide_cuirass": {
+      "name": "Slaghide Cuirass",
+      "rarity": "rare",
+      "type": "armor",
+      "slot": "armor",
+      "def": 10,
+      "hp": 35,
+      "stack": 1,
+      "value": 212,
+      "desc": "Hide tanned in the Slagworks. Nothing chews through it."
+    },
+    "frostguard_plate": {
+      "name": "Frostguard Plate",
+      "rarity": "rare",
+      "type": "armor",
+      "slot": "armor",
+      "def": 12,
+      "speed": -4,
+      "stack": 1,
+      "value": 208,
+      "desc": "Loud, cold, and worth it."
+    },
+    "cinderweave_robe": {
+      "name": "Cinderweave Robe",
+      "rarity": "rare",
+      "type": "armor",
+      "slot": "armor",
+      "def": 6,
+      "mp": 40,
+      "mp_regen": 0.4,
+      "stack": 1,
+      "value": 209,
+      "desc": "Woven with thread that will not burn."
+    },
+    "nightsilhouette_cloak": {
+      "name": "Nightsilhouette Cloak",
+      "rarity": "rare",
+      "type": "armor",
+      "slot": "armor",
+      "def": 5,
+      "speed": 16,
+      "stack": 1,
+      "value": 204,
+      "desc": "You are harder to see. That is the point."
+    },
+    "bloodbound_ring": {
+      "name": "Bloodbound Ring",
+      "rarity": "rare",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 20,
+      "lifesteal": 0.05,
+      "stack": 1,
+      "value": 185,
+      "desc": "A promise between you and your own pulse."
+    },
+    "ashwalkers_torc": {
+      "name": "Ashwalker's Torc",
+      "rarity": "rare",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 4,
+      "hp": 30,
+      "stack": 1,
+      "value": 188,
+      "desc": "Worn by everyone who walked the slag and came back."
+    },
+    "seers_eye": {
+      "name": "Seer's Eye",
+      "rarity": "rare",
+      "type": "accessory",
+      "slot": "accessory",
+      "mp": 45,
+      "mp_regen": 0.5,
+      "stack": 1,
+      "value": 193,
+      "desc": "It blinks when you are not looking."
+    },
+    "duelists_signet": {
+      "name": "Duelist's Signet",
+      "rarity": "rare",
+      "type": "accessory",
+      "slot": "accessory",
+      "atk": 3,
+      "crit": 0.12,
+      "stack": 1,
+      "value": 182,
+      "desc": "Won, not bought."
+    },
+    "chilled_greater_potion": {
+      "name": "Chilled Greater Potion",
+      "rarity": "rare",
+      "type": "consumable",
+      "heal": 180,
+      "stack": 10,
+      "value": 160,
+      "desc": "Restores 180 HP. Goes down cold."
+    },
+    "wardens_oath": {
+      "name": "Warden's Oath",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 20,
+      "def": 5,
+      "crit": 0.08,
+      "stack": 1,
+      "value": 628,
+      "desc": "Sworn weapon of the Citadel. It has opinions."
+    },
+    "choir_sever": {
+      "name": "Choir-Sever",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 22,
+      "hp": 30,
+      "stack": 1,
+      "value": 627,
+      "desc": "Built by someone who had heard enough singing."
+    },
+    "hollowfang": {
+      "name": "Hollowfang",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 16,
+      "lifesteal": 0.07,
+      "stack": 1,
+      "value": 608,
+      "desc": "The teeth of the Crypts, set in a hilt."
+    },
+    "rimevault_greatsword": {
+      "name": "Rimevault Greatsword",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 23,
+      "speed": -6,
+      "stack": 1,
+      "value": 626,
+      "desc": "Heavy as a closing door."
+    },
+    "emberheart_axe": {
+      "name": "Emberheart Axe",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 19,
+      "mp": 40,
+      "crit": 0.1,
+      "stack": 1,
+      "value": 622,
+      "desc": "The head is a coal that never went out."
+    },
+    "vein_drinker": {
+      "name": "Vein-Drinker",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 15,
+      "lifesteal": 0.09,
+      "stack": 1,
+      "value": 610,
+      "desc": "The Choir's own blade, turned around."
+    },
+    "monastery_aegis": {
+      "name": "Monastery Aegis",
+      "rarity": "mythical",
+      "type": "armor",
+      "slot": "armor",
+      "def": 18,
+      "hp": 60,
+      "stack": 1,
+      "value": 612,
+      "desc": "Half of it is rubble, and it still holds."
+    },
+    "vesselward_plate": {
+      "name": "Vesselward Plate",
+      "rarity": "mythical",
+      "type": "armor",
+      "slot": "armor",
+      "def": 16,
+      "hp": 70,
+      "speed": -4,
+      "stack": 1,
+      "value": 617,
+      "desc": "Made to keep something in, originally."
+    },
+    "choir_shroud": {
+      "name": "Choir Shroud",
+      "rarity": "mythical",
+      "type": "armor",
+      "slot": "armor",
+      "def": 10,
+      "mp": 70,
+      "mp_regen": 0.7,
+      "stack": 1,
+      "value": 604,
+      "desc": "It hums if you stand too still."
+    },
+    "ashveil_mantle": {
+      "name": "Ashveil Mantle",
+      "rarity": "mythical",
+      "type": "armor",
+      "slot": "armor",
+      "def": 9,
+      "hp": 30,
+      "speed": 24,
+      "stack": 1,
+      "value": 606,
+      "desc": "You leave no tracks in the ash."
+    },
+    "heart_of_the_warden": {
+      "name": "Heart of the Warden",
+      "rarity": "mythical",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 6,
+      "hp": 80,
+      "stack": 1,
+      "value": 580,
+      "desc": "Still beating. Politely."
+    },
+    "vessel_splinter": {
+      "name": "Vessel's Splinter",
+      "rarity": "mythical",
+      "type": "accessory",
+      "slot": "accessory",
+      "mp": 80,
+      "mp_regen": 0.8,
+      "stack": 1,
+      "value": 576,
+      "desc": "A shard of someone who was almost a god."
+    },
+    "bloodmoon_amulet": {
+      "name": "Bloodmoon Amulet",
+      "rarity": "mythical",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 40,
+      "lifesteal": 0.08,
+      "stack": 1,
+      "value": 564,
+      "desc": "Hangs heavy on the nights it matters."
+    },
+    "duskwarden_ring": {
+      "name": "Duskwarden Ring",
+      "rarity": "mythical",
+      "type": "accessory",
+      "slot": "accessory",
+      "atk": 6,
+      "crit": 0.18,
+      "stack": 1,
+      "value": 560,
+      "desc": "Duelists retired on this ring's reputation alone."
+    },
+    "embers_of_millhaven": {
+      "name": "Embers of Millhaven",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 28,
+      "def": 8,
+      "hp": 25,
+      "crit": 0.1,
+      "stack": 1,
+      "value": 1666,
+      "desc": "Forged from what was left of the village. It is warm."
+    },
+    "worlds_end": {
+      "name": "World's End",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 32,
+      "hp": 40,
+      "speed": -8,
+      "stack": 1,
+      "value": 1667,
+      "desc": "Somebody ended a war with this. Twice."
+    },
+    "sanguine_covenant": {
+      "name": "Sanguine Covenant",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 26,
+      "lifesteal": 0.12,
+      "stack": 1,
+      "value": 1646,
+      "desc": "The pact is simple: it feeds, you live."
+    },
+    "lifedrinker_cleaver": {
+      "name": "Lifedrinker Cleaver",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 28,
+      "hp": 40,
+      "lifesteal": 0.1,
+      "stack": 1,
+      "value": 1668,
+      "desc": "Drawn from the Choir's own vault."
+    },
+    "skyrend_spear": {
+      "name": "Skyrend Spear",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 29,
+      "crit": 0.15,
+      "stack": 1,
+      "value": 1634,
+      "desc": "Cast down from the Citadel at something large."
+    },
+    "wardens_last_stand": {
+      "name": "Warden's Last Stand",
+      "rarity": "legendary",
+      "type": "armor",
+      "slot": "armor",
+      "def": 28,
+      "hp": 110,
+      "stack": 1,
+      "value": 1651,
+      "desc": "The Citadel's last set. It fits you, which is strange."
+    },
+    "choirbreakers_regalia": {
+      "name": "Choirbreaker's Regalia",
+      "rarity": "legendary",
+      "type": "armor",
+      "slot": "armor",
+      "def": 22,
+      "hp": 90,
+      "speed": 10,
+      "stack": 1,
+      "value": 1637,
+      "desc": "Worn by the one who finally said no."
+    },
+    "frosthollow_crown": {
+      "name": "Frosthollow Crown",
+      "rarity": "legendary",
+      "type": "armor",
+      "slot": "armor",
+      "def": 20,
+      "mp": 90,
+      "mp_regen": 1.0,
+      "stack": 1,
+      "value": 1636,
+      "desc": "Cold enough to be a defence."
+    },
+    "wrens_locket": {
+      "name": "Wren's Locket",
+      "rarity": "legendary",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 10,
+      "hp": 100,
+      "speed": 12,
+      "stack": 1,
+      "value": 1604,
+      "desc": "She threw it to you on the stairs."
+    },
+    "new_dawn_band": {
+      "name": "Band of the New Dawn",
+      "rarity": "legendary",
+      "type": "accessory",
+      "slot": "accessory",
+      "atk": 12,
+      "def": 12,
+      "hp": 40,
+      "mp": 40,
+      "stack": 1,
+      "value": 1625,
+      "desc": "Made from the ring that started all this."
+    },
+    "ashen_choir_heart": {
+      "name": "Ashen Choir Heart",
+      "rarity": "legendary",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 60,
+      "lifesteal": 0.15,
+      "stack": 1,
+      "value": 1575,
+      "desc": "It never stopped singing. Now it sings for you."
+    },
+    "slime_gel": {
+      "name": "Slime Gel",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Sticky, faintly warm, sells fine."
+    },
+    "emberling_ember": {
+      "name": "Emberling Ember",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "A coal that stays lit in your pocket."
+    },
+    "ash_shard": {
+      "name": "Ash Shard",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Sharpened volcanic glass. Everywhere out here."
+    },
+    "bone_fragment": {
+      "name": "Bone Fragment",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Old. Longer than a person's."
+    },
+    "torn_cloth": {
+      "name": "Torn Cloth",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Choir vestments, mostly. Ashport buys them."
+    },
+    "grain_sack": {
+      "name": "Sack of Grain",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Oakstead's mill still turns."
+    },
+    "cave_moss": {
+      "name": "Cave Moss",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Glows faintly. Alchemists argue about why."
+    },
+    "scrap_iron": {
+      "name": "Scrap Iron",
+      "rarity": "common",
+      "type": "material",
+      "stack": 1,
+      "value": 12,
+      "desc": "Held together by rust and hope."
+    },
+    "goblin_fang": {
+      "name": "Goblin Fang",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "Worn as a necklace by someone who no longer needs it."
+    },
+    "raider_insignia": {
+      "name": "Raider Insignia",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "Barrens scouts wear these. Cinderhold pays for them."
+    },
+    "shaman_charm": {
+      "name": "Shaman Charm",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "It hums when the Choir is near."
+    },
+    "frost_crystal": {
+      "name": "Frost Crystal",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "Cold that does not melt."
+    },
+    "scorched_relic": {
+      "name": "Scorched Relic",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "Somebody's act of faith, twice burned."
+    },
+    "fetid_gland": {
+      "name": "Fetid Gland",
+      "rarity": "uncommon",
+      "type": "material",
+      "stack": 1,
+      "value": 45,
+      "desc": "Sells better than it smells. Barely."
+    },
+    "choir_sigil": {
+      "name": "Choir Sigil",
+      "rarity": "rare",
+      "type": "material",
+      "stack": 1,
+      "value": 160,
+      "desc": "Proof of rank in the Ashen Choir."
+    },
+    "warden_steel_ingot": {
+      "name": "Warden-Steel Ingot",
+      "rarity": "rare",
+      "type": "material",
+      "stack": 1,
+      "value": 160,
+      "desc": "Skyreach alloy. Rationed for forty years."
+    },
+    "emberglass_shard": {
+      "name": "Emberglass Shard",
+      "rarity": "rare",
+      "type": "material",
+      "stack": 1,
+      "value": 160,
+      "desc": "Cut from the Slagworks' own floor."
+    },
+    "rime_core": {
+      "name": "Rime Core",
+      "rarity": "rare",
+      "type": "material",
+      "stack": 1,
+      "value": 160,
+      "desc": "The heart of a thing that lived in the ice."
+    },
+    "hollow_relic": {
+      "name": "Hollow Relic",
+      "rarity": "mythical",
+      "type": "material",
+      "stack": 1,
+      "value": 520,
+      "desc": "From the Crypts. It remembers your name."
+    },
+    "vessel_shard": {
+      "name": "Vessel Shard",
+      "rarity": "mythical",
+      "type": "material",
+      "stack": 1,
+      "value": 520,
+      "desc": "A splinter of someone groomed to be a god."
+    },
+    "choir_ledger": {
+      "name": "Choir Ledger",
+      "rarity": "mythical",
+      "type": "material",
+      "stack": 1,
+      "value": 520,
+      "desc": "Names, dates, and what was done to them."
+    },
+    "warden_core": {
+      "name": "Warden Core",
+      "rarity": "legendary",
+      "type": "material",
+      "stack": 1,
+      "value": 1500,
+      "desc": "The Warden's binding, cut loose at last."
+    },
+    "first_flame": {
+      "name": "The First Flame",
+      "rarity": "legendary",
+      "type": "material",
+      "stack": 1,
+      "value": 1500,
+      "desc": "Whatever lit the Slagworks. Still lit."
+    },
+    "bonecrusher_maul": {
+      "name": "Bonecrusher Maul",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 3,
+      "crit": 0.02,
+      "stack": 1,
+      "value": 26,
+      "desc": "Crypt-issue. Blunt on purpose."
+    },
+    "slingshot": {
+      "name": "Bone Slingshot",
+      "rarity": "common",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 2,
+      "speed": 3,
+      "stack": 1,
+      "value": 25,
+      "desc": "For children, and for slimes."
+    },
+    "quilted_cap": {
+      "name": "Quilted Cap",
+      "rarity": "common",
+      "type": "armor",
+      "slot": "armor",
+      "def": 2,
+      "hp": 6,
+      "stack": 1,
+      "value": 21,
+      "desc": "Better than a bare head."
+    },
+    "hide_wraps": {
+      "name": "Hide Wraps",
+      "rarity": "common",
+      "type": "armor",
+      "slot": "armor",
+      "def": 2,
+      "stack": 1,
+      "value": 19,
+      "desc": "Wrapped until the swelling went down."
+    },
+    "tin_ring": {
+      "name": "Tin Ring",
+      "rarity": "common",
+      "type": "accessory",
+      "slot": "accessory",
+      "def": 1,
+      "mp": 6,
+      "stack": 1,
+      "value": 17,
+      "desc": "Worthless. Sentimental."
+    },
+    "dried_meat": {
+      "name": "Dried Meat",
+      "rarity": "common",
+      "type": "consumable",
+      "heal": 20,
+      "stack": 10,
+      "value": 12,
+      "desc": "Restores 20 HP. Chewy."
+    },
+    "scout_trappings": {
+      "name": "Scout's Trappings",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 4,
+      "speed": 10,
+      "stack": 1,
+      "value": 75,
+      "desc": "Cut for running. You will run."
+    },
+    "shaman_wrap": {
+      "name": "Shaman's Wrap",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 3,
+      "mp": 22,
+      "stack": 1,
+      "value": 63,
+      "desc": "Frosthollow wool, blessed in a way you can't verify."
+    },
+    "dungeoneers_helm": {
+      "name": "Dungeoneer's Helm",
+      "rarity": "uncommon",
+      "type": "armor",
+      "slot": "armor",
+      "def": 6,
+      "hp": 8,
+      "stack": 1,
+      "value": 69,
+      "desc": "A lamp bracket, mostly."
+    },
+    "pickpockets_ring": {
+      "name": "Pickpocket's Ring",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "speed": 9,
+      "crit": 0.04,
+      "stack": 1,
+      "value": 63,
+      "desc": "Sized for someone else's finger."
+    },
+    "smugglers_satchel": {
+      "name": "Smuggler's Satchel",
+      "rarity": "uncommon",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 18,
+      "speed": 4,
+      "stack": 1,
+      "value": 60,
+      "desc": "False bottom, obviously."
+    },
+    "elixir_of_iron": {
+      "name": "Elixir of Iron",
+      "rarity": "uncommon",
+      "type": "consumable",
+      "heal": 40,
+      "restore_mp": 40,
+      "stack": 10,
+      "value": 45,
+      "desc": "Tastes like a forge. Restores 40 HP and 40 MP."
+    },
+    "warden_pike": {
+      "name": "Warden Pike",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 12,
+      "def": 4,
+      "stack": 1,
+      "value": 224,
+      "desc": "Formation weapon. One person can hold a stair."
+    },
+    "choir_stiletto": {
+      "name": "Choir Stiletto",
+      "rarity": "rare",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 10,
+      "crit": 0.13,
+      "stack": 1,
+      "value": 212,
+      "desc": "Made for a rite that required no noise."
+    },
+    "slagplate_greaves": {
+      "name": "Slagplate Greaves",
+      "rarity": "rare",
+      "type": "armor",
+      "slot": "armor",
+      "def": 9,
+      "hp": 25,
+      "stack": 1,
+      "value": 203,
+      "desc": "Walk through the slag. Slowly."
+    },
+    "archivists_spectacles": {
+      "name": "Archivist's Spectacles",
+      "rarity": "rare",
+      "type": "accessory",
+      "slot": "accessory",
+      "mp": 30,
+      "mp_regen": 0.6,
+      "stack": 1,
+      "value": 191,
+      "desc": "Let you read what the Choir wanted forgotten."
+    },
+    "greater_elixir": {
+      "name": "Greater Elixir",
+      "rarity": "rare",
+      "type": "consumable",
+      "heal": 150,
+      "restore_mp": 90,
+      "stack": 10,
+      "value": 160,
+      "desc": "Restores 150 HP and 90 MP."
+    },
+    "vessels_judgement": {
+      "name": "Vessel's Judgement",
+      "rarity": "mythical",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 19,
+      "def": 5,
+      "mp": 25,
+      "stack": 1,
+      "value": 626,
+      "desc": "It was meant for Wren. It answered to you."
+    },
+    "cryptwarden_shield": {
+      "name": "Cryptwarden Shield",
+      "rarity": "mythical",
+      "type": "armor",
+      "slot": "armor",
+      "def": 20,
+      "hp": 65,
+      "stack": 1,
+      "value": 621,
+      "desc": "The Crypts' own door, cut down to fit an arm."
+    },
+    "skyrunners_anklet": {
+      "name": "Skyrunner's Anklet",
+      "rarity": "mythical",
+      "type": "accessory",
+      "slot": "accessory",
+      "hp": 20,
+      "speed": 30,
+      "stack": 1,
+      "value": 580,
+      "desc": "Citadel couriers wear these up the switchbacks."
+    },
+    "phoenix_elixir": {
+      "name": "Phoenix Draught",
+      "rarity": "mythical",
+      "type": "consumable",
+      "heal": 320,
+      "stack": 10,
+      "value": 520,
+      "desc": "Restores 320 HP. Once it has saved you, it is gone."
+    },
+    "dawnbreaker": {
+      "name": "Dawnbreaker",
+      "rarity": "legendary",
+      "type": "weapon",
+      "slot": "weapon",
+      "atk": 31,
+      "hp": 30,
+      "crit": 0.14,
+      "stack": 1,
+      "value": 1656,
+      "desc": "It only rises once a day. You only need it once."
+    },
+    "aegis_of_millhaven": {
+      "name": "Aegis of Millhaven",
+      "rarity": "legendary",
+      "type": "armor",
+      "slot": "armor",
+      "def": 26,
+      "hp": 105,
+      "stack": 1,
+      "value": 1642,
+      "desc": "The camp's fire, and everyone who warmed at it."
     }
+  },
+  "rarity_order": [
+    "common",
+    "uncommon",
+    "rare",
+    "mythical",
+    "legendary"
+  ],
+  "rarity_budget": {
+    "common": 12.0,
+    "uncommon": 26.0,
+    "rare": 48.0,
+    "mythical": 78.0,
+    "legendary": 120.0
   }
 }

@@ -1,267 +1,132 @@
-# 🗺️ OpenWorld RPG — Roadmap v2 (Reality-Checked)
+# 🗺️ OpenWorld RPG — Roadmap v3 (Loot / Monsters / Quests)
 
 > **Goal:** a shippable 2D open-world action RPG for Android.
-> Reviewed against the actual repo contents, not against claims. The previous
-> build log is preserved at [ROADMAP-v1-buildlog.md](ROADMAP-v1-buildlog.md).
 >
-> **Honest headline:** the systems are done and verified. What's missing is
-> content quality (real art/audio) and hardening (playtesting, release signing).
+> This roadmap replaces the previous one at the user's instruction. The build record of
+> everything already shipped is preserved in
+> [ROADMAP-v2-buildlog.md](ROADMAP-v2-buildlog.md) and
+> [ROADMAP-v1-buildlog.md](ROADMAP-v1-buildlog.md); this file is the plan of record.
 
-Legend: `[x]` done & pushed · `[~]` partially done · `[ ]` todo
+Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
 
 ---
 
-## Corrections to the original v2 draft
+## Already shipped (do not regress — it is the foundation this builds on)
 
-The draft circulating as "Roadmap v2" was directionally right but had specific errors. Corrected:
-
-| Claim in the draft | Reality |
+| Area | What exists |
 |---|---|
-| "~5,500 lines of GDScript" | **6,183 lines** across `scripts/` — more than stated |
-| "10 scenes, 35 chunk files" | 35 chunks = **35 `.json` + 35 compiled `.tscn`** (70 files) |
-| "re-verify the 120 MB repo budget" as an open Phase B task | Repo is **~14 MB (12 %)** of that budget. It is **not** a constraint. Dropped as a gate. |
-| "Run the real Universal LPC SpriteSheet Generator … replace `assets/lpc/*`" | The 4 shipped `player_*.png` sheets **were** composited from real LPC layers by `tools/lpc_compose.py` — but they were **HEADLESS**: `body/bodies/*` in the LPC generator omits the head, which is a separate layer under `head/heads/*`, and the original composer never added it. The player — the most visible sprite in the game — was rendering with hair floating above a headless torso, in the shipped v1.0.0 APK. Fixed in B4; `lpc_compose.py` now refuses to build an archetype with no head layer. |
-| "Pull real 0x72 DungeonTileset II" | Evaluated and **deliberately not used** — it is authored at **16 px**, while this project's grid is 32 px and its LPC characters are 64 px. Mixing them puts two pixel densities and two palettes on screen. Replaced by a native-32 px LPC outdoor set. Reasoning recorded in [CREDITS.md](CREDITS.md). |
-| "This is why it reads as garbage on a phone" | Largely true — but **two code defects contributed as much as the art**, and the draft missed both: pixel art was bilinear-blurred (no `default_texture_filter`), and terrain was generated with per-tile randomness (a literal checkerboard). |
-| "NPC portraits for dialogue (currently deferred)" | Still deferred, and worth saying why: portraits are a different art surface (large, face-on, expressive), not a slice of the isometric sprite sheets. Treat it as new art, not an integration task. |
+| Systems | Autoloads: `GameState`, `EventBus`, `QuestManager`, `ItemsDB`, `EnemyDB`, `DialogueDB`, `AudioManager`, `SaveSystem`, `SettingsManager`, `PoolManager`, `Transition` |
+| Combat | Melee + whirlwind + firebolt, dodge i-frames, telegraphed attacks, 3-phase `BossArena`, damage numbers, hit-stop |
+| World | 35 authored chunks (32 px LPC tiles), 3 biomes, chunk streaming, day/night `CanvasModulate` clock |
+| Art/audio | 12 composed LPC character sheets, CC0/CC-BY score, 13 SFX, visual-capture harness, attribution in `CREDITS.md` |
+| XP curve | Re-tapered 1–100 curve (5,711,771 XP total), 10 milestone rewards, `floor_multiplier` dungeon scaling |
+| Talents | 60 nodes (3 branches × 4 tiers × 5), level-gated 5/25/50/75, real effect hooks |
+| NPCs | `NPCController` (idle_schedule / walk_to_point / talk / flee_combat), 11 named NPCs, 37 idle barks, schedules off the `DayNight` clock |
+| World map | 9 settlements as real scenes (3 villages / 3 towns / 3 cities), 9 dungeons / 26 floors, settlement safe zones |
+| CI | `smoke-test` · `visual-capture` · `android-export`; suites: CombatTest 178, PlaythroughTest 23, AudioTest 35, NpcTest 24, WorldMapTest 34 |
 
 ---
 
-## Phase A — Systems (DONE — keep as regression baseline)
+## Phase F — the loot / monster / quest build-out
 
-- [x] World/chunk streaming, biomes, fast travel, secrets, day/night
-- [x] Player movement/camera, dodge i-frames, virtual joystick
-- [x] Combat core, abilities, hit feedback, enemy telegraphs
-- [x] Enemy AI states, object pooling, boss (3-phase)
-- [x] Inventory/equipment/consumables/loot/shop/currency
-- [x] XP/leveling/talent tree (3 branches)/stat formulas
-- [x] Quest engine + branching dialogue + quest log/tracker
-- [x] Save/load (3 slots), settings, full menu set, responsive UI
-- [x] Audio hooks, particles/juice, CI smoke + gameplay tests
+### F1. Item economy: 100+ items across five rarity tiers `[x]`
+- **≥100 items** in `data/items.json` with a `rarity` field:
+  `common → uncommon → rare → mythical → legendary`.
+- Rarity is a **power ordering**, not a label: each tier has a stat budget that
+  the item's stats must fit inside, enforced by test.
+- Lifesteal exists **only as a rare-or-better affix** and only as a *chance*
+  find — it never rolls on common/uncommon gear.
+- Every item is **visible in the inventory** with its rarity colour, stats and
+  value; no hidden or unusable entries.
+- Every item is **obtainable from monster loot** (or a shop/quest), verified by a
+  drop-table coverage test — no orphan items.
+- Rarity-weighted drop tables per monster tier, so better monsters drop better loot.
 
-**Regression baseline (re-verified after every Phase B commit):**
+**Done.** `tools/gen_items.py` → 120 items (31/29/24/21/15). Average weighted
+equipment power per tier: **8.5 / 18.5 / 33.3 / 60.2 / 99.6** — strictly rising, and
+every item fits its tier's budget. 8 lifesteal items, rare and up only. Every monster
+also rolls its tier's consumable pool, and `tools/gen_items.py`'s tables are the single
+source of truth — `tests/ItemsTest.tscn` re-derives all of the above from the shipped
+JSON (48 checks), including 400 loot rolls per archetype to prove nothing is orphaned.
 
-```
-repo size gate ...................... OK (~15 MB / 120 MB)
-JSON data validation ................ 41 files OK
-headless import ..................... OK, 0 script/parse/compile errors
-smoke: main.tscn (300 frames) ....... clean
-smoke: main_menu.tscn ............... clean
-tests: CombatTest ................... PASS (120 checks)
-tests: PlaythroughTest .............. PASS (23 checks)
-tests: AudioTest .................... PASS (35 checks)   [added in B5]
-visual: capture_screenshot .......... 2 PNGs rendered    [added in B7]
-```
+### F2. Monster roster: 10+ types, placed by region `[x]`
+- **≥10 monster archetypes** from weak to strong, each with a tier, biome and
+  level band.
+- Placement is data-driven: each biome's spawn table references only monsters
+  whose band matches that biome, and each dungeon's floors reference monsters
+  appropriate to their depth. A test asserts no monster spawns outside its band.
+- Existing archetypes (`grunt`, `scout`, `shaman`, `emberling`) stay valid —
+  ids are frozen, they are re-tiered rather than replaced.
 
----
+**Done.** 14 monsters across 6 tiers in `data/enemies.json` (authored by
+`tools/gen_enemies.py`): meadow L1-22 (grunt, emberling, meadow_wolf, husk), barrens
+L8-68 (scout, shaman, lizard, raider_brute, minotaur, legion), frost L38-100 (revenant,
+troll, archon, ashen_herald). `ChunkStreamer._populate_enemies()` now reads the biome
+table + `EnemyDB.band_power_scale()` instead of a hardcoded list, so a monster is placed
+by declaring its biome and band. Dungeons carry an authored `level_band`, and the test
+proves every floor's monsters fit it.
 
-## Phase B — Real Content  ← **in progress**
+### F3. Six bosses, escalating `[x]`
+- **6 bosses** from "first real fight" to "endgame", each with a phase count,
+  arena, and a guaranteed loot table.
+- The shipped **Ember Warden stays the final fight and keeps its mechanics**
+  (its framing is Act 4 of the main chain).
+- Bosses are placed at the end of dungeons / at authored landmarks, and each one
+  guards the next power tier — boss N+1 should not be comfortably reachable
+  without loot from boss N.
 
-### B1. World tileset ✅ DONE
-- [x] Replaced the procedural placeholder atlas with real **native-32 px LPC** terrain and props
-- [x] Vendored upstream sheets into `assets/source/` via `tools/art/vendor_sources.sh` (reproducible + auditable)
-- [x] `tools/art/build_atlas.py` — deterministic atlas build preserving the `gid = biome*8 + col + 1` contract
-- [x] Per-biome palette derivation (recolour) instead of hand-picking three duplicated sheets
-- [x] `tools/art/preview_world.py` — renders real chunks with the GID math from `chunk_renderer.gd`, so art can be reviewed without a GPU
-- [x] Full attribution recorded in CREDITS.md (CC-BY-SA 3.0 share-alike honoured)
+**Done.** HP ladder: `goblin_king` 260 → `slag_wraith` 620 → `bone_titan` 1400 →
+`frost_giant` 2600 → `choir_priest` 3600 → **`ember_warden` 5200** (each step ≥25%
+tougher, asserted). Five bosses carry their phase table in data and spawn through
+`DataBoss` (`scripts/enemies/data_boss.gd` + `scenes/enemies/data_boss.tscn`); the
+Ember Warden keeps its own phase script in `boss.gd` untouched. Six floors gate six
+dungeons; `scorched_monastery` and `wardens_ascent` end on elite waves instead of
+pretending to have a boss.
 
-### B2. World terrain quality ✅ DONE (this pass)
-- [x] **Root cause fixed:** terrain was stamped with `rng.random()` per tile → checkerboard noise. Now deterministic **value noise sampled in world space**, so patches are clustered *and* seamless across the 1024 px chunk borders.
-- [x] **Roads:** were a stamped rectangle covering the whole path bounding box. Now a noise-perturbed ~30 px track.
-- [x] **Forests:** obstacle tiles were single tree sprites (read as an icon grid). Now seamless **canopy masses**, which read as forest at the same density.
-- [x] **Clearings** re-floor blocked tiles so plazas no longer look torn up.
-- [x] Verified non-destructive: solids, hazards and all objects/spawners are **byte-identical** to the previous generator (see "Cosmetic-only guarantee" below).
+### F4. Main quest chain: 100 steps `[ ]`
+- `MQ001`–`MQ100` with the story progressing to the end: Act 1 (Millhaven burns,
+  Rowan dies, Wren taken) → Act 2 (Mireille, the expose/protect fork) → Act 3
+  (Isolde, the binding) → Act 4 (free Wren).
+- Act 2's fork reuses the existing choice system and changes which NPCs are
+  available in Act 3.
+- Each act is playable end-to-end before the next is written.
 
-### B3. Pixel-art rendering ✅ DONE
-- [x] `project.godot` never set `textures/canvas_textures/default_texture_filter`, so Godot 4's **Linear** default was **bilinear-blurring every pixel-art sprite**. Set to `0` (nearest). One line, visible on every screen, and it was invisible in headless CI.
+### F5. Side quests: 100, easy → hard `[ ]`
+- `SQ001`–`SQ100` across the bible's categories (Bounty, Fetch, Escort, Mystery,
+  Faction, Collection, Companion, Repeatable), split ~30 Meadows / ~40 Barrens /
+  ~30 Peaks.
+- Difficulty ramps with the region and the level band; rewards scale with
+  difficulty, not with quest order.
 
-### B4. Character breadth ✅ DONE
-- [x] `tools/lpc_compose.py` rewritten: 12 sheets from vendored LPC layers (was 4)
-- [x] NPCs: Elder Rowan (elderly head), Hunter Kael, Merchant Bram — each distinct, idle-animated
-- [x] Enemies: 5 distinct creatures (goblin / skeleton / orc / raider / shaman) replacing the
-      single `placeholder/enemy.svg` blob that every enemy and the boss used to render as
-- [x] Enemies animated from the composed sheet via `Sprite2D.hframes/vframes` — no new node
-      types, no per-enemy scenes; `slash` on attack, `spellcast` for casters, `walk`/`idle` by state
-- [x] Boss (Ember Warden) uses the orc sheet at 2.2× with per-phase colour tints
-- [x] **Fixed: the player sprite was headless in the shipped build.** The head is a
-      separate LPC layer the original composer omitted. `lpc_compose.py` now asserts every
-      archetype includes a head layer (verified to fail when the layer is removed)
-- [ ] NPC dialogue portraits — **still deferred** (separate art surface, not a sprite-sheet slice)
+### F6. Secrets `[ ]`
+- Hidden caches, locked vaults, lever/gate puzzles, lore fragments, secret
+  bosses, and off-map stashes — discoverable but never required.
+- Secrets are tracked as flags so they survive save/load and can be counted.
 
-### B7. Visual verification ✅ DONE (new capability)
-- [x] `tools/art/capture_screenshot.gd` — renders the **real game** under a virtual display and
-      saves PNGs; wired into CI as a job that uploads screenshots as build artifacts
-- [x] This immediately caught five defects that headless CI could never see:
-      bilinear blur, checkerboard terrain, canopy blocks reading as black rectangles, a
-      hard-edged mud circle for the camp floor, and enemies crushed to silhouettes by
-      `Sprite2D.modulate`
-
-### B5. Audio ✅ DONE
-- [x] Real score: 6 tracks by Avgvst ("Generic 8-bit JRPG Soundtrack", CC-BY) —
-      title + 3 biomes + combat + a new boss theme
-- [x] Real SFX: 13 clips from Kenney's RPG Audio / Interface Sounds / Impact Sounds (CC0)
-- [x] `tools/audio/vendor_audio.sh` vendors and renames to the registered ids
-- [x] `_loopify()` now handles `AudioStreamOggVorbis` (it only handled WAV, so an OGG score
-      would have played once and stopped instead of looping)
-- [x] **Fixed a silent bug:** `boss_arena.gd` asked for `combat_theme` / `biome_meadows`,
-      neither of which was ever registered — so the boss fight had **no music at all**.
-      `AudioManager` no-ops on unknown ids by design, so it failed with no error anywhere.
-- [x] `tests/AudioTest.tscn` adds a regression test for exactly this: every literal id passed
-      to `play_music`/`play_sfx` anywhere in `scripts/` must be registered
-
-### B6. Asset pipeline hardening — `[x]` NOT NEEDED (with reasoning)
-- [x] Atlas packing / `crunch` pass — **skipped deliberately.** The atlas is a single
-      256×96 PNG at **11 KB**, and the whole `assets/` tree is a few MB. `crunch` exists
-      to pack many loose sprite files into an atlas; this project already ships one atlas
-      plus 12 character sheets. Running it would add a build step and a tool dependency
-      for no measurable gain.
-- [x] Mobile texture memory — the 256×96 atlas and the 13×20×64 px character sheets are
-      far below any mobile limit. `textures/vram_compression/import_etc2_astc=true` is
-      already set in `project.godot`.
-- Revisit only if the repo approaches the 120 MB budget (currently ~15 MB, 12%).
+### F7. Economy & power balance pass `[ ]`
+- Run only once F1–F6 are complete, against everything in the game at once.
+- Levers: item stat budgets vs the level curve, gold income vs shop prices and
+  upgrade costs, XP income vs the 1–100 curve, monster/boss HP & damage vs
+  expected player power at each band, lifesteal proc rate vs sustain, potion
+  economy, and time-to-kill for each boss.
+- Output: a documented before/after table in `DECISIONS.md`, plus a
+  `tools/balance_report.py` that prints the numbers, so the balance is
+  reproducible rather than asserted.
 
 ---
 
-## Phase C — Playtest & Balance  `[ ]` TODO
+## Phase G — Ship (unchanged targets)
 
-- [ ] Full manual playthrough on a real or emulated Android device — **nothing in this repo has ever been played by a human on a phone**
-- [ ] Difficulty tuning per biome tier (Meadows / Barrens / Frosthollow) by real combat feel
-- [ ] Fix what the manual pass finds — it always surfaces bugs automated tests miss
-- [ ] Performance profiling on actual low/mid-range hardware
-
-> **Known caveat:** the automated suite runs **headless**, so it renders nothing. Every
-> visual bug fixed in Phase B (the blur, the noise, the canopy readability) was invisible
-> to it. CI proves the systems work; it cannot prove the game *looks* right.
-
----
-
-## Phase D — Ship  `[~]` IN PROGRESS
-
-- [x] **In-game credits screen** — done. It already existed, but its text claimed
-      *"World tiles, UI art, audio: this project (CC0)"*, which became false (and a
-      share-alike violation) once the real LPC atlas landed. Rewritten with complete
-      attribution for the tile set, characters, score and SFX, in a scroll container.
-- [x] Signed debug `.apk` produced by CI, attached to a GitHub Release
-- [x] Fixed the release workflow **fabricating releases**: it hardcoded a `v1.0.0` fallback
-      for non-tag dispatches, which silently published a "v1.0.0" release (with APK/AAB)
-      from whatever was on `main`. That is why a v1.0.0 exists despite this roadmap listing
-      it as future work. Now derives the version from `project.godot` and never hardcodes.
-- [x] `.aab` **built** for ARM64 + ARMv7
-- [ ] `.aab` **verified on device** — building for an ABI is not the same as running on it.
-      Covered by Phase C.
-- [x] `CREDITS.md` final pass — every asset license logged and attributed in-game
-- [x] Tag `v0.2.0` (flagged **prerelease**) with release notes → installable Android builds
-      published: `.apk` 160 MB, `.aab` 58 MB, `-debug.apk` 172 MB
-- [ ] **APK size is too large** — a 160 MB debug/release APK for a 2D game is mostly
-      export-template weight and both ABIs. The 58 MB AAB is acceptable for Play, but the
-      APK should be trimmed (per-ABI splits, strip debug symbols, check whether the
-      export template is being embedded) before any wider distribution.
-- [ ] **Tag `v1.0.0`** — deliberately NOT done. `v1.0.0` claims a shippable game, and
-      Phase C (a human playtest on a device) has not happened. Tagging it now would be
-      exactly the overclaiming this roadmap exists to correct.
-
-> **Why v0.2.0 matters:** Phase C requires a build on a real device. The release workflow
-> only produces signed APK/AAB on a `v*` tag, so cutting a pre-release tag is what makes
-> the playtest possible at all.
-
----
-
-## Cosmetic-only guarantee (how Phase B2 was de-risked)
-
-Terrain rewrites are dangerous because the same grid drives collision, chests, gates,
-waypoints and enemy spawns. Method used:
-
-1. Re-ran the **committed** generator and confirmed its output is byte-identical to the
-   committed chunks — so "the generator + its seed" *is* the previous world, and any
-   difference is genuinely mine.
-2. Made the new ground pass consume the RNG stream exactly as the old one did, so no
-   downstream random feature moved.
-3. Diffed the new world against the old, per chunk:
-
-```
-solids          35/35 chunks identical
-hazards         35/35 chunks identical
-objects/spawns   0/35 chunks differ
-```
-
-The world is visually new and mechanically untouched. This was verified, not assumed.
-
----
-
-## Phase E — Content Bible & Deep Roadmap  ← **in progress**
-
-Executed in the bible's own §9 order; each numbered item is committed and pushed
-on its own. §6 and §7 were taken before §3/§1 because they were already analysed and
-had no dependency on the NPC or world work; §1 then reused the completed schedule
-system to staff the new settlements.
-
-### E§6. Re-tapered level curve + milestones ✅ DONE
-- Three tapering segments (1-20 / 21-60 / 61-100), **seamless and monotonic** — the
-  authored formulas as literally written drop 12× at the 20→21 and 60→61 seams, so each
-  segment is anchored to the previous one's terminal cost (constant exponents kept).
-- Full 1-100 climb: **5,711,771 XP** (old curve: 3.09×10^15 — level 100 alone wanted
-  8.0×10^14 XP, ≈6.7×10^12 kills).
-- Level cap 100 enforced; overflow XP discarded rather than looping on a 0-cost level.
-- `data/milestones.json`: 10 milestone rewards (gold + bonus talent points + permanent
-  stats + title), granted once, stored in the save, surfaced as a HUD banner.
-- `floor_multiplier` per archetype + `EnemyDB.floor_scale()` + `EnemySpawner.floor_index`
-  → dungeon floor N scales enemy hp/damage/xp by `1 + fm × (N-1)`.
-- Guarded by 12 new headless checks (seams, monotonicity, cap, milestone idempotency,
-  save round-trip, floor scaling).
-
-### E§7. Expanded talent trees (60 nodes) ✅ DONE
-- 3 branches x 4 tiers x 5 nodes, all data-driven from `data/talents.json`; the
-  branch counter model, the three-column UI and existing saves are untouched.
-- Tier gates 5/25/50/75 by character level, per-node point costs 1..20 inside a
-  branch; the nine shipped nodes stay `core` at level 1 so nothing regressed.
-- Additive effects are summed, multiplier effects multiplied (floored at 0.4).
-  New node types are backed by real hooks — lifesteal, whirlwind/firebolt damage,
-  MP-cost discount (HUD shows it), damage taken, and an XP multiplier.
-- 26 new headless checks, including the level-gate matrix (a tier-4 node stays
-  locked at level 1 even with 20 points invested) and multiplier stacking.
-### E§3. NPC schedule + bark system ✅ DONE
-- `NPCController` with the bible's four states (`idle_schedule / walk_to_point /
-  talk / flee_combat`); `NPC` extends it so existing interaction code is untouched.
-- Schedules live in `data/npcs.json` as offsets from the placed position and read
-  the existing `DayNight` clock; 11 named NPCs ship with the bible's whole cast.
-- Idle barks (3+ per NPC, 37 total) extend the existing dialogue JSON with a
-  `barks` array - same data-driven system, no new engine. Barks are time-filtered,
-  rotate without repeating, and surface as a HUD banner.
-- Interacting with an NPC who has nothing quest-relevant to say now answers with
-  a bark, so no named NPC is scenery.
-- `tests/NpcTest.tscn` (24 checks) runs in CI after the audio job.
-### E§1. World map settlements ✅ DONE
-- 9 settlements as real scenes (3 villages / 3 towns / 3 cities), built from
-  `data/settlements.json` by `scripts/world/settlement.gd`: plaza, a tier-sized ring
-  of houses, waypoint, name sign, lanterns and the settlement's NPCs.
-- `Settlement.safe_zone_at()` keeps the chunk streamer from spawning enemies inside
-  a settlement's safe radius.
-- 9 dungeons / **26 floors** from `data/dungeons.json`, built as walled interiors by
-  `scripts/world/dungeon.gd` with physical up/down stairs and a real exit on floor 1.
-  Floor depth flows into `EnemySpawner.floor_index`, so §6's scaling does the work.
-- The Ember Warden keep's final floor instantiates the **existing** `BossArena`
-  fight unchanged, as the bible requires.
-- Two settlement names were invented to reach 9: **Ashvow** (Barrens city) and
-  **Kilnrest** (Frosthollow town). Rename them in `data/settlements.json`.
-- `tests/WorldMapTest.tscn` (34 checks) covers tier counts, bible names, NPC/service
-  coverage, floor counts and indices, descend/ascend, and floor repopulation.
-- `tools/art/capture_settlements.gd` renders every settlement + two dungeon floors;
-  `docs/screenshot-sunreach.png` and `docs/screenshot-frosthaven.png` are in-repo.
-
-
-### E§4/5. Main quest chain + side quests `[ ]`
-### E§8. Reputation + companions `[ ]`
-### E§9. Weather + secrets `[ ]`
+- Playtest on a real device (the one thing that cannot be done here).
+- Performance profile on Android hardware.
+- Signed release: the `release` workflow already builds signed APK/AAB on a `v*`
+  tag; `v0.2.0` is published as a prerelease.
 
 ---
 
 ## What's left, in one line
 
-Phase B and the CI/release half of Phase D are done: a real 32 px LPC world, real characters
-and enemies, a real CC0/CC-BY score, a visual-capture harness, shipped attribution, and a
-published `v0.2.0` prerelease with signed APK/AAB. **Phase E (the content bible)** is the
-active work and four of its eight sections are done: the re-tapered level curve + milestone
-rewards (§6), the 60-node talent trees (§7), the NPC schedule/bark system (§3), and the world
-map — 9 settlements and 9 dungeons / 26 floors (§1). The 100-step main chain, 100 side quests,
-reputation/companions and the weather/secret pass follow in the bible's §9 order.
-**Phase C — a human playtest on a real device — is still the one thing an agent cannot do.**
+Phase F is the remaining content build: 100+ rarity-tiered items that drop from
+≥10 monsters and 6 escalating bosses, a 100-step main chain, 100 side quests,
+secrets, and a full balance pass — layered on top of the shipped systems, never
+replacing them.

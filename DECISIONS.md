@@ -391,3 +391,50 @@ floors from the real game. It teleports the player and calls `FollowCamera.snap(
 because the follow rig lerps at `follow_speed = 8` and waiting only two frames
 photographs empty space between chunks — the first run of this harness produced nine
 grey voids for that reason.
+
+**#36 — Rarity is a stat budget, lifesteal is a chance find (Phase F1)** · 2026-09-10
+The ask was "100+ items that are rare in order of power" and "a chance that an item
+gives a bit of lifesteal". Two consequences shaped the implementation:
+
+- **Rarity is enforced, not decorated.** `tools/gen_items.py` gives each tier a
+  weighted stat budget (common 12 / uncommon 26 / rare 48 / mythical 78 /
+  legendary 120, weights atk 3.0, def 2.5, hp 0.35, mp 0.25, speed 1.2,
+  mp_regen 25, crit 60, lifesteal 220) and refuses to emit an item that exceeds
+  it. The shipped averages of weighted equipment power per tier are
+  **8.5 / 18.5 / 33.3 / 60.2 / 99.6** — a strict ordering a player can feel, and
+  one `Tests/ItemsTest` re-derives from the JSON rather than trusting the author.
+- **Lifesteal only enters from rare up**, on 8 items (`leechthorn_dagger` .04 through
+  `ashen_choir_heart` .15). Common/uncommon rolls can never produce it — asserted by
+  800 rolls — so it stays a find worth chasing rather than a starter stat.
+- The catalogue is 120 items: 35 weapons, 27 armour, 23 accessories, 12 consumables,
+  23 materials. Consumables are lootable because every monster also rolls its tier's
+  consumable pool; the four story materials (`first_flame`, `grain_sack`,
+  `goblin_fang`, `warden_core`) are turn-ins/boss trophies by design.
+- The inventory shows the ordering: rarity colour on the name, `★` at mythical and
+  above, and a stat line like `+4 ATK · +12 HP · 4% LEECH`.
+
+**#37 — Monsters are placed by data, dungeons by level band (Phase F2/F3)** · 2026-09-10
+`tools/gen_enemies.py` authors 14 monsters in 6 tiers and 6 bosses, and derives each
+biome's spawn table from the monsters' own `biome` + `level_band` fields instead of
+the streamer holding a list. `ChunkStreamer._populate_enemies()` now reads
+`EnemyDB.spawn_table(biome)` and `EnemyDB.band_power_scale(band)`, so "where does this
+monster live" is answered in the roster, and a monster cannot appear outside its band.
+
+- **Dungeons gained an authored `level_band`** (`data/dungeons.json`). Floors may mix
+  biomes — an old crypt can hold things from anywhere — but every monster on every
+  floor must have a level band overlapping the dungeon's, asserted per floor. This is
+  what caught a tier-5 revenant sitting on the first floor of the low-level
+  `hollow_crypts` alongside a husk.
+- **A boss gate means a boss.** Six dungeons end on a named boss; `scorched_monastery`
+  and `wardens_ascent` end on elite waves and are honestly flagged `boss: false` rather
+  than pretending. `ember_warden_keep` still runs the shipped `BossArena`.
+- **`DataBoss` needed a scene.** `Enemy` expects a `$Sprite` child, so a bare
+  `DataBoss.new()` was a headless crash waiting to happen — `scenes/enemies/data_boss.tscn`
+  now mirrors `enemy.tscn` with a slightly larger body/hurtbox, and `Dungeon` instantiates
+  it on boss floors. The test spawns a real one, hits it through two hp thresholds and
+  asserts the phases fire exactly once each, in order (a phase change grants 0.6s of
+  transformation invulnerability, so the test waits physics frames between blows).
+- `Scorched_monastery`'s final floor and `wardens_ascent`'s are harder than the floor
+  above them (`power_scale`), and the deep-floor/boss-floor `power_scale` must rise with
+  depth — also asserted, so "the last floor is the hard one" is a property of the data.
+

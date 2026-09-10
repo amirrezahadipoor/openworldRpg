@@ -111,20 +111,15 @@ func _build_placeholder_chunk(key: Vector2i) -> Node2D:
 
 
 func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> void:
-	## Biome tiering: harder archetypes + power_scale the deeper you go
-	## (difficulty curve — DECISIONS.md #7).
-	var table: Array
-	var power := 1.0
-	match biome:
-		0:
-			table = ["grunt", "emberling"]
-			power = 1.0
-		1:
-			table = ["scout", "grunt"]
-			power = 1.6
-		_:
-			table = ["shaman", "scout"]
-			power = 2.4
+	## Phase F2: which monsters live here, and how strong they are, comes from the
+	## roster's own biome tables + level bands (data/enemies.json `spawns`), not
+	## from a hardcoded list — so a new monster is placed by declaring its biome
+	## and band, and can never appear outside them.
+	var biome_name: String = ["meadow", "barrens", "frost"][clampi(biome, 0, 2)]
+	var table: Array = EnemyDB.spawn_table(biome_name)
+	if table.is_empty():
+		return
+	var band: Array = EnemyDB.spawnable_band(biome_name)
 	for i in rng.randi_range(1, 2):
 		var local := Vector2(
 			rng.randf_range(128.0, CHUNK_SIZE - 128.0),
@@ -144,9 +139,9 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 		if Settlement.safe_zone_at(world_pos):
 			continue
 		var spawner := EnemySpawner.new()
-		spawner.archetype = table[rng.randi_range(0, table.size() - 1)]
+		spawner.archetype = String(table[rng.randi_range(0, table.size() - 1)])
 		spawner.count = rng.randi_range(1, 2)
-		spawner.power_scale = power
+		spawner.power_scale = EnemyDB.band_power_scale(band)
 		spawner.position = local
 		root.add_child(spawner)
 

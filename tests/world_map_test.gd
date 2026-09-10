@@ -106,7 +106,9 @@ func _test_dungeon_data() -> void:
 			if f.get("exit_to", "") == "":
 				tables_ok = false
 	check(multi == 9, "every dungeon has multiple floors (%d/9)" % multi)
-	check(boss_floors >= 9, "every dungeon gates on a boss floor (%d)" % boss_floors)
+	# Phase F3: exactly six dungeons end on a named boss (one per boss in the
+	# roster); the rest end on an elite floor that is harder than the one above.
+	check(boss_floors == 6, "six dungeons gate on a named boss floor (%d)" % boss_floors)
 	check(tables_ok, "floor tables reference real archetypes with correct floor_index")
 
 	# The final fight must stay the shipped one, not a reimplementation.
