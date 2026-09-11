@@ -5,11 +5,12 @@ Replaces the former procedural placeholder atlas (tools/worldgen/make_tileset.py
 The GID contract is UNCHANGED, so the renderer, the Tiled JSON chunks and the
 chunk streamer all keep working without modification:
 
-    layout : 8 columns x 3 biome rows, 32 px tiles  ->  256 x 96 px
+    layout : 11 columns x 3 biome rows, 32 px tiles  ->  352 x 96 px
     columns: 0 ground_a  1 ground_b  2 path  3 hazard
              4 obstacle (solid)  5 wall/cliff (solid)  6 deco  7 shore
+             8-10 decor scatter variants (meadow/barrens/frost each get three)
     rows   : 0 Verdant Meadows  1 Ashen Barrens  2 Frosthollow Peaks
-    gid    : biome * 8 + col + 1      (0 = empty -> renderer base colour)
+    gid    : biome * 11 + col + 1     (0 = empty -> renderer base colour)
 
 Every output tile is fully opaque: sprites and transition edges are composited
 onto the biome's ground fill, so a tile can never reveal the renderer's base
@@ -41,7 +42,7 @@ SRC = os.path.join(ROOT, "assets", "source")
 OUT = os.path.join(ROOT, "assets", "tiles", "atlas.png")
 
 TILE = 32
-COLS, ROWS = 8, 3
+COLS, ROWS = 11, 3   # 0-7 as before, 8-10 are the decor scatter variants
 
 _sheets: dict[str, Image.Image] = {}
 
@@ -229,6 +230,13 @@ def build_recipes():
             rock_face,                                                    # 5 wall/cliff (solid)
             flowers,                                                      # 6 deco (flower meadow)
             find_transition("lpc_terrain/water.png", "grass", "water", grass),  # 7 shore
+            # 8-10: the scatter. One deco column at 4% read as a repeating icon,
+            # and the biomes were measured at 0.15% decor overall - flat ground as
+            # far as the eye could see (v3 audit §2). Three variants per biome,
+            # scattered independently in the generator, read as terrain again.
+            flowers,                                                      # 8 deco: flowers
+            over(grass, rocks_small),                                     # 9 deco: pebbles
+            over(grass, tint_flat(flowers, (1.12, 1.04, 0.86))),          # 10 deco: dry flowers
         ],
         # ---------------- Biome 1: Ashen Barrens ----------------
         [
@@ -240,6 +248,9 @@ def build_recipes():
             ash_rock,                                                     # 5 wall/cliff (basalt, solid)
             over(ash, twigs),                                             # 6 deco (dead scrub)
             find_transition("lpc_terrain/lava.png", "sand", "lava", ash), # 7 shore (lava rim)
+            over(ash, twigs),                                             # 8 deco: dead scrub
+            over(ash, recolor(rocks_small, black=(24, 22, 22), white=(132, 124, 118))),  # 9 deco: ash stones
+            over(ash, recolor(dead_thicket, black=(30, 27, 26), white=(112, 104, 98))),  # 10 deco: charred stump
         ],
         # ---------------- Biome 2: Frosthollow Peaks ----------------
         [
@@ -251,6 +262,9 @@ def build_recipes():
             frost_rock,                                                   # 5 cliff (solid)
             over(snow, recolor(boulder, black=(60, 68, 82), white=(214, 224, 238))),  # 6 deco (boulder)
             find_transition("lpc_terrain/snowwater.png", "snow", "water", snow),  # 7 shore
+            over(snow, recolor(rocks_small, black=(70, 80, 96), white=(226, 234, 246))),  # 8 deco: stones
+            over(snow, recolor(twigs, black=(58, 66, 80), white=(206, 216, 232))),        # 9 deco: dead brush
+            over(snow, recolor(boulder, black=(64, 74, 90), white=(238, 244, 252))),      # 10 deco: boulder
         ],
     ]
 

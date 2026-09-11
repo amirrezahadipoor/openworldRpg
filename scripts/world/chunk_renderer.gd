@@ -2,7 +2,8 @@ class_name ChunkRenderer
 extends Node2D
 ## Renders an authored chunk from a packed GID grid using the biome tile atlas
 ## (single texture, draw_texture_rect_region per non-empty cell).
-## GID convention (tools/worldgen): gid = biome * 8 + col + 1, 0 = empty.
+## GID convention (tools/worldgen): gid = biome * 11 + col + 1, 0 = empty.
+## 8 columns carried the terrain (0-7); 8-10 are the decor scatter variants.
 
 @export var grid_w := 32
 @export var grid_h := 32
@@ -10,6 +11,14 @@ extends Node2D
 @export var tiles: PackedInt32Array = PackedInt32Array()
 @export var atlas: Texture2D
 @export var base_color: Color = Color(0.24, 0.42, 0.25)
+
+## Columns in the biome atlas. Must match tools/art/build_atlas.py COLS: a gid is
+## biome * ATLAS_COLS + column + 1.
+const ATLAS_COLS := 11
+
+## Columns 8..10 are decoration (flowers, pebbles, scrub): they are drawn, never
+## collided with, so the minimap and tests can tell ground from scatter.
+const DECOR_COLUMN_FIRST := 8
 
 var _cache_valid := false
 
@@ -30,8 +39,8 @@ func _draw() -> void:
 		var gid := tiles[i]
 		if gid <= 0:
 			continue
-		var col := (gid - 1) % 8
-		var row := (gid - 1) / 8
+		var col := (gid - 1) % ATLAS_COLS
+		var row := (gid - 1) / ATLAS_COLS
 		var x := float((i % grid_w) * tile_size)
 		var y := float((i / grid_w) * tile_size)
 		draw_texture_rect_region(

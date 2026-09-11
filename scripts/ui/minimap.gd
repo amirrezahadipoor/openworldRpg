@@ -18,7 +18,7 @@ var streamer: ChunkStreamer
 var _timer := REFRESH  # draw immediately once player is set
 var _drawn_once := false
 
-# Per-column colors for authored tiles (index by (gid-1) % 8), per biome row.
+## Per-column colors for authored tiles (index by (gid-1) % ChunkRenderer.ATLAS_COLS).
 const BIOME_BASE := [
 	Color(0.27, 0.45, 0.28),   # meadow
 	Color(0.50, 0.42, 0.31),   # barrens
@@ -153,8 +153,8 @@ func _sample(wpos: Vector2) -> Color:
 		var gid: int = renderer.tiles[ty * renderer.grid_w + tx]
 		if gid <= 0:
 			return renderer.base_color  # bare ground
-		var col := (gid - 1) % 8
-		var biome := (gid - 1) / 8
+		var col := (gid - 1) % ChunkRenderer.ATLAS_COLS
+		var biome := (gid - 1) / ChunkRenderer.ATLAS_COLS
 		match col:
 			2:
 				return PATH_COLOR[biome]

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Renders real world chunks with the built atlas, exactly as the game would.
 
-Mirrors the GID decoding in scripts/world/chunk_renderer.gd:
+Mirrors the GID decoding in scripts/world/chunk_renderer.gd (ATLAS_COLS):
 
-    col = (gid - 1) % 8 ;  row = (gid - 1) / 8
+    col = (gid - 1) % 11 ;  row = (gid - 1) / 11
 
 so the output is a faithful preview of what the player sees, without needing a
 GPU. Used to validate tile choices during the art pass.
@@ -51,8 +51,8 @@ def render_chunk(name: str, atlas: Image.Image, draw_objects: bool = True) -> Im
     for i, gid in enumerate(data):
         if gid <= 0:
             continue
-        col = (gid - 1) % 8
-        row = (gid - 1) // 8
+        col = (gid - 1) % 11
+        row = (gid - 1) // 11
         cell = atlas.crop((col * TILE, row * TILE, col * TILE + TILE, row * TILE + TILE))
         img.paste(cell, ((i % gw) * tsize, (i // gw) * tsize))
 

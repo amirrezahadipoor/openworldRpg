@@ -28,6 +28,7 @@ func _ready() -> void:
 	_test_micro_locations()
 	await _test_dungeon_vaults()
 	_test_overworld_spawners()
+	_test_world_decor()
 	_test_spawn_safety_and_biomes()
 	await _test_dungeon_walls()
 	_test_safe_zones()
@@ -394,6 +395,76 @@ func _test_dungeon_vaults() -> void:
 			boss_levers += 1
 	check(boss_levers == 0, "boss floors have no vault")
 	host.queue_free()
+
+
+func _test_world_decor() -> void:
+	## v3 audit §2: the map measured 0.17% decor tiles, so every biome read as a
+	## flat colour. Three decor columns were added to the atlas (8-10) and the
+	## generator scatters them; this pins the density and the atlas contract.
+	print("[world_map_test] world decor: the map is not flat")
+
+	var atlas: Texture2D = load("res://assets/tiles/atlas.png")
+	check(atlas != null, "the biome atlas loads")
+	if atlas != null:
+		var cols := int(atlas.get_width() / 32)
+		check(cols == ChunkRenderer.ATLAS_COLS,
+			"the atlas is %d columns and ChunkRenderer says %d"
+				% [cols, ChunkRenderer.ATLAS_COLS])
+		check(ChunkRenderer.ATLAS_COLS >= 11, "there is room for the decor variants")
+
+	var dir := DirAccess.open("res://world/chunks")
+	check(dir != null, "the shipped chunks are readable")
+	var counters := {}
+	var total := 0
+	var empty_cells := 0
+	var bad_gid := 0
+	var files := 0
+	if dir != null:
+		dir.list_dir_begin()
+		var fname := dir.get_next()
+		while fname != "":
+			if fname.ends_with(".json"):
+				var f := FileAccess.open("res://world/chunks/%s" % fname, FileAccess.READ)
+				if f != null:
+					var parsed: Variant = JSON.parse_string(f.get_as_text())
+					if typeof(parsed) == TYPE_DICTIONARY:
+						files += 1
+						for layer in (parsed as Dictionary).get("layers", []):
+							if String((layer as Dictionary).get("type", "")) != "tilelayer":
+								continue
+							for g in (layer as Dictionary).get("data", []):
+								var gid := int(g)
+								if gid <= 0:
+									empty_cells += 1
+									continue
+								var col := (gid - 1) % ChunkRenderer.ATLAS_COLS
+								var row := (gid - 1) / ChunkRenderer.ATLAS_COLS
+								if row > 2:
+									bad_gid += 1
+								counters[col] = int(counters.get(col, 0)) + 1
+								total += 1
+			fname = dir.get_next()
+		dir.list_dir_end()
+
+	check(files >= 35, "every authored chunk is scanned (%d)" % files)
+	check(bad_gid == 0, "no gid points past the atlas rows (%d bad)" % bad_gid)
+	check(total > 30000, "the map has tiles to look at (%d)" % total)
+
+	var decor := int(counters.get(8, 0)) + int(counters.get(9, 0)) + int(counters.get(10, 0))
+	var share := float(decor) / float(maxi(total, 1))
+	check(share >= 0.03,
+		"at least 3%% of the map is decorated (%.2f%%, was 0.17%%)" % (share * 100.0))
+	check(int(counters.get(8, 0)) > 50 and int(counters.get(9, 0)) > 50 \
+			and int(counters.get(10, 0)) > 50,
+		"all three decor variants appear (%d / %d / %d)"
+			% [int(counters.get(8, 0)), int(counters.get(9, 0)), int(counters.get(10, 0))])
+	# The old single fleck column still exists for chunks predating the pass.
+	check(int(counters.get(6, 0)) > 0, "the original fleck column still resolves")
+	# The decor must not have eaten the terrain: paths and hazards are still there.
+	check(int(counters.get(2, 0)) > 100 and int(counters.get(3, 0)) > 50,
+		"paths (%d) and hazards (%d) survive the scatter"
+			% [int(counters.get(2, 0)), int(counters.get(3, 0))])
+	check(share < 0.15, "and the scatter stays a detail, not a carpet (%.2f%%)" % (share * 100.0))
 
 
 func _test_overworld_spawners() -> void:
