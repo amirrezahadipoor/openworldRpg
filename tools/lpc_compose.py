@@ -12,6 +12,11 @@ bakes layered characters into assets/lpc/<name>.png — one RGBA sheet each:
           rows 12-15 spellcast (abilities)
           rows 16-19 hurt
 
+Idle-only frames: if a generated source exists in assets/lpc/_idle_src/<name>.png,
+make_idle_frames.patch_sheet() fills idle columns 2-3 of every direction row with
+a weight-shift and a look-around pose (H5.5). Recomposing a sheet therefore does
+not silently throw that art away.
+
 Layer stack (z order): body -> pants -> shirt/armor -> boots -> hair -> weapon.
 
 Archetypes produced:
@@ -260,6 +265,20 @@ def compose(layers: list[str], out_path: str) -> int:
     return os.path.getsize(out_path)
 
 
+def _idle_patcher():
+    """tools/make_idle_frames.py, or None when it (or its deps) is unavailable.
+
+    Composing a character is still the headline job of this script, so a missing
+    optional dependency must not stop a plain recompose.
+    """
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import make_idle_frames  # noqa: PLC0415  (optional, imported on use)
+        return make_idle_frames
+    except ImportError:
+        return None
+
+
 def main() -> None:
     want = sys.argv[1:] or sorted(ARCHETYPES)
     unknown = [w for w in want if w not in ARCHETYPES]
@@ -270,10 +289,15 @@ def main() -> None:
         sys.exit(f"missing {SRC}\nrun: bash tools/art/vendor_lpc_layers.sh")
 
     os.makedirs(OUT, exist_ok=True)
+    idle = _idle_patcher()
     for name in want:
         assert_complete(name, ARCHETYPES[name])
         size = compose(ARCHETYPES[name], os.path.join(OUT, name + ".png"))
-        print(f"  {name:24s} {size // 1024:4d} KB")
+        note = ""
+        if idle is not None and os.path.exists(os.path.join(idle.SRC_DIR, name + ".png")):
+            idle.patch_sheet(name)
+            note = "  + idle frames"
+        print(f"  {name:24s} {size // 1024:4d} KB{note}")
 
 
 if __name__ == "__main__":

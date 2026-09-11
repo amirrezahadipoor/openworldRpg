@@ -80,6 +80,14 @@ Authors: the Liberated Pixel Cup contributors, via the Universal LPC Spritesheet
 Character Generator (generator GPL-3.0; art CC-BY-SA 3.0 / GPL). Credit list as
 published on the generator repository.
 
+**Idle-only frames (H5.5).** Idle columns 2-3 of the enemy and boss sheets are
+**AI-generated** (this project, via the development-time image generator) from
+those composed sheets as the reference, then keyed, scaled, palette-snapped and
+pasted by `tools/make_idle_frames.py`. They are derived from the same CC-BY-SA 3.0
+LPC characters, so they inherit the attribution above and the share-alike note
+below. The 40 %-scale sources live in `assets/lpc/_idle_src/`; the runtime reads
+`assets/lpc/idle_frames.json` to know which sheets have them.
+
 > **Important:** `body/bodies/*` in that repository is **headless** — the head is a
 > separate layer under `head/heads/*`, and a face-bearing head must be paired with an
 > `eyes/*` layer. The original version of `tools/lpc_compose.py` omitted both, so the

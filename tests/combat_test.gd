@@ -60,6 +60,7 @@ func _ready() -> void:
 	_test_talent_tree()
 	await _test_safe_ground_and_dialogue_protection()
 	await _test_fight_feedback()
+	await _test_idle_art()
 
 	_report()
 
@@ -957,6 +958,76 @@ func _test_projectile_contact() -> void:
 	check(GameState.hp == after_one,
 		"a spent projectile deals no phantom damage (%d -> %d)" % [after_one, GameState.hp])
 	host.queue_free()
+
+
+func _test_idle_art() -> void:
+	## H5.5: a monster that holds IDLE for half a minute must not stand on the
+	## same two frames the whole time. This checks the runtime side of the extra
+	## idle art — which sheets report four frames, that the idle loop really plays
+	## four different columns, and that a resting monster looks around.
+	print("[combat_test] idle art + resting look-around")
+	for p in get_tree().get_nodes_in_group("player"):
+		p.queue_free()
+	await _phys(2)
+	var host := Node2D.new()
+	add_child(host)
+
+	var patched := Enemy.patched_idle_sheets()
+	check(patched.size() > 0, "the idle-frame manifest is readable (%d sheets)" % patched.size())
+
+	# Every archetype must read its own sheet's frame count, and the count must
+	# match what the manifest says about that sheet.
+	var mismatched := []
+	var with_four := 0
+	for id in EnemyDB.monsters() + EnemyDB.bosses():
+		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
+		var want := Enemy.IDLE_PATCHED_FRAMES if patched.has(sheet.get_file().get_basename()) else 2
+		var probe: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host.add_child(probe)
+		probe.setup_archetype(String(id))
+		if want == Enemy.IDLE_PATCHED_FRAMES:
+			with_four += 1
+		if probe.idle_frames != want:
+			mismatched.append("%s=%d(want %d)" % [id, probe.idle_frames, want])
+		probe.queue_free()
+	check(mismatched.is_empty(),
+		"every archetype reads its sheet's idle frame count (%d archetypes with 4 frames)"
+		% with_four)
+
+	# Drive one patched enemy's idle animation and look at the frames it shows.
+	var enemy: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(enemy)
+	enemy.setup_archetype("grunt")
+	check(enemy.idle_frames == Enemy.IDLE_PATCHED_FRAMES,
+		"the grunt's sheet carries the extra idle frames")
+	var seen := {}
+	for i in 90:
+		enemy._update_anim(1.0 / 60.0)
+		seen[enemy.sprite.frame] = true
+	check(seen.size() == Enemy.IDLE_PATCHED_FRAMES,
+		"the idle loop plays %d different frames (%d seen)" % [Enemy.IDLE_PATCHED_FRAMES, seen.size()])
+	var columns := {}
+	for step in Enemy.IDLE_PATCHED_FRAMES:
+		columns[enemy._idle_column(step)] = true
+	check(columns.size() == Enemy.IDLE_PATCHED_FRAMES,
+		"the idle loop visits four distinct sheet columns (%s)" % str(columns.keys()))
+
+	# Resting: the loop slows down and the monster turns to look around.
+	check(Enemy.REST_IDLE_SLOWDOWN < 1.0,
+		"a resting monster breathes slower (x%.2f)" % Enemy.REST_IDLE_SLOWDOWN)
+	var facings := {}
+	enemy._patrols_done = Enemy.PATROLS_BEFORE_REST
+	enemy._glance_timer = 0.0
+	for i in 40:
+		enemy._rest_glance(1.0)
+		facings[enemy._anim_dir] = true
+	check(facings.size() >= 2,
+		"a resting monster looks around (%d facings over 40 s)" % facings.size())
+	check(enemy._resting(), "the rest state is what gates the look-around")
+
+	enemy.queue_free()
+	host.queue_free()
+	await _phys(2)
 
 
 func _phys(n: int) -> void:

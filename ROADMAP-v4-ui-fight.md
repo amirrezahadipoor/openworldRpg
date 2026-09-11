@@ -6,7 +6,10 @@
 > Legend: `[x]` done & committed · `[~]` in progress · `[ ]` todo
 
 Commits: `6d08974` (H4 + H5 + the three field reports) · `8bd3ab0` (H3) ·
-`c3c8b68` (H1 + H2).
+`c3c8b68` (H1 + H2) · `3e5d7fa` (banner art + `BannerPanel` theme type) ·
+`6d6acfa` (device playtest checklist). All pushed to `origin/main`; CI run
+`34579008971` on `6d6acfa` is green end to end (196 + 58 + 22 gameplay checks,
+safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 
 ---
 
@@ -56,7 +59,10 @@ Commits: `6d08974` (H4 + H5 + the three field reports) · `8bd3ab0` (H3) ·
 ## H4. Safe zones
 
 - [x] **H4.1** `safe_radius` retuned to town radius + 70 px (was +90…+130).
-      Union: 8.93 % of the map, down from 10.58 %, under the 15 % ceiling.
+      Union: 9.69 % of the map (3.558 M px² of 36.700 M px²), down from 10.58 %,
+      under the 15 % ceiling. Re-measured on `6d6acfa` by the CI "Safe ground"
+      step (run 34579008971) — the earlier 8.93 % figure in this file was written
+      before the camp bubble was folded into `safe_zones()` and was stale.
 - [x] **H4.2** Visible ground boundary — a 3 px edge ring at `safe_radius` and a
       soft 10 px fade 42 px inside it, for settlements *and* the starting camp.
 - [x] **H4.3** `tools/safe_zone_report.py` (with `--check`) prints the union area
@@ -76,9 +82,21 @@ Commits: `6d08974` (H4 + H5 + the three field reports) · `8bd3ab0` (H3) ·
 - [x] **H5.4** Separation: `Enemy._separation_vector()` (46 px) and
       `NPCController._separate_from_neighbours()` (soft 46 px). Measured on the
       built settlements, the closest pair of residents is 136 px apart.
-- [ ] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
-      *Deferred: the standing enemies now stand still for real stretches, which
-      was the actual complaint; the extra frames are polish on top of that.*
+- [~] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
+      *Pipeline done and shipped: `tools/make_idle_frames.py` turns one generated
+      sheet per character (4 direction columns x 2 poses: weight shift, look
+      around) into idle columns 2-3, cutting each pose out by empty-projection
+      runs, mirroring a wrongly-drawn side profile back via silhouette IoU,
+      scaling to that direction's existing frame and re-pasting on its baseline,
+      and snapping to its palette. The idle loop is now
+      `[base, shift, breath, look-around]`, slower while resting, and a resting
+      monster turns to look around every few seconds. `lpc_compose.py` calls the
+      patcher, so recomposing cannot lose the frames (recompose + patch is
+      byte-identical). Covered by `items_test` (4 checks) and `combat_test`
+      (8 checks). 10 of 21 character sheets are paid for so far — the image
+      generator is capped at 10 generations per pass, so the remaining 11
+      (shaman, skeleton, troll, warden, wolf and the six bosses) land on the same
+      pipeline with no new code.*
 
 ## H6. General polish where art is the fix
 

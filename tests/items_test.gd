@@ -189,6 +189,32 @@ func _test_monster_roster() -> void:
 			missing.append(String(m))
 	check(sheeted, "every monster has composed art (missing: %s)" % str(missing))
 
+	# H5.5: the idle-only frames pasted into those sheets have to be real art, not
+	# an empty column, a copy of frame 0, or a pose spilling into its neighbour.
+	# (tools/make_idle_frames.py --check proves the same thing offline.)
+	var manifest: Dictionary = Enemy.patched_idle_sheets()
+	check(not manifest.is_empty(), "idle frame manifest lists patched sheets (%d)" % manifest.size())
+	var bad_geometry := []
+	var copies := []
+	var overflow := []
+	for stem in manifest:
+		var img := Image.load_from_file("res://assets/lpc/%s.png" % stem)
+		if img == null or img.get_width() != 13 * 64 or img.get_height() != 20 * 64:
+			bad_geometry.append(String(stem))
+			continue
+		var frames := int(manifest[stem])
+		for d in 4:
+			for c in range(1, frames):
+				if not _cell_has_art(img, d, c):
+					bad_geometry.append("%s/%d/%d empty" % [stem, d, c])
+				elif _cell_difference(img, d, 0, c) < 4.0:
+					copies.append("%s/%d/%d" % [stem, d, c])
+			if _cell_has_art(img, d, frames):
+				overflow.append("%s/%d" % [stem, d])
+	check(bad_geometry.is_empty(), "every patched idle frame has art (%s)" % str(bad_geometry))
+	check(copies.is_empty(), "no patched idle frame is a copy of frame 0 (%s)" % str(copies))
+	check(overflow.is_empty(), "idle blocks stay inside their four columns (%s)" % str(overflow))
+
 
 func _test_placement() -> void:
 	print("[items_test] placement: nothing spawns outside its band")
@@ -412,3 +438,32 @@ func _test_drop_reachability() -> void:
 		[top_best, low_best])
 	check(top_best >= ItemsDB.RARITY_ORDER.find("rare"),
 		"tier-6 monsters can drop rare-or-better gear")
+
+
+func _cell_has_art(img: Image, dir_row: int, col: int) -> bool:
+	## A 64 px idle cell is "not empty" when a sample of it is more than opaque
+	## enough to be a character rather than the keyed-out background.
+	var solid := 0
+	for y in range(0, 64, 2):
+		for x in range(0, 64, 2):
+			if img.get_pixel(col * 64 + x, dir_row * 64 + y).a > 0.45:
+				solid += 1
+	return solid > 12
+
+
+func _cell_difference(img: Image, dir_row: int, a_col: int, b_col: int) -> float:
+	## Mean per-channel difference between two idle cells, sampled every other
+	## pixel. A pasted frame that is really frame 0 again scores near zero.
+	var total := 0.0
+	var n := 0
+	for y in range(0, 64, 2):
+		for x in range(0, 64, 2):
+			var a := img.get_pixel(a_col * 64 + x, dir_row * 64 + y)
+			var b := img.get_pixel(b_col * 64 + x, dir_row * 64 + y)
+			if a.a <= 0.45 and b.a <= 0.45:
+				continue
+			total += absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) + absf(a.a - b.a)
+			n += 1
+	if n == 0:
+		return 0.0
+	return (total / float(n)) * 255.0 / 4.0

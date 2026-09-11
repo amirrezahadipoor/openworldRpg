@@ -34,8 +34,34 @@ const DIR_ROW := {"n": 0, "w": 1, "s": 2, "e": 3}
 const ANIM_FRAMES := {"idle": 2, "walk": 9, "slash": 6, "spellcast": 7, "hurt": 6}
 const ANIM_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, "hurt": 10.0}
 const ANIM_BLOCK := {"idle": 0, "walk": 1, "slash": 2, "spellcast": 3, "hurt": 4}
+## H5.5: extra idle-only frames (weight shift, look-around) pasted into idle
+## columns 2 and 3 of a sheet by tools/make_idle_frames.py. Sheets that still
+## carry only their own two frames fall back to a plain two-frame loop, so this
+## is additive — nothing breaks while the rest of the roster is being patched.
+const IDLE_LOOP := [0, 2, 1, 3]          # base, shift, breath, look-around
+const IDLE_PATCHED_FRAMES := 4
+const IDLE_MANIFEST := "res://assets/lpc/idle_frames.json"
+const REST_IDLE_SLOWDOWN := 0.62         # a resting monster breathes slower
+const REST_GLANCE_MIN := 2.5             # and looks around every few seconds
+const REST_GLANCE_MAX := 6.0
+const GLANCE_DIRS := ["n", "w", "s", "e"]
+static var _idle_sheets: Dictionary = {}
+
+
+static func patched_idle_sheets() -> Dictionary:
+	## Sheet stem -> idle frame count, written by tools/make_idle_frames.py.
+	if _idle_sheets.is_empty() and FileAccess.file_exists(IDLE_MANIFEST):
+		var fh := FileAccess.open(IDLE_MANIFEST, FileAccess.READ)
+		if fh:
+			var parsed: Variant = JSON.parse_string(fh.get_as_text())
+			if parsed is Dictionary:
+				_idle_sheets = parsed
+	return _idle_sheets
 
 var telegraph_time := DEFAULT_TELEGRAPH
+## Idle frames this sheet actually has (2 composed, 4 once patched, see H5.5).
+var idle_frames := 2
+var _glance_timer := 0.0
 ## Movement/attack style, read from the archetype ("melee", "skirmish",
 ## "charger", "caster"). Before this every non-ranged enemy in the game fought
 ## identically: walk straight at the player, swing on cooldown. Fifteen of the
@@ -155,7 +181,10 @@ func _physics_process(delta: float) -> void:
 			if _player and dist < chase_radius and not player_protected:
 				_change_state(State.CHASE)
 			elif _patrols_done >= PATROLS_BEFORE_REST:
-				# A real rest, not the old fixed 1.5 s pause between loops.
+				# A real rest, not the old fixed 1.5 s pause between loops. The
+				# extra idle frames only read as "alive" if the monster also
+				# turns to look at something now and then (H5.5).
+				_rest_glance(delta)
 				if _state_time > 1.5 + REST_MIN + randf() * (REST_MAX - REST_MIN):
 					_patrols_done = 0
 					_state_time = 0.0
@@ -306,6 +335,30 @@ func _awake() -> bool:
 	return global_position.distance_to(_player.global_position) < PATROL_AWAKE_RANGE
 
 
+func _idle_column(step: int) -> int:
+	## Which sheet column the nth idle step shows: [base, weight shift, breath,
+	## look-around] on a patched sheet, [base, breath] on one that is not.
+	if idle_frames < IDLE_PATCHED_FRAMES:
+		return step % 2
+	return int(IDLE_LOOP[step % IDLE_LOOP.size()])
+
+
+func _resting() -> bool:
+	## H5.1's long rest: standing still with three patrols behind it.
+	return state == State.IDLE and _patrols_done >= PATROLS_BEFORE_REST
+
+
+func _rest_glance(delta: float) -> void:
+	## A resting monster turns its head/body to a new cardinal direction every
+	## few seconds. Without it, four idle frames still play into a fixed facing
+	## and the character reads as a statue with better breathing (H5.5).
+	_glance_timer -= delta
+	if _glance_timer > 0.0:
+		return
+	_glance_timer = REST_GLANCE_MIN + randf() * (REST_GLANCE_MAX - REST_GLANCE_MIN)
+	_anim_dir = String(GLANCE_DIRS[randi() % GLANCE_DIRS.size()])
+
+
 func _update_anim(delta: float) -> void:
 	## Drive the composed LPC sheet directly (Sprite2D hframes/vframes), so an
 	## enemy needs no AnimatedSprite2D node and no per-enemy scene.
@@ -333,12 +386,18 @@ func _update_anim(delta: float) -> void:
 	elif absf(face.y) > 1.0:
 		_anim_dir = "s" if face.y > 0.0 else "n"
 
-	var count: int = ANIM_FRAMES[_anim_name]
-	_anim_frame += delta * float(ANIM_FPS[_anim_name])
+	var count: int = idle_frames if _anim_name == "idle" else int(ANIM_FRAMES[_anim_name])
+	var fps: float = float(ANIM_FPS[_anim_name])
+	if _anim_name == "idle" and _resting():
+		fps *= REST_IDLE_SLOWDOWN
+	_anim_frame += delta * fps
 	while _anim_frame >= float(count):
 		_anim_frame -= float(count)
+	var column := int(_anim_frame)
+	if _anim_name == "idle":
+		column = _idle_column(column)
 	var row: int = int(ANIM_BLOCK[_anim_name]) * 4 + int(DIR_ROW[_anim_dir])
-	sprite.frame = row * SHEET_COLS + int(_anim_frame)
+	sprite.frame = row * SHEET_COLS + column
 
 
 func _apply_sheet(path: String) -> void:
@@ -346,6 +405,7 @@ func _apply_sheet(path: String) -> void:
 	## placeholder sprite when an archetype has no art.
 	if path == "" or not ResourceLoader.exists(path):
 		_sheet_ready = false
+		idle_frames = 2
 		sprite.hframes = 1
 		sprite.vframes = 1
 		sprite.frame = 0
@@ -353,12 +413,15 @@ func _apply_sheet(path: String) -> void:
 	var tex: Texture2D = load(path)
 	if tex == null:
 		_sheet_ready = false
+		idle_frames = 2
 		return
 	sprite.texture = tex
 	sprite.hframes = SHEET_COLS
 	sprite.vframes = SHEET_ROWS
 	sprite.offset = Vector2(0, -10)   # LPC frames sit above the body pivot
 	_sheet_ready = true
+	idle_frames = IDLE_PATCHED_FRAMES if patched_idle_sheets().has(path.get_file().get_basename()) else 2
+	_glance_timer = 1.0
 	_anim_name = "idle"
 	_anim_dir = "s"
 	_anim_frame = 0.0

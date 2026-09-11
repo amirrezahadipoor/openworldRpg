@@ -917,3 +917,32 @@ SVG icons are replaced by generated 32 px LPC-style art
 downsamples to the grid). New suite `tests/ui_test.gd`: 22 checks covering event
 delivery, same-frame taps, target selection, the real NPC conversation firing,
 cooldown sweeps, the toast queue and the insets.
+
+**#65 — Idle-only frames are generated art, pasted by a measured pipeline (H5.5)** · 2026-09-11
+The `IDLE` state can now last 18-32 s (H5.1), and the LPC layer library this project
+vendors only ships **two** idle frames per direction — a monster resting for half a
+minute was a statue with a twitch. The extra frames are therefore generated art, not
+code: one image-gen sheet per character, laid out as four direction columns (LPC's
+own n/w/s/e order) by two rows (weight shift, look-around), keyed off the same magenta
+screen the UI icons use. `tools/make_idle_frames.py` does the pasting **measurably**
+rather than by eye — it cuts the poses apart by empty-projection runs (so uneven
+generator spacing cannot merge two poses), mirrors a side profile back when the
+silhouette IoU against that direction's existing frame says the generator drew it
+facing the wrong way, scales each pose uniformly to the reference frame's height and
+re-pastes it on that frame's baseline and horizontal centre (no floating or sinking
+between frames), and snaps every pixel to the reference frame's own palette. Output
+goes into idle columns 2-3, so the idle loop became `[base, shift, breath,
+look-around]` (`IDLE_LOOP`), slower by `REST_IDLE_SLOWDOWN` while resting, and a
+resting monster also turns to a new facing every few seconds, because four idle frames
+playing into a fixed facing still reads as a statue. `lpc_compose.py` calls the
+patcher itself, so recomposing a sheet cannot throw the art away (verified: recompose
++ re-patch is byte-identical). `assets/lpc/idle_frames.json` is the manifest the
+runtime reads; sheets that are not in it keep their two-frame idle, so this is
+additive. `assets/lpc/_idle_src/` holds the generated sources at 40% scale — the full
+resolution sheets (~1.5 MB each) would not fit the 120 MB repo budget, and the tool
+only needs ~2x the 64 px target. Payload so far: 10 of 21 character sheets (the
+image generator is capped at 10 sheets per pass); the remaining 11 are the same
+pipeline, no new code. Verified by `items_test` (frames exist, differ from frame 0,
+do not overflow their column) and `combat_test` (each archetype reports its sheet's
+frame count, the idle loop really plays four distinct columns, resting slows the loop
+and looks around).
