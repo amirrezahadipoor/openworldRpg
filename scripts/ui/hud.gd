@@ -95,10 +95,17 @@ func _process(delta: float) -> void:
 		var cds := player.cooldowns()
 		_update_cd(_whirl_btn, float(cds["whirl"]), Player.WHIRL_COOLDOWN, player.whirl_mp_cost())
 		_update_cd(_bolt_btn, float(cds["bolt"]), Player.BOLT_COOLDOWN, player.bolt_mp_cost())
-		# Dodge is on the same contract as the abilities: a sweep while it cools.
-		_dodge_btn.set_cooldown(clampf(float(cds.get("dodge", 0.0)) * Player.DODGE_COOLDOWN
-				/ maxf(Player.DODGE_COOLDOWN, 0.01), 0.0, 1.0) * float(cds.get("dodge", 0.0)))
-		_attack_btn.set_cooldown(float(cds.get("attack", 0.0)))
+		# Dodge and the melee chain share the same radial-sweep contract; before
+		# cooldowns() exposed them these dials never moved (the keys defaulted to
+		# 0), so the two thumb buttons gave no recovery feedback at all.
+		var dodge_frac := float(cds.get("dodge", 0.0))
+		_dodge_btn.set_cooldown(dodge_frac)
+		var attack_frac := float(cds.get("attack", 0.0))
+		_attack_btn.set_cooldown(attack_frac)
+		var attack_label: Label = _attack_btn.get_node_or_null("CdLabel") as Label
+		if attack_label != null:
+			attack_label.text = "%.1f" % (attack_frac * player.attack_cd_remaining_max()) \
+				if attack_frac > 0.0 else ""
 
 
 func _update_cd(btn: ActionButton, frac: float, total_cd: float, mp_cost: float) -> void:
@@ -409,11 +416,25 @@ func _cd_label() -> Label:
 
 
 func _load_icon(n: String) -> Texture2D:
-	for dir in ["res://assets/ui/icons/", "res://assets/placeholder/"]:
+	# The polished shipped art in assets/ui/icons uses bare stems (bag.png,
+	# dodge.png, ...) while the older placeholders in assets/placeholder use the
+	# icon_<stem>.svg convention. The HUD used to ask for "icon_bag" only in the
+	# placeholder folder, so the real bag/dodge/attack/ability art that ships in
+	# the repo was never shown — every button fell back to a rough stand-in (the
+	# Bag button read as a padlock). Accept either spelling and prefer the art.
+	var stems: Array = [n]
+	if n.begins_with("icon_"):
+		stems.append(n.substr(5))
+	for stem in stems:
 		for ext in [".png", ".svg"]:
-			var path := "%s%s%s" % [dir, n, ext]
-			if ResourceLoader.exists(path):
-				return load(path)
+			var art := "res://assets/ui/icons/%s%s" % [stem, ext]
+			if ResourceLoader.exists(art):
+				return load(art)
+	for stem in stems:
+		for ext in [".png", ".svg"]:
+			var ph := "res://assets/placeholder/%s%s" % [stem, ext]
+			if ResourceLoader.exists(ph):
+				return load(ph)
 	return null
 
 

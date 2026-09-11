@@ -51,6 +51,9 @@ var _dodge_timer := 0.0
 var _dodge_cd := 0.0
 var _dodge_dir := Vector2.RIGHT
 var _attack_cd := 0.0
+## The cooldown the most recent swing actually armed (a finisher waits far longer
+## than a jab), so the touch button's radial sweep fills in true proportion.
+var _attack_cd_max := ATTACK_COOLDOWN
 var _attack_active := 0.0
 var _combo := 0            # 0,1 = jabs · 2 = the finisher
 var _combo_timer := 0.0
@@ -166,11 +169,20 @@ func _update_footsteps() -> void:
 
 
 ## Normalized remaining cooldowns for HUD display (1 = just cast, 0 = ready).
+## Dodge and the melee chain are included too: the touch Attack/Dodge buttons
+## draw a radial sweep from these, and without the keys their dials never moved.
 func cooldowns() -> Dictionary:
 	return {
 		"whirl": _whirl_cd / WHIRL_COOLDOWN,
 		"bolt": _bolt_cd / BOLT_COOLDOWN,
+		"dodge": _dodge_cd / DODGE_COOLDOWN,
+		"attack": clampf(_attack_cd / maxf(_attack_cd_max, 0.01), 0.0, 1.0),
 	}
+
+
+## Seconds the most recent swing's cooldown runs for (for the touch readout).
+func attack_cd_remaining_max() -> float:
+	return _attack_cd_max
 
 
 func _read_move_input() -> Vector2:
@@ -202,7 +214,8 @@ func _start_attack() -> void:
 	var finisher := _combo == 2
 	_attack_mult = COMBO_FINISHER_MULT if finisher else 1.0
 	var recovery := ATTACK_COOLDOWN * (FINISHER_RECOVERY if finisher else 1.0)
-	_attack_cd = recovery * GameState.attack_cooldown_mult()
+	_attack_cd_max = recovery * GameState.attack_cooldown_mult()
+	_attack_cd = _attack_cd_max
 	_attack_active = ATTACK_ACTIVE_TIME * (1.5 if finisher else 1.0)
 	_hit_this_swing.clear()
 	attack_shape.disabled = false
