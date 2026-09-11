@@ -35,7 +35,37 @@ func _ready() -> void:
 	_test_starter_shelf()
 	_test_upgrade_sink()
 	_test_revive_persistence()
+	await _test_item_icons()
 	_report()
+
+
+func _test_item_icons() -> void:
+	print("[items_test] every item ships a real icon, and loot wears it")
+	var missing: Array = []
+	var null_tex: Array = []
+	for id in ItemsDB.items:
+		var sid := String(id)
+		if not ItemsDB.has_own_icon(sid):
+			missing.append(sid)
+		elif ItemsDB.icon(sid) == null:
+			null_tex.append(sid)
+	check(missing.is_empty(), "every item has a shipped icon png (%d missing: %s)"
+		% [missing.size(), str(missing.slice(0, 8))])
+	check(null_tex.is_empty(), "every item icon loads as a texture (%d bad: %s)"
+		% [null_tex.size(), str(null_tex.slice(0, 8))])
+	# The generic fallback art itself must exist.
+	check(ResourceLoader.exists(ItemsDB.GENERIC_ICON), "the fallback loot icon exists")
+	# A representative item of each type has its own art, and a ground drop asks for it.
+	for sid in ["health_potion", "slime_gel", "copper_ring", "cloth_tunic", "iron_sword"]:
+		check(ItemsDB.has_own_icon(sid), "%s has its own icon" % sid)
+	var scene: PackedScene = load("res://scenes/world/pickup.tscn")
+	var pk: Pickup = scene.instantiate()
+	add_child(pk)
+	pk.setup_item("iron_sword", 1)
+	await get_tree().process_frame
+	check(pk.art_path() == "res://assets/items/iron_sword.png",
+		"an item drop wears that item's icon (%s)" % pk.art_path())
+	pk.queue_free()
 
 
 func _test_audit_economy() -> void:

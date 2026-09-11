@@ -133,23 +133,40 @@ func _test_hud_layout_and_art() -> void:
 
 
 func _test_pickup_art() -> void:
-	print("[ui_test] loot on the ground is the shipped art, not a vector stand-in")
+	print("[ui_test] loot on the ground is the shipped art, and an item wears its own icon")
 	var scene: PackedScene = load("res://scenes/world/pickup.tscn")
-	for spec in [["gold", 1], ["item", 0]]:
-		var pk: Pickup = scene.instantiate()
-		add_child(pk)
-		if int(spec[1]) == 1:
-			pk.setup_gold(5)
-		else:
-			pk.setup_item("slime_gel", 1)
-		await get_tree().process_frame
-		var art := pk.art_path()
-		check(art.begins_with("res://assets/world/"),
-			"%s loot asks for real art (%s)" % [spec[0], art])
-		check(pk.sprite.texture != null
-				and not pk.sprite.texture.resource_path.begins_with("res://assets/placeholder/"),
-			"and it is wearing it (%s)" % (pk.sprite.texture.resource_path if pk.sprite.texture else "null"))
-		pk.queue_free()
+	# Gold is always the coin.
+	var coin: Pickup = scene.instantiate()
+	add_child(coin)
+	coin.setup_gold(5)
+	await get_tree().process_frame
+	check(coin.art_path() == "res://assets/world/coin.png",
+		"gold loot is the coin (%s)" % coin.art_path())
+	check(coin.sprite.texture != null
+			and not coin.sprite.texture.resource_path.begins_with("res://assets/placeholder/"),
+		"and it is wearing it (%s)" % (coin.sprite.texture.resource_path if coin.sprite.texture else "null"))
+	coin.queue_free()
+	# An item drop wears that item's own icon (a slime_gel drop is a gel blob),
+	# never the vector placeholder.
+	var pk: Pickup = scene.instantiate()
+	add_child(pk)
+	pk.setup_item("slime_gel", 1)
+	await get_tree().process_frame
+	var art := pk.art_path()
+	check(art == "res://assets/items/slime_gel.png",
+		"item loot asks for its own icon (%s)" % art)
+	check(pk.sprite.texture != null
+			and not pk.sprite.texture.resource_path.begins_with("res://assets/placeholder/"),
+		"and it is wearing it (%s)" % (pk.sprite.texture.resource_path if pk.sprite.texture else "null"))
+	pk.queue_free()
+	# An item without its own art falls back to the shared world loot sprite.
+	var generic: Pickup = scene.instantiate()
+	add_child(generic)
+	generic.setup_item("definitely_no_such_item", 1)
+	await get_tree().process_frame
+	check(generic.art_path() == "res://assets/world/loot.png",
+		"artless items fall back to the shared loot sprite (%s)" % generic.art_path())
+	generic.queue_free()
 	await get_tree().process_frame
 
 
@@ -349,6 +366,26 @@ func _test_inventory_unequip() -> void:
 	var ab: Button = inv._unequip_btns.get("armor")
 	check(not wb.disabled, "the worn weapon can be unequipped")
 	check(ab.disabled, "an empty armor slot still cannot be unequipped")
+	# Tapping anywhere on an item row selects it and fills the detail art. The
+	# middle labels used to swallow the press, so most of the line never selected.
+	GameState.add_item("health_potion", 2)
+	inv.open()
+	await get_tree().process_frame
+	inv._refresh()
+	var found_row: HBoxContainer = null
+	for r in inv._item_list.get_children():
+		if r is HBoxContainer:
+			found_row = r
+			break
+	check(found_row != null, "the potion has a row to tap")
+	if found_row != null:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = true
+		found_row.gui_input.emit(ev)
+		check(inv._selected == "health_potion", "tapping the row selects the potion ('%s')" % inv._selected)
+		check(inv._detail_icon != null and inv._detail_icon.texture != null,
+			"and the details panel shows the item's icon")
 	inv.close()
 	inv.queue_free()
 	GameState.inventory.clear()

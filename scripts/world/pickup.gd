@@ -48,9 +48,14 @@ const PLACEHOLDER := {
 
 
 func art_path() -> String:
-	## The texture this pickup is actually wearing - the UI test asserts it is not
-	## the placeholder.
-	return String(ART.get(kind, PLACEHOLDER[Kind.ITEM]))
+	## The texture this pickup is actually wearing. Gold is always the coin; an
+	## item drop wears that item's own icon (so a potion drops as a potion, not a
+	## generic bag), falling back to the shared loot sprite if it has no art.
+	if kind == Kind.GOLD:
+		return ART[Kind.GOLD]
+	if item_id != "" and ItemsDB.has_own_icon(item_id):
+		return "res://assets/items/%s.png" % item_id
+	return ART[Kind.ITEM]
 
 
 func _apply_texture() -> void:

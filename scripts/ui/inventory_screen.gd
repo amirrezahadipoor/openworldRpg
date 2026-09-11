@@ -12,6 +12,7 @@ const SLOTS := ["weapon", "armor", "accessory"]
 var _root: Control
 var _item_list: VBoxContainer
 var _equip_labels: Dictionary = {}
+var _equip_icons: Dictionary = {}
 var _unequip_btns: Dictionary = {}
 var _stats_label: Label
 var _gold_label: Label
@@ -21,6 +22,7 @@ var _sort_mode := "rarity"          # rarity | power | name | type
 var _filter_mode := "all"           # all | gear | consumable | material
 var _selected := ""
 var _detail_label: Label
+var _detail_icon: TextureRect
 var _count_label: Label
 
 
@@ -74,7 +76,7 @@ func _build() -> void:
 	_root.add_child(center)
 
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(920, 520)
+	panel.custom_minimum_size = Vector2(1000, 540)
 	var bg := StyleBoxFlat.new()
 	bg.bg_color = Color(0.09, 0.11, 0.15, 0.97)
 	bg.set_corner_radius_all(12)
@@ -95,7 +97,7 @@ func _build() -> void:
 
 func _build_left_column() -> Control:
 	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(320, 0)
+	box.custom_minimum_size = Vector2(300, 0)
 	box.add_theme_constant_override("separation", 10)
 
 	var title := Label.new()
@@ -154,8 +156,18 @@ func _build_left_column() -> Control:
 	for slot in SLOTS:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
+		var eq_icon := TextureRect.new()
+		eq_icon.custom_minimum_size = Vector2(30, 30)
+		eq_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		eq_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		eq_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		eq_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_equip_icons[slot] = eq_icon
+		row.add_child(eq_icon)
 		var lbl := Label.new()
-		lbl.custom_minimum_size = Vector2(210, 0)
+		lbl.custom_minimum_size = Vector2(140, 0)
+		lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		lbl.clip_text = true
 		_equip_labels[slot] = lbl
 		var unequip := Button.new()
 		unequip.text = "Unequip"
@@ -175,6 +187,18 @@ func _build_left_column() -> Control:
 
 	# Details for the tapped item. On a phone there is no hover, so the tooltip
 	# that explained every item was unreachable: this panel is what it becomes.
+	var detail_head := HBoxContainer.new()
+	detail_head.add_theme_constant_override("separation", 10)
+	_detail_icon = TextureRect.new()
+	_detail_icon.custom_minimum_size = Vector2(56, 56)
+	_detail_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_detail_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_detail_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	detail_head.add_child(_detail_icon)
+	var detail_spacer := Control.new()
+	detail_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_head.add_child(detail_spacer)
+	box.add_child(detail_head)
 	_detail_label = Label.new()
 	_detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_label.custom_minimum_size = Vector2(300, 96)
@@ -194,7 +218,7 @@ func _build_right_column() -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(480, 0)
+	scroll.custom_minimum_size = Vector2(560, 0)
 	# The item rows are built to fit the column; a horizontal bar only ever let
 	# their "[type]" tag scroll off the right edge instead of wrapping.
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -220,6 +244,10 @@ func _refresh() -> void:
 		var unequip_btn: Button = _unequip_btns.get(slot)
 		if unequip_btn != null:
 			unequip_btn.disabled = id == ""
+		var eq_icon: TextureRect = _equip_icons.get(slot)
+		if eq_icon != null:
+			eq_icon.texture = ItemsDB.icon(id) if id != "" else null
+			eq_icon.visible = id != ""
 
 	_stats_label.text = "Lv %d  ·  HP %.0f/%.0f  ·  MP %.0f/%.0f\nATK %.1f  ·  DEF %.1f  ·  SPD %.0f" % [
 		GameState.level,
@@ -281,7 +309,11 @@ func _before(a: String, b: String) -> bool:
 func _update_detail() -> void:
 	if _selected == "" or int(GameState.inventory.get(_selected, 0)) < 1:
 		_detail_label.text = "Tap an item to see what it does."
+		if _detail_icon != null:
+			_detail_icon.texture = null
 		return
+	if _detail_icon != null:
+		_detail_icon.texture = ItemsDB.icon(_selected)
 	var it: Dictionary = ItemsDB.get_item(_selected)
 	var lines: Array = [ItemsDB.item_name(_selected)]
 	lines.append(String(it.get("desc", "")))
@@ -325,21 +357,39 @@ func _item_row(item_id: String, qty: int) -> Control:
 	var it: Dictionary = ItemsDB.get_item(item_id)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
+	# The whole row selects the item: the stat/type labels used to swallow the
+	# press (a Control eats gui input by default), so tapping most of the line -
+	# exactly where a finger lands - never opened the details.
+	row.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var icon := TextureRect.new()
+	icon.texture = ItemsDB.icon(item_id)
+	icon.custom_minimum_size = Vector2(40, 40)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
 
 	var name_label := Label.new()
 	name_label.text = "%s ×%d" % [ItemsDB.item_name(item_id), qty]
-	name_label.custom_minimum_size = Vector2(140, 0)
+	name_label.custom_minimum_size = Vector2(96, 0)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	name_label.clip_text = true
 	# Kept for desktops, but the details panel below is what phones use.
 	name_label.tooltip_text = ItemsDB.get_desc(item_id)
-	name_label.mouse_filter = Control.MOUSE_FILTER_STOP
-	name_label.gui_input.connect(func(ev: InputEvent) -> void:
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Tap/click anywhere on the line (the row catches what non-interactive
+	# children ignore) to select the item and show its details.
+	var on_select := func(ev: InputEvent) -> void:
 		if (ev is InputEventScreenTouch and (ev as InputEventScreenTouch).pressed) \
 				or (ev is InputEventMouseButton and (ev as InputEventMouseButton).pressed):
 			_selected = item_id
 			_update_detail()
-	)
+	row.gui_input.connect(on_select)
 	# Rarity is the power ordering, so it is the thing the player scans for.
 	# Legendary/mythical gear also gets a marker so it reads at a glance.
 	name_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
@@ -350,9 +400,11 @@ func _item_row(item_id: String, qty: int) -> Control:
 	var rarity_label := Label.new()
 	rarity_label.text = ItemsDB.get_rarity(item_id).capitalize()
 	rarity_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
-	rarity_label.add_theme_font_size_override("font_size", 14)
-	rarity_label.custom_minimum_size = Vector2(62, 0)
+	rarity_label.add_theme_font_size_override("font_size", 13)
+	rarity_label.custom_minimum_size = Vector2(80, 0)
+	rarity_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	rarity_label.clip_text = true
+	rarity_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(rarity_label)
 
 	var stat_text := _stat_line(it)
@@ -363,6 +415,7 @@ func _item_row(item_id: String, qty: int) -> Control:
 	stat_label.custom_minimum_size = Vector2(0, 0)
 	stat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_label.clip_text = true
+	stat_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(stat_label)
 
 	var type_label := Label.new()
@@ -373,6 +426,7 @@ func _item_row(item_id: String, qty: int) -> Control:
 	type_label.add_theme_font_size_override("font_size", 14)
 	type_label.custom_minimum_size = Vector2(52, 0)
 	type_label.clip_text = true
+	type_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(type_label)
 
 	var primary := Button.new()

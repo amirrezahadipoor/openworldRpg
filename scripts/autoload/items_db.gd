@@ -35,6 +35,13 @@ const STAT_WEIGHT := {
 
 var items: Dictionary = {}
 
+## Per-item pixel-art icons authored as sprite sheets and split by
+## tools/art/make_item_icons.py. Before these existed every item — a potion, a
+## sword, a relic — showed only as text (or one generic loot bag in the world).
+const ICON_DIR := "res://assets/items/"
+const GENERIC_ICON := "res://assets/world/loot.png"
+var _icon_cache: Dictionary = {}
+
 
 func _ready() -> void:
 	var path := "res://data/items.json"
@@ -82,6 +89,28 @@ func get_rarity(id: String) -> String:
 
 func rarity_color(id: String) -> Color:
 	return RARITY_COLOR.get(get_rarity(id), Color.WHITE)
+
+
+func icon_path(id: String) -> String:
+	## res:// path of the item's own icon, or the generic loot sprite.
+	var own := ICON_DIR + id + ".png"
+	return own if ResourceLoader.exists(own) else GENERIC_ICON
+
+
+func has_own_icon(id: String) -> bool:
+	return ResourceLoader.exists(ICON_DIR + id + ".png")
+
+
+func icon(id: String) -> Texture2D:
+	## Cached icon texture (null only if even the fallback is missing).
+	if _icon_cache.has(id):
+		return _icon_cache[id]
+	var tex: Texture2D = null
+	var path := icon_path(id)
+	if ResourceLoader.exists(path):
+		tex = load(path)
+	_icon_cache[id] = tex
+	return tex
 
 
 func rarity_rank(id: String) -> int:

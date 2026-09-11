@@ -182,13 +182,28 @@ func _refresh() -> void:
 			_sell_list.add_child(_sell_row(String(item_id), int(GameState.inventory[item_id])))
 
 
+func _row_icon(item_id: String, size := 34.0) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.texture = ItemsDB.icon(item_id)
+	tr.custom_minimum_size = Vector2(size, size)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tr.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return tr
+
+
 func _buy_row(item_id: String) -> Control:
 	var price := buy_price(item_id)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
+	row.add_child(_row_icon(item_id))
 	var label := Label.new()
 	label.text = "%s" % ItemsDB.item_name(item_id)
-	label.custom_minimum_size = Vector2(190, 0)
+	label.custom_minimum_size = Vector2(150, 0)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	label.clip_text = true
 	label.tooltip_text = ItemsDB.get_desc(item_id)
 	row.add_child(label)
 	var price_label := Label.new()
@@ -214,9 +229,13 @@ func _sell_row(item_id: String, qty: int) -> Control:
 	var price := sell_price(item_id)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
+	row.add_child(_row_icon(item_id))
 	var label := Label.new()
 	label.text = "%s ×%d" % [ItemsDB.item_name(item_id), qty]
-	label.custom_minimum_size = Vector2(190, 0)
+	label.custom_minimum_size = Vector2(150, 0)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	label.clip_text = true
 	row.add_child(label)
 	var price_label := Label.new()
 	price_label.text = "%d g" % price
