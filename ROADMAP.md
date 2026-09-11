@@ -124,9 +124,9 @@ Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
   money pooled around. `0c3b8d5`
 - [x] **The side-loadable APK was 175 MB** — 157 MB of that was two ABIs of
   *uncompressed* engine binary (`libgodot_android.so`, 69 MB + 76 MB) next to
-  ~25 MB of actual game. `compress_native_libraries` halves the download, and a
-  new release gate (`tools/check_apk.py`) refuses to publish an artefact whose
-  libraries are stored raw or whose manifest cannot extract them. `v0.6.2`
+  ~25 MB of actual game. Compressed, the same build is **67 MB** (published as
+  `v0.6.2`), and a new release gate refuses to publish an artefact whose libraries
+  are stored raw or whose merged manifest cannot extract them. `da6bb9e`
 
 
 ---
@@ -242,7 +242,8 @@ a regression test and were run through the full suite.
 | Art parity | `python3 tools/make_idle_frames.py --check` → 49 sheets / 49 idle / 21 attack / 3 cast |
 | World decor | atlas 11 columns; the shipped map is 4.73 % decorated (asserted ≥ 3 % and < 15 %) |
 | Repo budget | `tools/check_repo_size.sh` (< 120 MB) |
-| Release builds | `v0.6.0` / `v0.6.1` — signed APK + debug APK + AAB, published as a prerelease, `versionName`/`versionCode` derived from the tag |
+| Release builds | `v0.6.0` → `v0.6.2` — signed APK + debug APK + AAB, prereleases, `versionName`/`versionCode` derived from the tag, size 175 MB → 67 MB |
+| Release gate | `python3 tools/check_apk.py <artefact>` on every published file, plus `tools/check_apk_test.py` (4 fixtures) in CI |
 | CI | `smoke-test` · `visual-capture` · `android-export` on every push to `main` |
 
 Standing rules that keep Part 1 honest:

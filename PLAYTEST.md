@@ -9,6 +9,17 @@ Build: `release` workflow on a `v*` tag → signed APK/AAB, or
 
 ## 0. Before you touch it
 
+**The build to test is `v0.6.2`** (prerelease, `OpenWorldRPG-v0.6.2.apk`, 67 MB —
+it was 175 MB before the engine binaries were compressed). Two things changed in
+it that only a device can confirm:
+
+- [ ] The app's own version reads **0.6.2** (Settings → Apps → OpenWorld RPG).
+      Older builds said 0.4.2 while claiming to be a newer release.
+- [ ] It **launches**. Compressed native libraries are only safe because the
+      manifest asks Android to extract them; the release gate checks that it does
+      (`tools/check_apk.py`), but a first launch on real hardware is the proof.
+      Expect the first start to take a moment longer than later ones.
+
 - [ ] Install the APK on a real Android device (not just an emulator — emulators
       have no touch latency and no thermal throttling, which is half of what we
       are here to find out).

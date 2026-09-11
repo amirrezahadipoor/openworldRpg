@@ -1368,7 +1368,15 @@ publication, as a crash on launch.
 
 So the release workflow now runs `tools/check_apk.py` on every artefact it is about
 to publish, and refuses the release if any library is stored uncompressed or if the
-manifest does not ask Android to extract them. The manifest check is a targeted scan
-(the attribute name in the binary string pool, then the attribute record that
-follows that index) rather than a general AXML parser: a release gate should answer
-one question, definitively, and not grow into a subsystem.
+manifest does not ask Android to extract them. The manifest check parses what it needs - the
+AXML string pool, then the `<application>` element's attribute records - rather than
+a general-purpose parser: a release gate should answer one question, definitively,
+and not grow into a subsystem.
+
+It got that one question wrong on its first run, which is the part worth keeping.
+The pool header offsets were read four bytes early, the strings came back empty, and
+the gate stopped a release of an artefact that was in fact fine. A gate that cries
+wolf is worse than no gate: it teaches everyone to bypass it. So the checker ships
+with `tools/check_apk_test.py` - hand-built AXML fixtures in the four combinations
+that matter (compressed + extractable, stored, compressed with the flag false, and a
+bundle) - and CI runs it on every push. The gate is now the thing that is tested.
