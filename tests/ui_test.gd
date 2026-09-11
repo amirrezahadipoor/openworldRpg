@@ -59,6 +59,18 @@ func _test_audit_fixes() -> void:
 	far.add_to_group("interactable_in_range")
 	var target := WorldInteractable.nearest_in_range(tree, player)
 	check(target == near, "the closest of two in range is the one that acts (M1)")
+
+	# A screen can outlive the body it was built around. Passing a freed player used
+	# to be a hard script error ("previously freed", CI caught it on the commit that
+	# introduced the shared rule), so the rule takes it and says "nothing".
+	var doomed := Node2D.new()
+	doomed.add_to_group("player")
+	add_child(doomed)
+	var stale: Node2D = doomed
+	remove_child(doomed)
+	doomed.free()
+	check(WorldInteractable.nearest_in_range(tree, stale) == null,
+		"a freed player reference answers 'nothing in reach' instead of erroring")
 	far.remove_from_group("interactable_in_range")   # stepped out of its radius
 	check(WorldInteractable.nearest_in_range(tree, player) == near,
 		"an out-of-range neighbour is ignored")

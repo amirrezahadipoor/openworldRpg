@@ -87,8 +87,10 @@ func _test_audit_fixes() -> void:
 				report_obj = String(obj.get("id", ""))
 		check(QuestManager.objective_count(chain, report_obj) == 0,
 			"the report step stays locked while the gather step is open (G2)")
+		# What a Pickup node does when it lands: the material is in the bag and the
+		# manager re-reads the collect objectives off the inventory.
 		GameState.add_item("slime_gel", 3)
-		QuestManager.sync_collect_objectives()
+		QuestManager._sync_collect(chain)
 		check(QuestManager.objective_count(chain, "gather") >= 3, "the gather step fills")
 		QuestManager.talk_to("elder_rowan")
 		check(QuestManager.objective_count(chain, report_obj) == 1,

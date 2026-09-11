@@ -447,6 +447,11 @@ func nearest_interactable() -> Node2D:
 	## fire both. NPCs and world interactables join the group themselves. The rule
 	## lives in WorldInteractable so the keyboard path cannot drift from this one
 	## (audit M1).
+	if not is_instance_valid(player):
+		# The screen can outlive the body it was built around (scene change, a
+		# death + respawn): fall back to the live player rather than handing a
+		# freed object to the shared rule.
+		player = get_tree().get_first_node_in_group("player") as Player
 	return WorldInteractable.nearest_in_range(get_tree(), player) as Node2D
 
 

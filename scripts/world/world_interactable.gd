@@ -97,10 +97,16 @@ func _player() -> Node2D:
 	return get_tree().get_first_node_in_group("player") as Node2D
 
 
-static func nearest_in_range(tree: SceneTree, player: Node2D) -> Node:
+static func nearest_in_range(tree: SceneTree, player) -> Node:
 	## The single interactable an interact press should act on, or null.
-	if tree == null or player == null:
+	##
+	## The player parameter is deliberately untyped and validity-checked: screens
+	## hold a reference across a scene change, and even an `Object` parameter
+	## rejects a *freed* instance at the call boundary ("previously freed" - CI
+	## caught it on the commit that introduced this rule).
+	if tree == null or not is_instance_valid(player) or not (player is Node2D):
 		return null
+	var here := (player as Node2D).global_position
 	var best: Node = null
 	var best_d := INF
 	# Membership of the group is the in-range test: NPCs and world interactables add
@@ -108,7 +114,7 @@ static func nearest_in_range(tree: SceneTree, player: Node2D) -> Node:
 	for n in tree.get_nodes_in_group("interactable_in_range"):
 		if not (n is Node2D) or not is_instance_valid(n):
 			continue
-		var d := (n as Node2D).global_position.distance_to(player.global_position)
+		var d := (n as Node2D).global_position.distance_to(here)
 		if d < best_d:
 			best_d = d
 			best = n

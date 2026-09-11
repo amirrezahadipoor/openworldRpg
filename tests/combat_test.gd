@@ -1376,9 +1376,17 @@ func _test_safe_ground_and_dialogue_protection() -> void:
 	# stop a few pixels short of the bubble edge if a tent blocks the retreat, so
 	# the assertion is "it walked off", not "it is provably outside".)
 	var walked := enemy.global_position.distance_to(camp)
+	# 430 frames is the walk time on this machine, not on every machine: CI came
+	# in at 250 px and failed a check about withdrawal distance that was really
+	# about CPU speed. Wait for the walk to finish, then judge it.
+	var waited := 430
+	while waited < 1200 and walked <= 260.0:
+		await get_tree().physics_frame
+		waited += 1
+		walked = enemy.global_position.distance_to(camp)
 	check(walked > 260.0 and enemy.state != Enemy.State.CHASE and enemy.state != Enemy.State.ATTACK,
-		"the monster walks off instead of loitering in the middle of town (%.0f px out, state %d)" %
-		[walked, enemy.state])
+		"the monster walks off instead of loitering in the middle of town (%.0f px out, state %d, %.1f s)" %
+		[walked, enemy.state, waited / 60.0])
 
 	# Chasing in from outside must not work either.
 	enemy.global_position = camp + Vector2(520, 0)
