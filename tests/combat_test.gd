@@ -50,6 +50,7 @@ func _ready() -> void:
 
 	await _test_perf()
 
+	_test_boss_gate_and_flags()
 	_test_boss_phases_and_death()
 	await get_tree().physics_frame
 
@@ -576,6 +577,50 @@ func _test_perf() -> void:
 				await get_tree().create_timer(0.25).timeout
 		check(streamer._loaded.size() <= 9, "3x3 stress: loaded chunks capped at 9 (got %d)" % streamer._loaded.size())
 		check(streamer.get_loaded_chunk(Vector2i(1, 1)) != null, "3x3 stress: corner chunk (1,1) loaded")
+
+
+func _test_boss_gate_and_flags() -> void:
+	print("[combat_test] the Warden waits for the story, and keeps its own flag")
+	var arena: BossArena = (load("res://scenes/enemies/boss_arena.tscn") as PackedScene).instantiate()
+	add_child(arena)
+	arena.global_position = Vector2(40000, 40000)
+
+	# A wanderer who has not reached the Ember Omen must not be one-shot here: the
+	# keep's coordinates sit on top of its own dungeon entrance (audit C1).
+	GameState.quest_flags.erase("saw_warden_ring")
+	GameState.quest_flags.erase("boss_defeated")
+	check(not arena.story_ready(), "a player with no Omen does not wake the Warden")
+	var walker := Node2D.new()
+	add_child(walker)
+	walker.global_position = arena.global_position + Vector2(40, 0)
+	check(not arena.may_summon(walker),
+		"walking onto the ring without the story summons nothing")
+
+	# With q3 running (what q2 hands the player), the fight starts as authored.
+	GameState.quests["q3_warden_fall"] = "active"
+	check(arena.story_ready(), "q3 active is enough to wake the Warden")
+	check(arena.may_summon(walker), "the summon is allowed once the story is ready")
+	# Out of aggro range it stays asleep even with the story ready.
+	var far_away := Node2D.new()
+	add_child(far_away)
+	far_away.global_position = arena.global_position + Vector2(1200, 0)
+	check(not arena.may_summon(far_away), "the ring still needs the player inside it")
+	far_away.queue_free()
+	walker.queue_free()
+
+	# A dungeon floor reusing this script writes its own flag, so clearing one can
+	# never leave the other permanently empty (audit C1).
+	var floor_arena: BossArena = (load("res://scenes/enemies/boss_arena.tscn") as PackedScene).instantiate()
+	floor_arena.flag_key = "cleared_ember_warden_keep_floor3"
+	floor_arena.story_gate = false
+	add_child(floor_arena)
+	floor_arena.global_position = Vector2(40000, 40200)
+	check(floor_arena.story_ready(), "a dungeon floor's Warden has no story gate")
+	check(floor_arena.flag_key != arena.flag_key, "the two Warden fights record different flags")
+	floor_arena.queue_free()
+	arena.queue_free()
+	for q in ["q3_warden_fall"]:
+		GameState.quests.erase(q)
 
 
 func _test_boss_phases_and_death() -> void:

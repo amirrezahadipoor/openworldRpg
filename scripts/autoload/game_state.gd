@@ -54,6 +54,11 @@ var quests: Dictionary = {}
 var quest_progress: Dictionary = {}
 # free-form story flags (dialogue choices, secret found, ...)
 var quest_flags: Dictionary = {}
+## Which dungeon (if any) the current save was taken inside, and how deep.
+## Saved with the run so a load can rebuild the interior instead of dropping
+## the player into an empty chunk (audit C3).
+var dungeon_id: String = ""
+var dungeon_floor: int = 1
 ## What the character has actually received, in order — kind -> text. Quests,
 ## purchases, sales and level-ups all write here. The audit's point was that a
 ## player could not answer "what did that job pay me?"; this is the answer, and
@@ -619,6 +624,7 @@ func _clamp_pools() -> void:
 
 func to_dict() -> Dictionary:
 	return {
+		"dungeon_id": dungeon_id, "dungeon_floor": dungeon_floor,
 		"level": level, "xp": xp, "gold": gold, "talent_points": talent_points,
 		"milestones_claimed": milestones_claimed.duplicate(),
 		"hp": hp, "mp": mp,
@@ -636,6 +642,8 @@ func to_dict() -> Dictionary:
 func from_dict(d: Dictionary) -> void:
 	if d.is_empty():
 		return
+	dungeon_id = String(d.get("dungeon_id", ""))
+	dungeon_floor = maxi(1, int(d.get("dungeon_floor", 1)))
 	level = int(d.get("level", 1))
 	xp = int(d.get("xp", 0))
 	gold = int(d.get("gold", 50))

@@ -155,6 +155,26 @@ func _build_room() -> void:
 		wall.color = Color(0.11, 0.10, 0.12)
 		wall.z_index = -5
 		floor_root.add_child(wall)
+	# The wall bands were pure decoration: the player could walk straight through
+	# them and out of the room, into empty coordinates with nothing there at all
+	# (audit C5). One static body carries the four bands as collision.
+	var walls := StaticBody2D.new()
+	walls.name = "Walls"
+	walls.collision_layer = 1
+	walls.collision_mask = 0
+	for band in [
+		Rect2(-WALL, -WALL, ROOM + WALL * 2, WALL),
+		Rect2(-WALL, ROOM, ROOM + WALL * 2, WALL),
+		Rect2(-WALL, 0, WALL, ROOM),
+		Rect2(ROOM, 0, WALL, ROOM),
+	]:
+		var shape := CollisionShape2D.new()
+		var rect := RectangleShape2D.new()
+		rect.size = band.size
+		shape.shape = rect
+		shape.position = band.position + band.size * 0.5
+		walls.add_child(shape)
+	floor_root.add_child(walls)
 
 	var label := Label.new()
 	label.text = String(floor_data().get("name", dungeon_id))
@@ -289,6 +309,11 @@ func _populate(fd: Dictionary) -> void:
 		if arena_script != null:
 			var arena: Node2D = Node2D.new()
 			arena.set_script(arena_script)
+			# This floor's Warden is *this floor's* boss: it writes its own flag and
+			# does not consult the overworld's, so killing the arena Warden can no
+			# longer leave the keep's third floor permanently empty (audit C1).
+			arena.set("flag_key", "cleared_%s_floor%d" % [dungeon_id, floor_index])
+			arena.set("story_gate", false)
 			arena.position = Vector2(ROOM * 0.5, ROOM * 0.5)
 			floor_root.add_child(arena)
 			return

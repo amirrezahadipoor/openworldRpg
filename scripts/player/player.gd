@@ -494,6 +494,17 @@ func _columns_for(anim: String, sheet: String) -> Array:
 	return range(int(LPC_FRAMES[anim]))
 
 
+func revive() -> void:
+	## Bring the hero back after a respawn. _dead was only ever set, never
+	## cleared, so the hurt frame and the 90-degree death tilt survived into the
+	## next life (audit M7).
+	_dead = false
+	_hurt_anim = 0.0
+	if sprite != null:
+		sprite.rotation = 0.0
+	_update_anim()
+
+
 func _on_died() -> void:
 	_dead = true
 	if sprite != null:

@@ -11,13 +11,18 @@ const CHUNK_SCENE_DIR := "res://world/chunks"
 const UPDATE_INTERVAL := 0.25
 
 var follow_target: Node2D
+## Dungeon interiors are built far off-map and the player is moved to them, so the
+## streamer used to keep generating ordinary overworld chunks - monster spawners
+## and all - underneath the dungeon room (audit C5). Inside a dungeon it is
+## suspended instead.
+var suspended := false
 
 var _loaded: Dictionary = {}
 var _timer := 0.0
 
 
 func _physics_process(delta: float) -> void:
-	if follow_target == null:
+	if follow_target == null or suspended:
 		return
 	_timer += delta
 	if _timer < UPDATE_INTERVAL:
@@ -28,6 +33,15 @@ func _physics_process(delta: float) -> void:
 
 func set_target(t: Node2D) -> void:
 	follow_target = t
+	_update()
+
+
+func suspend() -> void:
+	suspended = true
+
+
+func resume() -> void:
+	suspended = false
 	_update()
 
 
@@ -70,10 +84,29 @@ func _load_chunk(key: Vector2i) -> void:
 	EventBus.chunk_loaded.emit(key)
 
 
+## Chunk-radius at which one biome gives way to the next. A chunk adjacent to the
+## spawn used to be able to roll Frosthollow purely on its hash, and the frost
+## table spawns level 85-100 archetypes next to the starting camp (audit C2).
+const BIOME_BANDS := [2.6, 5.2]
+
+
+func biome_of_chunk(key: Vector2i) -> int:
+	## 0 meadow · 1 barrens · 2 frosthollow, by distance from the origin rather
+	## than by a free roll. The band edge is wobbled by a chunk-stable hash so the
+	## world does not read as three perfect rings.
+	var d := Vector2(float(key.x), float(key.y)).length()
+	var wobble := (float(hash(key) % 1000) / 1000.0 - 0.5) * 1.1
+	if d + wobble < BIOME_BANDS[0]:
+		return 0
+	if d + wobble < BIOME_BANDS[1]:
+		return 1
+	return 2
+
+
 func _build_placeholder_chunk(key: Vector2i) -> Node2D:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key) & 0x7FFFFFFF
-	var biome := rng.randi_range(0, 2)  # 0 meadow · 1 barrens · 2 frosthollow
+	var biome := biome_of_chunk(key)
 	var palettes := [
 		Color(0.24, 0.42, 0.25),
 		Color(0.55, 0.47, 0.33),
@@ -109,10 +142,20 @@ func _build_placeholder_chunk(key: Vector2i) -> Node2D:
 	tag.add_theme_color_override("font_color", Color(1, 1, 1, 0.25))
 	root.add_child(tag)
 
-	# Enemy spawners (skip the spawn chunk so the starting area is safe).
-	if key != Vector2i.ZERO:
+	# Enemy spawners. The spawn chunk keeps the starting area safe, and so do its
+	# immediate neighbours: the first thing a new player does is walk out of the
+	# camp, and that walk should not be into a level-30 spawn table (audit C2).
+	if not _is_spawn_safe(key):
 		_populate_enemies(root, rng, biome)
 	return root
+
+
+## Chunks within this many chunks of the origin carry no spawners at all.
+const SPAWN_SAFE_RADIUS := 2
+
+
+func _is_spawn_safe(key: Vector2i) -> bool:
+	return absi(key.x) <= SPAWN_SAFE_RADIUS and absi(key.y) <= SPAWN_SAFE_RADIUS
 
 
 func _populate_secrets(root: Node2D, key: Vector2i) -> void:

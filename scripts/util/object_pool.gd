@@ -36,6 +36,11 @@ func acquire() -> Node:
 func release(n: Node) -> void:
 	if n == null or not is_instance_valid(n):
 		return
+	# Releasing the same node twice used to put it in the free list twice, so
+	# acquire() could hand one enemy or projectile to two callers at once
+	# (audit M6).
+	if n in _free:
+		return
 	_deactivate(n)
 	_free.append(n)
 

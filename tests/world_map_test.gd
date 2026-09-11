@@ -28,6 +28,8 @@ func _ready() -> void:
 	_test_micro_locations()
 	await _test_dungeon_vaults()
 	_test_overworld_spawners()
+	_test_spawn_safety_and_biomes()
+	await _test_dungeon_walls()
 	_test_safe_zones()
 	_test_facade_art()
 	_ensure_probe()
@@ -449,6 +451,60 @@ func _load_chunk(key: Vector2i) -> Dictionary:
 		return {}
 	var doc: Dictionary = JSON.parse_string(f.get_as_text()) as Dictionary
 	return doc if doc != null else {}
+
+
+func _test_spawn_safety_and_biomes() -> void:
+	print("[world_map_test] the walk out of the camp is safe, and biomes ring the map")
+	var streamer := ChunkStreamer.new()
+	add_child(streamer)
+
+	# C2: chunks beside the spawn used to roll any biome, and frost carries level
+	# 85-100 archetypes. Nothing within the safe radius may carry spawners.
+	var unsafe := 0
+	for y in range(-1, 2):
+		for x in range(-1, 2):
+			if not streamer._is_spawn_safe(Vector2i(x, y)):
+				unsafe += 1
+	check(unsafe == 0, "the nine chunks around the spawn carry no spawners")
+
+	# And the biome a chunk gets follows distance from the origin, not a free roll.
+	var rings := {}
+	for x in range(-8, 9):
+		rings[streamer.biome_of_chunk(Vector2i(x, 0))] = true
+	check(rings.has(0) and rings.has(1) and rings.has(2),
+		"walking one axis crosses all three biomes (%s)" % str(rings.keys()))
+	var inner := streamer.biome_of_chunk(Vector2i(1, 0))
+	var outer := streamer.biome_of_chunk(Vector2i(9, 0))
+	check(inner == 0, "the chunk next to the spawn is meadow (%d)" % inner)
+	check(outer == 2, "the far chunk is frosthollow (%d)" % outer)
+	# The band edges may wobble, but never enough to put frost on the doorstep.
+	var nearest_frost := 99
+	for y in range(-9, 10):
+		for x in range(-9, 10):
+			if streamer.biome_of_chunk(Vector2i(x, y)) == 2:
+				nearest_frost = mini(nearest_frost, maxi(absi(x), absi(y)))
+	check(nearest_frost >= 2, "no frosthollow chunk touches the spawn (%d chunks away)"
+		% nearest_frost)
+	streamer.queue_free()
+
+
+func _test_dungeon_walls() -> void:
+	print("[world_map_test] a dungeon floor is walled in and stops the overworld stream")
+	var d := Dungeon.new()
+	add_child(d)
+	d.setup("drowned_mill", 1)
+	await get_tree().physics_frame
+	var walls: StaticBody2D = d.floor_root.get_node_or_null("Walls")
+	check(walls != null, "the floor has real wall collision (audit C5)")
+	if walls != null:
+		check(walls.get_child_count() == 4, "four wall bands carry collision (%d)"
+			% walls.get_child_count())
+		var shapes := 0
+		for c in walls.get_children():
+			if c is CollisionShape2D and (c as CollisionShape2D).shape != null:
+				shapes += 1
+		check(shapes == 4, "every band has a shape (%d)" % shapes)
+	d.queue_free()
 
 
 func _test_safe_zones() -> void:

@@ -63,6 +63,7 @@ func _ready() -> void:
 	if GameState.pending_load:
 		SaveSystem.load_game(player, GameState.current_slot)
 		GameState.pending_load = false
+		_restore_dungeon_from_state()
 	_refresh_quest_ui()
 	_refresh_markers()
 	_update_music()
@@ -147,10 +148,13 @@ func _update_music() -> void:
 
 
 func _inside_settlement(pos: Vector2) -> bool:
+	## Each settlement's own radius, the same data _check_place_flags() reads.
+	## A flat 420 px here meant the music flipped to "town" well outside the
+	## smaller villages and inside the larger ones' fields (audit L2).
 	for st in settlements:
 		if st == null or not is_instance_valid(st):
 			continue
-		if pos.distance_to(st.global_position) <= 420.0:
+		if pos.distance_to(st.global_position) <= st.safe_radius:
 			return true
 	return false
 
@@ -639,11 +643,24 @@ func _on_player_died() -> void:
 
 
 func _on_respawn() -> void:
+	# Dying inside a dungeon used to leave the Dungeon node in the tree forever:
+	# a leak, and - worse - _check_place_flags() bails out whenever _dungeon is
+	# non-null, so no visited_<settlement> flag could ever be raised again for the
+	# rest of the session (audit C4). Leave the dungeon exactly as the exit door
+	# would, wherever the player actually died.
+	if _dungeon != null:
+		_leave_dungeon()
+	GameState.dungeon_id = ""
+	GameState.dungeon_floor = 1
 	GameState.hp = GameState.max_hp()
 	GameState.mp = GameState.max_mp()
-	player.global_position = SPAWN_POINT
+	# _dead stayed true after a death (the sprite kept its 90-degree death tilt),
+	# because only HP/position were restored (audit M7).
+	if player != null:
+		player.revive()
+		player.global_position = SPAWN_POINT
+		player.velocity = Vector2.ZERO
 	camera.global_position = SPAWN_POINT
-	player.velocity = Vector2.ZERO
 
 
 func _on_load_last() -> void:
@@ -684,12 +701,16 @@ func _build_dungeon_entrances() -> void:
 		world.add_child(entrance)
 
 
-func enter_dungeon(dungeon_id: String) -> void:
+func enter_dungeon(dungeon_id: String, at_floor: int = 1) -> void:
 	## Build the dungeon off-map and move the player in. Ascending past floor 1
 	## (the "Exit" stair) returns them to where they stood.
 	if player == null:
 		return
 	_dungeon_return = player.global_position
+	# While the player is in here the overworld stream must not follow them to
+	# the far corner dungeons live in (audit C5).
+	if streamer != null:
+		streamer.suspend()
 	if _dungeon != null and is_instance_valid(_dungeon):
 		_dungeon.queue_free()
 	_dungeon = Dungeon.new()
@@ -697,21 +718,43 @@ func enter_dungeon(dungeon_id: String) -> void:
 	add_child(_dungeon)
 	_dungeon.exited.connect(_on_dungeon_exited)
 	QuestManager.register_flag("entered_%s" % dungeon_id)
-	_dungeon.setup(dungeon_id, 1)
+	GameState.dungeon_id = dungeon_id
+	GameState.dungeon_floor = maxi(1, at_floor)
+	_dungeon.setup(dungeon_id, maxi(1, at_floor))
 	# Important: setup() places the dungeon at its world position, so the
 	# off-map relocation has to happen AFTER it, or the room is left sitting on
 	# the overworld while the player stands in an empty chunk.
 	_dungeon.global_position = DUNGEON_ORIGIN
 	if hud_ref != null:
-		hud_ref.show_toast("Entered %s — floor 1 of %d" % [
-			String(_dungeon.data.get("name", dungeon_id)), _dungeon.floor_count()])
+		hud_ref.show_toast("Entered %s — floor %d of %d" % [
+			String(_dungeon.data.get("name", dungeon_id)), _dungeon.floor_index,
+			_dungeon.floor_count()])
 	player.global_position = DUNGEON_ORIGIN + Dungeon.STAIR_DOWN - Vector2(0, 40)
 
 
-func _on_dungeon_exited(_id: String) -> void:
+func _restore_dungeon_from_state() -> void:
+	## A save taken inside a dungeon stored the dungeon's id and floor; without
+	## rebuilding it the player would load into an empty chunk 200000 px from
+	## anywhere (audit C3). Called after a load, and by the tests.
+	if GameState.dungeon_id == "":
+		return
+	enter_dungeon(GameState.dungeon_id, GameState.dungeon_floor)
+
+
+func _leave_dungeon() -> void:
+	## The one place that dismantles a dungeon: the exit stair, a death, and a
+	## load that lands back on the surface all have to do exactly this.
 	if _dungeon != null and is_instance_valid(_dungeon):
 		_dungeon.queue_free()
-		_dungeon = null
+	_dungeon = null
+	GameState.dungeon_id = ""
+	GameState.dungeon_floor = 1
+	if streamer != null:
+		streamer.resume()
+
+
+func _on_dungeon_exited(_id: String) -> void:
+	_leave_dungeon()
 	if player != null:
 		player.global_position = _dungeon_return
 	if hud_ref != null:

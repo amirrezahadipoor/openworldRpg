@@ -42,6 +42,7 @@ func _ready() -> void:
 	await _act3_warden_fall()
 	await _act4_new_dawn()
 	await _act5_secrets()
+	await _act6_dungeon_and_death()
 
 	print("PLAYTHROUGH RESULT: %s (%d checks)" % ["PASS" if failures == 0 else "FAIL", checks])
 	get_tree().quit(1 if failures > 0 else 0)
@@ -264,6 +265,66 @@ func _act5_secrets() -> void:
 	await _await_until(func() -> bool: return _find_site(streamer, sid) != null, 4.0)
 	check(SecretsDB.is_found(sid), "the secret is still found after a chunk reload")
 	check(GameState.gold == gold_after, "re-streaming the chunk did not pay twice")
+
+
+## Act 6 (audit C3/C4): a run that saves inside a dungeon, and a run that dies in
+## one. Both used to lose the player: the save kept only raw coordinates, and a
+## death left the Dungeon node (and its "is the player inside?" flag) behind for
+## the rest of the session.
+func _act6_dungeon_and_death() -> void:
+	print("[playthrough] Act 6 — Underground, and the way back")
+	var streamer: ChunkStreamer = main_node.get_node_or_null("World/ChunkStreamer")
+	check(streamer != null, "streamer present for the dungeon checks")
+	if streamer == null:
+		return
+
+	main_node.enter_dungeon("drowned_mill", 1)
+	await get_tree().physics_frame
+	check(main_node.current_dungeon() != null, "the dungeon is built")
+	check(GameState.dungeon_id == "drowned_mill", "the run records which dungeon it is in")
+	check(streamer.suspended, "the overworld stream stops while the player is inside (C5)")
+
+	# A death underground must dismantle the dungeon, not leave it in the tree.
+	main_node._on_respawn()
+	await get_tree().physics_frame
+	check(main_node.current_dungeon() == null, "respawning clears the dungeon (C4)")
+	check(GameState.dungeon_id == "" and GameState.dungeon_floor == 1,
+		"the run no longer claims to be underground")
+	check(not streamer.suspended, "the overworld stream resumes on the surface")
+	check(not player._dead, "the hero is alive again after a respawn (M7)")
+	check(is_equal_approx(player.global_position.x, main_node.SPAWN_POINT.x),
+		"the respawn puts the hero back at the camp")
+
+	# A save taken underground has to carry the dungeon with it.
+	main_node.enter_dungeon("drowned_mill", 2)
+	await get_tree().physics_frame
+	check(SaveSystem.save_game(player, 3), "saving inside a dungeon succeeds")
+	var f := FileAccess.open(SaveSystem.path_for(3), FileAccess.READ)
+	var parsed: Variant = JSON.parse_string(f.get_as_text()) if f != null else null
+	if f != null:
+		f.close()
+	var state: Dictionary = (parsed as Dictionary).get("state", {}) if typeof(parsed) == TYPE_DICTIONARY else {}
+	check(String(state.get("dungeon_id", "")) == "drowned_mill",
+		"the save remembers the dungeon (%s)" % state.get("dungeon_id", ""))
+	check(int(state.get("dungeon_floor", 0)) == 2, "the save remembers the floor (%s)"
+		% state.get("dungeon_floor", 0))
+
+	# And loading it has to rebuild that interior rather than drop the player into
+	# an empty chunk 200000 px from anywhere (C3).
+	main_node._on_respawn()          # start from a clean surface state
+	await get_tree().physics_frame
+	check(main_node.current_dungeon() == null, "clean surface state before the reload")
+	GameState.dungeon_id = "drowned_mill"     # what Load does to GameState
+	GameState.dungeon_floor = 2
+	main_node._restore_dungeon_from_state()
+	await get_tree().physics_frame
+	var d: Dungeon = main_node.current_dungeon()
+	check(d != null, "loading a dungeon save rebuilds the dungeon")
+	if d != null:
+		check(d.floor_index == 2, "and the floor it was saved on (%d)" % d.floor_index)
+	# Leave the world as we found it.
+	main_node._on_respawn()
+	await get_tree().physics_frame
 
 
 ## Poll a condition at physics rate until it holds or the budget runs out.
