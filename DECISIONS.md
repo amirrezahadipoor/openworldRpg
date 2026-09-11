@@ -1425,3 +1425,20 @@ test rather than a fact: the roster comes from `data/npcs.json` through the same
 `DialogueDB` path the game uses, each name must resolve to a file under
 `assets/portraits/`, and the box must wear it. A new NPC cannot ship faceless, and a
 deleted portrait cannot leave a name pointing at nothing.
+
+## #95 — Generator inputs are parked, not carried
+
+The workspace ceiling is 100 MB and the repository's history is 67 MB of it, so every
+megabyte in the *working tree* is expensive — and roughly 5 MB of the tree was inputs
+that no build, test or run ever reads: the UI icon sources, the banner source, the two
+pickup-art sources and the vendored LPC layer sheets. They exist for one purpose,
+re-patching art through `make_ui_icons.py` / `make_pickup_art.py` / `lpc_compose.py`,
+and they are all committed, so `tools/pose_sources.sh restore` can write them back out
+of history — that path is now implemented rather than assumed.
+
+So the park script covers them the same way it already covered the pose sources: same
+command, same park directory, mirror-image restore, deletions committed so the tree
+stays clean instead of permanently "modified". A parked PNG takes its stale `.import`
+with it and a `.gdignore` keeps Godot out of the directory. If the trade ever looks
+wrong, one command brings everything back and the repo is 5 MB heavier.
+
