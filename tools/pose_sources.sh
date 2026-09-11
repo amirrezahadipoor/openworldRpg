@@ -29,11 +29,15 @@ PARK="${POSE_PARK:-/tmp/ws-scratch/pose-sources}"
 DIRS=(assets/lpc/_attack_src assets/lpc/_idle_src assets/lpc/_cast_src)
 # Generator inputs parked as a group, keeping their repo-relative paths so restore
 # is a mirror image of park.
+# assets/source/lpc_layers is deliberately NOT parked: tools/lpc_compose.py --check
+# reads those sheets to verify every armed character actually swings (the ANIM CHECK
+# gate in CI), so they are an input *and* a checked artefact. Parking them removes
+# them from a fresh checkout and the gate fails — which is exactly what happened the
+# first time this list was written.
 EXTRA_DIRS=(
   assets/ui/_src
   assets/ui/icons/_src
   assets/world/_src
-  assets/source/lpc_layers
 )
 
 case "${1:-}" in
