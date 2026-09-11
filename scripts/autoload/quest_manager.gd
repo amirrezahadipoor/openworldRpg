@@ -39,6 +39,15 @@ func is_done(qid: String) -> bool:
 	return GameState.quests.get(qid, "") == "done"
 
 
+## Recompute every active quest's collect/deliver objective from the bag. The
+## item_picked_up hook covers normal looting, but items granted through other
+## paths (a load, a dialogue give_item whose signal was already consumed, a test
+## harness adding items directly) still have to count — this is that entry point.
+func sync_collect_objectives() -> void:
+	for qid in active_snapshot():
+		_sync_collect(qid)
+
+
 ## Progress for a collect/deliver objective that is already satisfied by the
 ## player's bag (picking the items up before accepting the quest must count).
 func _sync_collect(qid: String) -> void:
