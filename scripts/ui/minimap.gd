@@ -5,7 +5,11 @@ extends Control
 ## and the player facing arrow. Redraws at a fixed interval, not per frame.
 
 const WORLD_SPAN := 2304.0  # world px shown edge to edge
-const CELLS := 72
+## 72 cells over 2304 px is a 32 px sample grid, which is finer than the map is
+## wide: each cell was drawn at ~1.4 px and the whole thing cost 5184 texture
+## lookups every 0.3 s for detail nobody could see (audit L3). 48 cells still
+## resolve the authored 32 px tiles one-to-one once the map is at full size.
+const CELLS := 48
 const REFRESH := 0.3
 
 var player: Node2D

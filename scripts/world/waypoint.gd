@@ -10,6 +10,15 @@ extends WorldInteractable
 static var registry: Dictionary = {}
 static var names: Dictionary = {}
 
+
+static func clear_registry() -> void:
+	## Static state survives `change_scene_to_file`, so a New Game used to inherit
+	## every campfire the previous run had ever streamed in: the travel map listed
+	## them, and `travel_cost` priced a journey to a fire that no longer existed
+	## (audit L4). A fresh world starts from an empty registry.
+	registry.clear()
+	names.clear()
+
 const TRAVEL_GOLD_PER_1000PX := 6
 const TRAVEL_FREE_RANGE := 900.0   # neighbours walk for free
 

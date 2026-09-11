@@ -61,6 +61,9 @@ var dungeon_id: String = ""
 var dungeon_floor: int = 1
 ## The quest the player pinned to the HUD (empty = show the oldest one).
 var pinned_quest: String = ""
+## Set by the ending screen's Credits button so the main menu opens its
+## credits layer on arrival instead of just playing its idle theme (audit M2).
+var pending_credits := false
 ## What the character has actually received, in order — kind -> text. Quests,
 ## purchases, sales and level-ups all write here. The audit's point was that a
 ## player could not answer "what did that job pay me?"; this is the answer, and
@@ -89,6 +92,9 @@ func _ready() -> void:
 
 func reset() -> void:
 	## Fresh-game state (New Game from the main menu).
+	# Static state is not reached by a scene change, so a run that starts here
+	# inherits whatever the previous one streamed in — campfires, mostly (audit L4).
+	Waypoint.clear_registry()
 	level = 1
 	xp = 0
 	gold = 50

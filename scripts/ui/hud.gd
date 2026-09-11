@@ -444,19 +444,10 @@ func _tick_interact_button() -> void:
 
 func nearest_interactable() -> Node2D:
 	## Closest thing in reach wins, so standing between a chest and an NPC cannot
-	## fire both. NPCs and world interactables join the group themselves.
-	if player == null:
-		return null
-	var best: Node2D = null
-	var best_d := INF
-	for n in get_tree().get_nodes_in_group("interactable_in_range"):
-		if not (n is Node2D) or not is_instance_valid(n):
-			continue
-		var d := (n as Node2D).global_position.distance_to(player.global_position)
-		if d < best_d:
-			best_d = d
-			best = n as Node2D
-	return best
+	## fire both. NPCs and world interactables join the group themselves. The rule
+	## lives in WorldInteractable so the keyboard path cannot drift from this one
+	## (audit M1).
+	return WorldInteractable.nearest_in_range(get_tree(), player) as Node2D
 
 
 func _on_interact_pressed() -> void:

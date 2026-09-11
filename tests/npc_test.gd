@@ -28,6 +28,22 @@ func _ready() -> void:
 	_test_conversation_depth()
 	_test_placement_and_vendors()
 	_report()
+	_test_waypoint_registry()
+
+
+func _test_waypoint_registry() -> void:
+	print("[npc_test] the campfire registry is per-run, not per-process")
+	# L4: statics outlive a scene change, so New Game used to inherit the previous
+	# run's map. reset() is what a fresh run calls.
+	Waypoint.registry["ghost"] = Vector2(5000, 5000)
+	Waypoint.names["ghost"] = "Nowhere"
+	check(Waypoint.registry.has("ghost"), "a streamed campfire registers itself")
+	GameState.reset()
+	check(not Waypoint.registry.has("ghost"),
+		"New Game clears the registry (L4)")
+	check(Waypoint.registry.is_empty(), "so the travel map starts empty")
+	check(GameState.quest_flags.get("wp_camp", false),
+		"and the starting campfire is still lit")
 
 
 func _report() -> void:

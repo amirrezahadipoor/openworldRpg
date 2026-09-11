@@ -51,5 +51,10 @@ func _build_visual() -> void:
 
 
 func _on_interact() -> void:
-	entered.emit(dungeon_id)
+	# Entering is triggered by an Area2D body_entered-style interaction, i.e. during
+	# the physics flush, and building a floor adds static bodies and collision
+	# shapes. Doing that inline is the pattern Godot refuses ("Can't change this
+	# state while flushing queries"), so the descent is deferred by a frame, the
+	# same way SecretGate defers its own disabled flag (audit M5).
+	entered.emit.call_deferred(dungeon_id)
 	interacted.emit(self)

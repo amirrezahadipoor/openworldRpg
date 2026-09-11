@@ -513,6 +513,7 @@ func _show_ending() -> void:
 	credits.custom_minimum_size = Vector2(200, 40)
 	credits.pressed.connect(func() -> void:
 		get_tree().paused = false
+		GameState.pending_credits = true
 		get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
 	)
 	box.add_child(credits)
@@ -562,7 +563,7 @@ func _epilogue_stats() -> String:
 		if String(flag).begins_with("secret_"):
 			secrets += 1
 	return "Level %d · %d gold · %d/%d quests · %d dungeons · %d/%d secrets found" % [
-		GameState.level, GameState.gold, _quests_done(), 106 + 100,
+		GameState.level, GameState.gold, _quests_done(), QuestManager.data.size(),
 		_dungeons_entered(), secrets, int(SecretsDB.total())]
 
 

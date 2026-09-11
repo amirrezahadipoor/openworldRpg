@@ -32,6 +32,7 @@ func _ready() -> void:
 	_test_drop_reachability()
 	await _test_boss_runtime()
 	_test_audit_economy()
+	_test_starter_shelf()
 	_report()
 
 
@@ -70,6 +71,21 @@ func _test_audit_economy() -> void:
 	else:
 		check(true, "no gold-find talent taken: nothing to compare (mult %.2f)" % mult)
 	GameState.gold = 0
+
+
+func _test_starter_shelf() -> void:
+	print("[items_test] the first shelf has to be affordable")
+	# L5: the starting purse is 50 g and merchant_bram's shelf held a 2965 g sword
+	# next to the potions, so the shop read as broken for the first ten levels.
+	var purse := 50
+	var affordable := 0
+	for iid in NPCController.stock_for("merchant_bram"):
+		if ItemsDB.get_value(String(iid)) <= purse * 2:
+			affordable += 1
+	check(affordable >= 3,
+		"three of the opening vendor's wares are within reach of 50 g (%d)" % affordable)
+	check(not NPCController.stock_for("merchant_bram").has("iron_sword"),
+		"the 2965 g sword is no longer the first thing a new hero is offered")
 
 
 func _report() -> void:

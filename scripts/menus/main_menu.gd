@@ -23,11 +23,22 @@ func _ready() -> void:
 	add_child(_settings_ui)
 	_build_credits()
 	AudioManager.play_music("title")
+	# The ending screen's Credits button asks for this instead of doing nothing
+	# (audit M2).
+	if GameState.pending_credits:
+		GameState.pending_credits = false
+		_on_credits()
 
 
 # --- Background -----------------------------------------------------------------
 
 func _build_background() -> void:
+	# The hills were drawn against a fixed 1280x720 rectangle, so on a wide phone
+	# they stopped short of the right edge and the "ground" ended mid-screen
+	# (audit M3). Every point is now expressed as a fraction of the viewport.
+	var size: Vector2 = get_viewport().get_visible_rect().size
+	var w := maxf(size.x, 640.0)
+	var h := maxf(size.y, 360.0)
 	var bg := ColorRect.new()
 	bg.color = Color(0.05, 0.07, 0.10)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -36,16 +47,16 @@ func _build_background() -> void:
 	# Decorative hills
 	var hills := Polygon2D.new()
 	hills.polygon = PackedVector2Array([
-		Vector2(0, 500), Vector2(220, 380), Vector2(480, 520), Vector2(760, 400),
-		Vector2(1040, 540), Vector2(1280, 430), Vector2(1280, 720), Vector2(0, 720),
+		Vector2(w * 0.000, h * 0.694), Vector2(w * 0.172, h * 0.528), Vector2(w * 0.375, h * 0.722), Vector2(w * 0.594, h * 0.556),
+		Vector2(w * 0.812, h * 0.750), Vector2(w * 1.000, h * 0.597), Vector2(w * 1.000, h * 1.000), Vector2(w * 0.000, h * 1.000),
 	])
 	hills.color = Color(0.10, 0.14, 0.13)
 	add_child(hills)
 
 	var hills2 := Polygon2D.new()
 	hills2.polygon = PackedVector2Array([
-		Vector2(0, 590), Vector2(300, 500), Vector2(640, 610), Vector2(980, 520),
-		Vector2(1280, 600), Vector2(1280, 720), Vector2(0, 720),
+		Vector2(w * 0.000, h * 0.819), Vector2(w * 0.234, h * 0.694), Vector2(w * 0.500, h * 0.847), Vector2(w * 0.766, h * 0.722),
+		Vector2(w * 1.000, h * 0.833), Vector2(w * 1.000, h * 1.000), Vector2(w * 0.000, h * 1.000),
 	])
 	hills2.color = Color(0.07, 0.10, 0.09)
 	add_child(hills2)
@@ -56,12 +67,13 @@ func _build_background() -> void:
 	light.color = Color(1.0, 0.7, 0.35)
 	light.energy = 1.4
 	light.texture_scale = 3.0
-	light.position = Vector2(1080, 560)
+	light.position = Vector2(w * 0.844, h * 0.778)
 	add_child(light)
 	var fire := Polygon2D.new()
+	# The flame is a local shape around the fire's own position, not a viewport one.
 	fire.polygon = PackedVector2Array([Vector2(-8, 6), Vector2(0, -12), Vector2(8, 6)])
 	fire.color = Color(0.98, 0.55, 0.15)
-	fire.position = Vector2(1080, 560)
+	fire.position = Vector2(w * 0.844, h * 0.778)
 	add_child(fire)
 
 

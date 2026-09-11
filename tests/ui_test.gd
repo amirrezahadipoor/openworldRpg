@@ -37,7 +37,56 @@ func _ready() -> void:
 	_test_cooldown_sweep()
 	_test_toast_queue()
 	_test_safe_insets()
+	await _test_audit_fixes()
 	_report()
+
+
+func _test_audit_fixes() -> void:
+	print("[ui_test] nearest-wins interaction, ending credits handoff")
+
+	# M1: the keyboard path and the touch path must agree on the target.
+	var tree := get_tree()
+	var player := Node2D.new()
+	player.add_to_group("player")
+	var near := _bare_interactable(Vector2(30, 0))
+	var far := _bare_interactable(Vector2(100, 0))
+	add_child(player)
+	add_child(far)
+	add_child(near)          # added last: plain tree order would pick the far one
+	near.add_to_group("interactable_in_range")
+	far.add_to_group("interactable_in_range")
+	var target := WorldInteractable.nearest_in_range(tree, player)
+	check(target == near, "the closest of two in range is the one that acts (M1)")
+	far.remove_from_group("interactable_in_range")   # stepped out of its radius
+	check(WorldInteractable.nearest_in_range(tree, player) == near,
+		"an out-of-range neighbour is ignored")
+	near.remove_from_group("interactable_in_range")
+	check(WorldInteractable.nearest_in_range(tree, player) == null,
+		"nothing in range means no target")
+	remove_child(near)
+	remove_child(far)
+	remove_child(player)
+	player.free()
+	near.free()
+	far.free()
+
+	# M2: the ending's Credits button asks the menu to open its credits layer.
+	GameState.pending_credits = false
+	var main_script: GDScript = load("res://scripts/main.gd")
+	check(main_script != null, "main.gd loads")
+	var menu_script: GDScript = load("res://scripts/menus/main_menu.gd")
+	check(menu_script != null, "main menu loads")
+	var menu_src := menu_script.source_code
+	check(menu_src.contains("pending_credits"),
+		"the menu consumes the pending-credits request (M2)")
+	check(main_script.source_code.contains("pending_credits"),
+		"and the ending raises it")
+
+
+func _bare_interactable(pos: Vector2) -> WorldInteractable:
+	var n := WorldInteractable.new()
+	n.position = pos
+	return n
 
 
 func _report() -> void:

@@ -25,6 +25,7 @@ func _ready() -> void:
 
 	_check_registered_assets_resolve()
 	_check_call_sites_registered()
+	_check_music_id_ordering()
 
 	print("")
 	if _failures.is_empty():
@@ -36,6 +37,26 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 	get_tree().quit(0)
+
+
+func _check_music_id_ordering() -> void:
+	## M4: play_music() stored the requested id as current *before* checking that it
+	## exists, so a typo'd id became the current track and every later call for a
+	## real one no-op'd against it - the game went silent for the rest of the run.
+	print("[audio_test] an unknown music id must not lock the player out")
+	AudioManager.play_music("title")
+	var good := AudioManager.current_music()
+	AudioManager.play_music("not_a_real_track")
+	if AudioManager.current_music() == good and good == "title":
+		_ok("an unknown track does not become current (M4)")
+	else:
+		_fail("unknown track replaced the music: %s" % AudioManager.current_music())
+	AudioManager.play_music("not_a_real_track")
+	AudioManager.play_music("title")
+	if AudioManager.current_music() == "title":
+		_ok("a real track still plays after a bad request")
+	else:
+		_fail("the music stopped after a bad request")
 
 
 func _ok(msg: String) -> void:

@@ -172,10 +172,13 @@ func _register_builtin_music() -> void:
 func play_music(id: String) -> void:
 	if id == _current_track:
 		return
-	_current_track = id
+	# Record the track only once it is known to exist: a bad id used to be
+	# stored first, and then no-op'd forever because id == _current_track
+	# (audit M4).
 	if not music_tracks.has(id):
 		return
 	var stream: AudioStream = load(music_tracks[id])
+	_current_track = id
 	if stream == null:
 		return
 	_loopify(stream)

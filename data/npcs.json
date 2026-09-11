@@ -108,7 +108,7 @@
         "bandage",
         "dried_meat",
         "leather_armor",
-        "iron_sword"
+        "wooden_club"
       ],
       "at_camp": true
     },
@@ -333,7 +333,7 @@
       "role": "shop",
       "function": "Vendor \u2014 city factor. Carries real gear, and prices it like he knows it.",
       "stock": [
-        "iron_sword",
+        "wooden_club",
         "short_sword",
         "leather_armor",
         "quilted_gambeson",

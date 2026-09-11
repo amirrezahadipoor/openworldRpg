@@ -83,8 +83,36 @@ func _on_body_exited(body: Node) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player_in_range and event.is_action_pressed("interact"):
+		# Keyboard/gamepad used to act on whichever node happened to be earliest in
+		# the scene tree when several were in range, while the touch button picked
+		# the closest. Both paths go through the same rule now (audit M1): the
+		# closer thing wins, and the loser leaves the event alone.
+		if nearest_in_range(get_tree(), _player()) != self:
+			return
 		_on_interact()
 		get_viewport().set_input_as_handled()
+
+
+func _player() -> Node2D:
+	return get_tree().get_first_node_in_group("player") as Node2D
+
+
+static func nearest_in_range(tree: SceneTree, player: Node2D) -> Node:
+	## The single interactable an interact press should act on, or null.
+	if tree == null or player == null:
+		return null
+	var best: Node = null
+	var best_d := INF
+	# Membership of the group is the in-range test: NPCs and world interactables add
+	# and remove themselves as the player enters and leaves their radius.
+	for n in tree.get_nodes_in_group("interactable_in_range"):
+		if not (n is Node2D) or not is_instance_valid(n):
+			continue
+		var d := (n as Node2D).global_position.distance_to(player.global_position)
+		if d < best_d:
+			best_d = d
+			best = n
+	return best
 
 
 func _poly(points: PackedVector2Array, color: Color, pos: Vector2 = Vector2.ZERO, z: int = 0) -> Polygon2D:

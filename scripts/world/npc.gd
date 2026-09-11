@@ -79,6 +79,10 @@ func _on_body_exited(body: Node) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player_in_range and event.is_action_pressed("interact"):
+		# Same nearest-wins rule as every other interactable (audit M1): a chest
+		# lying next to a villager must not steal the press just by tree order.
+		if WorldInteractable.nearest_in_range(get_tree(), get_tree().get_first_node_in_group("player") as Node2D) != self:
+			return
 		talk()  # NPCController: holds position while the conversation is open
 		interacted.emit(self)
 		get_viewport().set_input_as_handled()
