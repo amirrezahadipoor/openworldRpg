@@ -370,14 +370,19 @@ func _item_row(item_id: String, qty: int) -> Control:
 			_refresh()
 		)
 	else:
-		primary.text = "Equip"
-		primary.pressed.connect(func() -> void:
-			if GameState.equip(item_id):
-				AudioManager.play_sfx("equip")
-			else:
-				AudioManager.play_sfx("denied")
-			_refresh()
-		)
+		# Materials and quest items have no equipment slot: an "Equip" button that
+		# only ever buzzed denied was a control that lied. Hide it for those.
+		if ItemsDB.get_slot(item_id) == "":
+			primary.visible = false
+		else:
+			primary.text = "Equip"
+			primary.pressed.connect(func() -> void:
+				if GameState.equip(item_id):
+					AudioManager.play_sfx("equip")
+				else:
+					AudioManager.play_sfx("denied")
+				_refresh()
+			)
 	row.add_child(primary)
 
 	var drop := Button.new()

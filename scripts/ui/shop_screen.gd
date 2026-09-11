@@ -198,7 +198,13 @@ func _buy_row(item_id: String) -> Control:
 	row.add_child(price_label)
 	var btn := Button.new()
 	btn.text = "Buy"
-	btn.disabled = GameState.gold < price
+	# Disabled when you cannot pay OR when the stack could not accept another
+	# unit: buying then used to take gold and hand back nothing (the bag caps).
+	var cap := ItemsDB.stack_size(item_id)
+	var full := cap > 0 and GameState.item_count(item_id) >= cap
+	btn.disabled = GameState.gold < price or full
+	if full:
+		btn.tooltip_text = "That stack is full."
 	btn.pressed.connect(func() -> void: _buy(item_id, price))
 	row.add_child(btn)
 	return row
@@ -297,6 +303,12 @@ func _market_blurb() -> String:
 
 func _buy(item_id: String, price: int) -> void:
 	if GameState.gold < price:
+		AudioManager.play_sfx("denied")
+		return
+	var cap := ItemsDB.stack_size(item_id)
+	if cap > 0 and GameState.item_count(item_id) >= cap:
+		# Defense in depth for the disabled button: never charge for an item the
+		# stack cannot actually hold.
 		AudioManager.play_sfx("denied")
 		return
 	GameState.add_gold(-price)

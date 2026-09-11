@@ -688,9 +688,13 @@ func _legal_origin(from: Vector2) -> Vector2:
 
 
 func _find_player() -> Player:
-	if _player != null and not _player.is_queued_for_deletion():
+	# is_instance_valid, not just is_queued_for_deletion: a player torn down with
+	# free() (or mid scene change) is neither null nor queued, and was returned as
+	# a stale body to chase, throwing on the next global_position read.
+	if is_instance_valid(_player):
 		return _player
-	return get_tree().get_first_node_in_group("player") as Player
+	_player = get_tree().get_first_node_in_group("player") as Player
+	return _player
 
 
 ## Hit entry point — called by the player's attack area (group "hurtbox").
