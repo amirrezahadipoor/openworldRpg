@@ -39,6 +39,7 @@ func _ready() -> void:
 	_test_safe_insets()
 	await _test_audit_fixes()
 	await _test_pause_owner()
+	await _test_upgrade_bench()
 	_report()
 
 
@@ -153,6 +154,57 @@ func _pause_flag_writers(root: String) -> Array:
 		name = dir.get_next()
 	dir.list_dir_end()
 	return out
+
+
+func _test_upgrade_bench() -> void:
+	print("[ui_test] the shop's smith bench renders and respects affordability")
+
+	# v3 audit §4 wanted a second-half gold sink; the shop is where it lives, so
+	# the screen itself is what has to show it.
+	var bench: CanvasLayer = load("res://scripts/ui/shop_screen.gd").new()
+	add_child(bench)
+	bench.open("Bram", ["health_potion"], 1.0)
+	await get_tree().process_frame
+
+	GameState.inventory.clear()
+	GameState.upgrades.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
+	GameState.gold = 0
+
+	var rows := 0
+	for slot in ["weapon", "armor", "accessory"]:
+		if bench.find_child("Upgrade_%s" % slot, true, false) != null:
+			rows += 1
+	check(rows == 3, "a bench row for each equipment slot (%d)" % rows)
+
+	var empty_row := bench.find_child("Upgrade_weapon", true, false)
+	check(empty_row != null and (empty_row.get_child(2) as Button).disabled,
+		"an empty slot cannot be upgraded")
+
+	GameState.add_item("iron_sword", 1)
+	GameState.equip("iron_sword")
+	GameState.gold = 0
+	bench.open("Bram", ["health_potion"], 1.0)
+	await get_tree().process_frame
+	var row := bench.find_child("Upgrade_weapon", true, false)
+	check(row != null and (row.get_child(2) as Button) != null, "the bench rebuilds on open")
+	check((row.get_child(2) as Button).disabled, "no gold, no anvil")
+	var cost := GameState.upgrade_cost("weapon")
+	GameState.gold = int(cost["gold"])
+	GameState.add_item(String(cost["material"]), int(cost["qty"]))
+	bench.open("Bram", ["health_potion"], 1.0)
+	await get_tree().process_frame
+	row = bench.find_child("Upgrade_weapon", true, false)
+	check(not (row.get_child(2) as Button).disabled, "gold + material arms the button")
+	check((row.get_child(1) as Label).text.contains(String(cost["material"])) == false,
+		"the price line names the material by its display name")
+
+	GameState.inventory.clear()
+	GameState.upgrades.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
+	GameState.gold = 0
+	bench.close()
+	bench.queue_free()
 
 
 func _report() -> void:

@@ -117,6 +117,23 @@ func _build() -> void:
 	sell_scroll.add_child(_sell_list)
 	columns.add_child(sell_scroll)
 
+	# --- the smith's bench -----------------------------------------------------
+	var bench := VBoxContainer.new()
+	bench.name = "UpgradeBox"
+	bench.add_theme_constant_override("separation", 6)
+	outer.add_child(bench)
+	var bench_title := Label.new()
+	bench_title.text = "The Smith's Bench"
+	bench_title.add_theme_font_size_override("font_size", 16)
+	bench_title.add_theme_color_override("font_color", Color(1.0, 0.86, 0.55))
+	bench.add_child(bench_title)
+	var bench_hint := Label.new()
+	bench_hint.text = "Gold and the region's materials, poured into what you wear."
+	bench_hint.add_theme_font_size_override("font_size", 13)
+	bench_hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+	bench.add_child(bench_hint)
+	# Rows come from _refresh(), which runs on open and after every upgrade.
+
 	var close_btn := Button.new()
 	close_btn.text = "Leave Shop (Esc)"
 	close_btn.custom_minimum_size = Vector2(220, 42)
@@ -125,6 +142,16 @@ func _build() -> void:
 
 
 func _refresh() -> void:
+	## Wares first, then the smith's bench: the same screen upgrades what it sells
+	## (v3 audit §4 - the second half needed a gold sink).
+	var bench := find_child("UpgradeBox", true, false) as VBoxContainer
+	if bench != null:
+		for child in bench.get_children():
+			if child.name.begins_with("Upgrade_"):
+				bench.remove_child(child)
+				child.queue_free()
+		for slot in ["weapon", "armor", "accessory"]:
+			bench.add_child(_upgrade_row(slot))
 	_gold_label.text = "Gold: %d" % GameState.gold
 	if _market_label != null:
 		_market_label.text = _market_blurb()
@@ -194,6 +221,57 @@ func _sell_row(item_id: String, qty: int) -> Control:
 	btn.pressed.connect(func() -> void: _sell(item_id, price))
 	row.add_child(btn)
 	return row
+
+
+func _upgrade_row(slot: String) -> Control:
+	var row := HBoxContainer.new()
+	row.name = "Upgrade_%s" % slot
+	row.add_theme_constant_override("separation", 10)
+
+	var id: String = String(GameState.equipment.get(slot, ""))
+	var name_label := Label.new()
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if id == "":
+		name_label.text = "%s: (empty)" % slot.capitalize()
+		name_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.4))
+	else:
+		var lvl := GameState.upgrade_level(slot)
+		name_label.text = "%s +%d  (%s)" % [ItemsDB.item_name(id), lvl, slot.capitalize()]
+		if lvl > 0:
+			name_label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.7))
+	row.add_child(name_label)
+
+	var cost_label := Label.new()
+	var btn := Button.new()
+	var cost := GameState.upgrade_cost(slot)
+	if cost.is_empty():
+		cost_label.text = GameState.upgrade_reason(slot)
+		btn.text = "Maxed" if GameState.upgrade_reason(slot) == "fully upgraded" else "-"
+		btn.disabled = true
+	else:
+		cost_label.text = "%d g + %d x %s" % [
+			int(cost["gold"]), int(cost["qty"]), ItemsDB.item_name(String(cost["material"]))]
+		btn.text = "Upgrade"
+		var reason := GameState.upgrade_reason(slot)
+		btn.disabled = reason != ""
+		if reason != "":
+			cost_label.add_theme_color_override("font_color", Color(1, 0.6, 0.6, 0.9))
+		btn.pressed.connect(func() -> void: _upgrade(slot))
+	cost_label.add_theme_font_size_override("font_size", 13)
+	cost_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.7))
+	row.add_child(cost_label)
+	row.add_child(btn)
+	return row
+
+
+func _upgrade(slot: String) -> void:
+	## Pay the smith. The rebuild in _refresh() is the feedback: the row comes back
+	## at the next level with the next price on it.
+	if not GameState.upgrade_item(slot):
+		AudioManager.play_sfx("denied")
+		return
+	AudioManager.play_sfx("purchase")
+	_refresh()
 
 
 func buy_price(item_id: String) -> int:

@@ -33,6 +33,7 @@ func _ready() -> void:
 	await _test_boss_runtime()
 	_test_audit_economy()
 	_test_starter_shelf()
+	_test_upgrade_sink()
 	_report()
 
 
@@ -86,6 +87,82 @@ func _test_starter_shelf() -> void:
 		"three of the opening vendor's wares are within reach of 50 g (%d)" % affordable)
 	check(not NPCController.stock_for("merchant_bram").has("iron_sword"),
 		"the 2965 g sword is no longer the first thing a new hero is offered")
+
+
+func _test_upgrade_sink() -> void:
+	print("[items_test] the smith's bench: gold and materials for a better item")
+
+	# v3 audit §4: past the midpoint gold pooled up with one sink in the game. The
+	# bench takes gold AND the region's materials, priced off the item's own value.
+	GameState.inventory.clear()
+	GameState.upgrades.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
+	GameState.gold = 0
+
+	check(GameState.upgrade_cost("weapon").is_empty(), "a bare slot has nothing to upgrade")
+	check(GameState.upgrade_reason("weapon") == "nothing to upgrade", "and says so")
+
+	GameState.add_item("iron_sword", 1)
+	check(GameState.equip("iron_sword"), "the sword goes on")
+	var cost := GameState.upgrade_cost("weapon")
+	check(not cost.is_empty(), "an equipped item can be upgraded")
+	check(int(cost["gold"]) > 0 and int(cost["qty"]) >= 1,
+		"the price is gold plus materials (%d g + %d x %s)"
+			% [int(cost["gold"]), int(cost["qty"]), String(cost["material"])])
+	check(GameState.upgrade_reason("weapon").contains("g needed"),
+		"broke means the shop says how much gold is missing (%s)"
+			% GameState.upgrade_reason("weapon"))
+
+	# Paying without the material must still fail, and cost nothing.
+	GameState.gold = int(cost["gold"]) * 4
+	var gold_before := GameState.gold
+	check(not GameState.upgrade_item("weapon"), "no material, no upgrade")
+	check(GameState.gold == gold_before, "and a refused upgrade spends nothing")
+	check(GameState.upgrade_reason("weapon").contains("needed"),
+		"the reason names the material (%s)" % GameState.upgrade_reason("weapon"))
+
+	# Afford it properly.
+	GameState.add_item(String(cost["material"]), int(cost["qty"]))
+	var atk_before := GameState.equipment_bonus("atk")
+	check(GameState.upgrade_item("weapon"), "gold + material buys one step")
+	check(GameState.upgrade_level("weapon") == 1, "the level went up")
+	check(GameState.equipment_bonus("atk") > atk_before,
+		"and the item actually hits harder (%.0f -> %.0f)"
+			% [atk_before, GameState.equipment_bonus("atk")])
+
+	# The price rises with the level: a sink has to keep taking money.
+	var step1 := int(GameState.upgrade_cost("weapon")["gold"])
+	GameState.gold = 9999999
+	GameState.add_item(String(cost["material"]), 60)
+	while GameState.upgrade_level("weapon") < GameState.UPGRADE_MAX:
+		if not GameState.upgrade_item("weapon"):
+			break
+	check(GameState.upgrade_level("weapon") == GameState.UPGRADE_MAX,
+		"the bench goes to +%d" % GameState.UPGRADE_MAX)
+	var maxed_mult := GameState.upgrade_mult("weapon")
+	check(maxed_mult > 1.5, "+10 is worth %.2fx the item" % maxed_mult)
+	check(GameState.upgrade_cost("weapon").is_empty(), "the cap is a hard stop")
+	check(not GameState.upgrade_item("weapon"), "and a maxed item refuses more gold")
+	var full := GameState.upgrade_cost("armor")
+	check(full.is_empty(), "an empty slot still has no price")
+
+	# The gold went into the item: swapping it out starts over.
+	GameState.add_item("short_sword", 1)
+	GameState.equip("short_sword")
+	check(GameState.upgrade_level("weapon") == 0,
+		"a different item in the slot starts at +0 (the gold went into the old one)")
+
+	# Upgrades are part of the save.
+	GameState.upgrades["armor"] = 3
+	var blob := GameState.to_dict()
+	GameState.upgrades.clear()
+	GameState.from_dict(blob)
+	check(GameState.upgrade_level("armor") == 3, "upgrades survive a save round-trip")
+
+	GameState.inventory.clear()
+	GameState.upgrades.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
+	GameState.gold = 0
 
 
 func _report() -> void:

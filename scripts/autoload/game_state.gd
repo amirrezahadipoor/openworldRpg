@@ -104,6 +104,7 @@ func reset() -> void:
 	mp = max_mp()
 	inventory = {"health_potion": 2}
 	equipment = {"weapon": "", "armor": "", "accessory": ""}
+	upgrades = {}
 	quests = {}
 	quest_progress = {}
 	quest_flags = {"wp_camp": true}  # starting campfire is always lit
@@ -513,7 +514,7 @@ func equipment_bonus(key: String) -> float:
 		var id: String = equipment[slot]
 		if id == "":
 			continue
-		total += float(ItemsDB.get_item(id).get(key, 0))
+		total += float(ItemsDB.get_item(id).get(key, 0)) * upgrade_mult(slot)
 	return total
 
 
@@ -526,11 +527,96 @@ func equip(item_id: String) -> bool:
 	if slot == "" or not equipment.has(slot):
 		return false
 	var prev: String = equipment[slot]
+	# The upgrade was paid into the item that was in the slot, so a different item
+	# starts at +0 (and the shop says so before the swap).
+	if prev != item_id:
+		upgrades.erase(slot)
 	remove_item(item_id, 1)
 	equipment[slot] = item_id
 	if prev != "":
 		add_item(prev, 1)
 	_clamp_pools()
+	stats_changed.emit()
+	return true
+
+
+# --- Item upgrades: the second half's gold sink (v3 audit §4) -----------------
+#
+# Money had exactly one sink (a vendor) and the F7 pass priced gear against a
+# level's income, so past the midpoint a player who kept playing simply pooled
+# gold with nothing to spend it on. The smith now takes gold *and* the region's
+# materials to push an equipped item up to ten steps, each worth +8% of that
+# item's own stats. The cost is a fraction of the item's value, so the sink
+# scales with the gear the player actually wears - a legendary's step one costs
+# more than a full common set - and it drains the 23 materials that had no use
+# beyond selling.
+
+const UPGRADE_MAX := 10
+const UPGRADE_PER_LEVEL := 0.08
+
+## Slot -> level. Stored per slot because that is what the player wears; the level
+## is thrown away when a different item is equipped there (see equip()).
+var upgrades: Dictionary = {}
+
+## Material the smith wants for each rarity step.
+const UPGRADE_MATERIALS := {
+	"common": "scrap_iron",
+	"uncommon": "goblin_fang",
+	"rare": "choir_sigil",
+	"mythical": "hollow_relic",
+	"legendary": "first_flame",
+}
+
+
+func upgrade_level(slot: String) -> int:
+	return int(upgrades.get(slot, 0))
+
+
+func upgrade_mult(slot: String) -> float:
+	## 1.0 at +0, 1.8 at +10. Applied to every stat the item contributes.
+	return 1.0 + UPGRADE_PER_LEVEL * float(upgrade_level(slot))
+
+
+func upgrade_cost(slot: String) -> Dictionary:
+	## {"gold": int, "material": String, "qty": int} for the item in that slot.
+	## Empty when the slot is bare or already at the cap.
+	var id: String = String(equipment.get(slot, ""))
+	if id == "" or upgrade_level(slot) >= UPGRADE_MAX:
+		return {}
+	var item: Dictionary = ItemsDB.get_item(id)
+	var value := float(item.get("value", 0))
+	var level := upgrade_level(slot)
+	var rarity := String(item.get("rarity", "common"))
+	var mat := String(UPGRADE_MATERIALS.get(rarity, "scrap_iron"))
+	return {
+		"gold": int(round(value * (0.35 + 0.22 * float(level)))),
+		"material": mat,
+		"qty": 1 + level / 3,
+	}
+
+
+func upgrade_reason(slot: String) -> String:
+	## "" when the upgrade can be paid for, else why not (the shop shows this).
+	var cost := upgrade_cost(slot)
+	if cost.is_empty():
+		return "nothing to upgrade" if String(equipment.get(slot, "")) == "" else "fully upgraded"
+	if gold < int(cost["gold"]):
+		return "%d g needed" % int(cost["gold"])
+	var mat := String(cost["material"])
+	var have := int(inventory.get(mat, 0))
+	if have < int(cost["qty"]):
+		return "%d x %s needed" % [int(cost["qty"]), ItemsDB.item_name(mat)]
+	return ""
+
+
+func upgrade_item(slot: String) -> bool:
+	## Spend the gold and the material, raise the item one step.
+	if upgrade_reason(slot) != "":
+		return false
+	var cost := upgrade_cost(slot)
+	add_gold(-int(cost["gold"]), "upgrade")
+	remove_item(String(cost["material"]), int(cost["qty"]))
+	upgrades[slot] = upgrade_level(slot) + 1
 	stats_changed.emit()
 	return true
 
@@ -676,6 +762,7 @@ func to_dict() -> Dictionary:
 		"hp": hp, "mp": mp,
 		"inventory": inventory.duplicate(),
 		"equipment": equipment.duplicate(),
+		"upgrades": upgrades.duplicate(),
 		"quests": quests.duplicate(),
 		"quest_progress": quest_progress.duplicate(true),
 		"quest_flags": quest_flags.duplicate(),
@@ -700,6 +787,7 @@ func from_dict(d: Dictionary) -> void:
 		milestones_claimed.append(int(m))
 	inventory = (d.get("inventory", {}) as Dictionary).duplicate()
 	equipment = (d.get("equipment", {"weapon": "", "armor": "", "accessory": ""}) as Dictionary).duplicate()
+	upgrades = (d.get("upgrades", {}) as Dictionary).duplicate()
 	quests = (d.get("quests", {}) as Dictionary).duplicate()
 	quest_progress = (d.get("quest_progress", {}) as Dictionary).duplicate(true)
 	quest_flags = (d.get("quest_flags", {}) as Dictionary).duplicate()
