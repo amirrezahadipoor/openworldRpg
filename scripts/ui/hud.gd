@@ -153,14 +153,15 @@ func _fit_scale() -> float:
 
 # --- the HUD's own little panel helper (H1.1) --------------------------------
 
-func _panel(tint: Color) -> PanelContainer:
+func _panel(tint: Color, type_name := "PanelContainer") -> PanelContainer:
 	## A PanelContainer wearing the game's own ui/theme.tres panel style, so the
-	## in-combat HUD stops looking like a different game from the menus.
+	## in-combat HUD stops looking like a different game from the menus. The
+	## "BannerPanel" type is the illustrated plaque used for toasts and titles.
 	var pc := PanelContainer.new()
 	pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb: StyleBox = null
 	if _ui.theme != null:
-		sb = _ui.theme.get_stylebox("panel", "PanelContainer")
+		sb = _ui.theme.get_stylebox("panel", type_name)
 	if sb != null:
 		pc.add_theme_stylebox_override("panel", sb)
 	else:
@@ -480,7 +481,7 @@ func set_quest_text(text: String) -> void:
 
 func _build_toast() -> void:
 	var ins := _insets()
-	var panel := _panel(Color(1, 1, 1, 1))
+	var panel := _panel(Color(1, 1, 1, 1), "BannerPanel")
 	panel.name = "ToastPanel"
 	panel.visible = false
 	panel.anchor_left = 0.5
@@ -579,9 +580,12 @@ func _build_boss_bar() -> void:
 	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_boss_name.add_theme_font_size_override("font_size", 18)
 	_boss_name.add_theme_color_override("font_color", Color(1.0, 0.82, 0.45))
-	_boss_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	_boss_name.add_theme_constant_override("outline_size", 5)
-	_boss_box.add_child(_boss_name)
+	_boss_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# On the illustrated plaque (H6.2), so the boss's name reads as a title card.
+	var plate := _panel(Color(1, 1, 1, 1), "BannerPanel")
+	plate.name = "BossPlate"
+	plate.add_child(_boss_name)
+	_boss_box.add_child(plate)
 
 	_boss_bar = _make_bar(Color(0.72, 0.14, 0.16))
 	_boss_bar.custom_minimum_size = Vector2(460, 16)

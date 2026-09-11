@@ -24,6 +24,11 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
 SRC = os.path.join(ROOT, "assets", "ui", "icons", "_src")
 OUT = os.path.join(ROOT, "assets", "ui", "icons")
 SIZE = 32
+# The toast / boss-intro plaque, sliced 9-way. Wider than tall, and it keeps its
+# corners intact because the stylebox stretches only the middle.
+BANNER_SRC = os.path.join(ROOT, "assets", "ui", "_src", "banner9.png")
+BANNER_OUT = os.path.join(ROOT, "assets", "ui", "banner9.png")
+BANNER_SIZE = (192, 64)
 # The chroma screen. Anything close to this in hue *and* strongly saturated is
 # background; the icons themselves are warm browns/greys and never hit it.
 KEY = (255, 0, 255)
@@ -94,6 +99,17 @@ def to_icon(img):
     return despill(canvas.resize((SIZE, SIZE), Image.NEAREST))
 
 
+def make_banner():
+    if not os.path.exists(BANNER_SRC):
+        return None
+    img = despill(trim(key_out(Image.open(BANNER_SRC))))
+    img = img.resize(BANNER_SIZE, Image.LANCZOS)
+    # Re-key after scaling: resampling can pull a little screen colour in.
+    img = despill(img)
+    img.save(BANNER_OUT)
+    return BANNER_OUT
+
+
 def main():
     if not os.path.isdir(SRC):
         print("no source art at %s" % SRC)
@@ -109,6 +125,8 @@ def main():
         made.append(name)
         print("  %-16s -> %dx%d" % (name, SIZE, SIZE))
     print("wrote %d icons to assets/ui/icons/" % len(made))
+    banner = make_banner()
+    print("  banner9.png      -> %s" % ("%dx%d" % BANNER_SIZE if banner else "missing source"))
     return 0
 
 
