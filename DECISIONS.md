@@ -1184,3 +1184,33 @@ frame it joins". Renamed the loop variable. The guard immediately earned its kee
 in the batch that followed: five notes named `enemy_husk` and nothing else — the
 husk's *attack* poses sit at 54-70% silhouette overlap with a standing frame, which
 is exactly what a punch should do, while all nine villagers passed.
+
+
+**#80 — The manifest describes the sheet, not the sources** · 2026-09-11
+`make_idle_frames.py` used to decide manifest entries by looking for the generated
+source file (`_idle_src/<name>.png`). That was equivalent while every source was
+always in the repo, and became a silent art-destroyer the moment sources were parked
+outside it (DECISIONS #78): patching a 10-sheet batch rewrote the manifest to those
+10 entries and **dropped the other 29**, which reads as "those sheets carry no
+generated art" to the game *and* to `lpc_compose`'s parked-source guard — the
+animation would have quietly vanished from the next build. Entries are now derived
+from the composed sheet itself (`_sheet_carries()` reads the frames and requires
+each to differ from frame 0), so `main()` and `refresh_manifest()` cannot strip a
+sheet that still carries its art. Caught by diffing the manifest against `HEAD`
+after a batch patch; the truncation happened in the same run that patched the last
+ten villagers.
+
+**#81 — Reference-making lives in the repo; /tmp does not survive** · 2026-09-11
+The sandbox restarted mid-session: `/tmp/rpg-toolchain` (Godot), `/tmp/tc` and the
+parked pose sources were all gone, and with them the scratch `prep_ref.py` that
+built the generator's reference sheets. Godot comes back with
+`tools/bootstrap_toolchain.sh`, but the ref-maker only existed in `/tmp` — so it is
+rewritten as `tools/art/make_ref.py` and committed: `python3 tools/art/make_ref.py
+<sheet> [idle|slash|spellcast]` renders the composed sheet's own frames onto the
+chroma screen at 6x, which is exactly what every batch has been feeding the
+generator. Validated by rebuilding a survivor's reference and comparing it to the
+one the last batch used (identical content; only resampling differs). The parked
+sources themselves stay disposable by design: the composed sheets are committed and
+are what the game reads, and `lpc_compose.py` refuses to recompose a sheet whose art
+source is missing rather than dropping the animation — so the worst case after a
+wipe is a refused recompose with an explicit message, never silent art loss.

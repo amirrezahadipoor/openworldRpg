@@ -348,18 +348,60 @@ def refresh_manifest(names: list) -> None:
     Called by lpc_compose.py after a recompose + re-patch, so the manifest can
     never claim art that a recompose just wiped out.
     """
-    manifest = {k: v for k, v in _load_manifest().items()
-                if os.path.exists(os.path.join(SHEET_DIR, k + ".png"))}
+    manifest = _live_entries(_load_manifest())
     for name in names:
-        entry = {}
-        for anim in PATCHED_ANIMS:
-            if os.path.exists(os.path.join(SRC_DIRS[anim], name + ".png")):
-                entry[anim] = KEEP_COLS[anim]
+        entry = {anim: KEEP_COLS[anim] for anim in PATCHED_ANIMS
+                 if _sheet_carries(name, anim)}
         if entry:
             manifest[name] = entry
         else:
             manifest.pop(name, None)
     _save_manifest(manifest)
+
+
+def _sheet_carries(name: str, anim: str, frames: int = 0) -> bool:
+    """Does the composed sheet itself show generated art in this animation's block?
+
+    The manifest describes the **sheet**, not the sources. The sources are parked
+    outside the repo between batches (`tools/pose_sources.sh`), so deciding an entry
+    by looking for `_idle_src/<name>.png` strips the manifest of every parked sheet
+    the first time a batch is patched — and a stripped entry reads as "this sheet
+    has no generated art" to the game *and* to `lpc_compose`'s parked-source guard.
+    Read the frames instead: a generated block has `frames` non-empty cells per
+    direction, each different from frame 0.
+    """
+    path = os.path.join(SHEET_DIR, name + ".png")
+    if not os.path.exists(path):
+        return False
+    frames = frames or KEEP_COLS[anim]
+    sheet = Image.open(path).convert("RGBA")
+    if sheet.size != (COLS * FRAME, ROWS * FRAME):
+        return False
+    for d_i in range(4):
+        row = BLOCK_ROW[anim] * 4 + d_i
+        ref = _frame_rgba(sheet, row, 0)
+        if ref.getbbox() is None:
+            return False
+        ref_arr = np.asarray(ref, dtype=np.uint8)
+        for col in range(1, frames):
+            cell = _frame_rgba(sheet, row, col)
+            if cell.getbbox() is None:
+                return False
+            if _frame_difference(ref_arr, np.asarray(cell, dtype=np.uint8)) < MIN_FRAME_DIFFERENCE:
+                return False
+    return True
+
+
+def _live_entries(entries: dict) -> dict:
+    """Keep only the manifest entries the sheets still back."""
+    live = {}
+    for name, entry in entries.items():
+        if not isinstance(entry, dict) or not entry:
+            continue
+        if all(_sheet_carries(name, anim, int(frames))
+               for anim, frames in entry.items() if anim in BLOCK_ROW):
+            live[name] = entry
+    return live
 
 
 def _load_manifest() -> dict:
@@ -493,11 +535,10 @@ def main() -> None:
     if not want:
         sys.exit("no generated pose art in %s" % ", ".join(
             os.path.relpath(d, ROOT) for d in SRC_DIRS.values()))
-    # Drop entries whose source art is gone (an armed character's stale unarmed
-    # poses, say): a sheet must never claim frames it does not have.
-    manifest = {k: v for k, v in _load_manifest().items()
-                if os.path.exists(os.path.join(SRC_DIRS["idle"], k + ".png"))
-                or os.path.exists(os.path.join(SRC_DIRS["slash"], k + ".png"))}
+    # Keep every entry a sheet still backs. Pruning by *source* presence used to
+    # look equivalent, but the sources are parked between batches now, so it wiped
+    # 29 entries the moment a 10-sheet batch was patched (DECISIONS #80).
+    manifest = _live_entries(_load_manifest())
     failed = []
     for name in want:
         try:

@@ -82,10 +82,19 @@
   "idle": 4,
   "slash": 4
  },
+ "npc_adept": {
+  "idle": 4
+ },
  "npc_ashe": {
   "idle": 4
  },
  "npc_captain": {
+  "idle": 4
+ },
+ "npc_clerk": {
+  "idle": 4
+ },
+ "npc_dockhand": {
   "idle": 4
  },
  "npc_elder": {
@@ -106,19 +115,40 @@
  "npc_magistrate": {
   "idle": 4
  },
+ "npc_miller": {
+  "idle": 4
+ },
  "npc_mireille": {
+  "idle": 4
+ },
+ "npc_quartermaster": {
+  "idle": 4
+ },
+ "npc_relicmonger": {
+  "idle": 4
+ },
+ "npc_sister": {
   "idle": 4
  },
  "npc_smith": {
   "idle": 4
  },
+ "npc_sorrel": {
+  "idle": 4
+ },
  "npc_trader": {
+  "idle": 4
+ },
+ "npc_trapper": {
   "idle": 4
  },
  "npc_vendor": {
   "idle": 4
  },
  "npc_warden": {
+  "idle": 4
+ },
+ "npc_widow": {
   "idle": 4
  },
  "npc_wren": {

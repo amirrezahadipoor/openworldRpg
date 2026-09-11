@@ -103,7 +103,7 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 
 ## H6. General polish where art is the fix
 
-- [~] **H5.6 [image-gen]** Villager idle frames. H5.5 gave every monster and boss
+- [x] **H5.6 [image-gen]** Villager idle frames. H5.5 gave every monster and boss
       four idle frames; the 24 `npc_*.png` sheets the settlements dress villagers in
       still carried only the two LPC frames, so a villager standing at a schedule
       point for minutes visibly ticked between two poses. The controller now reads
@@ -113,13 +113,11 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       without generated art. `NpcTest` drives both paths (frame count, the
       `[base, shift, breath, look-around]` loop, the column the sprite shows, and
       the fallback).
-      *Progress: 14 of 24 sheets.* Done: wren, hunter, vendor, mireille, captain,
-      elder, trader, fenwick, ashe, magistrate, warden, herbalist, factor, smith
-      (the elder's first sheet drew a bearded robed man and was reverted rather
-      than shipped — regenerated clean this pass, DECISIONS #76).
-      Owed: the last 10 — trapper_vess, sister_halde, warden_clerk_pell,
-      old_sorrel, kiln_widow_sanna, adept_nessa, quartermaster_rook,
-      relicmonger_tib, dockhand_merrit, miller_hobb.
+      **Complete: 24 of 24 sheets** — every villager in `data/npcs.json` wears the
+      generated loop. `make_idle_frames.py --check` reports 49 sheets (49 idle / 21
+      attack / 3 cast) against the 25 before this pass, and `NpcTest` asserts the
+      four-frame loop, its `[base, shift, breath, look-around]` order and the
+      two-frame fallback for any sheet that has none.
 
 - [x] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
       procedural `Polygon2D` walls. *Done: three generated families (meadow,
