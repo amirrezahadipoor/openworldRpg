@@ -121,6 +121,17 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 
 ---
 
+## H7. Fight animations (follow-up report)
+
+- [x] **H7.1** *"The ones you made should have fight animations too."* Armed
+      characters now swing: the attack film of each weapon (128 px `slash_128`
+      canvas, 6 frames per direction, behind + front halves) is halved onto the
+      64 px grid and composited under and over the body, so 16 characters —
+      the player's four sword variants, raider, raider brute, goblin, skeleton,
+      legion, minotaur, troll, the Ember Warden and four bosses — animate a real
+      attack in all four directions. Beasts claw and casters cast by design.
+      `lpc_compose.py --check` + two `items_test` checks hold it.
+
 ## Field reports folded into this pass
 
 - [x] **NPCs standing inside each other** — deterministic seats

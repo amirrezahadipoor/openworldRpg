@@ -117,6 +117,14 @@ jobs:
           grep -q "the Talk button emitted the NPC's interacted signal once" ui.log || { echo "::error::Talk button does not start conversations"; exit 1; }
           echo "ui + touch controls ok"
 
+      - name: "Character art: weapons swing, idle frames exist"
+        run: |
+          set -o pipefail
+          python3 tools/lpc_compose.py --check | tee anim.log
+          grep -q "ANIM CHECK: PASSED" anim.log || { echo "::error::armed characters do not animate an attack"; exit 1; }
+          python3 tools/make_idle_frames.py --check | tee idle.log
+          grep -q "IDLE ART: PASS" idle.log || { echo "::error::idle frame manifest does not match the sheets"; exit 1; }
+
       - name: "Safe ground: measured area, camp protected, no NPC stacking"
         run: |
           python3 tools/safe_zone_report.py --check | tee safezones.log

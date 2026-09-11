@@ -215,6 +215,39 @@ func _test_monster_roster() -> void:
 	check(copies.is_empty(), "no patched idle frame is a copy of frame 0 (%s)" % str(copies))
 	check(overflow.is_empty(), "idle blocks stay inside their four columns (%s)" % str(overflow))
 
+	# "The enemies should have fight animations too." Every archetype that deals
+	# physical damage must animate an attack, in all four directions, that is not
+	# just its walk cycle — checked on the composed sheet, so a missing weapon
+	# layer or a placeholder pose fails here instead of in a player's hands.
+	var physical: Array = []
+	for id in EnemyDB.monsters() + EnemyDB.bosses():
+		var cfg: Dictionary = EnemyDB.get_archetype(String(id))
+		var behavior := String(cfg.get("behavior", "melee"))
+		if behavior == "ranged":
+			continue                      # casters throw, they do not swing
+		physical.append(String(id))
+	var no_attack := []
+	var same_as_walk := []
+	var seen_sheets := {}
+	for id in physical:
+		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
+		if seen_sheets.has(sheet):
+			continue
+		seen_sheets[sheet] = true
+		var img := Image.load_from_file(sheet)
+		if img == null:
+			no_attack.append(String(id))
+			continue
+		for dir_row in 4:
+			if not _block_has_art(img, dir_row, 2):
+				no_attack.append("%s/dir%d empty" % [id, dir_row])
+			elif _block_difference(img, dir_row, 1, 2) < 4.0:
+				same_as_walk.append("%s/dir%d" % [id, dir_row])
+	check(no_attack.is_empty(),
+		"every physical archetype animates an attack in all 4 directions (%s)" % str(no_attack))
+	check(same_as_walk.is_empty(),
+		"the attack animation is not just the walk cycle (%s)" % str(same_as_walk))
+
 
 func _test_placement() -> void:
 	print("[items_test] placement: nothing spawns outside its band")
@@ -464,6 +497,37 @@ func _cell_difference(img: Image, dir_row: int, a_col: int, b_col: int) -> float
 				continue
 			total += absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) + absf(a.a - b.a)
 			n += 1
+	if n == 0:
+		return 0.0
+	return (total / float(n)) * 255.0 / 4.0
+
+
+func _block_has_art(img: Image, dir_row: int, block: int) -> bool:
+	## Any of the 13 frames of one animation block, in one direction, has art?
+	var solid := 0
+	for c in 13:
+		for y in range(0, 64, 4):
+			for x in range(0, 64, 4):
+				if img.get_pixel(c * 64 + x, (block * 4 + dir_row) * 64 + y).a > 0.45:
+					solid += 1
+					if solid > 40:
+						return true
+	return false
+
+
+func _block_difference(img: Image, dir_row: int, a_block: int, b_block: int) -> float:
+	## Mean per-channel difference between two animation blocks of one direction.
+	var total := 0.0
+	var n := 0
+	for c in 6:
+		for y in range(0, 64, 2):
+			for x in range(0, 64, 2):
+				var a := img.get_pixel(c * 64 + x, (a_block * 4 + dir_row) * 64 + y)
+				var b := img.get_pixel(c * 64 + x, (b_block * 4 + dir_row) * 64 + y)
+				if a.a <= 0.45 and b.a <= 0.45:
+					continue
+				total += absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) + absf(a.a - b.a)
+				n += 1
 	if n == 0:
 		return 0.0
 	return (total / float(n)) * 255.0 / 4.0

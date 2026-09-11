@@ -970,3 +970,29 @@ settlement never blanks out — `world_map_test` measures both paths (0 facade +
 polygon today; the same check flips to 96 facade houses as the art lands, and the
 probe run that exercised the new path measured 28 facade + 68 polygon with every
 house inside its size band and sitting on the ground).
+
+**#67 — Armed characters actually swing their weapon (4-direction attack anims)** · 2026-09-11
+The player carried a sword and every enemy carried nothing: fifteen archetypes
+punched, and the two attempts before this were invented shortcuts. What upstream
+actually ships is a weapon **split across films**: per-animation *hold* sheets on
+the 64 px canvas, and a `slash_128` / `slash_oversize` **attack** film on a 128 px
+canvas — six frames per direction, drawn at 2x so the arc can leave the body's own
+box — split into a behind half (zPos 9) and a front half (zPos 150), because a
+swing crosses the body and cannot be flattened onto one side of it. That is exactly
+what `tools/lpc_compose.py` now consumes: the attack film is halved onto the 64 px
+grid (verified pixel-aligned against the body: the blade lands in the hand),
+composited *under* the character and then again *over* it, and mapped to the slash
+block so each archetype's attack is a real six-frame swing per direction rather
+than a wind-up. The longsword's frames are not even in the LPC 4-row-per-animation
+layout, which is why the old attempt pasted them misaligned — the arming sword's
+`attack_slash/fg.png` is a plain 6x4 grid of 128 px cells and is correct.
+Sixteen characters are armed: the player's four sword variants, raider, raider
+brute (mace), goblin, skeleton, legion, minotaur (mace), troll (mace), the Ember
+Warden (blade), and the goblin king, bone titan, frost giant, ashen herald. The
+beasts (wolf, husk, lizard, rime stalker) and the casters (shaman, revenant,
+archon, slag wraith, choir priest) are deliberately unarmed — they claw and cast,
+which is what their spellcast block draws. Guarded by `lpc_compose.py --check`
+(films exist, attack films are the oversize canvas with six frames, and no
+composed sheet's attack block is just its walk) plus two checks in `items_test`
+driven from the data: every physical archetype animates an attack in all four
+directions, and it differs from the walk cycle.

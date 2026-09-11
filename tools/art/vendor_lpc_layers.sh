@@ -53,9 +53,25 @@ LAYERS=(
   hair/bangs/adult
 )
 
-# Weapons live one level deeper: <prefix>/<anim>/steel.png
+# Weapons. Upstream splits a weapon across films of two canvas sizes:
+#   * hold films  64 px, one per animation (idle / walk / hurt / combat_idle)
+#   * attack      128 px ("slash_128" / "slash_oversize"), six frames per
+#                 direction, drawn at 2x so the swing leaves the body's own box,
+#                 split into a behind half and a front half
+# Our composer halves the 128 px frames back onto the 64 px grid and composites
+# the attack twice (under the body, then over it) — see WEAPONS in lpc_compose.py.
+# Every weapon lays its files out slightly differently, so these are exact paths.
 WEAPONS=(
-  weapon/sword/arming/universal/fg
+  weapon/sword/arming/universal/fg/idle/steel.png
+  weapon/sword/arming/universal/fg/walk/steel.png
+  weapon/sword/arming/universal/fg/hurt/steel.png
+  weapon/sword/arming/universal/fg/combat_idle/steel.png
+  weapon/sword/arming/attack_slash/fg.png
+  weapon/sword/arming/attack_slash/bg.png
+  weapon/blunt/mace/walk/mace.png
+  weapon/blunt/mace/hurt/mace.png
+  weapon/blunt/mace/attack_slash/mace.png
+  weapon/blunt/mace/attack_slash/behind/mace.png
 )
 
 mkdir -p "$DEST"
@@ -85,18 +101,21 @@ done
 # expected: tools/lpc_compose.py falls back to combat_idle for those poses
 # (WEAPON_ALT), so a missing weapon layer is not a hard failure — a missing
 # BODY layer would be.
-weapon_missing=()
-for layer in "${WEAPONS[@]}"; do
-  for anim in "${ANIMS[@]}" combat_idle; do
-    if ! get "$BASE/$layer/$anim/steel.png" "$DEST/$layer/$anim/steel.png"; then
-      weapon_missing+=("$anim")
-    fi
-  done
+for rel in "${WEAPONS[@]}"; do
+  get "$BASE/$rel" "$DEST/$rel"
 done
-if [ "${#weapon_missing[@]}" -gt 0 ]; then
-  echo "  note: weapon sheets absent upstream for: ${weapon_missing[*]} (uses combat_idle fallback)"
-  fail=$((fail - ${#weapon_missing[@]}))
-fi
+
+# Every armed sheet needs an attack animation; that one is not optional.
+for need in \
+  "weapon/sword/arming/attack_slash/fg.png" \
+  "weapon/sword/arming/attack_slash/bg.png" \
+  "weapon/blunt/mace/attack_slash/mace.png" \
+  "weapon/blunt/mace/attack_slash/behind/mace.png"; do
+  if [ ! -s "$DEST/$need" ]; then
+    echo "  !! missing $need — armed characters would swing with nothing" >&2
+    exit 1
+  fi
+done
 
 echo "  fetched $ok, cached $skip, failed $fail"
 [ "$fail" -eq 0 ] || { echo "!! some layers failed to download" >&2; exit 1; }

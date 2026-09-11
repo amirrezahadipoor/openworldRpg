@@ -995,11 +995,24 @@ func _test_idle_art() -> void:
 		% with_four)
 
 	# Drive one patched enemy's idle animation and look at the frames it shows.
+	# Which archetype that is depends on which sheets have art so far, so pick a
+	# patched one instead of hard-coding a name the art pass may not have reached.
+	var probe_id := ""
+	for id in EnemyDB.monsters():
+		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
+		if patched.has(sheet.get_file().get_basename()):
+			probe_id = String(id)
+			break
+	if probe_id == "":
+		check(false, "no monster archetype uses a patched idle sheet")
+		host.queue_free()
+		await _phys(2)
+		return
 	var enemy: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
 	host.add_child(enemy)
-	enemy.setup_archetype("grunt")
+	enemy.setup_archetype(probe_id)
 	check(enemy.idle_frames == Enemy.IDLE_PATCHED_FRAMES,
-		"the grunt's sheet carries the extra idle frames")
+		"%s's sheet carries the extra idle frames" % probe_id)
 	var seen := {}
 	for i in 90:
 		enemy._update_anim(1.0 / 60.0)

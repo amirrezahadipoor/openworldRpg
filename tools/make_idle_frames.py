@@ -339,7 +339,11 @@ def main() -> None:
     want = args or _sources()
     if not want:
         sys.exit("no idle sources in %s" % os.path.relpath(SRC_DIR, ROOT))
-    manifest = _load_manifest()
+    # Prune entries whose source art is gone (an armed character's stale
+    # unarmed poses, say): a sheet must never claim idle frames it does not
+    # have, or the runtime would animate four columns with two empty ones.
+    manifest = {k: v for k, v in _load_manifest().items()
+                if os.path.exists(os.path.join(SRC_DIR, k + ".png"))}
     failed = []
     for name in want:
         try:
