@@ -39,6 +39,9 @@ import sys
 
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sheet_png import save_sheet  # noqa: E402  (exact-palette sheet writer)
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SRC = os.path.join(ROOT, "assets", "source", "lpc_layers")
 OUT = os.path.join(ROOT, "assets", "lpc")
@@ -382,7 +385,7 @@ def compose(layers: list[str], out_path: str) -> int:
         # rather than shipping an invisible or headless sprite.
         sys.exit(f"{os.path.basename(out_path)}: missing layers: {sorted(set(missing))}")
 
-    sheet.save(out_path, optimize=True)
+    save_sheet(sheet, out_path)
     return os.path.getsize(out_path)
 
 

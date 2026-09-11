@@ -56,6 +56,9 @@ import sys
 import numpy as np
 from PIL import Image
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sheet_png import save_sheet  # noqa: E402  (exact-palette sheet writer)
+
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SHEET_DIR = os.path.join(ROOT, "assets", "lpc")
 SRC_DIRS = {
@@ -295,7 +298,7 @@ def patch_sheet(name: str) -> dict:
         if pasted:
             entry[anim] = KEEP_COLS[anim]
     if entry:
-        sheet.save(sheet_path, optimize=True)
+        save_sheet(sheet, sheet_path)
     return entry
 
 

@@ -1115,3 +1115,16 @@ live there, and failed. The art was right and the test was wrong — the lesson 
 that the test now spells out all three block indices itself (0 idle, 2 slash,
 3 spellcast) rather than deriving them from a two-case rule, so adding a fourth
 kind has to be a deliberate edit on both sides.
+
+**#75 — Composed sheets ship as exact-palette indexed PNGs** · 2026-09-11
+The workspace ceiling (100 MB) started fighting the art pass: the repo's own bytes
+are incompressible once written, and `.git` grows by roughly 2 MB per art commit
+because PNG blobs do not delta. The reclaim came from the file format, not from
+dropping art: a composed sheet is 33-200 distinct RGBA colours stored as 4 bytes
+per pixel. Building a palette *from the image* (not fitting one to it) and writing
+indexed PNG is exact — `tools/sheet_png.py` asserts nothing else, and the
+conversion of all 53 sheets round-tripped with zero differing pixels — while
+cutting them from 5.64 MB to 2.05 MB. Both writers (`lpc_compose.py`,
+`make_idle_frames.py`) now save through the helper, so the next compose cannot undo
+it. A sheet with more than 256 colours (none today) falls back to RGBA instead of
+losing colour.
