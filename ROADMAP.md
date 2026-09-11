@@ -218,8 +218,12 @@ a regression test and were run through the full suite.
   *experience*. Everything it turns up becomes a new item in this list.
 - [ ] **Android performance profile** — folded into `PLAYTEST.md` §1; there is no
   trustworthy FPS/thermals number until the device pass runs.
-- [ ] **Cut the release tag** for this pass — `project.godot` is at **0.6.0**; the
-  workflow publishes 0.x tags as prereleases with signed APK/AAB.
+- [x] **Cut the release tag** for this pass — **`v0.6.0`** (run 34613095209) published
+  signed APK/AAB as a prerelease five minutes after the roadmap landed. That build
+  then failed a check the tag itself made visible: the installed app reported
+  `versionName 0.4.2 / versionCode 6`, because `export_presets.cfg` carries its own
+  version fields that nothing kept in step with the tag. The workflow now derives
+  both from the tag, and **`v0.6.1`** is the first build that says what it is. `2f5b9a9`
 
 ---
 
@@ -232,6 +236,7 @@ a regression test and were run through the full suite.
 | Art parity | `python3 tools/make_idle_frames.py --check` → 49 sheets / 49 idle / 21 attack / 3 cast |
 | World decor | atlas 11 columns; the shipped map is 4.73 % decorated (asserted ≥ 3 % and < 15 %) |
 | Repo budget | `tools/check_repo_size.sh` (< 120 MB) |
+| Release builds | `v0.6.0` / `v0.6.1` — signed APK + debug APK + AAB, published as a prerelease, `versionName`/`versionCode` derived from the tag |
 | CI | `smoke-test` · `visual-capture` · `android-export` on every push to `main` |
 
 Standing rules that keep Part 1 honest:
