@@ -125,13 +125,15 @@ jobs:
           python3 -m pip install --quiet --disable-pip-version-check pillow numpy \
             || python3 -m pip install --quiet --break-system-packages pillow numpy
 
-      - name: "Character art: weapons swing, idle frames exist"
+      - name: "Character art: weapons swing, pose art matches the sheets"
         run: |
           set -o pipefail
           python3 tools/lpc_compose.py --check | tee anim.log
           grep -q "ANIM CHECK: PASSED" anim.log || { echo "::error::armed characters do not animate an attack"; exit 1; }
-          python3 tools/make_idle_frames.py --check | tee idle.log
-          grep -q "IDLE ART: PASS" idle.log || { echo "::error::idle frame manifest does not match the sheets"; exit 1; }
+          python3 tools/make_idle_frames.py --check | tee poses.log
+          grep -q "POSE ART: PASS" poses.log || { echo "::error::generated pose art does not match the sheets"; exit 1; }
+          python3 tools/make_facade_sheets.py --check | tee facades.log
+          grep -q "FACADE ART: PASS" facades.log || { echo "::error::facade atlases do not match the manifest"; exit 1; }
 
       - name: "Safe ground: measured area, camp protected, no NPC stacking"
         run: |
