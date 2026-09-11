@@ -1009,3 +1009,7 @@ the only thing left" was supposed to mean. `_facade_src/` holds the raw sheets
 Also of note: the image generator failed one request with `MAX_TOKENS` (it
 returned text instead of an image); re-issuing the same prompt worked, so a
 generation failure is worth one retry before it is treated as a dead end.
+Also: the new art step failed its first CI run with `ModuleNotFoundError: No module
+named 'PIL'` — the GitHub runner's Python ships no imaging library, so the workflow
+now installs Pillow + numpy before the art checks (with a `--break-system-packages`
+fallback). Any future check that reads a PNG from the runner needs the same step.
