@@ -1308,3 +1308,39 @@ shows every object layer byte-identical. That property is the reason the scatter
 built from noise fields plus a per-tile hash rather than from the RNG stream: the
 stream is the world's contract for where things stand, and art has no business
 touching it.
+
+## #87 — One roadmap, with the audit folded in as its not-done half
+
+Every roadmap written so far (the v1 phase build, the v2 reality-check and content
+bible, the v3 loot/monster/quest build-out, the v4 UI-and-fight pass) is now
+**done** and lives in a single `ROADMAP.md`: Part 1 is the record of what exists,
+Part 2 is the audit handed over on 2026-09-11 item by item, Part 3 is how any of it
+is verified. The item-level buildlogs are not deleted — they move to
+`docs/archive/`, because the reasoning inside them (why B6 was declined, how the
+talent gates were chosen) is still the answer to questions that get asked again.
+The rule that keeps the file honest is unchanged and now stated in the file itself:
+an item is ticked only after it is made, tested and committed, and the tick names
+the commit.
+
+## #88 — A rule called with a stale reference must answer, not throw
+
+`WorldInteractable.nearest_in_range()` is the one rule behind proximity prompts.
+It took `player: Object` when it was extracted in M1, on the reasoning that a
+dangling reference still satisfies `Object`. It does not: GDScript checks the
+argument at the call boundary, and a *freed* instance fails that check with a
+script error, so the HUD - which is the caller that outlives a scene change - hit
+the error instead of getting an answer. The parameter is untyped, `is_instance_valid`
+decides inside, and a freed player answers "nothing in reach". Worse than the
+error itself: the failed call evaluates to `null`, so a caller testing
+`call(...) == null` passes while the error prints. The HUD now also re-resolves a
+live player from the `player` group before delegating, and `UiTest` pins both
+halves of the case.
+
+## #89 — Timing assertions wait for the thing they are timing
+
+"the monster walks off instead of loitering" asserted a 430-frame budget, which is
+a walk duration on a fast machine and a CPU benchmark on a slow one; the runner
+measured 250 px of the 260 px it wanted. The check now waits on the *condition*
+(up to 1200 frames) and reports how long the walk took, so it fails when the
+behaviour is wrong and not when the hardware is. Same class as #84's lesson from
+the decor count: assert the property, not the machine.

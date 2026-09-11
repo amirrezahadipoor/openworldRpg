@@ -4,8 +4,8 @@
 >
 > This roadmap replaces the previous one at the user's instruction. The build record of
 > everything already shipped is preserved in
-> [ROADMAP-v2-buildlog.md](ROADMAP-v2-buildlog.md) and
-> [ROADMAP-v1-buildlog.md](ROADMAP-v1-buildlog.md); this file is the plan of record.
+> is archived here, and the single plan of record is now the consolidated
+> [ROADMAP.md](../../ROADMAP.md) at the repo root.
 
 Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
 
