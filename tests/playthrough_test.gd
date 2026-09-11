@@ -237,9 +237,14 @@ func _act5_secrets() -> void:
 	var sites := _count_secret_sites(streamer)
 	check(sites > 0, "secrets exist in the live world (%d sites near %s)" % [sites, sid])
 
-	# Walk onto it: the player's own body overlap is what finds a cache.
+	# Walk onto it: the player's own body overlap is what finds a cache. Wait for
+	# the *find*, not merely for the site node: a site that streams in underneath a
+	# player who is already standing there is found a physics step later, and the
+	# node-only wait made this suite flake on CI's timing (run 34597447299).
 	player.global_position = target
 	await _await_until(func() -> bool: return _find_site(streamer, sid) != null, 3.0)
+	await _await_until(func() -> bool: return SecretsDB.is_found(sid), 3.0)
+	await _await_until(func() -> bool: return SecretsDB.found_count() == found_before + 1, 2.0)
 	var probe := _find_site(streamer, sid)
 	check(probe != null, "the secret's own site is streamed in where it sits (%s)" % sid)
 	if probe != null:
@@ -250,6 +255,8 @@ func _act5_secrets() -> void:
 	check(GameState.gold >= gold_before, "the find did not cost anything")
 
 	# Leave and come back: the chunk reloads, and the secret stays found.
+	await get_tree().physics_frame   # let any reward land before it is measured
+	await get_tree().physics_frame
 	player.global_position = target + Vector2(4000, 0)
 	await _await_until(func() -> bool: return _find_site(streamer, sid) == null, 4.0)
 	var gold_after := GameState.gold
