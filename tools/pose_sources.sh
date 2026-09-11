@@ -10,6 +10,11 @@
 #   tools/pose_sources.sh park      # move the sources out of the repo
 #   tools/pose_sources.sh restore   # bring them back (from /tmp, or from the last
 #                                   # commit that carried them)
+#
+# Sources that were never committed at all are still recoverable while they are
+# unreferenced — they sit in the object store until a gc prunes them:
+#   git fsck --no-reflogs --unreachable | grep blob     # candidate ids
+#   git cat-file blob <id> > /tmp/ws-scratch/pose-sources/idle/npc_x.png
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -39,7 +44,11 @@ case "${1:-}" in
       sha="$(git log --diff-filter=D --max-count=1 --format=%H -- assets/lpc/_attack_src | head -1)"
       if [ -n "$sha" ]; then
         echo "not in $PARK; restoring from the commit before $sha"
-        git checkout "$sha^" -- "${DIRS[@]}"
+        # Write the files straight into the worktree: `git checkout -- <dirs>`
+        # would stage them again and undo the point of parking them.
+        git ls-tree -r --name-only "$sha^" -- "${DIRS[@]}" | while read -r f; do
+          case "$f" in *.png) git show "$sha^:$f" > "$f" ;; esac
+        done
       else
         echo "nothing to restore from — regenerate the art instead" >&2
         exit 1

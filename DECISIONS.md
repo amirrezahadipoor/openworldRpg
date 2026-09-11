@@ -1167,4 +1167,9 @@ the loss cannot be silent, `lpc_compose.py` now *refuses* to compose a sheet who
 manifest entry promises generated art when its source is not on disk: the old
 behaviour would have written a source-less sheet and then dropped the manifest
 entry, quietly deleting animation the game ships. Earlier batches' sources stay
-recoverable from history (`git log --diff-filter=D -- assets/lpc/_attack_src`).
+recoverable from history (`git log --diff-filter=D -- assets/lpc/_attack_src`, which
+`tools/pose_sources.sh restore` walks automatically), and sources that were never
+committed can still be lifted out of the object store while they are unreferenced
+(`git fsck --no-reflogs --unreachable | grep blob`) — how this batch's eight files
+were recovered after a parking test cleared /tmp; re-patching from the recovered
+sources reproduced the committed sheets byte for byte.
