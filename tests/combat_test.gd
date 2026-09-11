@@ -615,6 +615,15 @@ func _test_boss_gate_and_flags() -> void:
 	GameState.quests["q3_warden_fall"] = "active"
 	check(arena.story_ready(), "q3 active is enough to wake the Warden")
 	check(arena.may_summon(walker), "the summon is allowed once the story is ready")
+	# Waking the title-fight Warden must open the HUD boss plate (name + health
+	# bar); only dungeon data-bosses used to emit this, leaving its bar hidden.
+	# A container because a lambda captures a bare scalar by value.
+	var saw_encounter := {"v": false}
+	var on_enc := Callable(func(_id: String, _name: String) -> void: saw_encounter["v"] = true)
+	EventBus.boss_encounter_started.connect(on_enc)
+	arena._summon()
+	check(bool(saw_encounter["v"]), "waking the overworld Warden opens the HUD boss plate")
+	EventBus.boss_encounter_started.disconnect(on_enc)
 	# Out of aggro range it stays asleep even with the story ready.
 	var far_away := Node2D.new()
 	add_child(far_away)

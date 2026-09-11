@@ -153,8 +153,11 @@ func _sample(wpos: Vector2) -> Color:
 		var gid: int = renderer.tiles[ty * renderer.grid_w + tx]
 		if gid <= 0:
 			return renderer.base_color  # bare ground
+		# Decode against the same atlas width the renderer uses (it grew to 11
+		# columns with the decor pass); clamp biome so a future atlas row can
+		# never index the palette arrays out of range.
 		var col := (gid - 1) % ChunkRenderer.ATLAS_COLS
-		var biome := (gid - 1) / ChunkRenderer.ATLAS_COLS
+		var biome := clampi((gid - 1) / ChunkRenderer.ATLAS_COLS, 0, BIOME_BASE.size() - 1)
 		match col:
 			2:
 				return PATH_COLOR[biome]

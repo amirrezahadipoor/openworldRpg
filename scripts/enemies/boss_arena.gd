@@ -112,6 +112,10 @@ func _summon() -> void:
 	boss.setup_archetype("ember_warden")
 	boss.recycled.connect(_on_boss_defeated)
 	EventBus.boss_phase_changed.emit(1)
+	# The HUD boss plate (name + health bar + phase pips) only appears on this
+	# signal. The dungeon data-boss floors emitted it, but the overworld Ember
+	# Warden - the title fight - did not, so its health never showed on screen.
+	EventBus.boss_encounter_started.emit("ember_warden", EnemyDB.display_name("ember_warden"))
 	DamageNumber.spawn(get_parent(), global_position + Vector2(0, -90), "THE EMBER WARDEN AWAKENS", Color(1.0, 0.5, 0.2))
 	AudioManager.play_music("boss")   # was "combat_theme": never registered, so it played nothing
 

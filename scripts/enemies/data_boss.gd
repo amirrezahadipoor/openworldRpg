@@ -145,4 +145,6 @@ func _fire_radial(count: int) -> void:
 			global_position, Vector2(cos(a), sin(a)),
 			projectile_damage, projectile_speed, body_color.lightened(0.25)
 		)
-	AudioManager.play_sfx("ability_whirl")
+		# A boss volley is an enemy cast, not the player's whirlwind ability:
+		# the old cue played the player's swish sound.
+		AudioManager.play_sfx("enemy_cast")
