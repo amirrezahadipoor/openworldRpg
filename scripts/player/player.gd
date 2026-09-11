@@ -219,9 +219,16 @@ func _start_attack() -> void:
 	_attack_active = ATTACK_ACTIVE_TIME * (1.5 if finisher else 1.0)
 	_hit_this_swing.clear()
 	attack_shape.disabled = false
+	# The finisher is meant to sweep a wider, longer arc. The authored player
+	# scene ships a RectangleShape2D, so the old CircleShape-only branch never
+	# ran and jab and finisher shared one identical hitbox. Handle the rectangle
+	# that actually ships (keep the circle path for any scene that uses one).
 	if attack_shape.shape is CircleShape2D:
-		# the finisher sweeps a wider arc
 		(attack_shape.shape as CircleShape2D).radius = 26.0 if finisher else 18.0
+	elif attack_shape.shape is RectangleShape2D:
+		var rect := attack_shape.shape as RectangleShape2D
+		rect.size = Vector2(56.0, 46.0) if finisher else Vector2(38.0, 32.0)
+		attack_shape.position = Vector2(40.0, 0.0) if finisher else Vector2(34.0, 0.0)
 	EventBus.attack_swung.emit(self)
 	AudioManager.play_sfx("attack_swing")
 	_tween_swing_fallback()

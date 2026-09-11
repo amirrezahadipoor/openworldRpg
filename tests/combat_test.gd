@@ -363,6 +363,20 @@ func _test_abilities() -> void:
 	check(landed, "melee hit lands via hurtbox routing")
 	player.attack_shape.disabled = true
 
+	# The third hit of the chain is meant to reach further than a jab. The scene
+	# ships a RectangleShape2D, so a CircleShape-only resize used to leave jab
+	# and finisher with one identical hitbox (regression guard).
+	if player.attack_shape.shape is RectangleShape2D:
+		player._combo = 0
+		player._start_attack()                 # combo 1 = jab
+		var jab_size: Vector2 = (player.attack_shape.shape as RectangleShape2D).size
+		player._start_attack()                 # combo 2 = heavy finisher
+		var fin_size: Vector2 = (player.attack_shape.shape as RectangleShape2D).size
+		check(fin_size.x > jab_size.x and fin_size.y >= jab_size.y,
+			"the combo finisher sweeps a wider hitbox than a jab (%.0fx%.0f > %.0fx%.0f)" %
+			[fin_size.x, fin_size.y, jab_size.x, jab_size.y])
+		player.attack_shape.disabled = true
+
 	PoolManager.spawn_projectile(e2.global_position, Vector2.RIGHT, 12.0, 400.0, Color.WHITE, true)
 	await get_tree().physics_frame
 	var proj: Projectile = null
