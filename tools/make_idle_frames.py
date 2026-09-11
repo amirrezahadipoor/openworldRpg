@@ -383,7 +383,38 @@ def check() -> bool:
     return True
 
 
+
+def status() -> int:
+    """Print which characters still owe generated art, straight from the game's
+    own data file and the manifest — so the art queue is read, not guessed."""
+    import json
+    with open(os.path.join(ROOT, "data", "enemies.json")) as fh:
+        enemies = json.load(fh)
+    manifest = _load_manifest()
+    rows = []
+    for key, cfg in sorted(enemies["archetypes"].items()):
+        name = str(cfg.get("sheet", "")).split("/")[-1].replace(".png", "")
+        if not name:
+            continue
+        entry = manifest.get(name, {})
+        rows.append((key, name, int(entry.get("idle", 0)), int(entry.get("slash", 0))))
+    for key, name, idle, slash in rows:
+        print("  %-16s %-20s %s" % (key, name,
+                                    "  ".join(["idle %d" % idle if idle else "idle --",
+                                               "attack %d" % slash if slash else "attack --"])))
+    idle_done = [r for r in rows if r[2] > 0]
+    slash_done = [r for r in rows if r[3] > 0]
+    print("ART STATUS: %d/%d archetypes have idle art, %d/%d have generated attack art"
+          % (len(idle_done), len(rows), len(slash_done), len(rows)))
+    owed = [r[1] for r in rows if r[2] == 0]
+    if owed:
+        print("  idle owed: " + ", ".join(owed))
+    return 0
+
+
 def main() -> None:
+    if "--status" in sys.argv[1:]:
+        sys.exit(status())
     if "--check" in sys.argv[1:]:
         sys.exit(EXIT_OK if check() else EXIT_PROBLEM)
 

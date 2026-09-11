@@ -82,7 +82,7 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 - [x] **H5.4** Separation: `Enemy._separation_vector()` (46 px) and
       `NPCController._separate_from_neighbours()` (soft 46 px). Measured on the
       built settlements, the closest pair of residents is 136 px apart.
-- [x] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
+- [~] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
       *Done: `tools/make_idle_frames.py` turns one generated sheet per character
       (4 direction columns x 2 poses: weight shift, look around) into idle columns
       2-3, cutting each pose out by empty-projection runs, mirroring a wrongly
@@ -91,12 +91,15 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       The idle loop is `[base, shift, breath, look-around]`, slower while resting,
       and a resting monster turns to look around every few seconds.
       `lpc_compose.py` calls the patcher, so recomposing cannot lose the frames
-      (recompose + patch is byte-identical). 10 of 21 character sheets are paid
-      for — archon, goblin, husk, legion, lizard, minotaur, orc, raider, raider2,
-      revenant. The remaining 11 (shaman, skeleton, troll, warden, wolf and the
-      six bosses) are the same pipeline, and sheets without art simply keep their
-      two-frame idle. Covered by `items_test` (4 checks) and `combat_test`
-      (8 checks).*
+      (recompose + patch is byte-identical).*
+      **20 of 24 sheets are paid for** — the 16 monsters and story bosses the
+      world spawns, plus all four hero armour looks. The four remaining bosses
+      (ashen herald, slag wraith, frost giant, choir priest) are the same
+      pipeline and keep their two-frame idle until they are generated.
+      *A generated sheet may draw more rotations than LPC has directions (the
+      shaman came back with six); the cutter samples evenly across the cardinals
+      instead of failing.* Covered by `items_test` (4 checks) and `combat_test`
+      (8 checks).
 
 ## H6. General polish where art is the fix
 
@@ -132,6 +135,16 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       in all four directions. Sheets without attack art fall back to the LPC
       slash plus a rotation tween, so the hero never stands still mid-swing.
       `combat_test` verifies the hero path per armour look (219 checks).
+
+- [ ] **H7.3 [image-gen]** *"Build the fight animations for the monsters and the
+      bosses the same way."* H7.1 gives every armed character a real weapon swing
+      by compositing the LPC attack film, and H7.2 gives the hero hand-generated
+      four-pose attack art. This item gives monsters and bosses the same
+      hand-generated treatment: one attack sheet per character in the layout the
+      slash patch already expects (4 direction columns x 4 poses — wind-up, begun
+      swing, impact, recovery), cut and pasted into rows 2-3 by
+      `make_idle_frames.py`, with the LPC film as the fallback for anything not
+      yet generated. 20 characters; same batching as H5.5.
 
 ## Field reports folded into this pass
 
