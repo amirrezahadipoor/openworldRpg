@@ -145,19 +145,15 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       swing, impact, recovery), cut and pasted into rows 2-3 by
       `make_idle_frames.py`, with the LPC film as the fallback for anything not
       yet generated. 20 characters; same batching as H5.5.
-      *Progress: 6 of 20 — goblin, raider, raider brute, emberling, minotaur and
-      troll swing generated four-pose attacks (wind-up, swing, impact, recovery)
-      in all four directions; `combat_test` proves each sheet's four poses differ
-      from one another and that the enemy runtime plays them.*
-      Split by how a character attacks: melee sheets take their art in the slash
-      block (`_attack_src/`, 12 sheets — 6 done), and ranged ones take theirs in
-      the spellcast block the game plays while they wind up (`_cast_src/`, new
-      source folder and a new block in the patcher, 3 sheets owed: shaman,
-      revenant, archon). `--status` prints both lists. Melee owed: ashen herald,
-      bone titan, frost giant, goblin king, Ember Warden, legion, husk, lizard,
-      wolf (beasts claw), choir priest, slag wraith. The cast path is wired end
-      to end (patcher, `PoseArt.cast_columns`, `Enemy.cast_frames`, 3 checks) and
-      currently exercises its fallback, since no cast art has been generated yet.
+      *Progress: 16 of 20.* Melee sheets take their art in the slash block
+      (`_attack_src/`, 13 done: goblin, raider, raider brute, emberling, minotaur,
+      troll, Ember Warden, goblin king, bone titan, frost giant, ashen herald,
+      legion, wolf); ranged ones take theirs in the spellcast block the game plays
+      while they wind up (`_cast_src/`, 3 of 3 done: shaman, revenant, archon).
+      `--status` prints both lists.
+      Owed: choir priest, husk, lizard, slag wraith (beasts and the two remaining
+      story bosses). Until a sheet is generated it keeps the LPC film for a melee
+      attack and the LPC cast frames for a ranged one.
 
 ## Field reports folded into this pass
 

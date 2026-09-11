@@ -206,7 +206,14 @@ func _test_monster_roster() -> void:
 			bad_geometry.append(String(stem))
 			continue
 		for anim in entry:
-			var block := 0 if String(anim) == "idle" else 2
+			# Animation block index of each patched kind, spelled out here so the
+			# test does not have to trust the tool's own table:
+			# 0 idle · 2 slash (melee attack) · 3 spellcast (a ranged attack).
+			var block := 0
+			if String(anim) == "slash":
+				block = 2
+			elif String(anim) == "spellcast":
+				block = 3
 			var frames := int(entry[anim])
 			if String(anim) == "idle":
 				idle_sheets += 1
@@ -224,6 +231,8 @@ func _test_monster_roster() -> void:
 	check(bad_geometry.is_empty(), "every generated pose frame has art (%s)" % str(bad_geometry))
 	check(copies.is_empty(), "no generated pose is a copy of frame 0 (%s)" % str(copies))
 	check(overflow.is_empty(), "generated pose blocks stay inside their frames (%s)" % str(overflow))
+	check(idle_sheets == manifest.size(),
+		"every patched sheet has idle art (%d/%d)" % [idle_sheets, manifest.size()])
 
 	# "The enemies should have fight animations too." Every archetype that deals
 	# physical damage must animate an attack, in all four directions, that is not

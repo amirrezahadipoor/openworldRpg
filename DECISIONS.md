@@ -1105,3 +1105,13 @@ Two generator habits cost sheets today, and neither is worth failing over:
   start at the head.
 Both are logged as `note:` lines, so a cut that needed help is visible in the
 build output rather than silently guessed at.
+
+**#74 — The art tests must know which block they are looking at** · 2026-09-11
+`items_test` asserted that no generated block overflows its frames by checking
+column `frames` of "the block", which it computed as `0 if idle else 2`. That was
+true while only idle and slash art existed; the moment cast art landed it inspected
+the *slash* block of the three casters, found the LPC swing frames that legitimately
+live there, and failed. The art was right and the test was wrong — the lesson is
+that the test now spells out all three block indices itself (0 idle, 2 slash,
+3 spellcast) rather than deriving them from a two-case rule, so adding a fourth
+kind has to be a deliberate edit on both sides.
