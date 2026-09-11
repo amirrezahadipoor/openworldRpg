@@ -143,7 +143,10 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 			rng.randf_range(128.0, CHUNK_SIZE - 128.0)
 		)
 		# Phase E §1: settlements are safe ground — no spawner may land inside a
-		# settlement's safe radius (roll the position again, bounded attempts).
+		# settlement's safe radius. Roll the position again, and if eight tries are
+		# not enough, push the point radially outward until it clears the bubble:
+		# skipping the spawner instead left chunks that straddle a town completely
+		# empty, which reads as a dead patch of map rather than a safe one.
 		var world_pos := root.position + local
 		var tries := 0
 		while Settlement.safe_zone_at(world_pos) and tries < 8:
@@ -154,7 +157,7 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 			world_pos = root.position + local
 			tries += 1
 		if Settlement.safe_zone_at(world_pos):
-			continue
+			local = _push_out_of_safe_zones(local, root.position)
 		var spawner := EnemySpawner.new()
 		spawner.archetype = String(table[rng.randi_range(0, table.size() - 1)])
 		spawner.count = rng.randi_range(1, 2)
@@ -165,6 +168,30 @@ func _populate_enemies(root: Node2D, rng: RandomNumberGenerator, biome: int) -> 
 		spawner.power_scale = 1.0
 		spawner.position = local
 		root.add_child(spawner)
+
+
+func _push_out_of_safe_zones(local: Vector2, chunk_origin: Vector2) -> Vector2:
+	## Walk the point outward from the nearest settlement centre until it is clear
+	## of every safe bubble, then clamp it back inside the chunk.
+	var guard := 0
+	while Settlement.safe_zone_at(chunk_origin + local) and guard < 64:
+		var nearest := Vector2.ZERO
+		var best := INF
+		for id in Settlement.all():
+			var d: Dictionary = (Settlement.all() as Dictionary)[id]
+			var pos: Array = d.get("position", [0, 0])
+			var centre := Vector2(float(pos[0]), float(pos[1]))
+			if centre.distance_to(chunk_origin + local) < best:
+				best = centre.distance_to(chunk_origin + local)
+				nearest = centre
+		var away := (chunk_origin + local - nearest)
+		if away.length() < 0.001:
+			away = Vector2.RIGHT
+		local += away.normalized() * 48.0
+		local.x = clampf(local.x, 96.0, CHUNK_SIZE - 96.0)
+		local.y = clampf(local.y, 96.0, CHUNK_SIZE - 96.0)
+		guard += 1
+	return local
 
 
 func _circle_polygon(radius: float, sides: int = 8) -> PackedVector2Array:

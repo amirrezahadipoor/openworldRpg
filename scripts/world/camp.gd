@@ -21,6 +21,7 @@ var _burned := false
 func _ready() -> void:
 	_build_scenery()
 	_burned = bool(GameState.quest_flags.get("millhaven_burned", false))
+	_build_safe_ring()
 	_spawn_npcs()
 	if _burned:
 		_build_memorial()
@@ -120,6 +121,24 @@ func _build_memorial() -> void:
 		+ "name into the stone and someone else has kept the fire going anyway.")
 	stone.position = Vector2(-55, 55)
 	add_child(stone)
+
+
+func _build_safe_ring() -> void:
+	## The camp is safe ground (data/settlements.json -> safe_zones) and now says
+	## so on the floor, the same way the settlements do.
+	var r := 340.0
+	for z in Settlement.safe_zones():
+		if String((z as Dictionary).get("id", "")) == "camp":
+			r = float((z as Dictionary)["radius"])
+	var pts := PackedVector2Array()
+	for i in 65:
+		pts.append(Vector2.from_angle(TAU * float(i) / 64.0) * r)
+	var edge := Line2D.new()
+	edge.points = pts
+	edge.width = 3.0
+	edge.default_color = Color(0.95, 0.86, 0.60, 0.30)
+	edge.z_index = -6
+	add_child(edge)
 
 
 func _spawn_npcs() -> void:

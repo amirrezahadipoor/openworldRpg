@@ -26,18 +26,30 @@ var _t := 0.0
 var _lanterns: Array[PointLight2D] = []
 
 
-static func all() -> Dictionary:
-	if not _cache.is_empty():
-		return _cache
+static var _doc_cache: Dictionary = {}
+
+
+static func _document() -> Dictionary:
+	if not _doc_cache.is_empty():
+		return _doc_cache
 	var f := FileAccess.open(DATA_PATH, FileAccess.READ)
 	if f == null:
-		push_error("Settlement: data/settlements.json missing")
 		return {}
 	var parsed: Variant = JSON.parse_string(f.get_as_text())
 	if typeof(parsed) != TYPE_DICTIONARY:
-		push_error("Settlement: data/settlements.json is not a JSON object")
 		return {}
-	_cache = (parsed as Dictionary).get("settlements", {})
+	_doc_cache = parsed as Dictionary
+	return _doc_cache
+
+
+static func all() -> Dictionary:
+	if not _cache.is_empty():
+		return _cache
+	var doc := _document()
+	if doc.is_empty():
+		push_error("Settlement: data/settlements.json missing or malformed")
+		return {}
+	_cache = doc.get("settlements", {})
 	return _cache
 
 
@@ -45,15 +57,47 @@ static func get_data(id: String) -> Dictionary:
 	return (all() as Dictionary).get(id, {})
 
 
-static func safe_zone_at(pos: Vector2) -> bool:
-	## True when a world position sits inside any settlement's safe radius.
+static func safe_zones() -> Array:
+	## Every bubble of no-combat ground: the nine settlements plus any standalone
+	## zone declared in data/settlements.json (`safe_zones`). The starting camp is
+	## one — it hosts an elder, a hunter and the first merchant, and until now it
+	## was not safe ground at all.
+	var out: Array = []
 	for id in all():
 		var s: Dictionary = (all() as Dictionary)[id]
 		var p: Array = s.get("position", [0, 0])
-		var r := float(s.get("safe_radius", 300.0))
-		if pos.distance_to(Vector2(float(p[0]), float(p[1]))) <= r:
+		out.append({
+			"id": String(id),
+			"name": String(s.get("name", id)),
+			"position": Vector2(float(p[0]), float(p[1])),
+			"radius": float(s.get("safe_radius", 300.0)),
+		})
+	for z in ((_document() as Dictionary).get("safe_zones", []) as Array):
+		var d: Dictionary = z
+		var zp: Array = d.get("position", [0, 0])
+		out.append({
+			"id": String(d.get("id", "zone")),
+			"name": String(d.get("name", d.get("id", "zone"))),
+			"position": Vector2(float(zp[0]), float(zp[1])),
+			"radius": float(d.get("radius", 300.0)),
+		})
+	return out
+
+
+static func safe_zone_at(pos: Vector2) -> bool:
+	## True when a world position sits inside any safe bubble.
+	for z in safe_zones():
+		if pos.distance_to((z as Dictionary)["position"]) <= float((z as Dictionary)["radius"]):
 			return true
 	return false
+
+
+static func safe_zone_containing(pos: Vector2) -> Dictionary:
+	## Which bubble a position is in (used by the HUD's zone readout and tests).
+	for z in safe_zones():
+		if pos.distance_to((z as Dictionary)["position"]) <= float((z as Dictionary)["radius"]):
+			return z
+	return {}
 
 
 func setup(id: String) -> void:
@@ -93,7 +137,29 @@ func _build() -> void:
 	if (data.get("services", []) as Array).has("waypoint"):
 		_build_waypoint(radius)
 	_build_lanterns(radius, count)
+	_build_safe_ring(radius)
 	_spawn_npcs(radius, rng)
+
+
+func _build_safe_ring(radius: float) -> void:
+	## The no-combat boundary, drawn on the ground. `safe_zone_at()` has always
+	## been invisible: enemies simply stopped existing at some radius the player
+	## could only discover by walking out and counting. Two rings — a hard edge at
+	## `safe_radius` and a soft fade 40 px inside it — say "this is town" without a
+	## UI element. Same technique as BossArena's aggro ring.
+	var edge := Line2D.new()
+	edge.points = _circle_poly(safe_radius, 64)
+	edge.width = 3.0
+	edge.default_color = Color(0.95, 0.86, 0.60, 0.30)
+	edge.z_index = -6
+	add_child(edge)
+
+	var soft := Line2D.new()
+	soft.points = _circle_poly(maxf(safe_radius - 42.0, radius), 64)
+	soft.width = 10.0
+	soft.default_color = Color(0.95, 0.86, 0.60, 0.07)
+	soft.z_index = -6
+	add_child(soft)
 
 
 func _color(key: String, fallback: Color) -> Color:
@@ -249,10 +315,59 @@ func _spawn_npcs(radius: float, rng: RandomNumberGenerator) -> void:
 		npc.is_vendor = NPCController.is_vendor_id(npc_id) and services.has("shop")
 		npc.show_quest_marker = true
 		npc.sprite_sheet = _sheet_for(npc_id)
-		var a := TAU * float(i) / float(ids.size()) + 0.7
-		npc.position = Vector2(cos(a), sin(a)) * radius * rng.randf_range(0.30, 0.55)
+		# Placement: a fixed seat per resident, not a random point on a ring.
+		#
+		# The old rule picked an angle and a radius of 0.30-0.55x the town radius
+		# from the same RNG stream, so two neighbours could land within a few pixels
+		# of each other and their schedules (offsets measured from wherever they
+		# were dropped) kept them that way — the "everyone is standing inside
+		# everyone" report. Each NPC now gets a seat from the table below, with the
+		# ring split evenly and the radius alternating between an inner and an outer
+		# row, and `_seat_is_clear()` refuses a seat that is closer than
+		# NPC_MIN_GAP to anyone already placed (including the camp's fixed trio).
+		var seat := _npc_seat(i, ids.size(), radius)
+		npc.position = seat
 		npc.interacted.connect(func(n: NPC) -> void: npc_interacted.emit(n))
 		add_child(npc)
+
+
+## Two rows of seats so three residents never line up, and a hard floor on the
+## distance between any two of them.
+const NPC_INNER_ROW := 0.34
+const NPC_OUTER_ROW := 0.56
+const NPC_MIN_GAP := 118.0
+
+
+func _npc_seat(index: int, total: int, radius: float) -> Vector2:
+	## Even angles, alternating rows, deterministic per index — no RNG involved,
+	## so the same town lays out the same way on every machine and a seat can be
+	## space-checked before it is used.
+	var row := float(index % 2)
+	var ring := index / 2
+	var rings := maxi(1, int(ceilf(float(total) / 2.0)))
+	var a := TAU * (float(ring) / float(rings)) + (0.35 if row > 0.5 else 0.0) + 0.7
+	var dist := radius * lerpf(NPC_INNER_ROW, NPC_OUTER_ROW, row)
+	var seat := Vector2(cos(a), sin(a)) * dist
+	var guard := 0
+	while not _seat_is_clear(seat) and guard < 24:
+		# Rotate outward in small steps until the seat clears everyone.
+		a += 0.42
+		dist = minf(dist + 14.0, radius * 0.72)
+		seat = Vector2(cos(a), sin(a)) * dist
+		guard += 1
+	return seat
+
+
+func _seat_is_clear(seat: Vector2) -> bool:
+	## Global space: comparing local positions would make two towns that sit at
+	## different world coordinates look like they overlap.
+	var world_seat := to_global(seat)
+	for other in get_tree().get_nodes_in_group("npc"):
+		if not (other is Node2D):
+			continue
+		if (other as Node2D).global_position.distance_to(world_seat) < NPC_MIN_GAP:
+			return false
+	return true
 
 
 func _sheet_for(npc_id: String) -> String:

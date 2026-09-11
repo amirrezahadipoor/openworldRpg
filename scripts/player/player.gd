@@ -206,6 +206,13 @@ func _shove(target: Node) -> void:
 		body.velocity += facing * 260.0
 
 
+func _protected_ground() -> bool:
+	## No damage on safe ground, and none mid-conversation.
+	if EventBus.dialogue_open:
+		return true
+	return Settlement.safe_zone_at(global_position)
+
+
 func _finisher_flash() -> void:
 	## A brighter, wider swing arc for the third hit so the chain reads on screen.
 	var flash := Polygon2D.new()
@@ -313,6 +320,13 @@ func _apply_lifesteal(dmg: float) -> void:
 ## Called by enemy hitboxes / hazards.
 func take_hit(amount: float, _dir: Vector2) -> void:
 	if invulnerable:
+		return
+	if _protected_ground():
+		# Last gate before any damage lands. Enemies already refuse to attack here
+		# (Enemy._may_press_attack), but a projectile fired a moment before the
+		# player crossed the line, or a boss that does not run the field FSM, would
+		# still land — and being killed while reading a line of dialogue is the
+		# single worst way to lose a run.
 		return
 	var dmg := maxf(1.0, amount - GameState.defense() * 0.5) * GameState.damage_taken_mult()
 	GameState.hp = clampf(GameState.hp - dmg, 0.0, GameState.max_hp())

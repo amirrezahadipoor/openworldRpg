@@ -3,7 +3,11 @@ extends Node
 ## Day/night tint cycle via CanvasModulate (world canvas only — UI layers are
 ## unaffected). phase 0 = midnight, 0.25 = sunrise, 0.5 = noon, 0.75 = dusk.
 
-@export var cycle_seconds := 480.0
+## Length of a full day in seconds. 480 s (an 8-minute day) meant an NPC changed
+## schedule point every one to three minutes and never seemed to settle; at 20
+## minutes a routine is something the player can actually notice, and the four
+## slots are 3-6 minutes each.
+@export var cycle_seconds := 1200.0
 @export var start_phase := 0.32  # start each session in the morning
 
 var canvas: CanvasModulate

@@ -820,3 +820,54 @@ generator now paints the shore tile on the ground directly above any water body
 (the tile art has its water band along its bottom edge, so the two line up) and
 clears the collision stamp there. Eleven tiles in the shipped world change;
 nothing else does.
+
+**#59 — Safe ground: measured, visible, and actually safe** · 2026-09-11
+The safe zone was three separate half-measures. It was invisible
+(`Settlement.safe_zone_at()` had no counterpart in the world), it was too wide —
+every bubble was 90–130 px larger than the town it belonged to, which is what
+"there are too many safe zones" actually meant — and it only stopped spawners
+from *appearing* inside it: a wolf that had already seen you walked into town
+behind you, and the starting camp, which hosts Elder Rowan, Hunter Kael and the
+first merchant, was not safe ground at all. Now: `safe_radius` is the town radius
+plus a 70 px walk-out margin (union 8.9% of the map, under the 15% ceiling, down
+from 10.6%); settlements and the camp draw a ring on the ground at that edge;
+`data/settlements.json` gains a `safe_zones` list (`Settlement.safe_zones()`), so
+standalone safe ground exists as a concept and the camp is one of them;
+`ChunkStreamer` pushes a spawn point radially outward instead of skipping the
+spawner, so a chunk straddling a town is no longer an empty dead patch; and
+enemies now hard-refuse: `Enemy._may_press_attack()` gates `_finish_attack` and
+the charger's dash, `Player._protected_ground()` is the last gate before damage,
+and a monster caught inside a bubble enters the new `WITHDRAW` state and walks
+out — its `_origin` is pushed to legal ground (`_legal_origin`) so it can never
+call the middle of town home. `tools/safe_zone_report.py` prints the same
+numbers the test asserts.
+
+**#60 — The world stops pacing: rest, sleep off-screen, and a day you can read** · 2026-09-11
+Every enemy ran an infinite `IDLE 1.5 s → PATROL ≤5 s → IDLE` loop for as long as
+its chunk was loaded, off-screen included, which is what "excessive circling"
+looked like. Enemies now count their patrols (`PATROLS_BEFORE_REST`) and then take
+a real 18–32 s rest; `_awake()` keeps anything beyond 900 px from animating a
+patrol at all; `_separation_vector()` pushes clustered enemies apart instead of
+letting them jitter through each other; and `DayNight.cycle_seconds` goes from 480
+to 1200 s so an NPC's schedule point is somewhere they hold for three to six
+minutes rather than something they are always walking toward.
+
+**#61 — Nobody stands inside anybody** · 2026-09-11
+Residents were placed by picking a random angle and a random radius of 0.30–0.55×
+the town radius from the same RNG stream, and their schedules are offsets measured
+*from wherever they landed* — so two neighbours could share a few pixels and stay
+there all day. Seats are now deterministic (`Settlement._npc_seat()`: even angles,
+two alternating rows, a `_seat_is_clear()` check in global space against every NPC
+already in the tree, including the camp trio), and `NPCController._separate_from_neighbours()`
+keeps a soft 46 px gap while walking and standing. Measured on the built
+settlements: the closest pair of residents in the whole valley is 136 px apart.
+
+**#62 — A conversation is not a combat zone, and neither is a town** · 2026-09-11
+`EventBus.dialogue_open` is now plain shared state (not just a signal), set by the
+dialogue box, and it is one of the two conditions that make the player
+untouchable — the other being safe ground. Three layers enforce it: the enemy
+never enters or continues an attack state, `_finish_attack` re-checks before
+dealing damage, and `Player.take_hit` refuses at the bottom, which also covers a
+projectile already in flight. Signed off in `combat_test` by four assertions that
+run the real damage path both ways — protected takes nothing, unprotected takes
+hits, so the suite cannot pass by accident.

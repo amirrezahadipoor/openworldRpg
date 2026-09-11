@@ -58,6 +58,7 @@ func _ready() -> void:
 	_test_milestones()
 	_test_floor_scaling()
 	_test_talent_tree()
+	await _test_safe_ground_and_dialogue_protection()
 
 	_report()
 
@@ -960,3 +961,65 @@ func _test_projectile_contact() -> void:
 func _phys(n: int) -> void:
 	for i in n:
 		await get_tree().physics_frame
+
+
+func _test_safe_ground_and_dialogue_protection() -> void:
+	## Two hard rules the player asked for: nothing attacks you on a town's safe
+	## ground, and nothing attacks you while a conversation is open. Both are
+	## checked through the real damage path, not by reading a flag.
+	print("[combat_test] safe ground + dialogue protection")
+	# Earlier suites left their own player nodes in the tree, and Enemy picks the
+	# first node in the group — so clear the field first.
+	for p in get_tree().get_nodes_in_group("player"):
+		p.queue_free()
+	await _phys(2)
+	var host := Node2D.new()
+	add_child(host)
+	var player: Player = load("res://scenes/player/player.tscn").instantiate()
+	add_child(player)
+
+	var camp := Vector2(900, 300)   # data/settlements.json -> safe_zones
+	player.global_position = camp
+	var enemy: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(enemy)
+	enemy.global_position = camp + Vector2(40, 0)
+	enemy.setup_archetype("grunt")
+
+	GameState.hp = GameState.max_hp()
+	var before := GameState.hp
+	# Long enough for a withdrawal at WITHDRAW_SPEED to clear the whole bubble.
+	await _phys(430)
+	check(GameState.hp >= before,
+		"a monster beside you on safe ground deals no damage (hp %.0f -> %.0f)" % [before, GameState.hp])
+	# It should visibly leave rather than stand in the middle of the camp. (It can
+	# stop a few pixels short of the bubble edge if a tent blocks the retreat, so
+	# the assertion is "it walked off", not "it is provably outside".)
+	var walked := enemy.global_position.distance_to(camp)
+	check(walked > 260.0 and enemy.state != Enemy.State.CHASE and enemy.state != Enemy.State.ATTACK,
+		"the monster walks off instead of loitering in the middle of town (%.0f px out, state %d)" %
+		[walked, enemy.state])
+
+	# Chasing in from outside must not work either.
+	enemy.global_position = camp + Vector2(520, 0)
+	enemy.setup_archetype("grunt")
+	GameState.hp = GameState.max_hp()
+	before = GameState.hp
+	await _phys(180)
+	check(GameState.hp >= before, "a monster chasing from outside cannot reach you inside")
+
+	# Dialogue: the same enemy, in open country, with a conversation open.
+	player.global_position = Vector2(0, -2500)
+	enemy.global_position = Vector2(40, -2500)
+	enemy.setup_archetype("grunt")
+	EventBus.dialogue_open = true
+	GameState.hp = GameState.max_hp()
+	before = GameState.hp
+	await _phys(100)
+	check(GameState.hp >= before, "nothing lands while a conversation is open")
+
+	# ...and the same enemy does hit when neither protection applies, so the test
+	# cannot pass by accident.
+	EventBus.dialogue_open = false
+	await _phys(140)
+	check(GameState.hp < GameState.max_hp(),
+		"the same monster does land hits once the player is unprotected")

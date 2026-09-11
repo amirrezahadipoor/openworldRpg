@@ -126,6 +126,7 @@ func start(dialogue: Dictionary) -> void:
 	if not get_tree().root.size_changed.is_connected(_relayout):
 		get_tree().root.size_changed.connect(_relayout)
 	_relayout()
+	EventBus.dialogue_open = true
 	EventBus.dialogue_opened.emit()
 	_show_node(String(dialogue.get("start", "")))
 
@@ -205,6 +206,7 @@ func _finish() -> void:
 		_execute_action(a)
 	visible = false
 	get_tree().paused = false
+	EventBus.dialogue_open = false
 	EventBus.dialogue_closed.emit()
 	dialogue_finished.emit()
 	_dialogue = {}

@@ -1,5 +1,5 @@
 {
-  "_comment": "Settlements. `services` drives what the world actually builds (shop / waypoint / heal / board); a vendor NPC without the `shop` service stays a talker. `market` is the local price multiplier used by the shop screen \u2014 buying cheap in one town and selling dear in another is a real trade route, not decoration.",
+  "_comment": "Settlements. `services` drives what the world actually builds (shop / waypoint / heal / board); a vendor NPC without the `shop` service stays a talker. `market` is the local price multiplier used by the shop screen \u2014 buying cheap in one town and selling dear in another is a real trade route, not decoration. `safe_radius` is the no-combat bubble: it is the town's own radius plus a 70 px walk-out margin, so the safe edge is visible from the town's edge rather than a hidden ring a screen and a half away.",
   "settlements": {
     "millhaven": {
       "id": "millhaven",
@@ -12,7 +12,7 @@
         620
       ],
       "radius": 210.0,
-      "safe_radius": 300.0,
+      "safe_radius": 280.0,
       "buildings": 6,
       "services": [
         "waypoint",
@@ -45,7 +45,7 @@
         1200
       ],
       "radius": 210.0,
-      "safe_radius": 300.0,
+      "safe_radius": 280.0,
       "buildings": 6,
       "services": [
         "waypoint",
@@ -79,7 +79,7 @@
         1350
       ],
       "radius": 330.0,
-      "safe_radius": 440.0,
+      "safe_radius": 400.0,
       "buildings": 16,
       "services": [
         "waypoint",
@@ -114,7 +114,7 @@
         900
       ],
       "radius": 260.0,
-      "safe_radius": 360.0,
+      "safe_radius": 330.0,
       "buildings": 10,
       "services": [
         "waypoint",
@@ -148,7 +148,7 @@
         300
       ],
       "radius": 260.0,
-      "safe_radius": 360.0,
+      "safe_radius": 330.0,
       "buildings": 10,
       "services": [
         "waypoint",
@@ -182,7 +182,7 @@
         1200
       ],
       "radius": 330.0,
-      "safe_radius": 440.0,
+      "safe_radius": 400.0,
       "buildings": 16,
       "services": [
         "waypoint",
@@ -216,7 +216,7 @@
         -900
       ],
       "radius": 210.0,
-      "safe_radius": 300.0,
+      "safe_radius": 280.0,
       "buildings": 6,
       "services": [
         "waypoint",
@@ -249,7 +249,7 @@
         -1800
       ],
       "radius": 260.0,
-      "safe_radius": 360.0,
+      "safe_radius": 330.0,
       "buildings": 10,
       "services": [
         "waypoint",
@@ -283,7 +283,7 @@
         -2400
       ],
       "radius": 330.0,
-      "safe_radius": 440.0,
+      "safe_radius": 400.0,
       "buildings": 16,
       "services": [
         "waypoint",
@@ -321,5 +321,17 @@
       "buildings": 16,
       "radius": 330.0
     }
-  }
+  },
+  "safe_zones": [
+    {
+      "id": "camp",
+      "name": "Hazelwood Camp",
+      "position": [
+        900,
+        300
+      ],
+      "radius": 340.0,
+      "why": "The camp is where the player starts, where Rowan stands, and where Bram trades \u2014 and it was in no safe zone at all, so the first thing a new player met while reading the opening conversation was a wolf."
+    }
+  ]
 }

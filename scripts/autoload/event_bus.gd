@@ -29,6 +29,10 @@ signal quest_updated(quest_id: String)
 signal quest_completed(quest_id: String)
 signal dialogue_opened
 signal dialogue_closed
+## Plain state, not a signal: enemy AI, the player's damage gate and the HUD all
+## need to ask the question, and a conversation is exactly the kind of moment the
+## whole world should be able to read.
+var dialogue_open := false
 
 # --- Boss ---
 signal boss_phase_changed(phase: int)

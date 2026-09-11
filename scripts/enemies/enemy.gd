@@ -6,13 +6,24 @@ extends CharacterBody2D
 ## On death: XP + loot drops (gold/items), then recycled into the spawner's
 ## ObjectPool (no queue_free) for respawn reuse.
 
-enum State { IDLE, PATROL, CHASE, ATTACK, FLEE, DEAD }
+enum State { IDLE, PATROL, CHASE, ATTACK, FLEE, WITHDRAW, DEAD }
 
 signal recycled(enemy: Enemy)
 
 const DEFAULT_TELEGRAPH := 0.45
 const FLEE_TIME := 1.6
 const FLEE_THRESHOLD := 0.25
+## Once the player is out of reach (or somewhere it may not follow), an enemy
+## walks home instead of standing where it stopped.
+const WITHDRAW_SPEED := 0.75
+## A wanderer settles down: after this many patrol cycles it rests instead of
+## picking another point, because a world where every creature paces forever
+## reads as a screensaver, not a place (H5.1).
+const PATROLS_BEFORE_REST := 3
+const REST_MIN := 18.0
+const REST_MAX := 32.0
+## Off-screen enemies do not need to animate a patrol (H5.2).
+const PATROL_AWAKE_RANGE := 900.0
 
 # Composed LPC sheet layout (tools/lpc_compose.py): 13 cols x 20 rows of 64 px
 # frames. Rows come in blocks of 4 directions, ordered n, w, s, e.
@@ -70,6 +81,11 @@ var _state_time := 0.0
 var _attack_cd := 0.0
 var _patrol_target := Vector2.ZERO
 var _origin := Vector2.ZERO
+var _patrols_done := 0
+var _separation := Vector2.ZERO
+## Set while the player is somewhere an enemy may not press an attack: inside a
+## settlement's safe bubble, or mid-conversation. See _player_protected().
+var player_protected := false
 
 @onready var sprite: Sprite2D = $Sprite
 
@@ -98,6 +114,15 @@ func _physics_process(delta: float) -> void:
 		_charge_tick(delta)
 		return
 	_player = _find_player()
+	player_protected = _player_protected()
+
+	# While the player is protected, or while this enemy is standing on safe
+	# ground, every aggressive state drops: no chase, no telegraph, no hit.
+	if state == State.CHASE or state == State.ATTACK:
+		if player_protected or Settlement.safe_zone_at(global_position):
+			_change_state(State.WITHDRAW)
+	if state == State.ATTACK and not _may_press_attack():
+		_change_state(State.WITHDRAW)
 
 	var to_player := (_player.global_position - global_position) if _player else Vector2.ZERO
 	var dist := to_player.length()
@@ -105,24 +130,43 @@ func _physics_process(delta: float) -> void:
 	match state:
 		State.IDLE:
 			velocity = velocity.move_toward(Vector2.ZERO, 400.0 * delta)
-			if _player and dist < chase_radius:
+			if _player and dist < chase_radius and not player_protected:
 				_change_state(State.CHASE)
-			elif _state_time > 1.5:
+			elif _patrols_done >= PATROLS_BEFORE_REST:
+				# A real rest, not the old fixed 1.5 s pause between loops.
+				if _state_time > 1.5 + REST_MIN + randf() * (REST_MAX - REST_MIN):
+					_patrols_done = 0
+					_state_time = 0.0
+			elif _state_time > 1.5 and _awake():
 				_pick_patrol_point()
 				_change_state(State.PATROL)
 
 		State.PATROL:
 			var to_target := _patrol_target - global_position
 			if to_target.length() < 12.0 or _state_time > 5.0:
+				_patrols_done += 1
 				_change_state(State.IDLE)
 			else:
 				velocity = velocity.move_toward(to_target.normalized() * move_speed * 0.6, 600.0 * delta)
-			if _player and dist < chase_radius:
+			if _player and dist < chase_radius and not player_protected:
 				_change_state(State.CHASE)
+			velocity += _separation * 40.0
+
+		State.WITHDRAW:
+			# Walking home: no aggro, no attacks. This is what keeps towns, and
+			# conversations, monster-free. If it is standing inside a safe bubble
+			# (dragged in by a chase), "home" is the nearest point *outside* the
+			# bubble — otherwise it would walk home to the middle of town and stay.
+			var away := _retreat_point() - global_position
+			if _state_time > 8.0 or away.length() < 16.0:
+				_change_state(State.IDLE)
+			else:
+				velocity = velocity.move_toward(
+					away.normalized() * move_speed * WITHDRAW_SPEED, 500.0 * delta)
 
 		State.CHASE:
-			if _player == null:
-				_change_state(State.IDLE)
+			if _player == null or player_protected:
+				_change_state(State.WITHDRAW)
 			elif dist < attack_radius and _attack_cd <= 0.0:
 				_change_state(State.ATTACK)
 			elif dist > chase_radius * 1.6:
@@ -135,6 +179,9 @@ func _physics_process(delta: float) -> void:
 					_desired_velocity(to_player, dist, delta), 700.0 * delta)
 
 		State.ATTACK:
+			if not _may_press_attack():
+				_change_state(State.WITHDRAW)
+				sprite.modulate = _tinted()
 			velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
 			var pulse := 0.5 + 0.5 * sin(_state_time * 24.0)
 			sprite.modulate = _tinted().lerp(Color(1.0, 0.85, 0.2), pulse)
@@ -153,8 +200,50 @@ func _physics_process(delta: float) -> void:
 			if _state_time > FLEE_TIME:
 				_change_state(State.CHASE if _player else State.IDLE)
 
+	_separation = _separation_vector()
+	if state != State.WITHDRAW:
+		velocity += _separation * 60.0
 	move_and_slide()
 	_update_anim(delta)
+
+
+func _retreat_point() -> Vector2:
+	## Where "home" is right now: `_origin` is already legal ground, but if we are
+	## standing deep inside a bubble then the nearest way out beats walking to a
+	## far home through the middle of town.
+	if not Settlement.safe_zone_at(global_position):
+		return _origin
+	var zone := Settlement.safe_zone_containing(global_position)
+	if zone.is_empty():
+		return _origin
+	var centre: Vector2 = zone["position"]
+	var outward := (global_position - centre)
+	if outward.length() < 0.001:
+		outward = Vector2.RIGHT
+	return centre + outward.normalized() * (float(zone["radius"]) + 48.0)
+
+
+func _separation_vector() -> Vector2:
+	## Enemies from one spawner walk independent patrols inside a 360 px spread and
+	## used to drift through each other, which looks like jitter rather than a
+	## group. A cheap push-apart keeps them legible.
+	var push := Vector2.ZERO
+	for other in get_tree().get_nodes_in_group("enemies"):
+		if other == self or not (other is Enemy):
+			continue
+		var v: Vector2 = global_position - (other as Node2D).global_position
+		var d := v.length()
+		if d > 0.001 and d < 46.0:
+			push += v.normalized() * (46.0 - d) / 46.0
+	return push
+
+
+func _awake() -> bool:
+	## Off-screen enemies skip the patrol loop entirely (no movement budget spent
+	## animating what nobody can see). They still rest and still react on approach.
+	if _player == null:
+		return true
+	return global_position.distance_to(_player.global_position) < PATROL_AWAKE_RANGE
 
 
 func _update_anim(delta: float) -> void:
@@ -253,9 +342,15 @@ func setup_archetype(id: String, power_scale: float = 1.0, floor: int = 1) -> vo
 	hp = max_hp
 	state = State.IDLE
 	_state_time = 0.0
+	_patrols_done = 0
+	_separation = Vector2.ZERO
+	player_protected = false
 	_attack_cd = 0.0
 	velocity = Vector2.ZERO
-	_origin = global_position
+	# A monster's home is never inside a settlement: the spawner already refuses to
+	# place one there, but a pooled enemy re-homed by a chase must not treat the
+	# middle of town as its patrol centre.
+	_origin = _legal_origin(global_position)
 	sprite.modulate = _tinted()
 	modulate.a = 1.0
 	scale = base_scale
@@ -276,6 +371,8 @@ func setup_floor(floor: int) -> void:
 func _finish_attack(to_player: Vector2, dist: float) -> void:
 	if _player == null:
 		return
+	if not _may_press_attack():
+		return  # safe ground and open conversations are not combat zones
 	if behavior == "ranged":
 		PoolManager.spawn_projectile(
 			global_position, to_player.normalized(),
@@ -284,6 +381,25 @@ func _finish_attack(to_player: Vector2, dist: float) -> void:
 		AudioManager.play_sfx("enemy_cast")
 	elif dist < attack_radius + 18.0:
 		_player.take_hit(contact_damage, to_player.normalized())
+
+
+func _player_protected() -> bool:
+	## Safe ground and open conversations are the two places the player must be
+	## able to stand still and read. The safe bubble only ever stopped spawners
+	## from *appearing* inside it, so a wolf that was already chasing you walked
+	## straight into town behind you; and dialogue left the player taking hits
+	## while reading a line. Both are now hard stops for enemies.
+	if _player == null:
+		return false
+	if EventBus.dialogue_open:
+		return true
+	return Settlement.safe_zone_at(_player.global_position)
+
+
+func _may_press_attack() -> bool:
+	## An enemy never swings at a protected player, and an enemy standing inside a
+	## safe zone never swings at all.
+	return not player_protected and not Settlement.safe_zone_at(global_position)
 
 
 func _desired_velocity(to_player: Vector2, dist: float, delta: float) -> Vector2:
@@ -329,6 +445,14 @@ func _begin_charge(to_player: Vector2) -> void:
 
 
 func _charge_tick(delta: float) -> void:
+	if not _may_press_attack():
+		# The dash breaks off the moment the player reaches safe ground or opens a
+		# conversation — a brute that carries its momentum into town is exactly the
+		# bug this guards against.
+		_dash_time = 0.0
+		_recovery = 0.0
+		_change_state(State.WITHDRAW)
+		return
 	_dash_time = maxf(_dash_time - delta, 0.0)
 	velocity = _dash_dir * move_speed * CHARGE_DASH_SPEED
 	move_and_slide()
@@ -350,7 +474,22 @@ func _change_state(s: State) -> void:
 
 
 func _pick_patrol_point() -> void:
-	_patrol_target = _origin + Vector2(randf_range(-160.0, 160.0), randf_range(-160.0, 160.0))
+	var p := _origin + Vector2(randf_range(-160.0, 160.0), randf_range(-160.0, 160.0))
+	if Settlement.safe_zone_at(p):
+		p = _origin   # never wander into town, even by a few pixels
+	_patrol_target = p
+
+
+func _legal_origin(from: Vector2) -> Vector2:
+	## Push a spawn/home point out of any safe bubble it landed in.
+	var zone := Settlement.safe_zone_containing(from)
+	if zone.is_empty():
+		return from
+	var centre: Vector2 = zone["position"]
+	var outward := from - centre
+	if outward.length() < 0.001:
+		outward = Vector2.RIGHT
+	return centre + outward.normalized() * (float(zone["radius"]) + 48.0)
 
 
 func _find_player() -> Player:

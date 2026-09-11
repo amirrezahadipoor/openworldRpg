@@ -38,6 +38,9 @@ const WALK_FPS := 12.0
 @export var flee_radius := 170.0
 @export var bark_radius := 190.0
 @export var bark_interval := 24.0
+## Minimum gap two NPCs keep between each other (H5.4 / the "everyone stands on
+## everyone" report). 26 px of hard separation, tapering to nothing at 46 px.
+@export var personal_space := 46.0
 @export var schedule_enabled := true
 ## Test/debug override for the clock ("" = read DayNight).
 @export var time_override: String = ""
@@ -195,7 +198,30 @@ func _physics_process(delta: float) -> void:
 			global_position = want
 	else:
 		state = State.IDLE_SCHEDULE
+	_separate_from_neighbours()
 	_maybe_bark(delta)
+
+
+func _separate_from_neighbours() -> void:
+	## Two residents whose schedule points are close used to end up standing
+	## inside each other — the schedules are offsets from each NPC's own seat, so
+	## nothing ever compared them. A soft push keeps a readable gap instead: full
+	## separation starts at `personal_space` and the push is capped per frame.
+	var push := Vector2.ZERO
+	for other in get_tree().get_nodes_in_group("npc"):
+		if other == self or not (other is Node2D):
+			continue
+		var v: Vector2 = global_position - (other as Node2D).global_position
+		var d := v.length()
+		if d < 0.001:
+			v = Vector2.RIGHT.rotated(float(npc_id.hash() % 360))
+			d = 0.001
+		if d < personal_space:
+			push += v.normalized() * (personal_space - d) * 0.5
+	if push == Vector2.ZERO:
+		return
+	# Cap the correction so a crowded frame cannot teleport anyone.
+	global_position += push.limit_length(6.0)
 
 
 func _move_toward(point: Vector2, delta: float) -> void:

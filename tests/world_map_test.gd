@@ -28,6 +28,9 @@ func _ready() -> void:
 	_test_micro_locations()
 	await _test_dungeon_vaults()
 	_test_overworld_spawners()
+	_test_safe_zones()
+	_ensure_probe()
+	await _test_npc_seats()
 	_report()
 
 
@@ -376,3 +379,103 @@ func _load_chunk(key: Vector2i) -> Dictionary:
 		return {}
 	var doc: Dictionary = JSON.parse_string(f.get_as_text()) as Dictionary
 	return doc if doc != null else {}
+
+
+func _test_safe_zones() -> void:
+	## The safe bubble is now a measured quantity, not an opinion: it is the town
+	## radius plus a 70 px walk-out margin, the starting camp has one at all, and
+	## the union stays under the agreed ceiling for how much of the map is free of
+	## combat (tools/safe_zone_report.py prints the same numbers).
+	print("[world_map_test] safe zones")
+	var zones := Settlement.safe_zones()
+	check(zones.size() == Settlement.all().size() + 1,
+		"nine settlements plus the camp are safe ground (%d)" % zones.size())
+
+	var widest := 0.0
+	var tight_ids: Array = []
+	for id in Settlement.all():
+		var st: Dictionary = (Settlement.all() as Dictionary)[id]
+		var gap := float(st.get("safe_radius", 0.0)) - float(st.get("radius", 0.0))
+		widest = maxf(widest, gap)
+		if gap > 90.0:
+			tight_ids.append(String(id))
+	check(tight_ids.is_empty(),
+		"no bubble is more than 90 px wider than its town (%s)" % str(tight_ids))
+	check(widest <= 80.0, "the widest margin is %.0f px (<= 80)" % widest)
+
+	var camp := Settlement.safe_zone_containing(Vector2(900, 300))
+	check(not camp.is_empty() and String(camp.get("id", "")) == "camp",
+		"the starting camp is a safe zone (it hosts Rowan, Kael and Bram)")
+	check(Settlement.safe_zone_at(Vector2(900, 300)), "the camp centre is protected")
+	check(Settlement.safe_zone_at(Vector2(4300, 1200)), "Ashvow's centre is protected")
+	check(not Settlement.safe_zone_at(Vector2(0, -2500)), "open country is not")
+
+	# Union area, sampled on a grid (the same maths the report tool runs).
+	var x0 := -2 * 1024
+	var y0 := -3 * 1024
+	var w := 7168
+	var h := 5120
+	var inside := 0
+	var total := 0
+	var step := 64
+	var x := x0 + step * 0.5
+	while x < x0 + w:
+		var y := y0 + step * 0.5
+		while y < y0 + h:
+			total += 1
+			for z in zones:
+				var zp: Vector2 = (z as Dictionary)["position"]
+				var zr := float((z as Dictionary)["radius"])
+				if Vector2(x, y).distance_squared_to(zp) <= zr * zr:
+					inside += 1
+					break
+			y += step
+		x += step
+	var frac := float(inside) / float(maxi(1, total))
+	check(frac <= 0.15, "safe ground is under 15%% of the map (%.1f%%)" % (frac * 100.0))
+
+
+func _test_npc_seats() -> void:
+	## "Every NPC is standing inside every other NPC": each resident now gets a
+	## deterministic seat, and this checks the seats that actually get built —
+	## including across two settlements, since the check runs in global space.
+	print("[world_map_test] NPC seat spacing")
+	var placed: Array = []
+	var per_town: Array = []
+	for id in Settlement.all():
+		var node := Settlement.new()
+		node.name = "SeatCheck_%s" % id
+		world_probe.add_child(node)
+		node.setup(String(id))
+		await get_tree().process_frame
+		var local: Array = []
+		for child in node.get_children():
+			if child is NPC:
+				local.append((child as Node2D).global_position)
+		per_town.append([String(id), local.size()])
+		placed.append_array(local)
+		node.queue_free()
+		await get_tree().process_frame
+
+	var closest := INF
+	for i in placed.size():
+		for j in range(i + 1, placed.size()):
+			closest = minf(closest, (placed[i] as Vector2).distance_to(placed[j] as Vector2))
+	var thin: Array = []
+	for row in per_town:
+		if int(row[1]) < 2:
+			thin.append(String(row[0]))
+	check(placed.size() >= 18, "at least 18 settlement residents were built (%d)" % placed.size())
+	check(thin.is_empty(), "every settlement still seats at least two residents %s" % str(thin))
+	check(closest >= 90.0,
+		"no two residents share a seat (closest pair %.0f px)" % closest)
+
+
+var world_probe: Node2D
+
+
+func _ensure_probe() -> void:
+	if world_probe == null:
+		world_probe = Node2D.new()
+		world_probe.name = "Probe"
+		add_child(world_probe)
