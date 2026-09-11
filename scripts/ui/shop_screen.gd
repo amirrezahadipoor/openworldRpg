@@ -235,7 +235,7 @@ func _sell(item_id: String, price: int) -> void:
 			return
 	if not GameState.remove_item(item_id, 1):
 		return
-	GameState.add_gold(price)
+	GameState.add_gold(price, "trade")   # selling is trade, not a find (audit G7)
 	GameState.ledger_add("sale", "%s → %d g" % [ItemsDB.item_name(item_id), price])
 	AudioManager.play_sfx("purchase")  # the till, not the coin
 	_refresh()

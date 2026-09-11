@@ -152,13 +152,31 @@ func _on_enemy_died(enemy: Node) -> void:
 
 
 func talk_to(npc_id: String) -> void:
+	## Only the quest's *next* objective can be satisfied by talking. Hitting every
+	## talk objective at once meant a single conversation could complete a step that
+	## was gated behind a kill, ending two quests with one greeting (audit G2).
 	for qid in active_snapshot():
-		for obj in _objectives(qid):
-			if String(obj.get("type", "")) == "talk" and String(obj.get("target", "")) == npc_id:
-				var oid := String(obj.get("id", ""))
-				var need := int(obj.get("count", 1))
-				if objective_count(qid, oid) < need:
-					_set_done_obj(qid, oid, need)
+		var next := next_objective(qid)
+		if next.is_empty():
+			continue
+		if String(next.get("type", "")) != "talk":
+			continue
+		if String(next.get("target", "")) != npc_id:
+			continue
+		var oid := String(next.get("id", ""))
+		var need := int(next.get("count", 1))
+		if objective_count(qid, oid) < need:
+			_set_done_obj(qid, oid, need)
+
+
+func next_objective(qid: String) -> Dictionary:
+	## The first objective of `qid` that is not finished yet — the only one that can
+	## be advanced right now. Empty when the quest has no objectives or is finished.
+	for obj in _objectives(qid):
+		var oid := String(obj.get("id", ""))
+		if objective_count(qid, oid) < int(obj.get("count", 1)):
+			return obj
+	return {}
 
 
 func register_flag(flag: String) -> void:
@@ -213,9 +231,12 @@ func _complete(qid: String) -> void:
 	GameState.ledger_add("quest", "%s — %s" % [
 		String(quest.get("title", qid)), _reward_text(reward)])
 	if bool(quest.get("repeatable", false)):
-		# Repeatable quests reset fully so their dialogue can re-offer them.
+		# Repeatable quests reset fully so their dialogue can re-offer them — and
+		# that has to include the flag that recorded taking the job, or
+		# next_offer() skips it forever and the job is one-shot after all (G1).
 		GameState.quests.erase(qid)
 		GameState.quest_progress.erase(qid)
+		GameState.quest_flags.erase("took_%s" % qid)
 	else:
 		GameState.quests[qid] = "done"
 	EventBus.quest_completed.emit(qid)
@@ -369,18 +390,78 @@ func marker_for(npc_id: String) -> bool:
 # --- HUD / log ------------------------------------------------------------------
 
 func active_quest_id() -> String:
-	for qid in data.keys():
-		if is_active(qid):
-			return qid
+	## The player's own order: GameState.quests keeps insertion order, so this is
+	## the quest they took first — the data dictionary's key order used to decide,
+	## which had nothing to do with the run (audit G4).
+	for qid in GameState.quests.keys():
+		if is_active(String(qid)):
+			return String(qid)
 	return ""
 
 
+func active_quest_ids() -> Array:
+	var out: Array = []
+	for qid in GameState.quests.keys():
+		if is_active(String(qid)):
+			out.append(String(qid))
+	return out
+
+
+func pinned_quest_id() -> String:
+	var qid := GameState.pinned_quest
+	return qid if qid != "" and is_active(qid) else ""
+
+
+func set_pinned(qid: String) -> void:
+	GameState.pinned_quest = qid if qid != GameState.pinned_quest else ""
+	EventBus.quest_updated.emit(GameState.pinned_quest)
+
+
 func tracker_text() -> String:
-	var qid := active_quest_id()
-	if qid == "":
+	## Several jobs can be in flight at once (the side-quest board is built on
+	## exactly that), and the HUD used to show whichever one the data dictionary
+	## happened to yield first, silently dropping the rest (audit G4). Show the
+	## pinned quest in full, then one line per other active quest.
+	var order := active_quest_ids()
+	if order.is_empty():
 		return "No active quests"
+	var pinned := pinned_quest_id()
+	var qid := pinned if pinned != "" else String(order[0])
+	var text := _quest_tracker_block(qid, pinned != "")
+	var others: Array = []
+	for other in order:
+		if String(other) == qid:
+			continue
+		others.append(String(other))
+	if not others.is_empty():
+		text += "\n"
+		var shown: Array = []
+		for i in mini(others.size(), MAX_TRACKER_QUESTS):
+			shown.append("• " + _quest_headline(String(others[i])))
+		if others.size() > MAX_TRACKER_QUESTS:
+			shown.append("  (+%d more)" % (others.size() - MAX_TRACKER_QUESTS))
+		text += "\n".join(shown)
+	return text
+
+
+const MAX_TRACKER_QUESTS := 3
+
+
+func _quest_headline(qid: String) -> String:
 	var quest: Dictionary = data.get(qid, {})
-	var lines := [String(quest.get("name", qid))]
+	var nxt := next_objective(qid)
+	if nxt.is_empty():
+		return String(quest.get("name", qid))
+	var oid := String(nxt.get("id", ""))
+	return "%s — %s (%d/%d)" % [
+		String(quest.get("name", qid)), String(nxt.get("desc", oid)),
+		objective_count(qid, oid), int(nxt.get("count", 1))]
+
+
+func _quest_tracker_block(qid: String, pinned: bool) -> String:
+	var entry: Dictionary = data.get(qid, {})
+	var lines := []
+	lines.append(("★ " if pinned else "") + String(entry.get("name", qid)))
 	for obj in _objectives(qid):
 		var oid := String(obj.get("id", ""))
 		var need := int(obj.get("count", 1))

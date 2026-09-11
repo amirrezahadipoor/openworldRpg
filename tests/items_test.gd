@@ -31,7 +31,45 @@ func _ready() -> void:
 	_test_boss_ladder()
 	_test_drop_reachability()
 	await _test_boss_runtime()
+	_test_audit_economy()
 	_report()
+
+
+func _test_audit_economy() -> void:
+	print("[items_test] stack caps, chest loot and what gold-find multiplies")
+
+	# G6: every item declares a stack size and the bag has to respect it.
+	var potion := "health_potion"
+	var cap := ItemsDB.stack_size(potion)
+	GameState.inventory.erase(potion)
+	GameState.add_item(potion, cap + 25)
+	check(GameState.item_count(potion) == cap,
+		"a consumable stops at its declared stack (%d)" % GameState.item_count(potion))
+	var material := "slime_gel"
+	var mcap := ItemsDB.stack_size(material)
+	check(mcap > 1, "materials stack, so a gather quest can be filled (stack %d)" % mcap)
+	GameState.inventory.erase(material)
+	GameState.add_item(material, 5)
+	check(GameState.item_count(material) == 5, "five materials fit in one stack")
+	GameState.add_item(material, mcap * 2)
+	check(GameState.item_count(material) == mcap,
+		"and they stop at the cap too (%d)" % GameState.item_count(material))
+	GameState.inventory.erase(potion)
+	GameState.inventory.erase(material)
+
+	# G7: the gold-find talent multiplies loot, not trade.
+	var mult := GameState.gold_mult()
+	if mult > 1.0:
+		GameState.gold = 0
+		GameState.add_gold(100, "trade")
+		check(GameState.gold == 100, "selling to a vendor is not boosted by gold find (%d)"
+			% GameState.gold)
+		GameState.gold = 0
+		GameState.add_gold(100, "loot")
+		check(GameState.gold > 100, "loot still is (%d)" % GameState.gold)
+	else:
+		check(true, "no gold-find talent taken: nothing to compare (mult %.2f)" % mult)
+	GameState.gold = 0
 
 
 func _report() -> void:

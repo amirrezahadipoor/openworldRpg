@@ -267,6 +267,18 @@ func _quest_block(qid: String) -> Control:
 	head.add_theme_font_size_override("font_size", 17)
 	box.add_child(head)
 
+	# The HUD can only show so much, so the player picks what it shows (audit G4).
+	if state == "active":
+		var pinned := QuestManager.pinned_quest_id() == qid
+		var pin := Button.new()
+		pin.text = "Unpin from HUD" if pinned else "Pin to HUD"
+		pin.add_theme_font_size_override("font_size", 14)
+		pin.pressed.connect(func() -> void:
+			QuestManager.set_pinned(qid)
+			AudioManager.play_sfx("ui_click")
+			_refresh())
+		box.add_child(pin)
+
 	var desc := Label.new()
 	desc.text = String(quest.get("desc", ""))
 	desc.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))

@@ -33,6 +33,107 @@ func _ready() -> void:
 	_test_side_quests()
 	await _test_side_quests_walk()
 	_report()
+	await _test_audit_fixes()
+
+
+func _test_audit_fixes() -> void:
+	print("[quest_test] repeatable jobs, talk order, dialogue choice, HUD summary")
+
+	# G1: a repeatable quest has to become offerable again after it is done.
+	var repeatable := ""
+	for qid in QuestManager.data.keys():
+		var q: Dictionary = QuestManager.data[qid]
+		if bool(q.get("repeatable", false)) and String(qid).begins_with("SQ") \
+				and String(q.get("giver", "")) != "":
+			repeatable = String(qid)
+			break
+	check(repeatable != "", "the data still has repeatable jobs")
+	if repeatable != "":
+		var giver := String((QuestManager.data[repeatable] as Dictionary).get("giver", ""))
+		# Accepting a job is a dialogue action (set_flag took_<id>) plus start_quest.
+		GameState.quest_flags["took_%s" % repeatable] = true
+		QuestManager.start_quest(repeatable)
+		for obj in QuestManager.data[repeatable].get("objectives", []):
+			QuestManager.complete_objective(repeatable, String(obj.get("id", "")))
+		check(not QuestManager.is_done(repeatable) and not QuestManager.is_active(repeatable),
+			"a finished repeatable job is not left active or done")
+		check(not bool(GameState.quest_flags.get("took_%s" % repeatable, false)),
+			"finishing it clears took_<id> so the board can offer it again (G1)")
+		# With the giver's other jobs out of the way, the board picks this one up
+		# again — which it could not do while took_<id> survived (G1).
+		var backup := GameState.quests.duplicate()
+		var backup_level := GameState.level
+		GameState.level = 100          # level_anchor must not filter the board here
+		for qid in QuestManager.data.keys():
+			var d: Dictionary = QuestManager.data[qid]
+			if String(qid) != repeatable and String(d.get("giver", "")) == giver \
+					and String(qid).begins_with("SQ"):
+				GameState.quests[String(qid)] = "done"
+		check(QuestManager.next_offer(giver) == repeatable,
+			"the giver offers it again right away")
+		GameState.quests = backup
+		GameState.level = backup_level
+
+	# G2: talking may only advance the quest's *next* objective.
+	var chain := "MQ002"          # gather 3, then report
+	if QuestManager.data.has(chain):
+		GameState.quests[chain] = "active"
+		GameState.quest_progress.erase(chain)
+		GameState.inventory.clear()
+		QuestManager.talk_to("elder_rowan")
+		var report_obj := ""
+		for obj in QuestManager.data[chain].get("objectives", []):
+			if String(obj.get("type", "")) == "talk":
+				report_obj = String(obj.get("id", ""))
+		check(QuestManager.objective_count(chain, report_obj) == 0,
+			"the report step stays locked while the gather step is open (G2)")
+		GameState.add_item("slime_gel", 3)
+		QuestManager.sync_collect_objectives()
+		check(QuestManager.objective_count(chain, "gather") >= 3, "the gather step fills")
+		QuestManager.talk_to("elder_rowan")
+		check(QuestManager.objective_count(chain, report_obj) == 1,
+			"and then talking advances it")
+		GameState.quests.erase(chain)
+		GameState.quest_progress.erase(chain)
+		GameState.inventory.clear()
+
+	# G3: two equally valid dialogue branches must not make the second unreachable.
+	var branches: Array = [
+		{"requires": {"flag": "a"}, "text": "generic"},
+		{"requires": {"flag": "a", "quest": "q1_first_light", "level": 2}, "text": "specific"},
+	]
+	var saved: Variant = DialogueDB.dialogues.get("__audit__", null)
+	DialogueDB.dialogues["__audit__"] = branches
+	# Satisfy both branches, then confirm the more specific one wins.
+	GameState.quest_flags["a"] = true
+	GameState.quests["q1_first_light"] = "active"
+	GameState.level = maxi(GameState.level, 2)
+	var picked := DialogueDB.pick("__audit__")
+	check(String(picked.get("text", "")) == "specific",
+		"the most specific matching branch wins (%s)" % picked.get("text", "none"))
+	if saved == null:
+		DialogueDB.dialogues.erase("__audit__")
+	else:
+		DialogueDB.dialogues["__audit__"] = saved
+	GameState.quest_flags.erase("a")
+	GameState.quests.erase("q1_first_light")
+
+	# G4: the HUD summary reports every job in flight, oldest first, and pinning.
+	var ids := QuestManager.active_quest_ids()
+	check(QuestManager.active_quest_id() == ("" if ids.is_empty() else String(ids[0])),
+		"the tracker starts from the job taken first")
+	var text := QuestManager.tracker_text()
+	if ids.size() > 1:
+		check(text.contains("•"), "extra jobs get their own line instead of vanishing (G4)")
+	else:
+		check(true, "one job active: nothing to summarise")
+	if not ids.is_empty():
+		var pin := String(ids[0])
+		QuestManager.set_pinned(pin)
+		check(QuestManager.pinned_quest_id() == pin, "a job can be pinned to the HUD")
+		check(QuestManager.tracker_text().begins_with("★"), "the pinned job is marked")
+		QuestManager.set_pinned(pin)
+		check(QuestManager.pinned_quest_id() == "", "pinning again unpins it")
 
 
 func _report() -> void:

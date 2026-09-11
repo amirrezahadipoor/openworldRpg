@@ -53,20 +53,31 @@ func _metal_band() -> Polygon2D:
 func _on_interact() -> void:
 	if is_opened():
 		return
+	# The chest is marked opened the moment it is used and that state is permanent,
+	# but its loot used to be dropped on the ground as ordinary Pickup nodes — which
+	# are not saved anywhere. Leaving the chunk (or the game) before walking over
+	# them destroyed the contents of a chest that could never be opened again
+	# (audit G5). The chest now pays out first and spawns the falling coins and the
+	# item fly only as their own visual, so the loot is never in limbo.
 	GameState.quest_flags[_flag_key()] = true
 	AudioManager.play_sfx("pickup")
 	EventBus.interactable_used.emit(self)
-	var scene: PackedScene = load(PICKUP_SCENE)
 	var host := get_tree().current_scene
+	var scene: PackedScene = load(PICKUP_SCENE)
 	if gold > 0:
+		GameState.add_gold(gold, "loot")
 		var g: Pickup = scene.instantiate()
 		host.add_child(g)
 		g.global_position = global_position + Vector2(0, -6)
 		g.setup_gold(gold)
+		g.virtual = true
 	if item_id != "":
+		GameState.add_item(item_id, 1)
+		EventBus.item_picked_up.emit(item_id, 1)
 		var it: Pickup = scene.instantiate()
 		host.add_child(it)
 		it.global_position = global_position + Vector2(18, -12)
 		it.setup_item(item_id)
+		it.virtual = true
 	_lid.color = Color(0.30, 0.24, 0.18)
 	set_prompt("Empty chest")

@@ -59,6 +59,8 @@ var quest_flags: Dictionary = {}
 ## the player into an empty chunk (audit C3).
 var dungeon_id: String = ""
 var dungeon_floor: int = 1
+## The quest the player pinned to the HUD (empty = show the oldest one).
+var pinned_quest: String = ""
 ## What the character has actually received, in order — kind -> text. Quests,
 ## purchases, sales and level-ups all write here. The audit's point was that a
 ## player could not answer "what did that job pay me?"; this is the answer, and
@@ -592,7 +594,13 @@ func record_line(speaker: String, text: String) -> void:
 
 
 func add_item(item_id: String, qty: int = 1) -> void:
-	inventory[item_id] = int(inventory.get(item_id, 0)) + qty
+	## Every item declares a `stack` size, and nothing enforced it: the field was
+	## decoration while the bag grew without limit (audit G6).
+	var total := int(inventory.get(item_id, 0)) + qty
+	var cap := ItemsDB.stack_size(item_id)
+	if qty > 0 and cap > 0:
+		total = mini(total, cap)
+	inventory[item_id] = total
 	if int(inventory[item_id]) <= 0:
 		inventory.erase(item_id)
 
@@ -609,8 +617,13 @@ func remove_item(item_id: String, qty: int = 1) -> bool:
 	return true
 
 
-func add_gold(amount: int) -> void:
-	var gained := int(round(float(amount) * gold_mult())) if amount > 0 else amount
+func add_gold(amount: int, source: String = "loot") -> void:
+	## `source` separates money the player *found* from money they *traded*. The
+	## gold-find talent multiplies loot and quest pay; it used to multiply every
+	## positive amount, so selling to a vendor was boosted by it too and the talent
+	## quietly worked as a merchant's margin (audit G7).
+	var gained := int(round(float(amount) * gold_mult())) \
+		if amount > 0 and source != "trade" else amount
 	gold = maxi(0, gold + gained)
 	EventBus.gold_changed.emit(gold)
 
@@ -633,6 +646,7 @@ func to_dict() -> Dictionary:
 		"quests": quests.duplicate(),
 		"quest_progress": quest_progress.duplicate(true),
 		"quest_flags": quest_flags.duplicate(),
+		"pinned_quest": pinned_quest,
 		"talents": talents.duplicate(),
 		"ledger": ledger.duplicate(true),
 		"dialogue_history": dialogue_history.duplicate(true),
@@ -656,6 +670,7 @@ func from_dict(d: Dictionary) -> void:
 	quests = (d.get("quests", {}) as Dictionary).duplicate()
 	quest_progress = (d.get("quest_progress", {}) as Dictionary).duplicate(true)
 	quest_flags = (d.get("quest_flags", {}) as Dictionary).duplicate()
+	pinned_quest = String(d.get("pinned_quest", ""))
 	talents = (d.get("talents", {"combat": 0, "magic": 0, "utility": 0}) as Dictionary).duplicate()
 	ledger = (d.get("ledger", []) as Array).duplicate(true)
 	dialogue_history = (d.get("dialogue_history", []) as Array).duplicate(true)

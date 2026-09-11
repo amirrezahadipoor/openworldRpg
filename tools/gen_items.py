@@ -288,7 +288,10 @@ def main() -> None:
             for k in ("atk", "def", "hp", "mp", "speed", "mp_regen", "crit", "lifesteal"):
                 if k in stats:
                     entry[k] = stats[k]
-            entry["stack"] = 1
+            # Materials are loot: they are gathered by the handful and collected
+            # for quests, so a stack of one contradicted the data around them
+            # (MQ002 asks for three Slime Gel). Gear is one per slot.
+            entry["stack"] = 99 if itype == "material" else 1
         entry["value"] = _price(rarity, itype, stats)
         entry["desc"] = desc
         items[iid] = entry

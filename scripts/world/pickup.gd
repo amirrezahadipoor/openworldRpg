@@ -8,6 +8,9 @@ enum Kind { GOLD, ITEM }
 var kind: Kind = Kind.GOLD
 var amount := 1
 var item_id := ""
+## True when whoever spawned this pickup already banked its contents and the node
+## is only the animation of it arriving (see Chest._on_interact, audit G5).
+var virtual := false
 
 const MAGNET_RADIUS := 90.0
 const MAGNET_SPEED := 320.0
@@ -58,11 +61,13 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
 	if kind == Kind.GOLD:
-		GameState.add_gold(amount)
+		if not virtual:
+			GameState.add_gold(amount, "loot")
 		DamageNumber.spawn(get_parent(), global_position + Vector2(0, -14), "%d gold" % amount, Color(1.0, 0.85, 0.3))
 	else:
-		GameState.add_item(item_id, amount)
-		EventBus.item_picked_up.emit(item_id, amount)
+		if not virtual:
+			GameState.add_item(item_id, amount)
+			EventBus.item_picked_up.emit(item_id, amount)
 		DamageNumber.spawn(get_parent(), global_position + Vector2(0, -14), "+%s" % ItemsDB.item_name(item_id), Color(0.6, 0.85, 1.0))
 	AudioManager.play_sfx("pickup")
 	queue_free()

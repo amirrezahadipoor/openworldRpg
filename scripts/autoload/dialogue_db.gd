@@ -74,10 +74,23 @@ func post_game_line(npc_key: String) -> String:
 
 
 func pick(npc_key: String) -> Dictionary:
+	## The most specific matching branch wins. The old version returned the first
+	## match in file order, so when two authored branches were true at the same time
+	## (two quests in flight, say) the second one could never be reached — and with
+	## no way to drop a quest, that dialogue was locked out for the whole run
+	## (audit G3). An explicit `priority` beats condition count; equal ranks keep
+	## file order.
+	var best := {}
+	var best_rank := -1
 	for d in dialogues.get(npc_key, []):
-		if _conditions_met(d.get("requires", {})):
-			return d
-	return {}
+		var req: Dictionary = d.get("requires", {})
+		if not _conditions_met(req):
+			continue
+		var rank := int(d.get("priority", 0)) * 1000 + req.size()
+		if rank > best_rank:
+			best_rank = rank
+			best = d
+	return best
 
 
 const PORTRAIT_DIR := "res://assets/portraits/"
