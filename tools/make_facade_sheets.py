@@ -27,6 +27,10 @@ the tool guarantees is therefore the part that matters — every building lands 
 the grid, in a shared palette, with its baseline (the row of pixels that touches
 the ground) preserved so houses sit on the plaza rather than hover over it.
 
+Sources are kept at 35% scale in-repo (they only ever become 2-4 tile buildings,
+so the full-resolution sheet is ~10x more pixels than the atlas can use, and the
+repo has a hard size budget). Regenerate the atlas after dropping in a new source.
+
 Usage
 -----
     python3 tools/make_facade_sheets.py            # every source found
