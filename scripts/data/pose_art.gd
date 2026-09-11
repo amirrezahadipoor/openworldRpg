@@ -6,8 +6,9 @@ extends RefCounted
 ## The art pipeline (tools/make_idle_frames.py) pastes generated poses into a
 ## composed LPC sheet:
 ##
-##   idle   columns 2-3 of every direction row (weight shift, look-around)
-##   slash  columns 0-3 of every direction row (a four-pose swing)
+##   idle        columns 2-3 of every direction row (weight shift, look-around)
+##   slash       columns 0-3 of every direction row (a four-pose swing)
+##   spellcast  columns 0-3 of every direction row (a four-pose cast)
 ##
 ## A sheet with idle art plays four frames in the order [base, shift, breath,
 ## look-around]; without it, the two frames the LPC layers ship. A sheet with
@@ -66,7 +67,17 @@ static func idle_columns(path: String, base_frames: int) -> Array:
 
 static func slash_columns(path: String, base_frames: int) -> Array:
 	## Generated attack art is pasted from column 0, so playback is 0..n-1.
-	var n := count(path, "slash", base_frames)
+	return _generated_columns(path, "slash", base_frames)
+
+
+static func cast_columns(path: String, base_frames: int) -> Array:
+	## A ranged enemy attacks on the spellcast block, so its generated art lands
+	## there and is played back the same way.
+	return _generated_columns(path, "spellcast", base_frames)
+
+
+static func _generated_columns(path: String, anim: String, base_frames: int) -> Array:
+	var n := count(path, anim, base_frames)
 	if n >= base_frames:
 		return range(base_frames)
 	return range(n)

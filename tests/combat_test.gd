@@ -1055,6 +1055,32 @@ func _test_idle_art() -> void:
 		"every monster resolves an attack frame count (%d generated, %d LPC)"
 		% [with_attack, without_attack])
 
+	# Ranged enemies attack on the spellcast block, so their generated art lands
+	# there (tools/make_idle_frames.py -> _cast_src). Until it is generated every
+	# ranged archetype must still resolve the seven LPC cast frames, and the
+	# column map must be the identity so the block plays as it always has.
+	var ranged := 0
+	var cast_bad := []
+	for id in EnemyDB.monsters():
+		var cfg := EnemyDB.get_archetype(String(id))
+		if String(cfg.get("behavior", "melee")) != "ranged":
+			continue
+		ranged += 1
+		var sheet := String(cfg.get("sheet", ""))
+		var want_cast := PoseArt.count(sheet, "spellcast", 7)
+		var caster: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host.add_child(caster)
+		caster.setup_archetype(String(id))
+		if caster.cast_frames != want_cast:
+			cast_bad.append("%s=%d(want %d)" % [id, caster.cast_frames, want_cast])
+		var cols := PoseArt.cast_columns(sheet, 7)
+		if cols.size() != want_cast:
+			cast_bad.append("%s: %d columns for %d frames" % [id, cols.size(), want_cast])
+		caster.queue_free()
+	check(ranged > 0 and cast_bad.is_empty(),
+		"every ranged archetype resolves its cast frames and columns (%d ranged)"
+		% ranged)
+
 	# The four attack columns must be four different pictures: a sheet that
 	# repeated one pose four times would still pass every count above.
 	if with_attack > 0:

@@ -54,6 +54,7 @@ var telegraph_time := DEFAULT_TELEGRAPH
 ## count once tools/make_idle_frames.py has patched art in (see PoseArt).
 var idle_frames := 2
 var attack_frames := 6
+var cast_frames := 7
 var _sheet_path := ""
 var _glance_timer := 0.0
 ## Movement/attack style, read from the archetype ("melee", "skirmish",
@@ -380,7 +381,13 @@ func _update_anim(delta: float) -> void:
 		_anim_dir = "s" if face.y > 0.0 else "n"
 
 	var base: int = ANIM_FRAMES[_anim_name]
-	var count: int = idle_frames if _anim_name == "idle" else (attack_frames if _anim_name == "slash" else base)
+	var count: int = base
+	if _anim_name == "idle":
+		count = idle_frames
+	elif _anim_name == "slash":
+		count = attack_frames
+	elif _anim_name == "spellcast":
+		count = cast_frames
 	var fps: float = float(ANIM_FPS[_anim_name])
 	if _anim_name == "idle" and _resting():
 		fps *= REST_IDLE_SLOWDOWN
@@ -398,6 +405,8 @@ func _update_anim(delta: float) -> void:
 		column = _idle_column(column)
 	elif _anim_name == "slash" and attack_frames < base:
 		column = int(PoseArt.slash_columns(_sheet_path, base)[column])
+	elif _anim_name == "spellcast" and cast_frames < base:
+		column = int(PoseArt.cast_columns(_sheet_path, base)[column])
 	var row: int = int(ANIM_BLOCK[_anim_name]) * 4 + int(DIR_ROW[_anim_dir])
 	sprite.frame = row * SHEET_COLS + column
 
@@ -410,6 +419,7 @@ func _apply_sheet(path: String) -> void:
 		_sheet_ready = false
 		idle_frames = 2
 		attack_frames = int(ANIM_FRAMES["slash"])
+		cast_frames = int(ANIM_FRAMES["spellcast"])
 		sprite.hframes = 1
 		sprite.vframes = 1
 		sprite.frame = 0
@@ -419,6 +429,7 @@ func _apply_sheet(path: String) -> void:
 		_sheet_ready = false
 		idle_frames = 2
 		attack_frames = int(ANIM_FRAMES["slash"])
+		cast_frames = int(ANIM_FRAMES["spellcast"])
 		return
 	sprite.texture = tex
 	sprite.hframes = SHEET_COLS
@@ -427,6 +438,7 @@ func _apply_sheet(path: String) -> void:
 	_sheet_ready = true
 	idle_frames = PoseArt.count(path, "idle", PoseArt.IDLE_BASE)
 	attack_frames = PoseArt.count(path, "slash", int(ANIM_FRAMES["slash"]))
+	cast_frames = PoseArt.count(path, "spellcast", int(ANIM_FRAMES["spellcast"]))
 	_glance_timer = 1.0
 	_anim_name = "idle"
 	_anim_dir = "s"

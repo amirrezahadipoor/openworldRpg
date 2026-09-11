@@ -148,7 +148,16 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       *Progress: 6 of 20 — goblin, raider, raider brute, emberling, minotaur and
       troll swing generated four-pose attacks (wind-up, swing, impact, recovery)
       in all four directions; `combat_test` proves each sheet's four poses differ
-      from one another and that the enemy runtime plays them (221 checks).*
+      from one another and that the enemy runtime plays them.*
+      Split by how a character attacks: melee sheets take their art in the slash
+      block (`_attack_src/`, 12 sheets — 6 done), and ranged ones take theirs in
+      the spellcast block the game plays while they wind up (`_cast_src/`, new
+      source folder and a new block in the patcher, 3 sheets owed: shaman,
+      revenant, archon). `--status` prints both lists. Melee owed: ashen herald,
+      bone titan, frost giant, goblin king, Ember Warden, legion, husk, lizard,
+      wolf (beasts claw), choir priest, slag wraith. The cast path is wired end
+      to end (patcher, `PoseArt.cast_columns`, `Enemy.cast_frames`, 3 checks) and
+      currently exercises its fallback, since no cast art has been generated yet.
 
 ## Field reports folded into this pass
 

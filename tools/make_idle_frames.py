@@ -14,11 +14,13 @@ equal cells — four columns in LPC's own direction order n, w, s, e):
 
     assets/lpc/_idle_src/<sheet>.png    2 rows  (weight shift, look-around)
     assets/lpc/_attack_src/<sheet>.png  4 rows  (the poses of one swing)
+    assets/lpc/_cast_src/<sheet>.png    4 rows  (the poses of one cast)
 
 Outputs (into the composed sheet `assets/lpc/<sheet>.png`):
 
-    idle   columns 2-3 of every direction row   -> loop [base, shift, breath, look]
-    slash  columns 0-3 of every direction row   -> a four-pose attack
+    idle        columns 2-3 of every direction row -> loop [base, shift, breath, look]
+    slash       columns 0-3 of every direction row -> a four-pose melee attack
+    spellcast  columns 0-3 of every direction row -> a four-pose cast
            (columns 4+ of those rows are cleared, so the block holds exactly the
             frames that will be played)
 
@@ -59,6 +61,7 @@ SHEET_DIR = os.path.join(ROOT, "assets", "lpc")
 SRC_DIRS = {
     "idle": os.path.join(SHEET_DIR, "_idle_src"),
     "slash": os.path.join(SHEET_DIR, "_attack_src"),
+    "spellcast": os.path.join(SHEET_DIR, "_cast_src"),
 }
 MANIFEST = os.path.join(SHEET_DIR, "pose_frames.json")
 
@@ -66,10 +69,14 @@ FRAME = 64
 COLS = 13
 ROWS = 20
 DIRS = ["n", "w", "s", "e"]          # LPC row order inside an animation block
-BLOCK_ROW = {"idle": 0, "slash": 2}  # animation block index of each patched anim
-POSE_ROWS = {"idle": 2, "slash": 4}  # rows in the generated source
-FIRST_COL = {"idle": 2, "slash": 0}
-KEEP_COLS = {"idle": 4, "slash": 4}  # columns the block is left holding
+# Animation block index of each patched block: 0 idle, 1 walk, 2 slash, 3 spellcast.
+# Ranged enemies attack on the spellcast block (enemy.gd plays it while winding
+# up), so a caster's generated attack art belongs there and not in the slash block.
+BLOCK_ROW = {"idle": 0, "slash": 2, "spellcast": 3}
+POSE_ROWS = {"idle": 2, "slash": 4, "spellcast": 4}  # rows in the generated source
+FIRST_COL = {"idle": 2, "slash": 0, "spellcast": 0}
+KEEP_COLS = {"idle": 4, "slash": 4, "spellcast": 4}  # columns kept in the block
+PATCHED_ANIMS = ("idle", "slash", "spellcast")
 KEY_TOLERANCE = 96
 ALPHA_CUTOFF = 120
 # Below this mean per-channel difference a "new" frame is really frame 0 again.
@@ -283,7 +290,7 @@ def patch_sheet(name: str) -> dict:
     if sheet.size != (COLS * FRAME, ROWS * FRAME):
         raise ValueError("%s: unexpected sheet size %s" % (name, sheet.size))
     entry = {}
-    for anim in ("idle", "slash"):
+    for anim in PATCHED_ANIMS:
         pasted = patch_anim(sheet, name, anim)
         if pasted:
             entry[anim] = KEEP_COLS[anim]
@@ -310,7 +317,7 @@ def refresh_manifest(names: list) -> None:
                 if os.path.exists(os.path.join(SHEET_DIR, k + ".png"))}
     for name in names:
         entry = {}
-        for anim in ("idle", "slash"):
+        for anim in PATCHED_ANIMS:
             if os.path.exists(os.path.join(SRC_DIRS[anim], name + ".png")):
                 entry[anim] = KEEP_COLS[anim]
         if entry:
@@ -391,10 +398,10 @@ def check() -> bool:
     if problems:
         print("POSE ART: FAILED (%d problems)" % len(problems))
         return False
-    idle = sum(1 for e in manifest.values() if int(e.get("idle", 0)))
-    attack = sum(1 for e in manifest.values() if int(e.get("slash", 0)))
-    print("POSE ART: PASS (%d sheets: %d with idle frames, %d with attack poses)"
-          % (len(manifest), idle, attack))
+    counts = {a: sum(1 for e in manifest.values() if int(e.get(a, 0))) for a in PATCHED_ANIMS}
+    print("POSE ART: PASS (%d sheets: %d with idle frames, %d with attack poses, "
+          "%d with cast poses)" % (len(manifest), counts["idle"], counts["slash"],
+                                   counts["spellcast"]))
     return True
 
 
@@ -412,18 +419,32 @@ def status() -> int:
         if not name:
             continue
         entry = manifest.get(name, {})
-        rows.append((key, name, int(entry.get("idle", 0)), int(entry.get("slash", 0))))
-    for key, name, idle, slash in rows:
-        print("  %-16s %-20s %s" % (key, name,
-                                    "  ".join(["idle %d" % idle if idle else "idle --",
-                                               "attack %d" % slash if slash else "attack --"])))
+        rows.append((key, name, int(entry.get("idle", 0)),
+                     int(entry.get("slash", 0)), int(entry.get("spellcast", 0))))
+    for key, name, idle, slash, cast in rows:
+        marks = ["idle %d" % idle if idle else "idle --"]
+        marks.append("attack %d" % slash if slash else "attack --")
+        marks.append("cast %d" % cast if cast else "cast --")
+        print("  %-16s %-20s %s" % (key, name, "  ".join(marks)))
     idle_done = [r for r in rows if r[2] > 0]
     slash_done = [r for r in rows if r[3] > 0]
-    print("ART STATUS: %d/%d archetypes have idle art, %d/%d have generated attack art"
-          % (len(idle_done), len(rows), len(slash_done), len(rows)))
+    cast_done = [r for r in rows if r[4] > 0]
+    print("ART STATUS: %d/%d archetypes have idle art, %d/%d generated attack art, "
+          "%d/%d generated cast art"
+          % (len(idle_done), len(rows), len(slash_done), len(rows), len(cast_done), len(rows)))
     owed = [r[1] for r in rows if r[2] == 0]
     if owed:
         print("  idle owed: " + ", ".join(owed))
+    # Melee archetypes swing on the slash block; ranged ones cast. Report which
+    # sheets each still needs, so a generation batch can be planned from this.
+    no_melee = [key for key, _n, _i, slash, _c in rows if slash == 0
+                and str(enemies["archetypes"][key].get("behavior", "melee")) != "ranged"]
+    no_cast = [key for key, _n, _i, _s, cast in rows if cast == 0
+               and str(enemies["archetypes"][key].get("behavior", "melee")) == "ranged"]
+    if no_melee:
+        print("  melee art owed: " + ", ".join(no_melee))
+    if no_cast:
+        print("  cast art owed: " + ", ".join(no_cast))
     return 0
 
 
