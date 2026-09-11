@@ -44,6 +44,21 @@ func _on_interact() -> void:
 	pass
 
 
+func interact_from_ui() -> void:
+	## Touch entry point. The on-screen Talk/Use button calls this on the single
+	## closest interactable instead of broadcasting an input event, so standing
+	## between a chest and a sign cannot trigger both.
+	if not player_in_range:
+		return
+	_on_interact()
+	interacted.emit(self)
+
+
+func interact_label() -> String:
+	## The verb the touch button shows for this thing ("Open", "Read", "Pull"...).
+	return prompt_text if prompt_text != "" else "Use"
+
+
 func set_prompt(text: String) -> void:
 	prompt_text = text
 	if _prompt != null:
@@ -53,6 +68,7 @@ func set_prompt(text: String) -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = true
+		add_to_group("interactable_in_range")
 		if _prompt != null:
 			_prompt.visible = true
 
@@ -60,6 +76,7 @@ func _on_body_entered(body: Node) -> void:
 func _on_body_exited(body: Node) -> void:
 	if body.is_in_group("player"):
 		player_in_range = false
+		remove_from_group("interactable_in_range")
 		if _prompt != null:
 			_prompt.visible = false
 

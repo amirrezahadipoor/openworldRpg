@@ -109,6 +109,19 @@ jobs:
           grep -q "streaming a chunk builds the secrets that live in it" secrets.log || { echo "::error::secrets do not spawn in the world"; exit 1; }
           echo "world secrets ok"
 
+      - name: "UI / touch layer: buttons deliver events, Talk works, toasts queue"
+        run: |
+          timeout 120 /tmp/rpg-toolchain/bin/godot --headless --path . res://tests/UiTest.tscn | tee ui.log
+          grep -q "UI RESULT: PASS" ui.log || { echo "::error::UI/touch layer validation failed"; exit 1; }
+          grep -q "the press reaches an _unhandled_input handler" ui.log || { echo "::error::touch presses do not reach interactables"; exit 1; }
+          grep -q "the Talk button emitted the NPC's interacted signal once" ui.log || { echo "::error::Talk button does not start conversations"; exit 1; }
+          echo "ui + touch controls ok"
+
+      - name: "Safe ground: measured area, camp protected, no NPC stacking"
+        run: |
+          python3 tools/safe_zone_report.py --check | tee safezones.log
+          grep -q "safe area" safezones.log || { echo "::error::safe zone report produced nothing"; exit 1; }
+
       - name: "Balance: economy + power pass stays inside its bands (Phase F7)"
         run: |
           python3 tools/balance_report.py --check | tee balance.log

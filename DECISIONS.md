@@ -889,3 +889,31 @@ process_frame` sample inside a 0.12 s window, which at 30 fps on a phone is one
 sample per third of the window. The window is now 0.16 s and sampled on *every*
 physics frame, with a per-swing hit set so a target cannot be hit twice; the
 regression sweep runs the real swing at `Engine.physics_ticks_per_second = 30`.
+
+**#64 — The touch layer actually works, and the HUD wears the game's clothes** · 2026-09-11
+`ActionButton` called `Input.action_press()` and nothing else. That sets the
+action's *polled* state, but every interactable in this game — NPCs, chests,
+signs, levers, dialogue advance — listens in `_unhandled_input()` for an
+InputEvent, and polled state never produces one. So Attack worked (the player
+polls it) and the Talk button silently did nothing. Three fixes: the button now
+injects a real `InputEventAction` through `Input.parse_input_event`, it holds the
+action down for at least one physics frame so a same-frame tap cannot be
+swallowed, and dragging a thumb off the button releases it. The Talk button is a
+different kind of control now: it finds the single closest node in the
+`interactable_in_range` group (every NPC and world interactable registers itself
+on body overlap), shows the verb it would perform ("Talk", "Trade", "Open",
+"Read", "Pull"), glows when something is in reach, dims and refuses when nothing
+is, and becomes **Continue** while any screen is open — the HUD runs in
+`PROCESS_MODE_ALWAYS` so the touch layer is not dead exactly when the player needs
+it. Layout is two tiers (Attack + Dodge under the thumb, Whirl + Bolt one step
+in, Talk above) instead of a five-wide row; the cooldown is a radial sweep as well
+as a number; presses are acknowledged with a sound; the joystick has a dark
+backing disc and doubled alpha so it reads on snow and sand; and all four safe-area
+insets are computed (the old code found a top-left corner, threw away the window
+size it had just read, and left the bottom-anchored controls unprotected). The
+HUD itself is now wrapped in the game's `ui/theme.tres` panels and the placeholder
+SVG icons are replaced by generated 32 px LPC-style art
+(`tools/make_ui_icons.py` keys the magenta screen, despills the edges and
+downsamples to the grid). New suite `tests/ui_test.gd`: 22 checks covering event
+delivery, same-frame taps, target selection, the real NPC conversation firing,
+cooldown sweeps, the toast queue and the insets.

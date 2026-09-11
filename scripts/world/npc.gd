@@ -66,12 +66,14 @@ func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		_player_in_range = true
 		_prompt.visible = true
+		add_to_group("interactable_in_range")
 
 
 func _on_body_exited(body: Node) -> void:
 	if body.is_in_group("player"):
 		_player_in_range = false
 		_prompt.visible = false
+		remove_from_group("interactable_in_range")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -79,6 +81,20 @@ func _unhandled_input(event: InputEvent) -> void:
 		talk()  # NPCController: holds position while the conversation is open
 		interacted.emit(self)
 		get_viewport().set_input_as_handled()
+
+
+func interact_from_ui() -> void:
+	## Touch entry point, called by the HUD's Talk button for the closest target.
+	if not _player_in_range:
+		return
+	talk()
+	interacted.emit(self)
+
+
+func interact_label() -> String:
+	if is_vendor:
+		return "Trade"
+	return "Talk"
 
 
 func _physics_process(delta: float) -> void:

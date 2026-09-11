@@ -20,6 +20,10 @@ func _ready() -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
+	# A paused game has no movement to give: dragging the stick during a
+	# conversation must not queue up a direction for the moment it closes.
+	if get_tree().paused:
+		return
 	if event is InputEventScreenTouch:
 		var t := event as InputEventScreenTouch
 		if t.pressed and _touch_index == -1:
@@ -53,8 +57,14 @@ func _update(pos: Vector2) -> void:
 
 
 func _draw() -> void:
+	## Alphas used to be 0.07-0.28, which is very close to invisible over the light
+	## sand and snow palettes. There is now a dark backing disc so the stick reads
+	## on every biome, and the ring/knob are twice as strong (H2.2).
 	var radius := minf(size.x, size.y) * 0.42
 	var center := _base_center if _touch_index != -1 else size * 0.5
-	draw_circle(center, radius, Color(1, 1, 1, 0.07))
-	draw_arc(center, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.22), 2.0)
-	draw_circle(center + output * radius * 0.6, radius * 0.34, Color(1, 1, 1, 0.28))
+	draw_circle(center, radius * 1.06, Color(0.03, 0.04, 0.06, 0.30))
+	draw_circle(center, radius, Color(1, 1, 1, 0.16))
+	draw_arc(center, radius, 0.0, TAU, 48, Color(1, 1, 1, 0.42), 2.5)
+	draw_circle(center + output * radius * 0.6, radius * 0.34, Color(1, 1, 1, 0.55))
+	draw_arc(center + output * radius * 0.6, radius * 0.34, 0.0, TAU, 28,
+		Color(0.05, 0.05, 0.08, 0.5), 2.0)
