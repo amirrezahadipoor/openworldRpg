@@ -36,6 +36,7 @@ func open(vendor_name: String, stock: Array, market: float = 1.0) -> void:
 	_refresh()
 	visible = true
 	PauseManager.hold(self, "shop")
+	SettingsManager.apply_text_scale(self)
 
 
 func close() -> void:

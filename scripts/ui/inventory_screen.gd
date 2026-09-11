@@ -40,6 +40,7 @@ func open() -> void:
 	_refresh()
 	visible = true
 	PauseManager.hold(self, "inventory")
+	SettingsManager.apply_text_scale(self)
 
 
 func close() -> void:

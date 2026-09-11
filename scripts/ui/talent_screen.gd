@@ -34,6 +34,7 @@ func open() -> void:
 	_refresh()
 	visible = true
 	PauseManager.hold(self, "talents")
+	SettingsManager.apply_text_scale(self)
 
 
 func close() -> void:

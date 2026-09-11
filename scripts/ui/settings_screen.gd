@@ -29,9 +29,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 var _was_paused := false
+## Large text applies the instant it is toggled; Cancel must give that back
+## instead of leaving the accessibility state half-changed and unsaved.
+var _large_at_open := false
 
 
 func open() -> void:
+	_large_at_open = SettingsManager.large_text
 	_load_into_ui()
 	visible = true
 	PauseManager.hold(self, "settings")
@@ -134,9 +138,19 @@ func _build() -> void:
 	cancel_btn.text = "Cancel"
 	cancel_btn.custom_minimum_size = Vector2(140, 44)
 	cancel_btn.pressed.connect(func() -> void: AudioManager.play_sfx("ui_click"))
-	cancel_btn.pressed.connect(close)
+	cancel_btn.pressed.connect(_cancel)
 	btns.add_child(cancel_btn)
 	box.add_child(btns)
+
+
+func _cancel() -> void:
+	# The big-text toggle is live; the sliders are not applied until Apply. So
+	# Cancel only has to hand back the live accessibility change.
+	if SettingsManager.large_text != _large_at_open:
+		SettingsManager.large_text = _large_at_open
+		SettingsManager.apply_text_scale(get_tree().root)
+		_load_into_ui()
+	close()
 
 
 func _slider_row(label_text: String, store: Callable) -> Control:

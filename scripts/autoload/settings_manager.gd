@@ -34,10 +34,22 @@ func apply() -> void:
 	ui_scale_changed.emit()
 
 
+const META_AUTHORED := "_authored_font_size"
+const META_APPLIED := "_large_text_applied"
+
+
 func apply_text_scale(root: Node) -> void:
 	## Walk the UI and re-size every text node. Theme overrides beat the theme,
 	## so this edits the overrides the screens set — and covers nodes built later
-	## if it is called again (main.gd calls it after building the HUD).
+	## if it is called again (screens call this on open; main.gd calls it after
+	## the HUD is built).
+	##
+	## The control's *authored* size (its code-set override, else the theme
+	## default) is captured once in metadata, so toggling is idempotent. The old
+	## version computed (current - 4) every time: on a normal run it shrank every
+	## label by 4px below what was authored, and turning Large text on then added
+	## the 4 straight back — i.e. the accessibility toggle did nothing and normal
+	## text shipped smaller than designed.
 	var bonus := LARGE_TEXT_BONUS if large_text else 0
 	_bump(root, bonus)
 
@@ -46,11 +58,23 @@ func _bump(node: Node, bonus: int) -> void:
 	if node is Label or node is Button or node is RichTextLabel or node is OptionButton or node is LineEdit:
 		var c := node as Control
 		var key := "normal_font_size" if node is RichTextLabel else "font_size"
-		var base := int(c.get_theme_font_size(key))
-		var eff := int(c.get_theme_font_size(key)) - LARGE_TEXT_BONUS
-		if eff <= 0:
-			eff = BASE_FONT_SIZE
-		c.add_theme_font_size_override(key, eff + bonus)
+		var authored := 0
+		if c.has_meta(META_AUTHORED):
+			authored = int(c.get_meta(META_AUTHORED))
+		else:
+			# First time we meet this node: record exactly what the author wrote,
+			# including an explicit override (titles at 26px etc.), before we add
+			# anything of our own.
+			authored = int(c.get_theme_font_size(key))
+			if authored <= 0:
+				authored = BASE_FONT_SIZE
+			c.set_meta(META_AUTHORED, authored)
+		# Always (re)write the override against the captured authored size.
+		# Removing it instead would revert a label whose *authored* size was
+		# itself an override to the theme default (16px), landing on a size the
+		# designer never wrote when Large text was toggled off.
+		c.add_theme_font_size_override(key, authored + bonus)
+		c.set_meta(META_APPLIED, bonus > 0)
 	for child in node.get_children():
 		_bump(child, bonus)
 

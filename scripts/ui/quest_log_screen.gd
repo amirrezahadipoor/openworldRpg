@@ -24,6 +24,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func open() -> void:
 	_refresh()
 	visible = true
+	SettingsManager.apply_text_scale(self)
 
 
 func close() -> void:
