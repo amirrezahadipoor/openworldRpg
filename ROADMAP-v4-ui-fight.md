@@ -103,6 +103,21 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 
 ## H6. General polish where art is the fix
 
+- [~] **H5.6 [image-gen]** Villager idle frames. H5.5 gave every monster and boss
+      four idle frames; the 24 `npc_*.png` sheets the settlements dress villagers in
+      still carried only the two LPC frames, so a villager standing at a schedule
+      point for minutes visibly ticked between two poses. The controller now reads
+      `assets/lpc/pose_frames.json` for its idle loop — `PoseArt.count(sheet_path,
+      "idle", 2)` for the frame count and `idle_columns()` for the column map,
+      exactly like a monster — and falls back to the two LPC frames for any sheet
+      without generated art. `NpcTest` drives both paths (frame count, the
+      `[base, shift, breath, look-around]` loop, the column the sprite shows, and
+      the fallback).
+      *Progress: 5 of 24 sheets.* Done: wren, hunter, vendor, mireille, captain.
+      Owed: the other 19 — elder first (its first generated sheet drew a bearded
+      robed man instead of the grey-haired villager and was reverted rather than
+      shipped; DECISIONS #76).
+
 - [x] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
       procedural `Polygon2D` walls. *Done: three generated families (meadow,
       barrens, frost — the biomes the nine settlements use), four buildings each,
@@ -145,15 +160,20 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       swing, impact, recovery), cut and pasted into rows 2-3 by
       `make_idle_frames.py`, with the LPC film as the fallback for anything not
       yet generated. 20 characters; same batching as H5.5.
-      *Progress: 16 of 20.* Melee sheets take their art in the slash block
-      (`_attack_src/`, 13 done: goblin, raider, raider brute, emberling, minotaur,
+      *Progress: 19 of 20.* (The generator's sources are parked between batches —
+      `tools/pose_sources.sh` — to hold the workspace inside its budget; nothing the
+      game or the checks read needs them, see DECISIONS #78.) Melee sheets take
+      their art in the slash block
+      (`_attack_src/`, 16 done: goblin, raider, raider brute, emberling, minotaur,
       troll, Ember Warden, goblin king, bone titan, frost giant, ashen herald,
-      legion, wolf); ranged ones take theirs in the spellcast block the game plays
-      while they wind up (`_cast_src/`, 3 of 3 done: shaman, revenant, archon).
-      `--status` prints both lists.
-      Owed: choir priest, husk, lizard, slag wraith (beasts and the two remaining
-      story bosses). Until a sheet is generated it keeps the LPC film for a melee
-      attack and the LPC cast frames for a ranged one.
+      legion, wolf, choir priest, lizard, slag wraith); ranged ones take theirs in
+      the spellcast block the game plays while they wind up (`_cast_src/`, 3 of 3
+      done: shaman, revenant, archon). `--status` prints both lists.
+      Owed: husk — its first sheet came back on a white background and cut as one
+      576-px "pose"; the cutter now refuses any source that is not on the chroma
+      screen, and a fresh sheet is one generation away (DECISIONS #76). Until a
+      sheet is generated it keeps the LPC film for a melee attack and the LPC cast
+      frames for a ranged one.
 
 ## Field reports folded into this pass
 

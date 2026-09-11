@@ -8,7 +8,8 @@
   "slash": 4
  },
  "boss_choir_priest": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "boss_frost_giant": {
   "idle": 4,
@@ -19,7 +20,8 @@
   "slash": 4
  },
  "boss_slag_wraith": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_archon": {
   "idle": 4,
@@ -37,7 +39,8 @@
   "slash": 4
  },
  "enemy_lizard": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_minotaur": {
   "idle": 4,
@@ -77,6 +80,21 @@
  "enemy_wolf": {
   "idle": 4,
   "slash": 4
+ },
+ "npc_captain": {
+  "idle": 4
+ },
+ "npc_hunter": {
+  "idle": 4
+ },
+ "npc_mireille": {
+  "idle": 4
+ },
+ "npc_vendor": {
+  "idle": 4
+ },
+ "npc_wren": {
+  "idle": 4
  },
  "player_leather_sword": {
   "idle": 4,

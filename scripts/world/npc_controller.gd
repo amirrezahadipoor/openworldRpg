@@ -33,6 +33,9 @@ const IDLE_FPS := 4.0
 const WALK_FPS := 12.0
 
 @export var npc_id: String = ""
+## The composed sheet this NPC wears. Set by npc.gd when it applies the sheet, so
+## the idle loop can read how many generated frames that sheet carries (H5.6).
+var sheet_path: String = ""
 @export var move_speed := 46.0
 @export var arrive_radius := 8.0
 @export var flee_radius := 170.0
@@ -135,7 +138,11 @@ func anim_block_base() -> int:
 
 
 func anim_frame_count() -> int:
-	return WALK_FRAMES if is_walking() else IDLE_FRAMES
+	if is_walking():
+		return WALK_FRAMES
+	# A villager stands at a schedule point for minutes at a time, so it gets the
+	# same generated idle loop the monsters have.
+	return PoseArt.count(sheet_path, "idle", IDLE_FRAMES)
 
 
 func anim_fps() -> float:
@@ -151,7 +158,13 @@ func advance_sprite_anim(delta: float, sprite: Sprite2D, dir_row: int = 2) -> bo
 	var count := anim_frame_count()
 	while _anim_time >= float(count):
 		_anim_time -= float(count)
-	sprite.frame = anim_block_base() + clampi(dir_row, 0, 3) * ROW_WIDTH + int(_anim_time)
+	var column := int(_anim_time)
+	if not is_walking():
+		# [base, shift, breath, look-around] — the same loop the enemies breathe on.
+		var cols := PoseArt.idle_columns(sheet_path, IDLE_FRAMES)
+		if column < cols.size():
+			column = int(cols[column])
+	sprite.frame = anim_block_base() + clampi(dir_row, 0, 3) * ROW_WIDTH + column
 	return true
 
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """Pastes generated pose art into the composed LPC sheets (H5.5 idle, H7.2 attack).
 
 Why this exists
@@ -48,6 +49,11 @@ Usage
     python3 tools/make_idle_frames.py                 # patch every source
     python3 tools/make_idle_frames.py enemy_wolf ...  # patch named sheets
     python3 tools/make_idle_frames.py --check         # verify, exit 1 on problems
+
+NOTE: the generated sources (`_idle_src/`, `_attack_src/`, `_cast_src/`) are
+development-time inputs. They are parked in /tmp between batches to keep the
+workspace inside its size budget (`tools/pose_sources.sh restore` brings them
+back); `--check` and `--status` read only the composed sheets and the manifest.
 """
 import json
 import os
@@ -84,13 +90,28 @@ KEY_TOLERANCE = 96
 ALPHA_CUTOFF = 120
 # Below this mean per-channel difference a "new" frame is really frame 0 again.
 MIN_FRAME_DIFFERENCE = 4.0
+# Below this silhouette overlap a generated pose is probably not this character.
+LOW_MATCH_WARN = 0.70
 EXIT_OK, EXIT_PROBLEM = 0, 1
 
 
 # --- chroma key -------------------------------------------------------------
 
 def key_out(img: Image.Image) -> Image.Image:
-    """Drop the magenta screen and its soft pink fringe (see make_ui_icons.py)."""
+    """Drop the magenta screen and its soft pink fringe (see make_ui_icons.py).
+
+    The screen is a hard requirement of the pipeline: a sheet generated on a
+    nearly-white background cannot be cut out at all — the first attempt at the
+    husk's attack art arrived that way, and the cutter happily reported one
+    enormous "pose". Refuse it here instead, where the message can say why.
+    """
+    corners = [img.getpixel((0, 0)), img.getpixel((img.width - 1, 0)),
+               img.getpixel((0, img.height - 1)), img.getpixel((img.width - 1, img.height - 1))]
+    off_screen = [c for c in corners
+                  if not (abs(int(c[0]) - 255) < 40 and int(c[1]) < 60 and abs(int(c[2]) - 255) < 40)]
+    if off_screen:
+        raise ValueError("background is not the magenta chroma screen (corners are %s)"
+                         % ", ".join(str(tuple(int(v) for v in c[:3])) for c in corners))
     arr = np.asarray(img.convert("RGBA"), dtype=np.int16)
     r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
     near_screen = ((np.abs(r - 255) < KEY_TOLERANCE)
@@ -208,7 +229,7 @@ def _iou(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.logical_and(a, b).sum()) / float(union) if union else 0.0
 
 
-def normalise_pose(pose: Image.Image, ref: Image.Image) -> Image.Image:
+def normalise_pose(pose: Image.Image, ref: Image.Image, tag: str = "this") -> Image.Image:
     """Scale a generated pose to the reference frame's build and palette."""
     arr = np.asarray(pose, dtype=np.uint8).copy()
     arr[arr[..., 3] < ALPHA_CUTOFF] = (0, 0, 0, 0)
@@ -233,6 +254,17 @@ def normalise_pose(pose: Image.Image, ref: Image.Image) -> Image.Image:
     if src_box is None:
         raise ValueError("empty pose")
     pose = pose.crop(src_box)
+
+    # A pose that does not look like the frame it is joining is usually a
+    # different character altogether (the first elder idle art arrived as a
+    # bearded man in a robe). Silhouette overlap after normalisation is a cheap
+    # way to catch that early; it is a warning, not a rejection, because a
+    # genuine swing or lunge legitimately differs from a standing frame.
+    match = max(score["as-is"], score["flipped"]) if score else 0.0
+    if match < LOW_MATCH_WARN:
+        print("  note: %s is only %.0f%% like the frame it joins (possible "
+              "different character)" % (tag.split("/")[0], 100.0 * match))
+
     scale = size[1] / float(pose.height)
     pose = pose.resize((max(1, int(round(pose.width * scale))), size[1]), Image.LANCZOS)
     arr = np.asarray(pose, dtype=np.uint8).copy()
@@ -273,7 +305,7 @@ def patch_anim(sheet: Image.Image, name: str, anim: str) -> int:
         row = BLOCK_ROW[anim] * 4 + d_i
         ref = _frame_rgba(sheet, row, 0)
         for p_i in range(rows):
-            pose = normalise_pose(src.crop(poses[(d, p_i)]), ref)
+            pose = normalise_pose(src.crop(poses[(d, p_i)]), ref, "%s/%s/%d" % (name, d, p_i))
             paste_pose(sheet, row, FIRST_COL[anim] + p_i, pose, ref)
             pasted += 1
         # Leave the block holding exactly the frames that will be played, so a

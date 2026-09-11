@@ -140,8 +140,9 @@ all sending to Master, which is what the three volume sliders in Settings drive.
 
 ## AI-generated pose art
 
-The extra idle frames (H5.5) and the four-pose attack sheets (H7.2 hero, H7.3
-monsters) are AI-generated pixel art produced for this project, conditioned on
+The extra idle frames (H5.5, and the villager sheets H5.6), and the four-pose
+attack sheets (H7.2 hero, H7.3 monsters) are AI-generated pixel art produced for
+this project, conditioned on
 the composed LPC sheets as visual references. They are pasted into the composed
 sheets by `tools/make_idle_frames.py`; the underlying characters, weapons and
 armour remain the CC-BY-SA-3.0 / GPL LPC work credited above, so sheets that

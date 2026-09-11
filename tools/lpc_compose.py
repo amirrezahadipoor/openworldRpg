@@ -397,6 +397,28 @@ def _weapon_part(spec) -> str:
     return spec[2] if _is_weapon(spec) else ""
 
 
+def _parked_source_problems(idle, want: list) -> list:
+    """Sheets whose manifest entry promises generated art but whose source is gone.
+
+    The generation sources are parked outside the repo between batches
+    (`tools/pose_sources.sh`) to keep the workspace inside its size budget, so a
+    plain recompose would write a sheet *without* the pasted frames and then drop
+    them from the manifest — silently removing animation the game ships. Refuse
+    instead of losing art.
+    """
+    if idle is None:
+        return []
+    manifest = idle._load_manifest()
+    missing = []
+    for name in want:
+        if not manifest.get(name):
+            continue
+        if not any(os.path.exists(os.path.join(d, name + ".png"))
+                   for d in idle.SRC_DIRS.values()):
+            missing.append(name)
+    return missing
+
+
 def _idle_patcher():
     """tools/make_idle_frames.py, or None when it (or its deps) is unavailable.
 
@@ -492,6 +514,12 @@ def main() -> None:
 
     os.makedirs(OUT, exist_ok=True)
     idle = _idle_patcher()
+    parked = _parked_source_problems(idle, want)
+    if parked:
+        sys.exit("parked generation sources are missing for: %s\n"
+                 "run: bash tools/pose_sources.sh restore   (or regenerate the art)\n"
+                 "refusing to compose a sheet without the generated frames it ships"
+                 % ", ".join(parked))
     patched: list = []
     for name in want:
         assert_complete(name, ARCHETYPES[name])

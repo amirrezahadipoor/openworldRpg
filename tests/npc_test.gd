@@ -23,6 +23,7 @@ func _ready() -> void:
 	_test_barks()
 	_test_schedule()
 	await _test_states()
+	await _test_idle_art()
 	await _test_flee()
 	_test_conversation_depth()
 	_test_placement_and_vendors()
@@ -129,6 +130,37 @@ func _test_states() -> void:
 	npc.queue_free()
 
 
+func _test_idle_art() -> void:
+	print("[npc_test] generated idle loops")
+	# Five villagers wear generated idle art this pass; the rest of the roster
+	# still shows the two frames the LPC layers ship.
+	var dressed := _spawn_npc("hunter_kael", Vector2(300, 100),
+		"res://assets/lpc/npc_hunter.png")
+	dressed.schedule_enabled = false
+	await _phys_frames(2)
+	check(dressed.anim_frame_count() == 4,
+		"a villager on generated idle art loops four frames (%s -> %d)" %
+		[dressed.sheet_path.get_file(), dressed.anim_frame_count()])
+	var cols := PoseArt.idle_columns(dressed.sheet_path, 2)
+	check(cols == PoseArt.IDLE_LOOP,
+		"the loop interleaves base/shift/breath/look-around (%s)" % str(cols))
+	var sprite: Sprite2D = dressed.get_node("Sprite")
+	dressed.advance_sprite_anim(0.016, sprite, 2)
+	var column: int = sprite.frame - dressed.anim_block_base() - 2 * dressed.ROW_WIDTH
+	check(column in PoseArt.IDLE_LOOP,
+		"the standing sprite shows a generated idle column (%d)" % column)
+	dressed.queue_free()
+
+	var plain := _spawn_npc("elder_rowan", Vector2(300, 200),
+		"res://assets/lpc/npc_elder.png")
+	plain.schedule_enabled = false
+	await _phys_frames(2)
+	check(plain.anim_frame_count() == 2 and PoseArt.idle_columns(plain.sheet_path, 2).size() == 2,
+		"a villager without generated art keeps the two LPC frames (%s -> %d)" %
+		[plain.sheet_path.get_file(), plain.anim_frame_count()])
+	plain.queue_free()
+
+
 func _test_flee() -> void:
 	print("[npc_test] flee_combat")
 	var npc := _spawn_npc("merchant_bram", Vector2(0, 0))
@@ -146,9 +178,11 @@ func _test_flee() -> void:
 	npc.queue_free()
 
 
-func _spawn_npc(id: String, at: Vector2) -> NPC:
+func _spawn_npc(id: String, at: Vector2, sheet: String = "") -> NPC:
 	var npc: NPC = load("res://scenes/world/npc.tscn").instantiate()
 	npc.npc_id = id
+	if sheet != "":
+		npc.sprite_sheet = sheet   # the world hands this in (settlement.gd does the same)
 	add_child(npc)
 	npc.global_position = at
 	npc.home = at

@@ -29,3 +29,9 @@ android/
 # Python bytecode from the authoring tools
 tools/**/__pycache__/
 __pycache__/
+
+# --- Generated pose sources (dev-time inputs; parked in /tmp between batches,
+#     see tools/pose_sources.sh and DECISIONS #78) ---
+assets/lpc/_attack_src/*.png
+assets/lpc/_idle_src/*.png
+assets/lpc/_cast_src/*.png

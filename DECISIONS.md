@@ -1128,3 +1128,43 @@ cutting them from 5.64 MB to 2.05 MB. Both writers (`lpc_compose.py`,
 `make_idle_frames.py`) now save through the helper, so the next compose cannot undo
 it. A sheet with more than 256 colours (none today) falls back to RGBA instead of
 losing colour.
+
+
+**#76 — Generated idle art must be the character it joins** · 2026-09-11
+`tools/make_idle_frames.py` now refuses a source sheet whose corner pixels are not
+the magenta chroma screen, and warns when a cut pose's silhouette overlap with the
+frame it is joining falls below 0.70. Both guards come from real failures: the
+husk's first attack sheet came back on a near-white background, keyed as *fully
+opaque*, and cut as a single 576-px "pose" that the pipeline happily pasted; and
+the elder's first idle sheet drew a bearded robed man rather than the grey-haired
+villager, which the scale/palette-snap step made *look* plausible. A wrong
+character is worse than no animation, so the elder sheet was reverted to its two
+LPC frames and its source deleted; the warning names the sheet so the next batch
+surfaces the same mistake in the run log.
+
+**#77 — Villagers read the pose manifest for their idle loop (H5.6)** · 2026-09-11
+`npc_controller.gd` no longer assumes two idle frames: `anim_frame_count()` asks
+`PoseArt.count(sheet_path, "idle", IDLE_FRAMES)` and `advance_sprite_anim()` maps
+its non-walk columns through `PoseArt.idle_columns(...)`, so a villager whose
+sheet carries generated art wears the same `[base, shift, breath, look-around]`
+loop the monsters breathe on, and every other villager keeps the two LPC frames.
+`npc.gd` hands its `sheet_path` over when it applies the sheet (`settlement.gd`
+sets `sprite_sheet`, exactly as the test harness now does). `NpcTest` asserts both
+paths — frame count, loop order, the column the sprite actually shows, and the
+two-frame fallback.
+
+
+**#78 — The generation sources are parked outside the repo (workspace budget)** · 2026-09-11
+The pose sources (`assets/lpc/_attack_src/`, `_idle_src/`, `_cast_src/`) are the
+image generator's raw output: the inputs `tools/make_idle_frames.py` pastes from,
+never read at runtime. At ~7 MB they were what pushed the workspace into its 100 MB
+ceiling, while the sheets they produce are 2 MB. They are now parked in
+`/tmp/ws-scratch/pose-sources/` (`tools/pose_sources.sh park|restore`) and no
+longer tracked; every check CI runs — `lpc_compose.py --check`,
+`make_idle_frames.py --check`, the facade check — reads only the composed sheets
+and the manifest, and all three were verified green with the sources absent. So
+the loss cannot be silent, `lpc_compose.py` now *refuses* to compose a sheet whose
+manifest entry promises generated art when its source is not on disk: the old
+behaviour would have written a source-less sheet and then dropped the manifest
+entry, quietly deleting animation the game ships. Earlier batches' sources stay
+recoverable from history (`git log --diff-filter=D -- assets/lpc/_attack_src`).

@@ -45,6 +45,7 @@ func _apply_sheet() -> void:
 	if tex == null:
 		return
 	_sprite.texture = tex
+	sheet_path = sprite_sheet            # the idle loop reads its frame count from this
 	_sprite.hframes = 13
 	_sprite.vframes = 20
 	_sprite.offset = Vector2(0, -10)          # LPC frames sit above the pivot
