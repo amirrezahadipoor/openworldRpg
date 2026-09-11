@@ -1,15 +1,28 @@
 {
+ "boss_ashen_herald": {
+  "idle": 4
+ },
  "boss_bone_titan": {
   "idle": 4
  },
+ "boss_choir_priest": {
+  "idle": 4
+ },
+ "boss_frost_giant": {
+  "idle": 4
+ },
  "boss_goblin_king": {
+  "idle": 4
+ },
+ "boss_slag_wraith": {
   "idle": 4
  },
  "enemy_archon": {
   "idle": 4
  },
  "enemy_goblin": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_husk": {
   "idle": 4
@@ -21,16 +34,19 @@
   "idle": 4
  },
  "enemy_minotaur": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_orc": {
   "idle": 4
  },
  "enemy_raider": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_raider2": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_revenant": {
   "idle": 4
@@ -39,10 +55,12 @@
   "idle": 4
  },
  "enemy_skeleton": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_troll": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_warden": {
   "idle": 4

@@ -135,6 +135,21 @@ def split_poses(img: Image.Image, rows: int) -> dict:
     for d_i, (x0, x1) in enumerate(col_runs):
         band = alpha[:, x0:x1]
         row_runs = [r for r in _runs(band.any(axis=1).tolist()) if r[1] - r[0] >= 8]
+        if len(row_runs) < rows:
+            # Two poses that touch — a raised weapon meeting the pose above it —
+            # read as one run, and the generator gives no rule for which. Split
+            # the column's ink evenly instead of failing the whole sheet.
+            ink = np.nonzero(band.any(axis=1))[0]
+            if ink.size:
+                y0, y1 = int(ink.min()), int(ink.max()) + 1
+                step = (y1 - y0) / float(rows)
+                row_runs = [(int(y0 + step * i), int(y0 + step * (i + 1))) for i in range(rows)]
+                print("  note: column %s had %d pose rows, split evenly into %d"
+                      % (DIRS[d_i], len(_runs(band.any(axis=1).tolist())), rows))
+        if len(row_runs) > rows:
+            # Extra rows: keep the topmost `rows` runs, which are the ones that
+            # start at the character's head rather than at a stray mark below.
+            row_runs = row_runs[:rows]
         if len(row_runs) != rows:
             raise ValueError("column %s: expected %d poses, found %d %s"
                              % (DIRS[d_i], rows, len(row_runs), row_runs))

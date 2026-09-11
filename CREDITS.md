@@ -137,3 +137,12 @@ all sending to Master, which is what the three volume sliders in Settings drive.
 |---|---|---|---|
 | Press Start 2P (UI default theme) | CodeMan38 | OFL-1.1 | ✅ in repo (`assets/fonts/PressStart2P.ttf`, via google/fonts) |
 | UI 9-patch frames (panel9/button9, `tools/gen_ui_assets.py`) | This project | CC0 | ✅ in repo (`assets/ui/`) |
+
+## AI-generated pose art
+
+The extra idle frames (H5.5) and the four-pose attack sheets (H7.2 hero, H7.3
+monsters) are AI-generated pixel art produced for this project, conditioned on
+the composed LPC sheets as visual references. They are pasted into the composed
+sheets by `tools/make_idle_frames.py`; the underlying characters, weapons and
+armour remain the CC-BY-SA-3.0 / GPL LPC work credited above, so sheets that
+carry generated frames stay under the same share-alike terms.

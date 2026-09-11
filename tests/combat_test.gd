@@ -1034,15 +1034,52 @@ func _test_idle_art() -> void:
 	# without keeps the six LPC frames it always had.
 	var with_attack := 0
 	var without_attack := 0
+	var attack_bad := []
 	for id in EnemyDB.monsters():
 		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
-		if PoseArt.has(sheet, "slash"):
-			with_attack += 1
-		else:
+		if not PoseArt.has(sheet, "slash"):
 			without_attack += 1
+			continue
+		with_attack += 1
+		var want_atk := PoseArt.count(sheet, "slash", 6)
+		var swing: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host.add_child(swing)
+		swing.setup_archetype(String(id))
+		if swing.attack_frames != want_atk:
+			attack_bad.append("%s=%d(want %d)" % [id, swing.attack_frames, want_atk])
+		swing.queue_free()
+	check(attack_bad.is_empty(),
+		"every monster with generated attack art swings those frames (%s)"
+		% ("all %d ok" % with_attack if attack_bad.is_empty() else str(attack_bad)))
 	check(with_attack + without_attack == EnemyDB.monsters().size(),
 		"every monster resolves an attack frame count (%d generated, %d LPC)"
 		% [with_attack, without_attack])
+
+	# The four attack columns must be four different pictures: a sheet that
+	# repeated one pose four times would still pass every count above.
+	if with_attack > 0:
+		var swing_id := ""
+		for id in EnemyDB.monsters():
+			var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
+			if PoseArt.has(sheet, "slash"):
+				swing_id = String(id)
+				break
+		var swing: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+		host.add_child(swing)
+		swing.setup_archetype(swing_id)
+		var img: Image = swing.sprite.texture.get_image()
+		var row := int(Enemy.DIR_ROW["s"]) + int(Enemy.ANIM_BLOCK["slash"]) * 4
+		var pairs := 0
+		var distinct := 0
+		for a in swing.attack_frames:
+			for b in range(a + 1, swing.attack_frames):
+				pairs += 1
+				if _cell_difference(img, row, a, b) >= 4.0:
+					distinct += 1
+		check(pairs == 6 and distinct == 6,
+			"all four %s attack poses differ from each other (%d/%d pairs)"
+			% [swing_id, distinct, pairs])
+		swing.queue_free()
 
 	# Resting: the loop slows down and the monster turns to look around.
 	check(Enemy.REST_IDLE_SLOWDOWN < 1.0,
@@ -1098,6 +1135,20 @@ func _test_idle_art() -> void:
 		% str(generated_swing))
 	swing_hero.queue_free()
 	await _phys(2)
+
+
+
+func _cell_difference(img: Image, dir_row: int, a_col: int, b_col: int) -> float:
+	## Percentage of pixels that differ between two 64 px cells of one row.
+	var w := 64
+	var diff := 0
+	for y in w:
+		for x in w:
+			var a := img.get_pixel(a_col * w + x, dir_row * w + y)
+			var b := img.get_pixel(b_col * w + x, dir_row * w + y)
+			if absf(a.r - b.r) + absf(a.g - b.g) + absf(a.b - b.b) + absf(a.a - b.a) > 0.05:
+				diff += 1
+	return 100.0 * float(diff) / float(w * w)
 
 
 func _phys(n: int) -> void:

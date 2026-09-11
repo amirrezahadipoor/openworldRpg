@@ -1080,3 +1080,28 @@ cannot resolve `class_name` globals and every suite dies instantly with
 "Identifier X not declared in the current scope" — which looks like a code
 regression and is not. Always run `godot --headless --import` after removing
 `.godot/` (one import, ~10 s) before trusting a test result.
+
+**#71 — The LPC weapon film is a slash arc, not a sword in the hand** · 2026-09-11
+H7.1 claimed 16 armed characters "swing". Looking at the goblin's south slash
+row, they do not: the LPC `attack_slash` film is a pale crescent that sweeps
+past the body, so the melee read was an effect rather than a weapon. The film is
+geometrically right — it is a clean 2x upscale (99.2% of 2x2 blocks uniform, so
+halving lands it back on the 64 px grid) and compositing it over the matching
+body row puts the arc exactly where the hand is — but LPC draws that animation
+as a swing trail. The fix is not a better offset: it is the generated attack art
+of H7.3, where the weapon is in the fist by construction. `weapon_column_ok()`
+already suppresses the film per column once a sheet has real attack frames, so
+generated art and the film never draw twice.
+
+**#72 — Generated grids are only *usually* well-formed; cut what you can** · 2026-09-11
+Two generator habits cost sheets today, and neither is worth failing over:
+* More rotation columns than LPC has directions (the shaman returned six evenly
+  spaced facings): sample four evenly across the run list — back, both profiles,
+  front — and say so in the log.
+* Poses that touch, so two of them read as a single pixel run (the minotaur's
+  raised mace met the pose above it, and two of its four columns merged): split
+  that column's ink evenly into the expected number of rows instead of raising.
+  A column with *extra* runs keeps the topmost ones, which are the ones that
+  start at the head.
+Both are logged as `note:` lines, so a cut that needed help is visible in the
+build output rather than silently guessed at.
