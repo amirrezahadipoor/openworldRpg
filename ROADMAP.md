@@ -198,9 +198,15 @@ suite and pushed. The commit that landed it is named on each line.
   Bram's shelf and Factor Orlan's both start at `wooden_club` / `short_sword`
   prices. — `1522335`
 
-**Audit pass totals.** Commits `d9479b6` (C1–C5), `811b8b7` (G1–G7), `1522335`
-(M1–M5, L1, L3–L5), `11d5b31` (C6), each pushed to `main` with green CI on
-`d9479b6`, `811b8b7`, `1fc3052` and `1522335`.
+**Audit pass totals.** Commits `d9479b6` (C1–C5), `811b8b7` (G1–G7), `1fc3052`
+(test order), `1522335` (M1–M5, L1, L3–L5), `11d5b31` (C6), `0c38d19` (this file).
+CI is green on `d9479b6`, `1fc3052`, `1522335`, `11d5b31` and `0c38d19`; the
+`811b8b7` run was cancelled by the push that superseded it two minutes later,
+whose run (and every later one) carries the same code.
+
+**Every suite at the close of the pass:** Combat 229 · Items 63 · WorldMap 72 ·
+Ui 36 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 — all PASS, with
+`balance_report.py --check` PASSED and POSE ART 49/49/21/3.
 
 ## 2.2 Still open
 
