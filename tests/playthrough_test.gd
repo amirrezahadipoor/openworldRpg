@@ -160,9 +160,9 @@ class _ChainWalker:
 func _act2_scorched_ring() -> void:
 	print("[playthrough] Act 2 — The Ember Omen")
 	player.global_position = Vector2(2700, -1500) + Vector2(0, 500)
-	await get_tree().create_timer(1.2).timeout
-	check(bool(GameState.quest_flags.get("saw_warden_ring", false)),
-		"scorched ring sighted (auto-flag on approach)")
+	var sighted := await _await_until(
+		func() -> bool: return bool(GameState.quest_flags.get("saw_warden_ring", false)), 4.0)
+	check(sighted, "scorched ring sighted (auto-flag on approach)")
 
 	QuestManager.talk_to("elder_rowan")
 	await get_tree().physics_frame
@@ -174,7 +174,7 @@ func _act2_scorched_ring() -> void:
 func _act3_warden_fall() -> void:
 	print("[playthrough] Act 3 — Fall of the Warden")
 	player.global_position = Vector2(2700, -1500)
-	await get_tree().create_timer(1.2).timeout
+	await _await_until(func() -> bool: return arena != null and arena.boss != null, 5.0)
 	check(arena != null and arena.boss != null, "Ember Warden summoned on arena entry")
 	if arena == null or arena.boss == null:
 		return
@@ -233,15 +233,13 @@ func _act5_secrets() -> void:
 	var found_before := SecretsDB.found_count()
 	GameState.quest_flags.erase(SecretsDB.flag_of(sid))
 	player.global_position = target + Vector2(0, 220)
-	await get_tree().create_timer(0.9).timeout
+	await _await_until(func() -> bool: return _count_secret_sites(streamer) > 0, 4.0)
 	var sites := _count_secret_sites(streamer)
 	check(sites > 0, "secrets exist in the live world (%d sites near %s)" % [sites, sid])
 
 	# Walk onto it: the player's own body overlap is what finds a cache.
 	player.global_position = target
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	await get_tree().create_timer(0.4).timeout
+	await _await_until(func() -> bool: return _find_site(streamer, sid) != null, 3.0)
 	var probe := _find_site(streamer, sid)
 	check(probe != null, "the secret's own site is streamed in where it sits (%s)" % sid)
 	if probe != null:
@@ -253,12 +251,24 @@ func _act5_secrets() -> void:
 
 	# Leave and come back: the chunk reloads, and the secret stays found.
 	player.global_position = target + Vector2(4000, 0)
-	await get_tree().create_timer(0.6).timeout
+	await _await_until(func() -> bool: return _find_site(streamer, sid) == null, 4.0)
 	var gold_after := GameState.gold
 	player.global_position = target
-	await get_tree().create_timer(0.9).timeout
+	await _await_until(func() -> bool: return _find_site(streamer, sid) != null, 4.0)
 	check(SecretsDB.is_found(sid), "the secret is still found after a chunk reload")
 	check(GameState.gold == gold_after, "re-streaming the chunk did not pay twice")
+
+
+## Poll a condition at physics rate until it holds or the budget runs out.
+## Fixed sleeps made this suite flaky under load (chunk streaming lags CPU
+## contention); every world-state wait now retries instead of guessing a delay.
+func _await_until(cond: Callable, seconds: float) -> bool:
+	var frames := int(seconds * 60.0)
+	for i in frames:
+		if bool(cond.call()):
+			return true
+		await get_tree().physics_frame
+	return bool(cond.call())
 
 
 func _find_site(node: Node, sid: String) -> SecretSite:

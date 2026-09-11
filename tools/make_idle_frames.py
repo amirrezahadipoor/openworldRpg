@@ -118,6 +118,16 @@ def split_poses(img: Image.Image, rows: int) -> dict:
     """Cut the generated grid into poses; returns {(dir, row_index): box}."""
     alpha = np.asarray(img.getchannel("A"), dtype=np.uint8) > 0
     col_runs = [r for r in _runs(alpha.any(axis=0).tolist()) if r[1] - r[0] >= 8]
+    if len(col_runs) > len(DIRS):
+        # The generator sometimes draws more rotations than LPC has directions
+        # (the shaman came back with six). Take the four that sit closest to the
+        # four cardinal facings instead of failing: index evenly across the run
+        # list, which picks back, both side profiles and front.
+        n = len(col_runs)
+        pick = [round(i * (n - 1) / float(len(DIRS) - 1)) for i in range(len(DIRS))]
+        print("  note: %d pose columns generated, using columns %s for n/w/s/e"
+              % (n, pick))
+        col_runs = [col_runs[i] for i in pick]
     if len(col_runs) != len(DIRS):
         raise ValueError("expected %d pose columns, found %d %s"
                          % (len(DIRS), len(col_runs), col_runs))

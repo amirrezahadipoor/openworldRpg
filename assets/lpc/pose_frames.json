@@ -1,4 +1,10 @@
 {
+ "boss_bone_titan": {
+  "idle": 4
+ },
+ "boss_goblin_king": {
+  "idle": 4
+ },
  "enemy_archon": {
   "idle": 4
  },
@@ -29,17 +35,35 @@
  "enemy_revenant": {
   "idle": 4
  },
+ "enemy_shaman": {
+  "idle": 4
+ },
+ "enemy_skeleton": {
+  "idle": 4
+ },
+ "enemy_troll": {
+  "idle": 4
+ },
+ "enemy_warden": {
+  "idle": 4
+ },
+ "enemy_wolf": {
+  "idle": 4
+ },
  "player_leather_sword": {
   "idle": 4,
   "slash": 4
  },
  "player_legion_sword": {
+  "idle": 4,
   "slash": 4
  },
  "player_none_sword": {
+  "idle": 4,
   "slash": 4
  },
  "player_plate_sword": {
+  "idle": 4,
   "slash": 4
  }
 }
