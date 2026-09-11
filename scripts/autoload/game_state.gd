@@ -148,7 +148,7 @@ func apply_buff(kind: String, value: float, duration: float) -> void:
 func buff_value(kind: String) -> float:
 	var b: Dictionary = buffs.get(kind, {})
 	if b.is_empty():
-		return 1.0 if kind in ["speed", "shield"] else 0.0
+		return 1.0 if kind in ["speed", "shield", "dodge_dust"] else 0.0
 	return float(b.get("value", 1.0))
 
 
@@ -331,7 +331,7 @@ func defense() -> float:
 func move_speed() -> float:
 	var base: float = base_speed + talent_sum("speed") + milestone_bonus("speed") \
 		+ equipment_bonus("speed")
-	return base * buff_value("speed")            # Elixir of Haste
+	return base * buff_value("speed") * buff_value("dodge_dust")
 
 
 # --- Talent tree (Phase E §7: 60 data-driven nodes, DECISIONS #19/#33) --------
@@ -375,6 +375,33 @@ func node_unlocked(branch: String, node: Dictionary) -> bool:
 	if int(talents.get(branch, 0)) < int(node.get("req_points", 1)):
 		return false
 	return level >= int(node.get("req_level", 1))
+
+
+func has_behaviour(key: String) -> bool:
+	## Engine-key talents: nodes whose payoff is behaviour, not a number. The data
+	## marks them with a `behaviour` field and the combat code asks for the key by
+	## name, so a node can never look bought and do nothing (v3 audit §3: the tree
+	## was 60 numeric nodes).
+	for b in _talent_branches():
+		var branch := String((b as Dictionary).get("id", ""))
+		for n in (b as Dictionary).get("nodes", []):
+			var node: Dictionary = n
+			if String(node.get("behaviour", "")) != key:
+				continue
+			if node_unlocked(branch, node):
+				return true
+	return false
+
+
+func behaviour_keys() -> Array:
+	## Every behaviour the data declares, for the tests and the talent screen.
+	var out: Array = []
+	for b in _talent_branches():
+		for n in (b as Dictionary).get("nodes", []):
+			var key := String((n as Dictionary).get("behaviour", ""))
+			if key != "" and not out.has(key):
+				out.append(key)
+	return out
 
 
 func node_locked_reason(branch: String, node: Dictionary) -> String:

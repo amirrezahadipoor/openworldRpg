@@ -107,6 +107,13 @@ var _patrols_done := 0
 ## used to be "the sprite flashed": with two enemies on screen nobody could tell
 ## which one was nearly dead or whether their swing had connected at all.
 var _bar_time := 0.0
+# Burn (engine-key talent `finisher_ignites`): damage per second and the
+# time left on it, ticked in BURN_TICK steps so a burn is not a per-frame
+# redraw on every enemy in the loaded chunks.
+const BURN_TICK := 0.25
+var _burn_dps := 0.0
+var _burn_time := 0.0
+var _burn_tick := 0.0
 ## Set while an attack is being telegraphed, for the ground reticle.
 var _telegraphing := false
 var _separation := Vector2.ZERO
@@ -141,6 +148,47 @@ func _sync_boss_group() -> void:
 		remove_from_group("boss")
 
 
+func apply_burn(dps: float, duration: float) -> void:
+	## Fire that keeps working after the hit that started it (engine-key talent
+	## `finisher_ignites`). Re-applying refreshes the timer and keeps the stronger
+	## rate; it never stacks, so a fast chain cannot multiply itself.
+	if state == State.DEAD:
+		return
+	_burn_dps = maxf(_burn_dps, dps)
+	_burn_time = maxf(_burn_time, duration)
+
+
+func is_burning() -> bool:
+	return _burn_time > 0.0
+
+
+func burn_dps() -> float:
+	return _burn_dps if _burn_time > 0.0 else 0.0
+
+
+func _tick_burn(delta: float) -> void:
+	_burn_time = maxf(_burn_time - delta, 0.0)
+	_burn_tick += delta
+	if _burn_time <= 0.0:
+		_burn_dps = 0.0
+		_burn_tick = 0.0
+		return
+	if _burn_tick < BURN_TICK:
+		return
+	# Damage lands in ticks, not per frame: the hp bar redraws three or four times
+	# over the whole burn instead of sixty.
+	var dmg := _burn_dps * _burn_tick
+	_burn_tick = 0.0
+	if dmg <= 0.0:
+		return
+	hp -= dmg
+	_bar_time = 3.0
+	queue_redraw()
+	EventBus.enemy_hurt.emit(self, dmg, Vector2.ZERO)
+	if hp <= 0.0:
+		_die()
+
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
@@ -151,8 +199,10 @@ func _physics_process(delta: float) -> void:
 	_bar_time = maxf(_bar_time - delta, 0.0)
 	# Redraw while the bar is fading, and only then: this runs for every enemy in
 	# the loaded chunks, so it must not be a per-frame cost on a quiet map.
-	if bar_was > 0.0 or _bar_time > 0.0 or state == State.ATTACK:
+	if bar_was > 0.0 or _bar_time > 0.0 or state == State.ATTACK or _burn_time > 0.0:
 		queue_redraw()
+	if _burn_time > 0.0:
+		_tick_burn(delta)
 	if pattern == "charger" and _dash_time > 0.0:
 		_charge_tick(delta)
 		return

@@ -43,6 +43,7 @@ func _ready() -> void:
 
 	await _test_abilities()
 	await _test_projectile_contact()
+	await _test_engine_key_talents()
 
 	await _test_world()
 
@@ -659,6 +660,122 @@ func _test_boss_phases_and_death() -> void:
 				found_core = true
 	check(pickups >= 3, "boss death dropped >=3 pickups (got %d)" % pickups)
 	check(found_core, "boss guaranteed warden_core drop present")
+
+
+func _test_engine_key_talents() -> void:
+	print("[combat_test] engine-key talents: the nodes that change behaviour")
+
+	# The tree used to be 60 numeric nodes: every point bought was a number and
+	# nothing new happened on screen. Three nodes now carry a `behaviour` key.
+	var keys := GameState.behaviour_keys()
+	for want in ["finisher_ignites", "whirl_knockback", "dodge_dust"]:
+		check(keys.has(want), "%s is authored in data/talents.json" % want)
+
+	# A key with no handler is a lie in the UI, so the key has to appear in code.
+	var src := _scripts_source()
+	for want in keys:
+		check(src.contains(want), "the code handles %s" % want)
+
+	# Nothing is live until the node is bought.
+	var saved_level := GameState.level
+	var saved_points := GameState.talent_points
+	var saved_talents := GameState.talents.duplicate()
+	for branch in ["combat", "magic", "utility"]:
+		GameState.talents[branch] = 0
+	GameState.level = 1
+	check(not GameState.has_behaviour("finisher_ignites"),
+		"a behaviour is off until its node is bought")
+
+	# --- finisher_ignites: the third hit leaves a burn that keeps hurting ---
+	var host := Node2D.new()
+	add_child(host)
+	var target: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(target)
+	target.setup_archetype("grunt")
+	target.hp = target.max_hp
+	var before := target.hp
+	target.apply_burn(12.0, 0.6)
+	check(target.is_burning(), "apply_burn lights the target (finisher_ignites)")
+	check(GameState.attack() * Player.FINISHER_BURN_MULT > 0.0, "the burn rate scales off attack")
+	var ticks := 0
+	while ticks < 80 and target.is_burning() and is_instance_valid(target):
+		await get_tree().physics_frame
+		ticks += 1
+	check(not target.is_burning(), "the burn expires on its own (%.1f s)" % (ticks / 60.0))
+	check(target.hp < before, "and it did damage while it burned (%.0f -> %.0f)"
+		% [before, target.hp])
+
+	# Re-applying refreshes; it must not stack into a runaway.
+	target.hp = target.max_hp
+	target.apply_burn(10.0, 0.5)
+	target.apply_burn(10.0, 0.5)
+	check(is_equal_approx(target.burn_dps(), 10.0), "re-applying refreshes rather than stacks")
+	target.apply_burn(99.0, 0.5)
+	check(is_equal_approx(target.burn_dps(), 99.0), "a stronger burn takes over")
+
+	# --- unlocked: the same calls now go through the talent gate ---
+	GameState.level = 90
+	GameState.talents["combat"] = 20
+	GameState.talents["magic"] = 20
+	GameState.talents["utility"] = 20
+	check(GameState.has_behaviour("finisher_ignites"), "tier-4 combat unlocks it")
+	check(GameState.has_behaviour("whirl_knockback"), "tier-4 magic unlocks it")
+	check(GameState.has_behaviour("dodge_dust"), "tier-4 utility unlocks it")
+
+	# --- whirl_knockback: a talented whirlwind hurls what it hits ---
+	var player: Player = get_tree().get_first_node_in_group("player")
+	player.global_position = Vector2(4000, 4000)
+	var flung: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(flung)
+	flung.setup_archetype("grunt")
+	flung.global_position = player.global_position + Vector2(40, 0)
+	flung.hp = flung.max_hp
+	flung.velocity = Vector2.ZERO
+	GameState.mp = GameState.max_mp()
+	player.cast_whirlwind()
+	check(flung.velocity.length() > Player.WHIRL_KNOCKBACK * 0.5,
+		"a talented whirlwind hurls the target (%.0f px/s)" % flung.velocity.length())
+	check(flung.velocity.x > 0.0, "and hurls it away from the player, not through them")
+
+	# --- dodge_dust: a dodge leaves speed behind ---
+	GameState.buffs.clear()
+	var base_speed := GameState.move_speed()
+	player._start_dodge(Vector2.RIGHT)
+	check(GameState.buff_value("dodge_dust") > 1.0, "a talented dodge grants the surge")
+	check(GameState.move_speed() > base_speed, "and the hero is faster while it lasts")
+	GameState.buffs.clear()
+	check(is_equal_approx(GameState.move_speed(), base_speed), "the surge runs out")
+
+	host.queue_free()
+	GameState.level = saved_level
+	GameState.talent_points = saved_points
+	GameState.talents = saved_talents
+
+
+func _scripts_source() -> String:
+	## Every .gd under res://scripts, concatenated - used to prove that a behaviour
+	## key authored in data has a handler somewhere in the code.
+	var text := ""
+	var stack: Array = ["res://scripts"]
+	while not stack.is_empty():
+		var dir_path: String = stack.pop_back()
+		var dir := DirAccess.open(dir_path)
+		if dir == null:
+			continue
+		dir.list_dir_begin()
+		var name := dir.get_next()
+		while name != "":
+			var path := "%s/%s" % [dir_path, name]
+			if dir.current_is_dir():
+				if name != "." and name != "..":
+					stack.append(path)
+			elif name.ends_with(".gd"):
+				var f := FileAccess.open(path, FileAccess.READ)
+				if f != null:
+					text += f.get_as_text()
+			name = dir.get_next()
+		dir.list_dir_end()
+	return text
 
 
 func _report() -> void:

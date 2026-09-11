@@ -21,6 +21,13 @@ var _step_timer := 0.0
 const ATTACK_ACTIVE_TIME := 0.16
 const COMBO_WINDOW := 0.62         # time after a swing to keep the chain alive
 const COMBO_FINISHER_MULT := 1.5   # third hit lands harder and pushes back
+# Engine-key talents (data/talents.json `behaviour`): these are behaviour, not
+# numbers, so the constants live with the moves they change.
+const FINISHER_BURN_MULT := 0.35   # burn dps as a fraction of attack
+const FINISHER_BURN_TIME := 4.0
+const WHIRL_KNOCKBACK := 460.0     # px/s of extra push from a talented whirl
+const DODGE_DUST_SPEED := 1.3
+const DODGE_DUST_TIME := 1.2
 const FINISHER_RECOVERY := 1.8     # ...but it costs you the next swing
 const CRIT_MULT := 1.8
 
@@ -229,6 +236,11 @@ func _sample_attack_hits() -> void:
 		if _attack_mult > 1.0:
 			_shove(target)
 			AudioManager.play_sfx("hit")
+		if _attack_mult > 1.0 and target.has_method("apply_burn") 				and GameState.has_behaviour("finisher_ignites"):
+			# `finisher_ignites`: the chain finisher leaves the target burning. The
+			# burn ticks emit enemy_hurt, so Juice already puffs fire on each tick -
+			# no separate particle call needed here.
+			target.apply_burn(GameState.attack() * FINISHER_BURN_MULT, FINISHER_BURN_TIME)
 
 
 ## Kept for callers that awaited the old single-shot resolver (tests included):
@@ -290,6 +302,9 @@ func cast_whirlwind() -> void:
 					var wdmg := roll_damage(GameState.attack() * WHIRL_MULT * GameState.whirl_mult())
 					e.take_hit(wdmg, dir)
 					_apply_lifesteal(wdmg)
+					if GameState.has_behaviour("whirl_knockback") and e is CharacterBody2D:
+						# `whirl_knockback`: take_hit adds a nudge, this hurls.
+						(e as CharacterBody2D).velocity += dir * WHIRL_KNOCKBACK
 
 
 ## Firebolt — ranged projectile that pierces toward the facing direction.
@@ -313,6 +328,10 @@ func _start_dodge(move: Vector2) -> void:
 	_dodge_dir = move if move.length_squared() > 0.01 else facing
 	_dodge_timer = DODGE_DURATION + GameState.dodge_duration_bonus()
 	_dodge_cd = DODGE_COOLDOWN
+	if GameState.has_behaviour("dodge_dust"):
+		# `dodge_dust`: the dodge pays out as a breath of speed while the dust is
+		# still in the air.
+		GameState.apply_buff("dodge_dust", DODGE_DUST_SPEED, DODGE_DUST_TIME)
 	EventBus.player_dodged.emit(self)
 	AudioManager.play_sfx("dodge")
 	_squash(Vector2(1.25, 0.72))

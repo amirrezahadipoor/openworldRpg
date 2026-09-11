@@ -1,719 +1,727 @@
 {
-  "_comment": "Phase E \u00a77 - 60 talent nodes: 3 branches x 4 tiers x 5 nodes. `req_points` = points that must be invested in that branch to unlock the node; `req_level` = character-level gate (tier 1/2/3/4 = 5/25/50/75). The three `core: true` nodes per branch are the originally shipped starter nodes and stay available from level 1. `effects` are summed (additive keys) or multiplied (multiplier keys) - see GameState.talent_sum()/talent_mult().",
-  "branches": [
+ "_comment": "Phase E \u00a77 - 60 talent nodes: 3 branches x 4 tiers x 5 nodes. `req_points` = points that must be invested in that branch to unlock the node; `req_level` = character-level gate (tier 1/2/3/4 = 5/25/50/75). The three `core: true` nodes per branch are the originally shipped starter nodes and stay available from level 1. `effects` are summed (additive keys) or multiplied (multiplier keys) - see GameState.talent_sum()/talent_mult().",
+ "branches": [
+  {
+   "id": "combat",
+   "name": "Combat",
+   "desc": "Iron and ash \u2014 the Warden's discipline.",
+   "nodes": [
     {
-      "id": "combat",
-      "name": "Combat",
-      "desc": "Iron and ash \u2014 the Warden's discipline.",
-      "nodes": [
-        {
-          "id": "combat_01",
-          "tier": 1,
-          "req_points": 1,
-          "req_level": 1,
-          "name": "Power Strikes",
-          "desc": "+4 Attack",
-          "effects": {
-            "atk": 4.0
-          },
-          "core": true
-        },
-        {
-          "id": "combat_02",
-          "tier": 1,
-          "req_points": 2,
-          "req_level": 1,
-          "name": "Iron Skin",
-          "desc": "+4 Defense, +15 Max HP",
-          "effects": {
-            "def": 4.0,
-            "hp": 15.0
-          },
-          "core": true
-        },
-        {
-          "id": "combat_03",
-          "tier": 1,
-          "req_points": 3,
-          "req_level": 1,
-          "name": "Swift Strikes",
-          "desc": "Attack cooldown -20%",
-          "effects": {
-            "atk_cd": 0.8
-          },
-          "core": true
-        },
-        {
-          "id": "combat_04",
-          "tier": 1,
-          "req_points": 4,
-          "req_level": 5,
-          "name": "Bulwark",
-          "desc": "+18 Max HP",
-          "effects": {
-            "hp": 18.0
-          }
-        },
-        {
-          "id": "combat_05",
-          "tier": 1,
-          "req_points": 5,
-          "req_level": 5,
-          "name": "Cleave",
-          "desc": "+3 Attack",
-          "effects": {
-            "atk": 3.0
-          }
-        },
-        {
-          "id": "combat_06",
-          "tier": 2,
-          "req_points": 6,
-          "req_level": 25,
-          "name": "Deep Cuts",
-          "desc": "+6 Attack",
-          "effects": {
-            "atk": 6.0
-          }
-        },
-        {
-          "id": "combat_07",
-          "tier": 2,
-          "req_points": 7,
-          "req_level": 25,
-          "name": "Plated Mail",
-          "desc": "+7 Defense",
-          "effects": {
-            "def": 7.0
-          }
-        },
-        {
-          "id": "combat_08",
-          "tier": 2,
-          "req_points": 8,
-          "req_level": 25,
-          "name": "Second Wind",
-          "desc": "+40 Max HP",
-          "effects": {
-            "hp": 40.0
-          }
-        },
-        {
-          "id": "combat_09",
-          "tier": 2,
-          "req_points": 9,
-          "req_level": 25,
-          "name": "Momentum",
-          "desc": "Attack cooldown -10%",
-          "effects": {
-            "atk_cd": 0.9
-          }
-        },
-        {
-          "id": "combat_10",
-          "tier": 2,
-          "req_points": 10,
-          "req_level": 25,
-          "name": "Bloodletter",
-          "desc": "Heal 4% of melee damage dealt",
-          "effects": {
-            "lifesteal": 0.04
-          }
-        },
-        {
-          "id": "combat_11",
-          "tier": 3,
-          "req_points": 11,
-          "req_level": 50,
-          "name": "Warden's Fury",
-          "desc": "+9 Attack",
-          "effects": {
-            "atk": 9.0
-          }
-        },
-        {
-          "id": "combat_12",
-          "tier": 3,
-          "req_points": 12,
-          "req_level": 50,
-          "name": "Unyielding",
-          "desc": "Take 10% less damage",
-          "effects": {
-            "dmg_taken": 0.9
-          }
-        },
-        {
-          "id": "combat_13",
-          "tier": 3,
-          "req_points": 13,
-          "req_level": 50,
-          "name": "Thick Hide",
-          "desc": "+60 Max HP",
-          "effects": {
-            "hp": 60.0
-          }
-        },
-        {
-          "id": "combat_14",
-          "tier": 3,
-          "req_points": 14,
-          "req_level": 50,
-          "name": "Relentless",
-          "desc": "Attack cooldown -10%",
-          "effects": {
-            "atk_cd": 0.9
-          }
-        },
-        {
-          "id": "combat_15",
-          "tier": 3,
-          "req_points": 15,
-          "req_level": 50,
-          "name": "Sanguine Edge",
-          "desc": "Heal 5% of melee damage dealt",
-          "effects": {
-            "lifesteal": 0.05
-          }
-        },
-        {
-          "id": "combat_16",
-          "tier": 4,
-          "req_points": 16,
-          "req_level": 75,
-          "name": "Choir-Breaker",
-          "desc": "+12 Attack",
-          "effects": {
-            "atk": 12.0
-          }
-        },
-        {
-          "id": "combat_17",
-          "tier": 4,
-          "req_points": 17,
-          "req_level": 75,
-          "name": "Adamant",
-          "desc": "+12 Defense",
-          "effects": {
-            "def": 12.0
-          }
-        },
-        {
-          "id": "combat_18",
-          "tier": 4,
-          "req_points": 18,
-          "req_level": 75,
-          "name": "Emberheart",
-          "desc": "+90 Max HP",
-          "effects": {
-            "hp": 90.0
-          }
-        },
-        {
-          "id": "combat_19",
-          "tier": 4,
-          "req_points": 19,
-          "req_level": 75,
-          "name": "Blade Storm",
-          "desc": "Whirlwind damage +25%",
-          "effects": {
-            "whirl": 1.25
-          }
-        },
-        {
-          "id": "combat_20",
-          "tier": 4,
-          "req_points": 20,
-          "req_level": 75,
-          "name": "Deathless",
-          "desc": "Take 15% less damage",
-          "effects": {
-            "dmg_taken": 0.85
-          }
-        }
-      ]
+     "id": "combat_01",
+     "tier": 1,
+     "req_points": 1,
+     "req_level": 1,
+     "name": "Power Strikes",
+     "desc": "+4 Attack",
+     "effects": {
+      "atk": 4.0
+     },
+     "core": true
     },
     {
-      "id": "magic",
-      "name": "Magic",
-      "desc": "The Ember answers those who listen.",
-      "nodes": [
-        {
-          "id": "magic_01",
-          "tier": 1,
-          "req_points": 1,
-          "req_level": 1,
-          "name": "Arcane Focus",
-          "desc": "+20 Max MP",
-          "effects": {
-            "mp": 20.0
-          },
-          "core": true
-        },
-        {
-          "id": "magic_02",
-          "tier": 1,
-          "req_points": 2,
-          "req_level": 1,
-          "name": "Clarity",
-          "desc": "Regenerate 0.6 MP/s",
-          "effects": {
-            "mp_regen": 0.6
-          },
-          "core": true
-        },
-        {
-          "id": "magic_03",
-          "tier": 1,
-          "req_points": 3,
-          "req_level": 1,
-          "name": "Potent Brews",
-          "desc": "Potions 35% stronger",
-          "effects": {
-            "potion": 1.35
-          },
-          "core": true
-        },
-        {
-          "id": "magic_04",
-          "tier": 1,
-          "req_points": 4,
-          "req_level": 5,
-          "name": "Kindled Bolt",
-          "desc": "Firebolt damage +15%",
-          "effects": {
-            "bolt": 1.15
-          }
-        },
-        {
-          "id": "magic_05",
-          "tier": 1,
-          "req_points": 5,
-          "req_level": 5,
-          "name": "Mana Well",
-          "desc": "+25 Max MP",
-          "effects": {
-            "mp": 25.0
-          }
-        },
-        {
-          "id": "magic_06",
-          "tier": 2,
-          "req_points": 6,
-          "req_level": 25,
-          "name": "Focused Mind",
-          "desc": "Regenerate 0.5 MP/s",
-          "effects": {
-            "mp_regen": 0.5
-          }
-        },
-        {
-          "id": "magic_07",
-          "tier": 2,
-          "req_points": 7,
-          "req_level": 25,
-          "name": "Frostward",
-          "desc": "Take 8% less damage",
-          "effects": {
-            "dmg_taken": 0.92
-          }
-        },
-        {
-          "id": "magic_08",
-          "tier": 2,
-          "req_points": 8,
-          "req_level": 25,
-          "name": "Emberstorm",
-          "desc": "Whirlwind damage +20%",
-          "effects": {
-            "whirl": 1.2
-          }
-        },
-        {
-          "id": "magic_09",
-          "tier": 2,
-          "req_points": 9,
-          "req_level": 25,
-          "name": "Efficient Casting",
-          "desc": "Ability MP costs -15%",
-          "effects": {
-            "mp_cost": 0.85
-          }
-        },
-        {
-          "id": "magic_10",
-          "tier": 2,
-          "req_points": 10,
-          "req_level": 25,
-          "name": "Spellblade",
-          "desc": "+6 Attack",
-          "effects": {
-            "atk": 6.0
-          }
-        },
-        {
-          "id": "magic_11",
-          "tier": 3,
-          "req_points": 11,
-          "req_level": 50,
-          "name": "Arcane Reservoir",
-          "desc": "+45 Max MP",
-          "effects": {
-            "mp": 45.0
-          }
-        },
-        {
-          "id": "magic_12",
-          "tier": 3,
-          "req_points": 12,
-          "req_level": 50,
-          "name": "Kindled Fury",
-          "desc": "Firebolt damage +25%",
-          "effects": {
-            "bolt": 1.25
-          }
-        },
-        {
-          "id": "magic_13",
-          "tier": 3,
-          "req_points": 13,
-          "req_level": 50,
-          "name": "Ashen Ward",
-          "desc": "Take 10% less damage",
-          "effects": {
-            "dmg_taken": 0.9
-          }
-        },
-        {
-          "id": "magic_14",
-          "tier": 3,
-          "req_points": 14,
-          "req_level": 50,
-          "name": "Deep Draught",
-          "desc": "Potions 25% stronger",
-          "effects": {
-            "potion": 1.25
-          }
-        },
-        {
-          "id": "magic_15",
-          "tier": 3,
-          "req_points": 15,
-          "req_level": 50,
-          "name": "Wellspring",
-          "desc": "Regenerate 0.8 MP/s",
-          "effects": {
-            "mp_regen": 0.8
-          }
-        },
-        {
-          "id": "magic_16",
-          "tier": 4,
-          "req_points": 16,
-          "req_level": 75,
-          "name": "Vessel's Spark",
-          "desc": "Firebolt damage +35%",
-          "effects": {
-            "bolt": 1.35
-          }
-        },
-        {
-          "id": "magic_17",
-          "tier": 4,
-          "req_points": 17,
-          "req_level": 75,
-          "name": "Pyre",
-          "desc": "Whirlwind damage +30%",
-          "effects": {
-            "whirl": 1.3
-          }
-        },
-        {
-          "id": "magic_18",
-          "tier": 4,
-          "req_points": 18,
-          "req_level": 75,
-          "name": "Mana Font",
-          "desc": "+70 Max MP",
-          "effects": {
-            "mp": 70.0
-          }
-        },
-        {
-          "id": "magic_19",
-          "tier": 4,
-          "req_points": 19,
-          "req_level": 75,
-          "name": "Choir's Bane",
-          "desc": "+10 Attack",
-          "effects": {
-            "atk": 10.0
-          }
-        },
-        {
-          "id": "magic_20",
-          "tier": 4,
-          "req_points": 20,
-          "req_level": 75,
-          "name": "Ember Ward",
-          "desc": "Take 15% less damage",
-          "effects": {
-            "dmg_taken": 0.85
-          }
-        }
-      ]
+     "id": "combat_02",
+     "tier": 1,
+     "req_points": 2,
+     "req_level": 1,
+     "name": "Iron Skin",
+     "desc": "+4 Defense, +15 Max HP",
+     "effects": {
+      "def": 4.0,
+      "hp": 15.0
+     },
+     "core": true
     },
     {
-      "id": "utility",
-      "name": "Utility",
-      "desc": "The road rewards the prepared.",
-      "nodes": [
-        {
-          "id": "utility_01",
-          "tier": 1,
-          "req_points": 1,
-          "req_level": 1,
-          "name": "Fleet Foot",
-          "desc": "+22 Move Speed",
-          "effects": {
-            "speed": 22.0
-          },
-          "core": true
-        },
-        {
-          "id": "utility_02",
-          "tier": 1,
-          "req_points": 2,
-          "req_level": 1,
-          "name": "Fortune",
-          "desc": "+20% gold from all sources",
-          "effects": {
-            "gold": 1.2
-          },
-          "core": true
-        },
-        {
-          "id": "utility_03",
-          "tier": 1,
-          "req_points": 3,
-          "req_level": 1,
-          "name": "Shadow Step",
-          "desc": "Dodge i-frames +0.08s",
-          "effects": {
-            "dodge": 0.08
-          },
-          "core": true
-        },
-        {
-          "id": "utility_04",
-          "tier": 1,
-          "req_points": 4,
-          "req_level": 5,
-          "name": "Longstrider",
-          "desc": "+16 Move Speed",
-          "effects": {
-            "speed": 16.0
-          }
-        },
-        {
-          "id": "utility_05",
-          "tier": 1,
-          "req_points": 5,
-          "req_level": 5,
-          "name": "Field Medic",
-          "desc": "Potions 20% stronger",
-          "effects": {
-            "potion": 1.2
-          }
-        },
-        {
-          "id": "utility_06",
-          "tier": 2,
-          "req_points": 6,
-          "req_level": 25,
-          "name": "Scavenger",
-          "desc": "+15% gold from all sources",
-          "effects": {
-            "gold": 1.15
-          }
-        },
-        {
-          "id": "utility_07",
-          "tier": 2,
-          "req_points": 7,
-          "req_level": 25,
-          "name": "Quickstep",
-          "desc": "Attack cooldown -10%",
-          "effects": {
-            "atk_cd": 0.9
-          }
-        },
-        {
-          "id": "utility_08",
-          "tier": 2,
-          "req_points": 8,
-          "req_level": 25,
-          "name": "Trailwise",
-          "desc": "+10% XP from all sources",
-          "effects": {
-            "xp": 1.1
-          }
-        },
-        {
-          "id": "utility_09",
-          "tier": 2,
-          "req_points": 9,
-          "req_level": 25,
-          "name": "Light Fingers",
-          "desc": "Dodge i-frames +0.05s",
-          "effects": {
-            "dodge": 0.05
-          }
-        },
-        {
-          "id": "utility_10",
-          "tier": 2,
-          "req_points": 10,
-          "req_level": 25,
-          "name": "Pack Mule",
-          "desc": "+30 Max HP",
-          "effects": {
-            "hp": 30.0
-          }
-        },
-        {
-          "id": "utility_11",
-          "tier": 3,
-          "req_points": 11,
-          "req_level": 50,
-          "name": "Windrunner",
-          "desc": "+24 Move Speed",
-          "effects": {
-            "speed": 24.0
-          }
-        },
-        {
-          "id": "utility_12",
-          "tier": 3,
-          "req_points": 12,
-          "req_level": 50,
-          "name": "Gilded Hand",
-          "desc": "+25% gold from all sources",
-          "effects": {
-            "gold": 1.25
-          }
-        },
-        {
-          "id": "utility_13",
-          "tier": 3,
-          "req_points": 13,
-          "req_level": 50,
-          "name": "Survivor",
-          "desc": "+15% XP from all sources",
-          "effects": {
-            "xp": 1.15
-          }
-        },
-        {
-          "id": "utility_14",
-          "tier": 3,
-          "req_points": 14,
-          "req_level": 50,
-          "name": "Ghost Walk",
-          "desc": "Dodge i-frames +0.06s",
-          "effects": {
-            "dodge": 0.06
-          }
-        },
-        {
-          "id": "utility_15",
-          "tier": 3,
-          "req_points": 15,
-          "req_level": 50,
-          "name": "Alchemist",
-          "desc": "Potions 25% stronger",
-          "effects": {
-            "potion": 1.25
-          }
-        },
-        {
-          "id": "utility_16",
-          "tier": 4,
-          "req_points": 16,
-          "req_level": 75,
-          "name": "Horizon Walker",
-          "desc": "+30 Move Speed",
-          "effects": {
-            "speed": 30.0
-          }
-        },
-        {
-          "id": "utility_17",
-          "tier": 4,
-          "req_points": 17,
-          "req_level": 75,
-          "name": "Master Trader",
-          "desc": "+30% gold from all sources",
-          "effects": {
-            "gold": 1.3
-          }
-        },
-        {
-          "id": "utility_18",
-          "tier": 4,
-          "req_points": 18,
-          "req_level": 75,
-          "name": "Veteran",
-          "desc": "+20% XP from all sources",
-          "effects": {
-            "xp": 1.2
-          }
-        },
-        {
-          "id": "utility_19",
-          "tier": 4,
-          "req_points": 19,
-          "req_level": 75,
-          "name": "Untouchable",
-          "desc": "Dodge i-frames +0.08s",
-          "effects": {
-            "dodge": 0.08
-          }
-        },
-        {
-          "id": "utility_20",
-          "tier": 4,
-          "req_points": 20,
-          "req_level": 75,
-          "name": "Wanderer's Luck",
-          "desc": "+20% gold, +10% XP",
-          "effects": {
-            "gold": 1.2,
-            "xp": 1.1
-          }
-        }
-      ]
+     "id": "combat_03",
+     "tier": 1,
+     "req_points": 3,
+     "req_level": 1,
+     "name": "Swift Strikes",
+     "desc": "Attack cooldown -20%",
+     "effects": {
+      "atk_cd": 0.8
+     },
+     "core": true
+    },
+    {
+     "id": "combat_04",
+     "tier": 1,
+     "req_points": 4,
+     "req_level": 5,
+     "name": "Bulwark",
+     "desc": "+18 Max HP",
+     "effects": {
+      "hp": 18.0
+     }
+    },
+    {
+     "id": "combat_05",
+     "tier": 1,
+     "req_points": 5,
+     "req_level": 5,
+     "name": "Cleave",
+     "desc": "+3 Attack",
+     "effects": {
+      "atk": 3.0
+     }
+    },
+    {
+     "id": "combat_06",
+     "tier": 2,
+     "req_points": 6,
+     "req_level": 25,
+     "name": "Deep Cuts",
+     "desc": "+6 Attack",
+     "effects": {
+      "atk": 6.0
+     }
+    },
+    {
+     "id": "combat_07",
+     "tier": 2,
+     "req_points": 7,
+     "req_level": 25,
+     "name": "Plated Mail",
+     "desc": "+7 Defense",
+     "effects": {
+      "def": 7.0
+     }
+    },
+    {
+     "id": "combat_08",
+     "tier": 2,
+     "req_points": 8,
+     "req_level": 25,
+     "name": "Second Wind",
+     "desc": "+40 Max HP",
+     "effects": {
+      "hp": 40.0
+     }
+    },
+    {
+     "id": "combat_09",
+     "tier": 2,
+     "req_points": 9,
+     "req_level": 25,
+     "name": "Momentum",
+     "desc": "Attack cooldown -10%",
+     "effects": {
+      "atk_cd": 0.9
+     }
+    },
+    {
+     "id": "combat_10",
+     "tier": 2,
+     "req_points": 10,
+     "req_level": 25,
+     "name": "Bloodletter",
+     "desc": "Heal 4% of melee damage dealt",
+     "effects": {
+      "lifesteal": 0.04
+     }
+    },
+    {
+     "id": "combat_11",
+     "tier": 3,
+     "req_points": 11,
+     "req_level": 50,
+     "name": "Warden's Fury",
+     "desc": "+9 Attack",
+     "effects": {
+      "atk": 9.0
+     }
+    },
+    {
+     "id": "combat_12",
+     "tier": 3,
+     "req_points": 12,
+     "req_level": 50,
+     "name": "Unyielding",
+     "desc": "Take 10% less damage",
+     "effects": {
+      "dmg_taken": 0.9
+     }
+    },
+    {
+     "id": "combat_13",
+     "tier": 3,
+     "req_points": 13,
+     "req_level": 50,
+     "name": "Thick Hide",
+     "desc": "+60 Max HP",
+     "effects": {
+      "hp": 60.0
+     }
+    },
+    {
+     "id": "combat_14",
+     "tier": 3,
+     "req_points": 14,
+     "req_level": 50,
+     "name": "Relentless",
+     "desc": "Attack cooldown -10%",
+     "effects": {
+      "atk_cd": 0.9
+     }
+    },
+    {
+     "id": "combat_15",
+     "tier": 3,
+     "req_points": 15,
+     "req_level": 50,
+     "name": "Sanguine Edge",
+     "desc": "Heal 5% of melee damage dealt",
+     "effects": {
+      "lifesteal": 0.05
+     }
+    },
+    {
+     "id": "combat_16",
+     "tier": 4,
+     "req_points": 16,
+     "req_level": 75,
+     "name": "Choir-Breaker",
+     "desc": "+12 Attack. Your chain finisher sets what it hits alight: 4 s of burning.",
+     "effects": {
+      "atk": 12.0
+     },
+     "behaviour": "finisher_ignites"
+    },
+    {
+     "id": "combat_17",
+     "tier": 4,
+     "req_points": 17,
+     "req_level": 75,
+     "name": "Adamant",
+     "desc": "+12 Defense",
+     "effects": {
+      "def": 12.0
+     }
+    },
+    {
+     "id": "combat_18",
+     "tier": 4,
+     "req_points": 18,
+     "req_level": 75,
+     "name": "Emberheart",
+     "desc": "+90 Max HP",
+     "effects": {
+      "hp": 90.0
+     }
+    },
+    {
+     "id": "combat_19",
+     "tier": 4,
+     "req_points": 19,
+     "req_level": 75,
+     "name": "Blade Storm",
+     "desc": "Whirlwind damage +25%",
+     "effects": {
+      "whirl": 1.25
+     }
+    },
+    {
+     "id": "combat_20",
+     "tier": 4,
+     "req_points": 20,
+     "req_level": 75,
+     "name": "Deathless",
+     "desc": "Take 15% less damage",
+     "effects": {
+      "dmg_taken": 0.85
+     }
     }
-  ],
-  "effect_keys": {
-    "additive": [
-      "atk",
-      "def",
-      "hp",
-      "mp",
-      "speed",
-      "mp_regen",
-      "dodge",
-      "lifesteal"
-    ],
-    "multiplier": [
-      "atk_cd",
-      "potion",
-      "gold",
-      "xp",
-      "dmg_taken",
-      "whirl",
-      "bolt",
-      "mp_cost"
-    ]
+   ]
+  },
+  {
+   "id": "magic",
+   "name": "Magic",
+   "desc": "The Ember answers those who listen.",
+   "nodes": [
+    {
+     "id": "magic_01",
+     "tier": 1,
+     "req_points": 1,
+     "req_level": 1,
+     "name": "Arcane Focus",
+     "desc": "+20 Max MP",
+     "effects": {
+      "mp": 20.0
+     },
+     "core": true
+    },
+    {
+     "id": "magic_02",
+     "tier": 1,
+     "req_points": 2,
+     "req_level": 1,
+     "name": "Clarity",
+     "desc": "Regenerate 0.6 MP/s",
+     "effects": {
+      "mp_regen": 0.6
+     },
+     "core": true
+    },
+    {
+     "id": "magic_03",
+     "tier": 1,
+     "req_points": 3,
+     "req_level": 1,
+     "name": "Potent Brews",
+     "desc": "Potions 35% stronger",
+     "effects": {
+      "potion": 1.35
+     },
+     "core": true
+    },
+    {
+     "id": "magic_04",
+     "tier": 1,
+     "req_points": 4,
+     "req_level": 5,
+     "name": "Kindled Bolt",
+     "desc": "Firebolt damage +15%",
+     "effects": {
+      "bolt": 1.15
+     }
+    },
+    {
+     "id": "magic_05",
+     "tier": 1,
+     "req_points": 5,
+     "req_level": 5,
+     "name": "Mana Well",
+     "desc": "+25 Max MP",
+     "effects": {
+      "mp": 25.0
+     }
+    },
+    {
+     "id": "magic_06",
+     "tier": 2,
+     "req_points": 6,
+     "req_level": 25,
+     "name": "Focused Mind",
+     "desc": "Regenerate 0.5 MP/s",
+     "effects": {
+      "mp_regen": 0.5
+     }
+    },
+    {
+     "id": "magic_07",
+     "tier": 2,
+     "req_points": 7,
+     "req_level": 25,
+     "name": "Frostward",
+     "desc": "Take 8% less damage",
+     "effects": {
+      "dmg_taken": 0.92
+     }
+    },
+    {
+     "id": "magic_08",
+     "tier": 2,
+     "req_points": 8,
+     "req_level": 25,
+     "name": "Emberstorm",
+     "desc": "Whirlwind damage +20%",
+     "effects": {
+      "whirl": 1.2
+     }
+    },
+    {
+     "id": "magic_09",
+     "tier": 2,
+     "req_points": 9,
+     "req_level": 25,
+     "name": "Efficient Casting",
+     "desc": "Ability MP costs -15%",
+     "effects": {
+      "mp_cost": 0.85
+     }
+    },
+    {
+     "id": "magic_10",
+     "tier": 2,
+     "req_points": 10,
+     "req_level": 25,
+     "name": "Spellblade",
+     "desc": "+6 Attack",
+     "effects": {
+      "atk": 6.0
+     }
+    },
+    {
+     "id": "magic_11",
+     "tier": 3,
+     "req_points": 11,
+     "req_level": 50,
+     "name": "Arcane Reservoir",
+     "desc": "+45 Max MP",
+     "effects": {
+      "mp": 45.0
+     }
+    },
+    {
+     "id": "magic_12",
+     "tier": 3,
+     "req_points": 12,
+     "req_level": 50,
+     "name": "Kindled Fury",
+     "desc": "Firebolt damage +25%",
+     "effects": {
+      "bolt": 1.25
+     }
+    },
+    {
+     "id": "magic_13",
+     "tier": 3,
+     "req_points": 13,
+     "req_level": 50,
+     "name": "Ashen Ward",
+     "desc": "Take 10% less damage",
+     "effects": {
+      "dmg_taken": 0.9
+     }
+    },
+    {
+     "id": "magic_14",
+     "tier": 3,
+     "req_points": 14,
+     "req_level": 50,
+     "name": "Deep Draught",
+     "desc": "Potions 25% stronger",
+     "effects": {
+      "potion": 1.25
+     }
+    },
+    {
+     "id": "magic_15",
+     "tier": 3,
+     "req_points": 15,
+     "req_level": 50,
+     "name": "Wellspring",
+     "desc": "Regenerate 0.8 MP/s",
+     "effects": {
+      "mp_regen": 0.8
+     }
+    },
+    {
+     "id": "magic_16",
+     "tier": 4,
+     "req_points": 16,
+     "req_level": 75,
+     "name": "Vessel's Spark",
+     "desc": "Firebolt damage +35%",
+     "effects": {
+      "bolt": 1.35
+     }
+    },
+    {
+     "id": "magic_17",
+     "tier": 4,
+     "req_points": 17,
+     "req_level": 75,
+     "name": "Pyre",
+     "desc": "Whirlwind burns 30% hotter and hurls everything it touches away.",
+     "effects": {
+      "whirl": 1.3
+     },
+     "behaviour": "whirl_knockback"
+    },
+    {
+     "id": "magic_18",
+     "tier": 4,
+     "req_points": 18,
+     "req_level": 75,
+     "name": "Mana Font",
+     "desc": "+70 Max MP",
+     "effects": {
+      "mp": 70.0
+     }
+    },
+    {
+     "id": "magic_19",
+     "tier": 4,
+     "req_points": 19,
+     "req_level": 75,
+     "name": "Choir's Bane",
+     "desc": "+10 Attack",
+     "effects": {
+      "atk": 10.0
+     }
+    },
+    {
+     "id": "magic_20",
+     "tier": 4,
+     "req_points": 20,
+     "req_level": 75,
+     "name": "Ember Ward",
+     "desc": "Take 15% less damage",
+     "effects": {
+      "dmg_taken": 0.85
+     }
+    }
+   ]
+  },
+  {
+   "id": "utility",
+   "name": "Utility",
+   "desc": "The road rewards the prepared.",
+   "nodes": [
+    {
+     "id": "utility_01",
+     "tier": 1,
+     "req_points": 1,
+     "req_level": 1,
+     "name": "Fleet Foot",
+     "desc": "+22 Move Speed",
+     "effects": {
+      "speed": 22.0
+     },
+     "core": true
+    },
+    {
+     "id": "utility_02",
+     "tier": 1,
+     "req_points": 2,
+     "req_level": 1,
+     "name": "Fortune",
+     "desc": "+20% gold from all sources",
+     "effects": {
+      "gold": 1.2
+     },
+     "core": true
+    },
+    {
+     "id": "utility_03",
+     "tier": 1,
+     "req_points": 3,
+     "req_level": 1,
+     "name": "Shadow Step",
+     "desc": "Dodge i-frames +0.08s",
+     "effects": {
+      "dodge": 0.08
+     },
+     "core": true
+    },
+    {
+     "id": "utility_04",
+     "tier": 1,
+     "req_points": 4,
+     "req_level": 5,
+     "name": "Longstrider",
+     "desc": "+16 Move Speed",
+     "effects": {
+      "speed": 16.0
+     }
+    },
+    {
+     "id": "utility_05",
+     "tier": 1,
+     "req_points": 5,
+     "req_level": 5,
+     "name": "Field Medic",
+     "desc": "Potions 20% stronger",
+     "effects": {
+      "potion": 1.2
+     }
+    },
+    {
+     "id": "utility_06",
+     "tier": 2,
+     "req_points": 6,
+     "req_level": 25,
+     "name": "Scavenger",
+     "desc": "+15% gold from all sources",
+     "effects": {
+      "gold": 1.15
+     }
+    },
+    {
+     "id": "utility_07",
+     "tier": 2,
+     "req_points": 7,
+     "req_level": 25,
+     "name": "Quickstep",
+     "desc": "Attack cooldown -10%",
+     "effects": {
+      "atk_cd": 0.9
+     }
+    },
+    {
+     "id": "utility_08",
+     "tier": 2,
+     "req_points": 8,
+     "req_level": 25,
+     "name": "Trailwise",
+     "desc": "+10% XP from all sources",
+     "effects": {
+      "xp": 1.1
+     }
+    },
+    {
+     "id": "utility_09",
+     "tier": 2,
+     "req_points": 9,
+     "req_level": 25,
+     "name": "Light Fingers",
+     "desc": "Dodge i-frames +0.05s",
+     "effects": {
+      "dodge": 0.05
+     }
+    },
+    {
+     "id": "utility_10",
+     "tier": 2,
+     "req_points": 10,
+     "req_level": 25,
+     "name": "Pack Mule",
+     "desc": "+30 Max HP",
+     "effects": {
+      "hp": 30.0
+     }
+    },
+    {
+     "id": "utility_11",
+     "tier": 3,
+     "req_points": 11,
+     "req_level": 50,
+     "name": "Windrunner",
+     "desc": "+24 Move Speed",
+     "effects": {
+      "speed": 24.0
+     }
+    },
+    {
+     "id": "utility_12",
+     "tier": 3,
+     "req_points": 12,
+     "req_level": 50,
+     "name": "Gilded Hand",
+     "desc": "+25% gold from all sources",
+     "effects": {
+      "gold": 1.25
+     }
+    },
+    {
+     "id": "utility_13",
+     "tier": 3,
+     "req_points": 13,
+     "req_level": 50,
+     "name": "Survivor",
+     "desc": "+15% XP from all sources",
+     "effects": {
+      "xp": 1.15
+     }
+    },
+    {
+     "id": "utility_14",
+     "tier": 3,
+     "req_points": 14,
+     "req_level": 50,
+     "name": "Ghost Walk",
+     "desc": "Dodge i-frames +0.06s",
+     "effects": {
+      "dodge": 0.06
+     }
+    },
+    {
+     "id": "utility_15",
+     "tier": 3,
+     "req_points": 15,
+     "req_level": 50,
+     "name": "Alchemist",
+     "desc": "Potions 25% stronger",
+     "effects": {
+      "potion": 1.25
+     }
+    },
+    {
+     "id": "utility_16",
+     "tier": 4,
+     "req_points": 16,
+     "req_level": 75,
+     "name": "Horizon Walker",
+     "desc": "+30 Move Speed",
+     "effects": {
+      "speed": 30.0
+     }
+    },
+    {
+     "id": "utility_17",
+     "tier": 4,
+     "req_points": 17,
+     "req_level": 75,
+     "name": "Master Trader",
+     "desc": "+30% gold from all sources",
+     "effects": {
+      "gold": 1.3
+     }
+    },
+    {
+     "id": "utility_18",
+     "tier": 4,
+     "req_points": 18,
+     "req_level": 75,
+     "name": "Veteran",
+     "desc": "+20% XP from all sources",
+     "effects": {
+      "xp": 1.2
+     }
+    },
+    {
+     "id": "utility_19",
+     "tier": 4,
+     "req_points": 19,
+     "req_level": 75,
+     "name": "Untouchable",
+     "desc": "+8% dodge. A dodge throws up ember dust and a 1.2 s surge of speed.",
+     "effects": {
+      "dodge": 0.08
+     },
+     "behaviour": "dodge_dust"
+    },
+    {
+     "id": "utility_20",
+     "tier": 4,
+     "req_points": 20,
+     "req_level": 75,
+     "name": "Wanderer's Luck",
+     "desc": "+20% gold, +10% XP",
+     "effects": {
+      "gold": 1.2,
+      "xp": 1.1
+     }
+    }
+   ]
   }
+ ],
+ "effect_keys": {
+  "additive": [
+   "atk",
+   "def",
+   "hp",
+   "mp",
+   "speed",
+   "mp_regen",
+   "dodge",
+   "lifesteal"
+  ],
+  "multiplier": [
+   "atk_cd",
+   "potion",
+   "gold",
+   "xp",
+   "dmg_taken",
+   "whirl",
+   "bolt",
+   "mp_cost"
+  ]
+ },
+ "behaviour_keys": {
+  "finisher_ignites": "the third chain hit applies a burn",
+  "whirl_knockback": "whirlwind pushes enemies away",
+  "dodge_dust": "a dodge grants a short speed surge"
+ }
 }

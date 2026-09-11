@@ -269,6 +269,10 @@ func _node_row(bid: String, node: Dictionary, branch_points: int) -> Control:
 
 	var dsc := Label.new()
 	dsc.text = String(node.get("desc", ""))
+	if String(node.get("behaviour", "")) != "":
+		# Engine-key nodes change behaviour rather than a number; mark them so the
+		# choice reads as different in kind, not just different in size.
+		dsc.text = "◆ " + dsc.text
 	dsc.add_theme_font_size_override("font_size", 14)
 	dsc.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
 	dsc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
