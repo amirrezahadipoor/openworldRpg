@@ -16,8 +16,16 @@ signal npc_interacted(npc: NPC)
 const NPC_SCENE := "res://scenes/world/npc.tscn"
 const PROPS_PATH := "res://assets/tiles/props/"
 const DATA_PATH := "res://data/settlements.json"
+const FACADES_PATH := "res://data/facades.json"
+## How much of the ring each house may take up before it is shrunk to fit, and
+## how far below its anchor a house's ground line sits (the art is drawn from its
+## footprint up, so the baseline hangs below the placement point, as the old
+## polygon houses did).
+const HOUSE_ARC_FILL := 1.5
+const HOUSE_BASELINE := 24.0
 
 static var _cache: Dictionary = {}
+static var _facades: Dictionary = {}
 
 var settlement_id := ""
 var data: Dictionary = {}
@@ -51,6 +59,27 @@ static func all() -> Dictionary:
 		return {}
 	_cache = doc.get("settlements", {})
 	return _cache
+
+
+static func facades() -> Dictionary:
+	## H6.1: biome -> {sheet, houses[]} from data/facades.json, written by
+	## tools/make_facade_sheets.py. Empty until a family has art; a biome with no
+	## entry keeps the procedural houses, so this is additive.
+	if not _facades.is_empty():
+		return _facades
+	var f := FileAccess.open(FACADES_PATH, FileAccess.READ)
+	if f == null:
+		return {}
+	var parsed: Variant = JSON.parse_string(f.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
+	_facades = (parsed as Dictionary).get("families", {})
+	return _facades
+
+
+static func facade_for(biome: String) -> Dictionary:
+	var entry: Variant = facades().get(biome, {})
+	return entry as Dictionary if typeof(entry) == TYPE_DICTIONARY else {}
 
 
 static func get_data(id: String) -> Dictionary:
@@ -129,10 +158,24 @@ func _build() -> void:
 
 	_build_plaza(radius, ground)
 	var count := int(data.get("buildings", 6))
+	# Facade art is a fixed size, so a crowded ring would overlap: shrink the
+	# houses until the ring can hold them (a city has smaller houses than a
+	# village, which is also how real towns look from above).
+	var spacing := TAU * radius * 0.86 / float(maxi(count, 1))
+	var house_scale := 1.0
+	var family := facade_for(String(data.get("biome", "")))
+	if not (family.get("houses", []) as Array).is_empty():
+		var widest := 0.0
+		for h in (family.get("houses", []) as Array):
+			widest = maxf(widest, float((h.get("region", [0, 0, 0, 0]) as Array)[2]))
+		house_scale = clampf(spacing * HOUSE_ARC_FILL / maxf(widest * 1.6, 1.0), 0.55, 1.0)
 	for i in count:
 		var a := TAU * float(i) / float(count) + rng.randf_range(-0.12, 0.12)
 		var r := radius * rng.randf_range(0.72, 1.0)
-		_build_house(Vector2(cos(a), sin(a)) * r, roof, rng, i)
+		if family.is_empty():
+			_build_house(Vector2(cos(a), sin(a)) * r, roof, rng, i)
+		else:
+			_build_facade_house(Vector2(cos(a), sin(a)) * r, family, rng, i, house_scale)
 	_build_sign(radius)
 	if (data.get("services", []) as Array).has("waypoint"):
 		_build_waypoint(radius)
@@ -190,7 +233,55 @@ func _build_plaza(radius: float, ground: Color) -> void:
 	add_child(pave)
 
 
+func _build_facade_house(pos: Vector2, family: Dictionary, rng: RandomNumberGenerator,
+		index: int, house_scale: float) -> void:
+	## H6.1: a whole building drawn on the 32 px grid, instead of a wall quad and
+	## two roof slopes. The atlas holds several designs per biome family and the
+	## sprite is mirrored per house, so a village of six does not repeat itself.
+	var houses: Array = family.get("houses", [])
+	if houses.is_empty():
+		return
+	var tex_path := String(family.get("sheet", ""))
+	var tex: Texture2D = load(tex_path) if ResourceLoader.exists(tex_path) else null
+	if tex == null:
+		return
+	var pick: Dictionary = houses[rng.randi_range(0, houses.size() - 1)]
+	var region: Array = pick.get("region", [0, 0, 0, 0])
+	var house := Node2D.new()
+	house.position = pos
+	var body := Sprite2D.new()
+	body.texture = tex
+	body.region_enabled = true
+	body.region_rect = Rect2(float(region[0]), float(region[1]), float(region[2]), float(region[3]))
+	body.flip_h = rng.randf() < 0.5
+	body.scale = Vector2.ONE * house_scale
+	# Sprites are centred on their own centre, so lifting the sprite by half its
+	# height lands the art's bottom row (its ground line) on HOUSE_BASELINE.
+	body.position = Vector2(0, HOUSE_BASELINE - float(region[3]) * 0.5 * house_scale)
+	house.add_child(body)
+	var shadow := Polygon2D.new()
+	shadow.polygon = PackedVector2Array([
+		Vector2(-float(region[2]) * 0.45 * house_scale, HOUSE_BASELINE - 6.0),
+		Vector2(float(region[2]) * 0.45 * house_scale, HOUSE_BASELINE - 6.0),
+		Vector2(float(region[2]) * 0.36 * house_scale, HOUSE_BASELINE + 12.0),
+		Vector2(-float(region[2]) * 0.36 * house_scale, HOUSE_BASELINE + 12.0),
+	])
+	shadow.color = Color(0.0, 0.0, 0.0, 0.22)
+	shadow.z_index = -1
+	house.add_child(shadow)
+	if index % 3 == 0:
+		var lamp := _make_light(Color(1.0, 0.78, 0.44), 0.9, 1.5)
+		lamp.position = Vector2(0, HOUSE_BASELINE - float(region[3]) * 0.4 * house_scale)
+		house.add_child(lamp)
+		_lanterns.append(lamp)
+	house.z_index = -5
+	add_child(house)
+
+
 func _build_house(pos: Vector2, roof: Color, rng: RandomNumberGenerator, index: int) -> void:
+	## The original procedural house. Kept as the fallback for any biome without
+	## facade art (a camp, a new settlement, a build before the art lands) — the
+	## menu of a game in progress should not blank a town out.
 	var house := Node2D.new()
 	house.position = pos
 	var w := rng.randf_range(34.0, 48.0)

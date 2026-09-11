@@ -29,6 +29,7 @@ func _ready() -> void:
 	await _test_dungeon_vaults()
 	_test_overworld_spawners()
 	_test_safe_zones()
+	_test_facade_art()
 	_ensure_probe()
 	await _test_npc_seats()
 	_report()
@@ -134,6 +135,10 @@ func _test_settlement_builds() -> void:
 	var lights := 0
 	var waypoints := 0
 	var signs := 0
+	var facade_houses := 0
+	var polygon_houses := 0
+	var off_grid := []
+	var off_ground := []
 	for id in Settlement.all():
 		var s := Settlement.new()
 		host.add_child(s)
@@ -148,11 +153,31 @@ func _test_settlement_builds() -> void:
 				waypoints += 1
 			elif child is Sign:
 				signs += 1
+			elif child is Node2D and child.get_child_count() > 0 and child.get_child(0) is Sprite2D:
+				# H6.1: a house drawn from the 32 px facade atlas.
+				facade_houses += 1
+				var body := child.get_child(0) as Sprite2D
+				var w := body.region_rect.size.x * body.scale.x
+				var h := body.region_rect.size.y * body.scale.y
+				if w < 48.0 or w > 200.0 or h < 48.0 or h > 160.0:
+					off_grid.append("%s %.0fx%.0f" % [id, w, h])
+				# Ground line: the art's bottom row has to land on the anchor.
+				if absf(body.position.y + h * 0.5 - Settlement.HOUSE_BASELINE) > 1.0:
+					off_ground.append(String(id))
+			elif child is Node2D and child.get_child_count() >= 4:
+				polygon_houses += 1
 	check(built == 9, "all nine settlements instantiate")
 	check(npc_total >= 17, "settlements place their NPCs (%d)" % npc_total)
 	check(lights > 0, "settlements are lit (%d lights)" % lights)
 	check(waypoints == 9, "one waypoint per settlement (%d)" % waypoints)
 	check(signs == 9, "one name sign per settlement (%d)" % signs)
+	check(facade_houses + polygon_houses == 96,
+		"every settlement builds its houses (%d facade + %d polygon)"
+		% [facade_houses, polygon_houses])
+	check(Settlement.facades().is_empty() or facade_houses == 96,
+		"houses use facade art wherever a biome family exists (%d/96)" % facade_houses)
+	check(off_grid.is_empty(), "facade houses are house-sized (%s)" % str(off_grid))
+	check(off_ground.is_empty(), "facade houses sit on the ground (%s)" % str(off_ground))
 
 	# Buildings must differ per settlement (not one recoloured chunk).
 	var shapes := {}
@@ -161,6 +186,51 @@ func _test_settlement_builds() -> void:
 			shapes[(s as Settlement).settlement_id] = s.get_child_count()
 	check(shapes.size() == 9, "nine distinct settlement scenes")
 	host.queue_free()
+
+
+func _test_facade_art() -> void:
+	## H6.1: the facade atlases the settlements draw from. Until the art lands the
+	## biome map is empty and the procedural houses stand (checked above), so this
+	## only has to be strict about the families that do exist.
+	print("[world_map_test] facade art (H6.1)")
+	var families := Settlement.facades()
+	var problems := []
+	var houses := 0
+	for biome in families:
+		var entry: Dictionary = families[biome]
+		var tex_path := String(entry.get("sheet", ""))
+		if not ResourceLoader.exists(tex_path):
+			problems.append("%s: atlas %s is missing" % [biome, tex_path])
+			continue
+		var tex: Texture2D = load(tex_path)
+		var list: Array = entry.get("houses", [])
+		houses += list.size()
+		if list.size() < 3:
+			problems.append("%s: only %d buildings in the family" % [biome, list.size()])
+		for i in list.size():
+			var h: Dictionary = list[i]
+			var r: Array = h.get("region", [])
+			if r.size() != 4 or int(r[2]) % 32 != 0 or int(r[3]) % 32 != 0:
+				problems.append("%s/%d: region %s is off the 32 px grid" % [biome, i, str(r)])
+				continue
+			if float(r[0]) + float(r[2]) > float(tex.get_width()) \
+					or float(r[1]) + float(r[3]) > float(tex.get_height()):
+				problems.append("%s/%d: region %s leaves the atlas" % [biome, i, str(r)])
+			# JSON numbers come back as floats, so compare numerically.
+			var tiles: Array = h.get("tiles", [])
+			if tiles.size() != 2 or int(tiles[0]) != int(r[2]) / 32 or int(tiles[1]) != int(r[3]) / 32:
+				problems.append("%s/%d: tile size %s disagrees with the region %s"
+					% [biome, i, str(tiles), str(r)])
+	check(problems.is_empty(), "facade atlases are grid-aligned (%d buildings): %s"
+		% [houses, str(problems)])
+	var missing := []
+	for id in Settlement.all():
+		var biome := String((Settlement.all()[id] as Dictionary).get("biome", ""))
+		if families.is_empty():
+			continue        # pre-art build: the polygon fallback is the contract
+		if not families.has(biome):
+			missing.append("%s(%s)" % [id, biome])
+	check(missing.is_empty(), "every settlement biome has a facade family (%s)" % str(missing))
 
 
 func _test_dungeon_builds() -> void:

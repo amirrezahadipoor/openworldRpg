@@ -946,3 +946,27 @@ pipeline, no new code. Verified by `items_test` (frames exist, differ from frame
 do not overflow their column) and `combat_test` (each archetype reports its sheet's
 frame count, the idle loop really plays four distinct columns, resting slows the loop
 and looks around).
+
+**#66 — Buildings become whole sprites on the 32 px grid (H6.1, art pending)** · 2026-09-11
+A settlement's houses were a wall quad, two `Polygon2D` roof slopes and a door
+rectangle, tinted per biome — cardboard next to LPC terrain and 64 px characters.
+`tools/make_facade_sheets.py` turns one generated sheet per biome family (three:
+meadow, barrens, frost — the biomes the nine settlements actually use) into an
+atlas of **whole buildings**, and `Settlement._build_facade_house()` draws them as
+region sprites. Buildings are baked whole rather than assembled from wall/roof
+tiles on purpose: a generated tileset cannot be trusted to seam (corners, slopes
+and ridge lines must line up exactly), while a whole building only has to be cut
+out and scaled. What the tool guarantees is the part that matters: sizes are
+decided *relative to the family* (the typical building becomes 3 tiles wide, the
+rest keep their ratio) and then rounded to whole 32 px tiles, so a hall is not
+flattened into a cottage and everything lands on the world grid; the family's
+buildings are quantised together to one 48-colour palette, because twelve slightly
+different generator browns read as noise at 32 px; and each sprite is placed so
+the art's bottom row lands on the house's ground line rather than hovering.
+`house_scale` shrinks houses when a ring is crowded (96 buildings across nine
+settlements), which is also how a city reads differently from a village. The
+procedural houses stay as the fallback for any biome with no family, so a
+settlement never blanks out — `world_map_test` measures both paths (0 facade + 96
+polygon today; the same check flips to 96 facade houses as the art lands, and the
+probe run that exercised the new path measured 28 facade + 68 polygon with every
+house inside its size band and sitting on the ground).

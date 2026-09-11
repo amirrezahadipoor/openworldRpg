@@ -100,8 +100,19 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 
 ## H6. General polish where art is the fix
 
-- [ ] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
-      procedural `Polygon2D` walls.
+- [~] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
+      procedural `Polygon2D` walls. *Pipeline and runtime shipped:
+      `tools/make_facade_sheets.py` keys one generated sheet per biome family
+      (meadow / barrens / frost — the three the nine settlements use) into an
+      atlas of whole buildings, sized relative to the family and snapped to whole
+      32 px tiles, quantised to one 48-colour palette, with `data/facades.json`
+      as the manifest; `Settlement._build_facade_house()` draws them as region
+      sprites on their ground line, shrunk to fit a crowded ring, and the old
+      polygon house stays as the fallback for a biome with no art.
+      `world_map_test` measures both paths (0 facade + 96 polygon today, and the
+      probe run that exercised the new path measured 28 facade + 68 polygon with
+      every house in its size band and on the ground). The three families are the
+      next generation pass.*
 - [x] **H6.2 [image-gen]** Illustrated banner background behind toast and boss-intro
       text — *generated, keyed/despilled and sliced to 192x64 by
       `tools/make_ui_icons.py`, wired as a 9-slice `StyleBoxTexture` under the
