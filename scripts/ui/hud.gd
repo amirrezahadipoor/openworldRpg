@@ -22,6 +22,14 @@ var _bolt_btn: ActionButton
 var toast_label: Label
 var _toast_time := 0.0
 
+# --- boss bar (H3.2) ---------------------------------------------------------
+var _boss_box: Control
+var _boss_name: Label
+var _boss_bar: ProgressBar
+var _boss_phase_label: Label
+var _boss_pips: Control
+var _boss: Node = null
+
 const TOAST_SECONDS := 4.5
 
 
@@ -34,6 +42,7 @@ func setup(p: Player, s: ChunkStreamer = null) -> void:
 	if player != null:
 		player.external_input = Vector2.ZERO
 	_build_toast()
+	_build_boss_bar()
 	if not EventBus.milestone_reached.is_connected(_on_milestone):
 		EventBus.milestone_reached.connect(_on_milestone)
 	if not EventBus.secret_found.is_connected(_on_secret_found):
@@ -42,6 +51,7 @@ func setup(p: Player, s: ChunkStreamer = null) -> void:
 
 func _process(delta: float) -> void:
 	_update_buffs(delta)
+	_tick_boss()
 	if _toast_time > 0.0:
 		_toast_time -= delta
 		if _toast_time <= 0.0 and toast_label != null:
@@ -270,6 +280,87 @@ func set_quest_text(text: String) -> void:
 
 
 # --- Milestone banner (Phase E §6) -------------------------------------------
+
+func _build_boss_bar() -> void:
+	## The Ember Warden fight had no on-screen health indicator at all: the only
+	## feedback was hit-stop and camera shake. This is a name plate, a bar, and one
+	## pip per phase (lit pips are phases already entered).
+	_boss_box = VBoxContainer.new()
+	_boss_box.visible = false
+	_boss_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_box.anchor_left = 0.5
+	_boss_box.anchor_right = 0.5
+	_boss_box.offset_left = -230.0
+	_boss_box.offset_right = 230.0
+	_boss_box.offset_top = 26.0
+	_boss_box.offset_bottom = 84.0
+	_boss_box.add_theme_constant_override("separation", 3)
+
+	_boss_name = Label.new()
+	_boss_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_name.add_theme_font_size_override("font_size", 18)
+	_boss_name.add_theme_color_override("font_color", Color(1.0, 0.82, 0.45))
+	_boss_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_boss_name.add_theme_constant_override("outline_size", 5)
+	_boss_box.add_child(_boss_name)
+
+	_boss_bar = _make_bar(Color(0.72, 0.14, 0.16))
+	_boss_bar.custom_minimum_size = Vector2(460, 16)
+	_boss_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_boss_box.add_child(_boss_bar)
+
+	_boss_phase_label = Label.new()
+	_boss_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_phase_label.add_theme_font_size_override("font_size", 14)
+	_boss_phase_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.75))
+	_boss_box.add_child(_boss_phase_label)
+	add_child(_boss_box)
+	if not EventBus.boss_encounter_started.is_connected(_on_boss_encounter):
+		EventBus.boss_encounter_started.connect(_on_boss_encounter)
+	if not EventBus.boss_defeated.is_connected(_on_boss_defeated):
+		EventBus.boss_defeated.connect(_on_boss_defeated)
+
+
+func _on_boss_encounter(_boss_id: String, display_name: String) -> void:
+	_boss_name.text = display_name
+	_boss_box.visible = true
+	_boss = get_tree().get_first_node_in_group("boss")
+
+
+func _on_boss_defeated() -> void:
+	_boss = null
+	if _boss_box != null:
+		_boss_box.visible = false
+
+
+func _tick_boss() -> void:
+	## Polled, not signal-driven: the boss node is instantiated inside its dungeon
+	## floor, so the HUD has to keep looking for it until it exists (and let go of
+	## it when the floor is freed).
+	if _boss_box == null or not _boss_box.visible:
+		return
+	if _boss == null or not is_instance_valid(_boss) or not (_boss as Node).is_inside_tree():
+		_boss = get_tree().get_first_node_in_group("boss")
+		if _boss == null:
+			_boss_box.visible = false
+			return
+	var e: Node = _boss
+	var hp := float(e.get("hp"))
+	var mx := float(e.get("max_hp"))
+	_boss_bar.max_value = maxf(mx, 1.0)
+	_boss_bar.value = hp
+	var phase := int(e.get("phase")) if e.get("phase") != null else 1
+	var total := 1
+	var ph: Variant = e.get("phases")
+	if ph is Array and not (ph as Array).is_empty():
+		total = (ph as Array).size()
+	elif phase >= 3:
+		total = 3          # the Ember Warden's phases live in boss.gd
+	var pips := ""
+	for i in total:
+		pips += "●" if i < phase else "○"
+	_boss_phase_label.text = "phase %d/%d  %s" % [phase, total, pips]
+
 
 func _build_toast() -> void:
 	toast_label = Label.new()

@@ -82,6 +82,12 @@ var _attack_cd := 0.0
 var _patrol_target := Vector2.ZERO
 var _origin := Vector2.ZERO
 var _patrols_done := 0
+## Seconds the floating health bar stays up after the last hit. Combat feedback
+## used to be "the sprite flashed": with two enemies on screen nobody could tell
+## which one was nearly dead or whether their swing had connected at all.
+var _bar_time := 0.0
+## Set while an attack is being telegraphed, for the ground reticle.
+var _telegraphing := false
 var _separation := Vector2.ZERO
 ## Set while the player is somewhere an enemy may not press an attack: inside a
 ## settlement's safe bubble, or mid-conversation. See _player_protected().
@@ -104,12 +110,28 @@ func _ready() -> void:
 	add_to_group("enemies")
 
 
+func _sync_boss_group() -> void:
+	## The HUD's boss bar looks the fight up by group, so membership has to follow
+	## `behavior` even when a pooled enemy is re-used for a different archetype.
+	if behavior == "boss":
+		if not is_in_group("boss"):
+			add_to_group("boss")
+	elif is_in_group("boss"):
+		remove_from_group("boss")
+
+
 func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 	_state_time += delta
 	_attack_cd = maxf(_attack_cd - delta, 0.0)
 	_recovery = maxf(_recovery - delta, 0.0)
+	var bar_was := _bar_time
+	_bar_time = maxf(_bar_time - delta, 0.0)
+	# Redraw while the bar is fading, and only then: this runs for every enemy in
+	# the loaded chunks, so it must not be a per-frame cost on a quiet map.
+	if bar_was > 0.0 or _bar_time > 0.0 or state == State.ATTACK:
+		queue_redraw()
 	if pattern == "charger" and _dash_time > 0.0:
 		_charge_tick(delta)
 		return
@@ -179,6 +201,7 @@ func _physics_process(delta: float) -> void:
 					_desired_velocity(to_player, dist, delta), 700.0 * delta)
 
 		State.ATTACK:
+			_telegraphing = true
 			if not _may_press_attack():
 				_change_state(State.WITHDRAW)
 				sprite.modulate = _tinted()
@@ -200,11 +223,48 @@ func _physics_process(delta: float) -> void:
 			if _state_time > FLEE_TIME:
 				_change_state(State.CHASE if _player else State.IDLE)
 
+	if state != State.ATTACK and _telegraphing:
+		_telegraphing = false
+		queue_redraw()
 	_separation = _separation_vector()
 	if state != State.WITHDRAW:
 		velocity += _separation * 60.0
 	move_and_slide()
 	_update_anim(delta)
+
+
+func _draw() -> void:
+	## Ground-level fight feedback, drawn in the enemy's own local space.
+	##
+	## H3.3: a telegraphed attack casts a ring on the floor at exactly
+	## `attack_radius`, so "it is about to hit me" is readable from the ground
+	## instead of from a colour pulse on a 64 px sprite. Melee sweeps a filled
+	## disc; ranged draws its firing line.
+	if _telegraphing:
+		var t := clampf(_state_time / maxf(telegraph_time, 0.01), 0.0, 1.0)
+		var col := Color(1.0, 0.55, 0.15, 0.16 + 0.34 * t)
+		if behavior == "ranged":
+			var aim := Vector2.RIGHT
+			if _player != null:
+				aim = (_player.global_position - global_position).normalized()
+			draw_line(Vector2.ZERO, aim * attack_radius, col, 6.0)
+			draw_circle(Vector2.ZERO, attack_radius * 0.5, Color(1.0, 0.55, 0.15, 0.06))
+		else:
+			draw_circle(Vector2.ZERO, attack_radius, col)
+			draw_arc(Vector2.ZERO, attack_radius, 0.0, TAU, 40,
+				Color(1.0, 0.8, 0.35, 0.35 + 0.5 * t), 3.0)
+
+	## H3.1: floating health bar, only while it matters.
+	if _bar_time <= 0.0 or hp <= 0.0 or state == State.DEAD:
+		return
+	var w := 44.0
+	var y := -40.0 * base_scale.y
+	var pct := clampf(hp / maxf(max_hp, 0.01), 0.0, 1.0)
+	var fade := clampf(_bar_time / 1.5, 0.0, 1.0)
+	draw_rect(Rect2(Vector2(-w * 0.5 - 1, y - 1), Vector2(w + 2, 7)), Color(0, 0, 0, 0.65 * fade))
+	draw_rect(Rect2(Vector2(-w * 0.5, y), Vector2(w, 5)), Color(0.25, 0.06, 0.07, 0.9 * fade))
+	draw_rect(Rect2(Vector2(-w * 0.5, y), Vector2(w * pct, 5)),
+		Color(0.85, 0.22, 0.22, 0.95 * fade).lerp(Color(1.0, 0.85, 0.30, 0.95 * fade), 1.0 - pct))
 
 
 func _retreat_point() -> Vector2:
@@ -345,6 +405,10 @@ func setup_archetype(id: String, power_scale: float = 1.0, floor: int = 1) -> vo
 	_patrols_done = 0
 	_separation = Vector2.ZERO
 	player_protected = false
+	_bar_time = 0.0
+	_telegraphing = false
+	_sync_boss_group()
+	queue_redraw()
 	_attack_cd = 0.0
 	velocity = Vector2.ZERO
 	# A monster's home is never inside a settlement: the spawner already refuses to
@@ -505,6 +569,8 @@ func take_hit(amount: float, dir: Vector2) -> void:
 	if _recovery > 0.0:
 		amount *= STAGGER_DAMAGE_MULT   # punish the wind-up
 	hp -= amount
+	_bar_time = 3.0            # hit -> the bar appears and starts its fade
+	queue_redraw()
 	velocity += dir * 160.0
 	AudioManager.play_sfx("hit")
 	sprite.modulate = Color(1.5, 1.5, 1.5)
@@ -519,6 +585,8 @@ func take_hit(amount: float, dir: Vector2) -> void:
 
 func _die() -> void:
 	_change_state(State.DEAD)
+	if is_in_group("boss"):
+		remove_from_group("boss")
 	set_physics_process(false)
 	for child in get_children():
 		if child is CollisionShape2D:

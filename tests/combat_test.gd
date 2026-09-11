@@ -59,6 +59,7 @@ func _ready() -> void:
 	_test_floor_scaling()
 	_test_talent_tree()
 	await _test_safe_ground_and_dialogue_protection()
+	await _test_fight_feedback()
 
 	_report()
 
@@ -1023,3 +1024,63 @@ func _test_safe_ground_and_dialogue_protection() -> void:
 	await _phys(140)
 	check(GameState.hp < GameState.max_hp(),
 		"the same monster does land hits once the player is unprotected")
+
+
+func _test_fight_feedback() -> void:
+	## H3: the fight has to read on screen. A 30 fps sweep of the swing window, the
+	## per-enemy health bar, the ground telegraph and the boss bar are all checked
+	## here, because "the fight feels unclear" was a feedback problem, not a damage
+	## problem.
+	print("[combat_test] fight feedback")
+	for p in get_tree().get_nodes_in_group("player"):
+		p.queue_free()
+	await _phys(2)
+	var host := Node2D.new()
+	add_child(host)
+	var player: Player = load("res://scenes/player/player.tscn").instantiate()
+	add_child(player)
+	player.global_position = Vector2(0, -4000)
+
+	# --- H3.4: the swing still connects at 30 fps -----------------------------
+	var old_tick := Engine.physics_ticks_per_second
+	Engine.physics_ticks_per_second = 30
+	var enemy: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
+	host.add_child(enemy)
+	enemy.setup_archetype("grunt")
+	enemy.global_position = player.global_position + Vector2(40, 0)
+	await _phys(2)
+	var before := enemy.hp
+	player.facing = Vector2.RIGHT
+	player._start_attack()
+	await _phys(14)          # half a second at 30 fps, well past the window
+	check(enemy.hp < before, "a swing connects at 30 fps (%.0f -> %.0f hp)" % [before, enemy.hp])
+	Engine.physics_ticks_per_second = old_tick
+
+	# --- H3.1: hitting an enemy puts its health bar up -------------------------
+	check(enemy._bar_time > 0.0, "a hit raises the enemy's health bar")
+	await _phys(2)
+	# --- H3.3: an attack in progress is telegraphed on the ground --------------
+	enemy.global_position = player.global_position + Vector2(40, 0)
+	enemy._attack_cd = 0.0
+	var saw_telegraph := false
+	for i in 160:
+		await get_tree().physics_frame
+		if enemy._telegraphing:
+			saw_telegraph = true
+			break
+	check(saw_telegraph, "a winding-up attack draws its ground telegraph")
+
+	# --- H3.2: the boss bar answers the encounter signal -----------------------
+	var hud: HUD = HUD.new()
+	add_child(hud)
+	hud.setup(null, null)
+	EventBus.boss_encounter_started.emit("goblin_king", "Goblin King")
+	check(hud._boss_box.visible, "the boss bar appears when an encounter starts")
+	check(hud._boss_name.text == "Goblin King", "the boss bar names the boss")
+	EventBus.boss_defeated.emit()
+	check(not hud._boss_box.visible, "the boss bar clears when the boss dies")
+	hud.queue_free()
+
+	enemy.queue_free()
+	player.queue_free()
+	await _phys(2)

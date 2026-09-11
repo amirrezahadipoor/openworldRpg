@@ -871,3 +871,21 @@ dealing damage, and `Player.take_hit` refuses at the bottom, which also covers a
 projectile already in flight. Signed off in `combat_test` by four assertions that
 run the real damage path both ways — protected takes nothing, unprotected takes
 hits, so the suite cannot pass by accident.
+
+**#63 — The fight reads: enemy bars, a boss plate, ground telegraphs** · 2026-09-11
+Combat feedback was one sprite colour flash and a hit sound. Enemy now overrides
+`_draw()` for two things that are only drawn when they matter: a floating 44 px
+health bar above the sprite, raised by any hit and fading out over 3 s (and
+redrawn only while it is visible — this runs per enemy on a loaded map, so it is
+not a per-frame cost), and a ground telegraph — a filled disc at exactly
+`attack_radius` for melee, a firing line for ranged — that fills in as the wind-up
+runs, so "it is about to hit me" is readable from the floor rather than from a
+64 px sprite's tint. Bosses join a `boss` group on setup and leave it on death,
+which is how the HUD finds them: `_build_boss_bar()` (name, bar, one pip per
+phase, polled each frame because a dungeon floor's boss does not exist when the
+encounter signal fires) closes the worst hole in the game's most important fight.
+Finally the swing window: hits used to be resolved by a single `await
+process_frame` sample inside a 0.12 s window, which at 30 fps on a phone is one
+sample per third of the window. The window is now 0.16 s and sampled on *every*
+physics frame, with a per-swing hit set so a target cannot be hit twice; the
+regression sweep runs the real swing at `Engine.physics_ticks_per_second = 30`.

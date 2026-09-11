@@ -14,7 +14,11 @@ const ATTACK_COOLDOWN := 0.35
 const STEP_INTERVAL := 0.34      # footstep pacing while walking
 
 var _step_timer := 0.0
-const ATTACK_ACTIVE_TIME := 0.12
+## The active window, in seconds. Widened from 0.12 to 0.16 (H3.4): the swing
+## used to be resolved by a single `await process_frame` sample inside this
+## window, so at 30 fps on a phone — where one frame is a third of the window —
+## a hit could land in a frame the sampler never looked at.
+const ATTACK_ACTIVE_TIME := 0.16
 const COMBO_WINDOW := 0.62         # time after a swing to keep the chain alive
 const COMBO_FINISHER_MULT := 1.5   # third hit lands harder and pushes back
 const FINISHER_RECOVERY := 1.8     # ...but it costs you the next swing
@@ -44,6 +48,9 @@ var _attack_active := 0.0
 var _combo := 0            # 0,1 = jabs · 2 = the finisher
 var _combo_timer := 0.0
 var _attack_mult := 1.0
+## Instance ids already hit by the current swing, so sampling overlaps every
+## physics frame cannot double-hit the same target.
+var _hit_this_swing: Array = []
 var _whirl_cd := 0.0
 var _bolt_cd := 0.0
 
@@ -108,8 +115,13 @@ func _physics_process(delta: float) -> void:
 		_attack_active -= delta
 		invulnerable = false
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION * delta)
+		# Sample the overlaps on every physics frame of the window instead of
+		# once: frame-rate independent, and a fast target cannot slip between two
+		# samples the way it could with one.
+		_sample_attack_hits()
 		if _attack_active <= 0.0:
 			attack_shape.disabled = true
+			_hit_this_swing.clear()
 	else:
 		invulnerable = false
 		var move := _read_move_input()
@@ -171,6 +183,7 @@ func _start_attack() -> void:
 	var recovery := ATTACK_COOLDOWN * (FINISHER_RECOVERY if finisher else 1.0)
 	_attack_cd = recovery * GameState.attack_cooldown_mult()
 	_attack_active = ATTACK_ACTIVE_TIME * (1.5 if finisher else 1.0)
+	_hit_this_swing.clear()
 	attack_shape.disabled = false
 	if attack_shape.shape is CircleShape2D:
 		# the finisher sweeps a wider arc
@@ -179,23 +192,36 @@ func _start_attack() -> void:
 	AudioManager.play_sfx("attack_swing")
 	if finisher:
 		_finisher_flash()
-	_resolve_attack_hits(finisher)
+	_sample_attack_hits()   # first sample now; the rest come from _physics_process
 
 
-func _resolve_attack_hits(finisher: bool = false) -> void:
-	await get_tree().process_frame  # let physics overlaps update first
-	if attack_area == null:
+func _sample_attack_hits() -> void:
+	if attack_area == null or attack_shape.disabled:
 		return
 	for area in attack_area.get_overlapping_areas():
-		if area.is_in_group("hurtbox"):
-			var target: Node = area.get_parent()
-			if target != null and target.has_method("take_hit"):
-				var dmg := roll_damage(GameState.attack() * _attack_mult)
-				target.take_hit(dmg, facing)
-				_apply_lifesteal(dmg)
-				if finisher:
-					_shove(target)
-					AudioManager.play_sfx("hit")
+		if not area.is_in_group("hurtbox"):
+			continue
+		var target: Node = area.get_parent()
+		if target == null or not target.has_method("take_hit"):
+			continue
+		var id := target.get_instance_id()
+		if _hit_this_swing.has(id):
+			continue
+		_hit_this_swing.append(id)
+		var dmg := roll_damage(GameState.attack() * _attack_mult)
+		target.take_hit(dmg, facing)
+		_apply_lifesteal(dmg)
+		if _attack_mult > 1.0:
+			_shove(target)
+			AudioManager.play_sfx("hit")
+
+
+## Kept for callers that awaited the old single-shot resolver (tests included):
+## resolves one pass immediately, without waiting a frame.
+func _resolve_attack_hits(finisher: bool = false) -> void:
+	if finisher and _attack_mult <= 1.0:
+		_attack_mult = 1.0
+	_sample_attack_hits()
 
 
 func _shove(target: Node) -> void:
