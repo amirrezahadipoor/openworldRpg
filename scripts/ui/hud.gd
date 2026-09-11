@@ -31,6 +31,9 @@ var _toast_active := false
 var _toast_queue: Array = []
 var _buff_label: Label
 var _panel_margin := 0.0
+## Wrapper for the joystick + thumb buttons; hidden entirely on non-touch
+## devices (desktop/web) so they never paint over the world.
+var _touch_layer: Control
 
 const TOAST_SECONDS := 4.5
 const TOAST_QUEUE_MAX := 6
@@ -316,6 +319,18 @@ func _build_touch_controls() -> void:
 	var fit := _fit_scale()
 	var pad := 18.0 * fit
 
+	# The virtual stick and the five thumb buttons are a touch affordance. On a
+	# pointer-less desktop/web build they sat on screen regardless, painting over
+	# NPC name labels and the world for a player who already has WASD/J/K/E. Wrap
+	# them so the whole layer can be hidden when the device has no touchscreen;
+	# every node still exists, so keyboard paths and tests are unaffected.
+	_touch_layer = Control.new()
+	_touch_layer.name = "TouchLayer"
+	_touch_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_touch_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_touch_layer.visible = _touch_available()
+	_ui.add_child(_touch_layer)
+
 	joystick = VirtualJoystick.new()
 	var js := 210.0 * clampf(SettingsManager.joystick_scale, 0.8, 1.5) * fit
 	joystick.size = Vector2(js, js)
@@ -327,7 +342,7 @@ func _build_touch_controls() -> void:
 	joystick.offset_bottom = -16.0 - ins.w
 	if player != null:
 		joystick.vector_changed.connect(func(v: Vector2) -> void: player.external_input = v)
-	_ui.add_child(joystick)
+	_touch_layer.add_child(joystick)
 
 	# Two tiers instead of one five-wide row (H2.1): the thumb lives on Attack and
 	# Dodge, and the abilities sit one step further away so a swing cannot turn
@@ -345,7 +360,7 @@ func _build_touch_controls() -> void:
 	primary.offset_right = -16.0 - ins.z
 	primary.offset_top = -(attack_size + 16.0) - ins.w
 	primary.offset_bottom = -16.0 - ins.w
-	_ui.add_child(primary)
+	_touch_layer.add_child(primary)
 
 	_dodge_btn = ActionButton.new()
 	_dodge_btn.setup("dodge", _load_icon("icon_dodge"), dodge_size)
@@ -370,7 +385,7 @@ func _build_touch_controls() -> void:
 	secondary.offset_right = -16.0 - ins.z
 	secondary.offset_top = primary.offset_top - ability_size - pad
 	secondary.offset_bottom = primary.offset_top - pad
-	_ui.add_child(secondary)
+	_touch_layer.add_child(secondary)
 
 	_whirl_btn = ActionButton.new()
 	_whirl_btn.setup("ability_whirl", _load_icon("icon_whirl"), ability_size, "Whirl")
@@ -402,7 +417,31 @@ func _build_touch_controls() -> void:
 	_interact_btn.offset_top = secondary.offset_top - 88.0 * fit - pad
 	_interact_btn.offset_bottom = secondary.offset_top - pad
 	_interact_btn.pressed_once.connect(_on_interact_pressed)
-	_ui.add_child(_interact_btn)
+	_touch_layer.add_child(_interact_btn)
+
+
+static func _touch_available() -> bool:
+	## True only on a device that actually wants the thumb controls. Headless
+	## and desktop builds report false, so they stay hidden there.
+	##
+	## On web this cannot be `is_touchscreen_available()` alone: the web display
+	## server reports a touchscreen on desktop Chrome too (emulated touch events),
+	## so the virtual stick painted over the world on a machine with WASD. Ask the
+	## browser for a real touch digitizer instead: navigator.maxTouchPoints is 0
+	## on a desktop/headless build and >0 on a phone or tablet.
+	if OS.has_feature("web"):
+		return _web_touch_points() > 0
+	return DisplayServer.is_touchscreen_available()
+
+
+static func _web_touch_points() -> int:
+	## navigator.maxTouchPoints evaluated in the page; 0 off-web / unavailable.
+	# JavaScriptBridge only does anything in a web export; guard every step.
+	if not ClassDB.class_exists("JavaScriptBridge"):
+		return 0
+	var result: Variant = JavaScriptBridge.eval(
+		"navigator.maxTouchPoints ? navigator.maxTouchPoints : 0", true)
+	return int(result)
 
 
 func _cd_label() -> Label:

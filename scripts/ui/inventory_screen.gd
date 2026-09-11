@@ -12,6 +12,7 @@ const SLOTS := ["weapon", "armor", "accessory"]
 var _root: Control
 var _item_list: VBoxContainer
 var _equip_labels: Dictionary = {}
+var _unequip_btns: Dictionary = {}
 var _stats_label: Label
 var _gold_label: Label
 ## Sorting / filtering / selection: 123 items with no way to order them meant
@@ -162,6 +163,7 @@ func _build_left_column() -> Control:
 			GameState.unequip(slot)
 			_refresh()
 		)
+		_unequip_btns[slot] = unequip
 		row.add_child(lbl)
 		row.add_child(unequip)
 		box.add_child(row)
@@ -193,6 +195,9 @@ func _build_right_column() -> Control:
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size = Vector2(480, 0)
+	# The item rows are built to fit the column; a horizontal bar only ever let
+	# their "[type]" tag scroll off the right edge instead of wrapping.
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 
 	_item_list = VBoxContainer.new()
 	_item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -210,6 +215,11 @@ func _refresh() -> void:
 		var id: String = GameState.equipment[slot]
 		var lbl: Label = _equip_labels[slot]
 		lbl.text = "%s: %s" % [slot.capitalize(), ItemsDB.item_name(id) if id != "" else "—"]
+		# An empty slot has nothing to take off: an enabled "Unequip" was a
+		# control that could only ever no-op.
+		var unequip_btn: Button = _unequip_btns.get(slot)
+		if unequip_btn != null:
+			unequip_btn.disabled = id == ""
 
 	_stats_label.text = "Lv %d  ·  HP %.0f/%.0f  ·  MP %.0f/%.0f\nATK %.1f  ·  DEF %.1f  ·  SPD %.0f" % [
 		GameState.level,
@@ -318,7 +328,9 @@ func _item_row(item_id: String, qty: int) -> Control:
 
 	var name_label := Label.new()
 	name_label.text = "%s ×%d" % [ItemsDB.item_name(item_id), qty]
-	name_label.custom_minimum_size = Vector2(190, 0)
+	name_label.custom_minimum_size = Vector2(140, 0)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.clip_text = true
 	# Kept for desktops, but the details panel below is what phones use.
 	name_label.tooltip_text = ItemsDB.get_desc(item_id)
 	name_label.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -339,7 +351,8 @@ func _item_row(item_id: String, qty: int) -> Control:
 	rarity_label.text = ItemsDB.get_rarity(item_id).capitalize()
 	rarity_label.add_theme_color_override("font_color", ItemsDB.rarity_color(item_id))
 	rarity_label.add_theme_font_size_override("font_size", 14)
-	rarity_label.custom_minimum_size = Vector2(78, 0)
+	rarity_label.custom_minimum_size = Vector2(62, 0)
+	rarity_label.clip_text = true
 	row.add_child(rarity_label)
 
 	var stat_text := _stat_line(it)
@@ -347,14 +360,19 @@ func _item_row(item_id: String, qty: int) -> Control:
 	stat_label.text = stat_text
 	stat_label.add_theme_font_size_override("font_size", 14)
 	stat_label.add_theme_color_override("font_color", Color(0.85, 0.95, 0.85, 0.9))
-	stat_label.custom_minimum_size = Vector2(200, 0)
+	stat_label.custom_minimum_size = Vector2(0, 0)
+	stat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stat_label.clip_text = true
 	row.add_child(stat_label)
 
 	var type_label := Label.new()
-	type_label.text = "[%s]" % String(it.get("type", "?"))
+	# Short tags: the full word "consumable" was clipped to "[consum" in the
+	# narrow type column, which read as a half-rendered label.
+	type_label.text = _type_tag(String(it.get("type", "?")))
 	type_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.45))
 	type_label.add_theme_font_size_override("font_size", 14)
-	type_label.custom_minimum_size = Vector2(110, 0)
+	type_label.custom_minimum_size = Vector2(52, 0)
+	type_label.clip_text = true
 	row.add_child(type_label)
 
 	var primary := Button.new()
@@ -394,6 +412,19 @@ func _item_row(item_id: String, qty: int) -> Control:
 	)
 	row.add_child(drop)
 	return row
+
+
+func _type_tag(raw_type: String) -> String:
+	## Compact column tag so "consumable" cannot clip to "[consum".
+	match raw_type:
+		"gear":
+			return "[gear]"
+		"consumable":
+			return "[cons]"
+		"material":
+			return "[mat]"
+		_:
+			return "[%s]" % raw_type
 
 
 func _stat_line(it: Dictionary) -> String:

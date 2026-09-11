@@ -43,6 +43,7 @@ func _ready() -> void:
 	await _test_hud_layout_and_art()
 	await _test_pickup_art()
 	_test_roster_portraits()
+	await _test_inventory_unequip()
 	_report()
 
 
@@ -326,6 +327,32 @@ func _test_upgrade_bench() -> void:
 	GameState.gold = 0
 	bench.close()
 	bench.queue_free()
+
+
+func _test_inventory_unequip() -> void:
+	print("[ui_test] an empty equipment slot offers no Unequip (found via web playtest)")
+	GameState.inventory.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
+	var inv: InventoryScreen = InventoryScreen.new()
+	add_child(inv)
+	inv.open()
+	await get_tree().process_frame
+	for slot in ["weapon", "armor", "accessory"]:
+		var b: Button = inv._unequip_btns.get(slot)
+		check(b != null and b.disabled, "Unequip is disabled for an empty %s" % slot)
+
+	# Put a real sword in the weapon slot: only that slot's Unequip may arm.
+	GameState.add_item("iron_sword", 1)
+	check(GameState.equip("iron_sword"), "the sword equips for the test")
+	inv._refresh()
+	var wb: Button = inv._unequip_btns.get("weapon")
+	var ab: Button = inv._unequip_btns.get("armor")
+	check(not wb.disabled, "the worn weapon can be unequipped")
+	check(ab.disabled, "an empty armor slot still cannot be unequipped")
+	inv.close()
+	inv.queue_free()
+	GameState.inventory.clear()
+	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
 
 
 func _report() -> void:
