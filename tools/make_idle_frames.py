@@ -244,9 +244,9 @@ def normalise_pose(pose: Image.Image, ref: Image.Image, tag: str = "this") -> Im
     # whichever orientation actually matches the silhouette it must join.
     flipped = pose.transpose(Image.FLIP_LEFT_RIGHT)
     score = {}
-    for tag, cand in (("as-is", pose), ("flipped", flipped)):
+    for label, cand in (("as-is", pose), ("flipped", flipped)):
         mask = np.asarray(cand.getchannel("A"), dtype=np.uint8) > ALPHA_CUTOFF
-        score[tag] = _iou(_resize_mask(mask, size), ref_mask)
+        score[label] = _iou(_resize_mask(mask, size), ref_mask)
     if score["flipped"] > score["as-is"] + 0.04:
         pose = flipped
 

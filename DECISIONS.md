@@ -1173,3 +1173,14 @@ committed can still be lifted out of the object store while they are unreference
 (`git fsck --no-reflogs --unreachable | grep blob`) — how this batch's eight files
 were recovered after a parking test cleared /tmp; re-patching from the recovered
 sources reproduced the committed sheets byte for byte.
+
+
+**#79 — The low-match warning was naming the wrong thing** · 2026-09-11
+`normalise_pose()` grew a warning that names the sheet whose generated pose does
+not look like the frame it is joining (DECISIONS #76), but the local loop that
+picks between a pose and its mirror already used `tag` as its loop variable, so the
+parameter was clobbered and every warning printed "flipped is only N% like the
+frame it joins". Renamed the loop variable. The guard immediately earned its keep
+in the batch that followed: five notes named `enemy_husk` and nothing else — the
+husk's *attack* poses sit at 54-70% silhouette overlap with a standing frame, which
+is exactly what a punch should do, while all nine villagers passed.

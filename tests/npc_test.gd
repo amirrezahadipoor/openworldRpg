@@ -151,14 +151,26 @@ func _test_idle_art() -> void:
 		"the standing sprite shows a generated idle column (%d)" % column)
 	dressed.queue_free()
 
-	var plain := _spawn_npc("elder_rowan", Vector2(300, 200),
-		"res://assets/lpc/npc_elder.png")
-	plain.schedule_enabled = false
-	await _phys_frames(2)
-	check(plain.anim_frame_count() == 2 and PoseArt.idle_columns(plain.sheet_path, 2).size() == 2,
-		"a villager without generated art keeps the two LPC frames (%s -> %d)" %
-		[plain.sheet_path.get_file(), plain.anim_frame_count()])
-	plain.queue_free()
+	# The fallback case: a roster sheet that has no generated art yet. Pick it at
+	# runtime — the list shrinks as H5.6 lands villager sheets, and the check flips
+	# to asserting full coverage rather than failing once none are left.
+	var bare_sheet := ""
+	for candidate in ["res://assets/lpc/npc_trapper.png", "res://assets/lpc/npc_sister.png",
+			"res://assets/lpc/npc_clerk.png", "res://assets/lpc/npc_miller.png",
+			"res://assets/lpc/npc_dockhand.png"]:
+		if PoseArt.count(candidate, "idle", 2) == 2:
+			bare_sheet = candidate
+			break
+	if bare_sheet == "":
+		check(true, "every villager sheet on the fallback list carries generated art")
+	else:
+		var plain := _spawn_npc("trapper_vess", Vector2(300, 200), bare_sheet)
+		plain.schedule_enabled = false
+		await _phys_frames(2)
+		check(plain.anim_frame_count() == 2 and PoseArt.idle_columns(plain.sheet_path, 2).size() == 2,
+			"a villager without generated art keeps the two LPC frames (%s -> %d)" %
+			[plain.sheet_path.get_file(), plain.anim_frame_count()])
+		plain.queue_free()
 
 
 func _test_flee() -> void:

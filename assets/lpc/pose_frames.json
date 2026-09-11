@@ -32,7 +32,8 @@
   "slash": 4
  },
  "enemy_husk": {
-  "idle": 4
+  "idle": 4,
+  "slash": 4
  },
  "enemy_legion": {
   "idle": 4,
@@ -81,16 +82,43 @@
   "idle": 4,
   "slash": 4
  },
+ "npc_ashe": {
+  "idle": 4
+ },
  "npc_captain": {
+  "idle": 4
+ },
+ "npc_elder": {
+  "idle": 4
+ },
+ "npc_factor": {
+  "idle": 4
+ },
+ "npc_fenwick": {
+  "idle": 4
+ },
+ "npc_herbalist": {
   "idle": 4
  },
  "npc_hunter": {
   "idle": 4
  },
+ "npc_magistrate": {
+  "idle": 4
+ },
  "npc_mireille": {
   "idle": 4
  },
+ "npc_smith": {
+  "idle": 4
+ },
+ "npc_trader": {
+  "idle": 4
+ },
  "npc_vendor": {
+  "idle": 4
+ },
+ "npc_warden": {
   "idle": 4
  },
  "npc_wren": {

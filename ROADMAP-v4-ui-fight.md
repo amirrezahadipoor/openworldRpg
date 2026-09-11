@@ -113,10 +113,13 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       without generated art. `NpcTest` drives both paths (frame count, the
       `[base, shift, breath, look-around]` loop, the column the sprite shows, and
       the fallback).
-      *Progress: 5 of 24 sheets.* Done: wren, hunter, vendor, mireille, captain.
-      Owed: the other 19 — elder first (its first generated sheet drew a bearded
-      robed man instead of the grey-haired villager and was reverted rather than
-      shipped; DECISIONS #76).
+      *Progress: 14 of 24 sheets.* Done: wren, hunter, vendor, mireille, captain,
+      elder, trader, fenwick, ashe, magistrate, warden, herbalist, factor, smith
+      (the elder's first sheet drew a bearded robed man and was reverted rather
+      than shipped — regenerated clean this pass, DECISIONS #76).
+      Owed: the last 10 — trapper_vess, sister_halde, warden_clerk_pell,
+      old_sorrel, kiln_widow_sanna, adept_nessa, quartermaster_rook,
+      relicmonger_tib, dockhand_merrit, miller_hobb.
 
 - [x] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
       procedural `Polygon2D` walls. *Done: three generated families (meadow,
@@ -151,7 +154,7 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       slash plus a rotation tween, so the hero never stands still mid-swing.
       `combat_test` verifies the hero path per armour look (219 checks).
 
-- [~] **H7.3 [image-gen]** *"Build the fight animations for the monsters and the
+- [x] **H7.3 [image-gen]** *"Build the fight animations for the monsters and the
       bosses the same way."* H7.1 gives every armed character a real weapon swing
       by compositing the LPC attack film, and H7.2 gives the hero hand-generated
       four-pose attack art. This item gives monsters and bosses the same
@@ -160,7 +163,9 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       swing, impact, recovery), cut and pasted into rows 2-3 by
       `make_idle_frames.py`, with the LPC film as the fallback for anything not
       yet generated. 20 characters; same batching as H5.5.
-      *Progress: 19 of 20.* (The generator's sources are parked between batches —
+      *Complete: 20 of 20 sheets — 21 of 21 archetypes* (18 bladed sheets swing in
+      the slash block, 3 casters cast; `enemy_wolf` backs two beast archetypes).
+      (The generator's sources are parked between batches —
       `tools/pose_sources.sh` — to hold the workspace inside its budget; nothing the
       game or the checks read needs them, see DECISIONS #78.) Melee sheets take
       their art in the slash block
@@ -169,11 +174,11 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       legion, wolf, choir priest, lizard, slag wraith); ranged ones take theirs in
       the spellcast block the game plays while they wind up (`_cast_src/`, 3 of 3
       done: shaman, revenant, archon). `--status` prints both lists.
-      Owed: husk — its first sheet came back on a white background and cut as one
-      576-px "pose"; the cutter now refuses any source that is not on the chroma
-      screen, and a fresh sheet is one generation away (DECISIONS #76). Until a
-      sheet is generated it keeps the LPC film for a melee attack and the LPC cast
-      frames for a ranged one.
+      The husk closed the set: its first sheet came back on a white background and
+      cut as one 576-px "pose", so the cutter now refuses any source that is not on
+      the chroma screen (DECISIONS #76) and a fresh sheet was generated from the
+      LPC attack rows. Every sheet keeps the LPC film/cast frames as its fallback
+      for anything a later character might still lack.
 
 ## Field reports folded into this pass
 
