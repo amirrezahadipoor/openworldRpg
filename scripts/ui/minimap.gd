@@ -52,7 +52,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if player == null:
+	if player == null or not is_instance_valid(player):
 		return
 	_timer += delta
 	if _timer >= REFRESH or not _drawn_once:
