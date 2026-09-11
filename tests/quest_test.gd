@@ -32,8 +32,8 @@ func _ready() -> void:
 	await _test_chain_is_walkable()
 	_test_side_quests()
 	await _test_side_quests_walk()
-	_report()
 	await _test_audit_fixes()
+	_report()
 
 
 func _test_audit_fixes() -> void:
