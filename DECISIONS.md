@@ -1380,3 +1380,48 @@ wolf is worse than no gate: it teaches everyone to bypass it. So the checker shi
 with `tools/check_apk_test.py` - hand-built AXML fixtures in the four combinations
 that matter (compressed + extractable, stored, compressed with the flag false, and a
 bundle) - and CI runs it on every push. The gate is now the thing that is tested.
+
+## #92 — A control's rectangle is data; assert it like data
+
+The minimap and the quest tracker were anchored to the right edge and given negative
+bottom offsets while their top anchor stayed at 0, which put them at y = -194 and
+y = -148: off screen in every build, at every resolution, for as long as they had
+existed. Nothing failed, because nothing had ever asked where a control *is* — the
+suites asked what it says and what it does.
+
+So `UiTest` now walks every visible control the HUD builds, at 1280x720, and fails if
+one is drawn outside the viewport, plus two named checks for the panels that were
+wrong (minimap on screen, tracker below the minimap, both a real size rather than a
+sliver). This is the same class of mistake as the CI count in #84 and the version in
+#90: a number that exists (a rect, a version, a test total) gets asserted, or it
+drifts silently.
+
+## #93 — Art in the repository is not art in the game
+
+Three separate ways the generated UI art failed to reach the screen, all found by
+rendering a frame and looking at it rather than by reading the code:
+
+1. **Wired but off screen** - the minimap and tracker above (#92); the code that
+   loaded them was correct, the rects were not.
+2. **Wired, on screen, wrong art** - the dodge button's icon was a brown rock with
+   motion lines. The pipeline (key the magenta screen, trim, pad, downsample) did
+   its job; the *source* image was wrong. Regenerating one source through the same
+   tool fixed it, and `UiTest` asserting that every touch button resolves under
+   `assets/ui/icons/` catches the class.
+3. **Never wired at all** - coins and item drops were `assets/placeholder/*.svg`
+   vectors from Phase 1, sitting next to LPC pixel art and appearing at the moment a
+   chest pays out. Now real 24 px sprites with the vectors kept as a load fallback,
+   and a test asserting the fallback is not the one in use.
+
+The common lesson: "the asset is in the repo and something loads it" is not evidence.
+The evidence is a texture path resolved at runtime, a rect inside the viewport, and
+one screenshot a human can look at.
+
+## #94 — The roster and the portrait directory are checked against each other
+
+Every one of the 24 roster NPCs has a portrait and the dialogue box shows it, so the
+portraits were the one part of the art pass that was fully applied. That is now a
+test rather than a fact: the roster comes from `data/npcs.json` through the same
+`DialogueDB` path the game uses, each name must resolve to a file under
+`assets/portraits/`, and the box must wear it. A new NPC cannot ship faceless, and a
+deleted portrait cannot leave a name pointing at nothing.

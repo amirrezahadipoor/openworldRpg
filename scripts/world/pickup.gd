@@ -33,13 +33,34 @@ func setup_item(id: String, qty: int = 1) -> void:
 	_apply_texture()
 
 
+## Real art, with the old hand-drawn vector as the fallback. Chest loot used to
+## land as two concentric circles and a grey blob (`assets/placeholder/*.svg`)
+## next to LPC pixel art, which is what a player sees at the exact moment a chest
+## pays out - the worst place in the game to look like a prototype (audit v4 #7).
+const ART := {
+	Kind.GOLD: "res://assets/world/coin.png",
+	Kind.ITEM: "res://assets/world/loot.png",
+}
+const PLACEHOLDER := {
+	Kind.GOLD: "res://assets/placeholder/gold.svg",
+	Kind.ITEM: "res://assets/placeholder/item_drop.svg",
+}
+
+
+func art_path() -> String:
+	## The texture this pickup is actually wearing - the UI test asserts it is not
+	## the placeholder.
+	return String(ART.get(kind, PLACEHOLDER[Kind.ITEM]))
+
+
 func _apply_texture() -> void:
 	if sprite == null:
 		return
-	if kind == Kind.GOLD:
-		sprite.texture = load("res://assets/placeholder/gold.svg")
+	var art := art_path()
+	if ResourceLoader.exists(art):
+		sprite.texture = load(art)
 	else:
-		sprite.texture = load("res://assets/placeholder/item_drop.svg")
+		sprite.texture = load(String(PLACEHOLDER.get(kind, PLACEHOLDER[Kind.ITEM])))
 
 
 func _ready() -> void:

@@ -258,14 +258,21 @@ func _build_top_left() -> void:
 func _build_top_right() -> void:
 	var ins := _insets()
 
+	# One column in the top-right corner: the minimap first, the quest tracker
+	# directly under it. Both are anchored to the *top* (anchor_top = 0) with
+	# positive offsets, which is what the geometry says they need: this block used
+	# to end by writing negative bottom offsets while the anchors still pointed at
+	# the top edge, so the two panels - the whole visible half of H5's map work and
+	# G4's tracker - sat at y = -194 and y = -148. Off screen. Invisible, in every
+	# build, for as long as it took a layout audit to notice (audit v4 #6).
 	var tracker := _panel(Color(1, 1, 1, 1))
 	tracker.name = "QuestPanel"
 	tracker.anchor_left = 1.0
 	tracker.anchor_right = 1.0
+	tracker.anchor_top = 0.0
+	tracker.anchor_bottom = 0.0
 	tracker.offset_left = -348.0 - ins.z
-	tracker.offset_top = 10.0 + ins.y
 	tracker.offset_right = -14.0 - ins.z
-	tracker.offset_bottom = 10.0 + ins.y
 	tracker.grow_vertical = Control.GROW_DIRECTION_END
 	_ui.add_child(tracker)
 
@@ -281,29 +288,25 @@ func _build_top_right() -> void:
 	map_panel.name = "MinimapPanel"
 	map_panel.anchor_left = 1.0
 	map_panel.anchor_right = 1.0
-	map_panel.offset_left = -158.0 - ins.z
-	map_panel.offset_top = 0.0
+	map_panel.anchor_top = 0.0
+	map_panel.anchor_bottom = 0.0
+	map_panel.offset_left = -174.0 - ins.z
 	map_panel.offset_right = -14.0 - ins.z
-	map_panel.offset_bottom = 140.0
+	map_panel.offset_top = 10.0 + ins.y
+	map_panel.offset_bottom = 10.0 + ins.y + 156.0
 	map_panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	map_panel.grow_vertical = Control.GROW_DIRECTION_END
 	_ui.add_child(map_panel)
-	# The quest panel sits above the map panel: one column, not two overlapping
-	# floating blocks. (Fixed order keeps the minimap's own legend readable.)
-	map_panel.offset_top = 0.0
-	map_panel.position.y = 0.0
-	tracker.offset_bottom = tracker.offset_top
 
 	minimap = Minimap.new()
 	minimap.custom_minimum_size = Vector2(132, 132)
 	minimap.setup(player, streamer)
 	map_panel.add_child(minimap)
 
-	# Stack them: minimap bottom-right, quest tracker directly above it.
-	map_panel.offset_top = -(140.0 + 8.0) - ins.w
-	map_panel.offset_bottom = -ins.w
-	tracker.offset_bottom = map_panel.offset_top - 8.0
-	tracker.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	# The tracker hangs off the minimap's bottom edge: one column, not two
+	# overlapping floating blocks.
+	tracker.offset_top = map_panel.offset_bottom + 8.0
+	tracker.offset_bottom = tracker.offset_top
 
 
 # --- Touch controls (H2) ------------------------------------------------------

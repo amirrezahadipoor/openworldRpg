@@ -129,6 +129,38 @@ Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
   are stored raw or whose merged manifest cannot extract them. `da6bb9e`
 
 
+## 1.7 UI art actually on screen (re-pull audit, 2026-09-11)
+
+The v4 pass shipped a HUD touch layer, button art and a portrait for every NPC — and
+then nobody rendered a frame and looked at it. Doing exactly that (virtual display +
+`tools/art/capture_screenshot.tscn`, plus an audit of every control's rect and every
+loaded texture) found three defects the nine suites could not see:
+
+- [x] **The minimap and the quest tracker were drawn off screen.** `_build_top_right()`
+  anchored both panels to the right edge but left `anchor_top` at 0 while writing
+  negative bottom offsets, so they sat at y = −194 and y = −148 — invisible in every
+  build, at every resolution. They are now one column in the top-right corner
+  (minimap first, tracker under it), and UiTest fails if any visible HUD control is
+  drawn outside the viewport. Evidence: `reports/hud-before-panels-offscreen.png`
+  (before: only a sliver at the top edge) and
+  `reports/hud-after-minimap-topright.png` (after: minimap + tracker in the corner).
+- [x] **The dodge button wore a brown blob.** The shipped `dodge.png` was a rock with
+  motion lines: the source art for that one icon was wrong, and the pipeline keyed and
+  shrank it faithfully. Regenerated through the same tool — a boot with speed streaks
+  — and UiTest now asserts every touch button resolves to `assets/ui/icons/`.
+- [x] **Ground loot was vector placeholder art.** Coins and item drops were
+  `assets/placeholder/*.svg` (two concentric circles, a grey blob), drawn in Phase 1
+  and never replaced, arriving at the exact moment a chest pays out. They are now
+  24 px pixel sprites from `tools/make_pickup_art.py`, with the vector kept as a load
+  fallback and a test that the fallback is not the one being worn.
+- [x] **The portraits were fine and now stay fine.** All 24 roster NPCs resolve to a
+  portrait and the dialogue box wears it; a test keeps the roster and
+  `assets/portraits/` in step, so an NPC cannot ship faceless.
+
+Why this was invisible until now: the suites tested *behaviour* (does the button fire
+the right action, does the tracker hold the right quest) and never *placement or
+appearance*, and the screenshot job looked at the world rather than the HUD.
+
 ---
 
 # PART 2 — NOT DONE
@@ -237,13 +269,14 @@ a regression test and were run through the full suite.
 
 | Gate | Command / result |
 |---|---|
-| Gameplay suites (9) | Combat **250** · Items **82** · WorldMap **84** · Ui **46** · Npc **43** · Quest **69** · Secret **45** · Audio **56** · Playthrough **52** — all PASS |
+| Gameplay suites (9) | Combat **252** · Items **84** · WorldMap **84** · Ui **61** · Npc **43** · Quest **69** · Secret **45** · Audio **56** · Playthrough **52** — all PASS |
 | Balance band | `python3 tools/balance_report.py --check` → PASSED |
 | Art parity | `python3 tools/make_idle_frames.py --check` → 49 sheets / 49 idle / 21 attack / 3 cast |
 | World decor | atlas 11 columns; the shipped map is 4.73 % decorated (asserted ≥ 3 % and < 15 %) |
 | Repo budget | `tools/check_repo_size.sh` (< 120 MB) |
 | Release builds | `v0.6.0` → `v0.6.2` — signed APK + debug APK + AAB, prereleases, `versionName`/`versionCode` derived from the tag, size 175 MB → 67 MB |
 | Release gate | `python3 tools/check_apk.py <artefact>` on every published file, plus `tools/check_apk_test.py` (4 fixtures) in CI |
+| HUD layout + art | UiTest: no visible control outside the viewport, minimap/tracker on screen, every button wearing `assets/ui/icons/`, loot wearing `assets/world/`, every roster NPC resolving to a portrait |
 | CI | `smoke-test` · `visual-capture` · `android-export` on every push to `main` |
 
 Standing rules that keep Part 1 honest:

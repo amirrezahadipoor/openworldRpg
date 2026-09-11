@@ -40,7 +40,116 @@ func _ready() -> void:
 	await _test_audit_fixes()
 	await _test_pause_owner()
 	await _test_upgrade_bench()
+	await _test_hud_layout_and_art()
+	await _test_pickup_art()
+	_test_roster_portraits()
 	_report()
+
+
+func _test_roster_portraits() -> void:
+	print("[ui_test] every NPC on the roster has a face the game can show")
+	# The portraits are generated art that exists to be seen; the failure mode is
+	# silent (a dialogue box with no face), so the roster and the art directory are
+	# checked against each other rather than trusted to stay in step.
+	var missing: Array = []
+	var names := DialogueDB._roster_names()
+	for npc_id in names.keys():
+		if DialogueDB.portrait_for(String(names[npc_id])) == "":
+			missing.append("%s (%s)" % [npc_id, names[npc_id]])
+	check(names.size() >= 20, "the roster is loaded (%d NPCs)" % names.size())
+	check(missing.is_empty(), "every roster NPC resolves to a portrait (%s)" % ", ".join(missing))
+
+	# And the box actually wears it. No frame is awaited: `start()` is synchronous,
+	# and it holds the pause while a conversation is open.
+	var box: Node = load("res://scripts/ui/dialogue_box.gd").new()
+	add_child(box)
+	box.start({"start": "a", "nodes": {"a": {"speaker": "Merchant Bram", "text": "Good day."}}})
+	var shown: Texture2D = box._portrait.texture
+	check(shown != null and box._portrait.visible,
+		"the dialogue box shows the portrait (%s)" % (shown.resource_path if shown != null else "null"))
+	check(shown != null and shown.resource_path.begins_with("res://assets/portraits/"),
+		"and it is the shipped portrait art")
+	box._finish()
+	box.queue_free()
+
+
+func _walk_controls(n: Node) -> Array:
+	var out: Array = []
+	for c in n.get_children():
+		if c is Control:
+			out.append(c)
+		out += _walk_controls(c)
+	return out
+
+
+func _test_hud_layout_and_art() -> void:
+	print("[ui_test] the HUD's art and panels are actually on screen")
+	# A phone-shaped window: headless reports a square viewport, and the bug this
+	# guards against lives exactly at the edges.
+	get_tree().root.size = Vector2i(1280, 720)
+	var player := _make_player()
+	var hud := _make_hud(player)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	var vp := get_viewport().get_visible_rect()
+	var off: Array = []
+	for c in _walk_controls(hud):
+		if not c.visible:
+			continue
+		var r: Rect2 = c.get_global_rect()
+		if r.position.y < -1.0 or r.position.x < -1.0 				or r.end.x > vp.end.x + 1.0 or r.end.y > vp.end.y + 1.0:
+			off.append("%s%s" % [c.name, str(Rect2(r.position.round(), r.size.round()))])
+	check(off.is_empty(), "no HUD control is drawn off screen (%s)" % ", ".join(off))
+
+	# The two panels that sat at y = -194 and y = -148 in every build until the
+	# layout audit: the minimap and the quest tracker.
+	var map_panel: Control = hud.minimap.get_parent()
+	var tracker: Control = hud.quest_label.get_parent()
+	var map_rect: Rect2 = map_panel.get_global_rect()
+	var track_rect: Rect2 = tracker.get_global_rect()
+	check(map_rect.position.y >= 0.0 and map_rect.end.y <= vp.end.y,
+		"the minimap is on screen (y %.0f..%.0f)" % [map_rect.position.y, map_rect.end.y])
+	check(track_rect.position.y >= map_rect.end.y - 1.0,
+		"the quest tracker hangs below it (y %.0f)" % track_rect.position.y)
+	check(hud.minimap.visible and map_rect.size.x > 100.0,
+		"and it is a real panel, not a sliver (%.0fx%.0f)" % [map_rect.size.x, map_rect.size.y])
+
+	# The shipped icon art, not the placeholder folder.
+	var wrong: Array = []
+	for stem in ["bag", "talent", "dodge", "attack", "whirl", "bolt", "interact"]:
+		var tex: Texture2D = hud._load_icon("icon_" + stem)
+		if tex == null or not tex.resource_path.begins_with("res://assets/ui/icons/"):
+			wrong.append("%s -> %s" % [stem, tex.resource_path if tex != null else "null"])
+	check(wrong.is_empty(), "every touch button wears the shipped icon art (%s)" % ", ".join(wrong))
+	check(hud._ui.theme != null and hud._ui.theme.resource_path == "res://ui/theme.tres",
+		"the HUD wears the game's own ui/theme.tres")
+	check(hud._ui.theme != null and hud._ui.theme.get_stylebox("panel", "PanelContainer") != null,
+		"and that theme carries the panel style the HUD asks for")
+	hud.queue_free()
+	player.queue_free()
+	await get_tree().process_frame
+
+
+func _test_pickup_art() -> void:
+	print("[ui_test] loot on the ground is the shipped art, not a vector stand-in")
+	var scene: PackedScene = load("res://scenes/world/pickup.tscn")
+	for spec in [["gold", 1], ["item", 0]]:
+		var pk: Pickup = scene.instantiate()
+		add_child(pk)
+		if int(spec[1]) == 1:
+			pk.setup_gold(5)
+		else:
+			pk.setup_item("slime_gel", 1)
+		await get_tree().process_frame
+		var art := pk.art_path()
+		check(art.begins_with("res://assets/world/"),
+			"%s loot asks for real art (%s)" % [spec[0], art])
+		check(pk.sprite.texture != null
+				and not pk.sprite.texture.resource_path.begins_with("res://assets/placeholder/"),
+			"and it is wearing it (%s)" % (pk.sprite.texture.resource_path if pk.sprite.texture else "null"))
+		pk.queue_free()
+	await get_tree().process_frame
 
 
 func _test_audit_fixes() -> void:
