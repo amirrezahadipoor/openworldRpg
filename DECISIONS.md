@@ -1059,3 +1059,24 @@ held ~1024 px generated sheets that the icon tool only ever keys and shrinks to
 32x32 — halved to 512 px (8.6 MB -> 2.0 MB); re-running the pipeline changed
 37-170 pixels out of 1024 per icon, i.e. the same art within the magenta key's
 own tolerance. Workspace: 88 MB with the repo at 116 MB including `.git`.
+
+**#70 — The weapon film is composited per column, not per block** · 2026-09-11
+#69's rule ("a block made of generated art must not also composite the LPC weapon
+film, or the sword is drawn twice") was right but stated one level too coarse: a
+block is not necessarily all-generated. The idle patch fills only columns 2-3, and
+when a sheet's old (unarmed) idle poses get pruned because the character picked up
+a weapon, columns 0-1 are plain LPC frames — so a whole-block skip left the idle
+loop popping between a bare hand and a sword (measured: column 0 bbox 30x48 with no
+weapon, column 3 with one). `weapon_column_ok()` now answers per column, from the
+same source folders and the same FIRST_COL/KEEP_COLS layout make_idle_frames.py
+patches with, so the two cannot drift: armed sheets get the film in columns 0-1 and
+none in 2-3, unarmed-idle sheets (skeleton) get it in all four, and walk/hurt/
+spellcast always get it. Verified by bbox on the south idle row of goblin, raider
+and minotaur.
+
+**#70b — Deleting .godot/ costs a re-import before any test.** The workspace-size
+pass deletes the generated import cache (14 MB, untracked). Without it, Godot
+cannot resolve `class_name` globals and every suite dies instantly with
+"Identifier X not declared in the current scope" — which looks like a code
+regression and is not. Always run `godot --headless --import` after removing
+`.godot/` (one import, ~10 s) before trusting a test result.

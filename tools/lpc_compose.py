@@ -242,20 +242,30 @@ def load_layer(rel: str, adjust: dict | None = None):
     return img
 
 
-def weapon_skips(name: str, anim: str) -> bool:
-    """True when this sheet's block is generated art that already draws the weapon.
+def weapon_column_ok(name: str, anim: str, col: int) -> bool:
+    """May the LPC weapon film be composited into this column of this block?
 
-    A generated pose is drawn with the character's weapon in hand (that is what
-    the generator is asked for), so compositing the LPC weapon film over it too
-    would draw two swords. Detected from the source folders, which is also what
-    make_idle_frames.patch_sheet() consumes — the two cannot drift apart.
+    A generated pose is drawn with the character's weapon already in hand (that
+    is what the generator is asked for), so compositing the film over it too
+    would draw two swords. But a block is not necessarily all-generated: the
+    idle patch only fills columns 2-3, and when a sheet has no idle art at all
+    (its old poses were pruned because the character picked up a weapon) columns
+    0-1 are still plain LPC frames — those need the film, or the idle loop pops
+    between a bare hand and a sword. So the answer is per column, derived from
+    the same source folders and column layout make_idle_frames.py patches with.
     """
-    src_dir = os.path.join(OUT, "_idle_src" if anim == "idle" else "_attack_src")
-    return os.path.exists(os.path.join(src_dir, name + ".png"))
+    patcher = _idle_patcher()
+    if patcher is None or anim not in patcher.SRC_DIRS:
+        return True          # walk/hurt/spellcast are never generated art
+    src = os.path.join(patcher.SRC_DIRS[anim], name + ".png")
+    if not os.path.exists(src):
+        return True
+    first = patcher.FIRST_COL[anim]
+    return col < first or col >= first + patcher.KEEP_COLS[anim]
 
 
 def paste_weapon(sheet: Image.Image, kind: str, part: str, anim: str, d_i: int,
-                 row: int, frames: int) -> int:
+                 row: int, frames: int, name: str = "") -> int:
     """Composite one weapon film into a block. Returns frames actually pasted.
 
     The film's canvas decides the geometry: 64 px frames paste 1:1, 128 px frames
@@ -282,6 +292,8 @@ def paste_weapon(sheet: Image.Image, kind: str, part: str, anim: str, d_i: int,
     src_row = d_i if layer.size[1] // cell >= 4 else 0
     pasted = 0
     for f in range(frames):
+        if name and not weapon_column_ok(name, anim, f):
+            continue
         src_col = src_frame if src_frame is not None else f
         if src_col * cell + cell > layer.size[0] or src_row * cell + cell > layer.size[1]:
             continue
@@ -354,12 +366,9 @@ def compose(layers: list[str], out_path: str) -> int:
     for a_i, (anim, frames) in enumerate(ANIMS):
         for d_i in range(4):
             row = a_i * 4 + d_i
-            skip_weapon = weapon_skips(name, anim)
             for spec in behind + body + weapon_fg:
                 if _is_weapon(spec):
-                    if skip_weapon:
-                        continue
-                    paste_weapon(sheet, spec[1], _weapon_part(spec), anim, d_i, row, frames)
+                    paste_weapon(sheet, spec[1], _weapon_part(spec), anim, d_i, row, frames, name)
                     continue
                 template, adjust = spec if isinstance(spec, tuple) else (spec, None)
                 layer = load_layer(template % anim, adjust)
