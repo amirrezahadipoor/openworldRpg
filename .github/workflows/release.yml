@@ -59,6 +59,12 @@ jobs:
           sed -i 's|keystore/release_user=""|keystore/release_user="openworldrpg"|' export_presets.cfg
           sed -i 's|keystore/release_password=""|keystore/release_password="openworldrpg"|' export_presets.cfg
           sed -i 's|gradle_build/use_gradle_build=false|gradle_build/use_gradle_build=true|' export_presets.cfg
+          # Compress the engine binaries: at ~70 MB per ABI of libgodot_android.so they
+          # are most of the download. The key is only valid on a gradle build, so it is
+          # set here rather than carried in the committed preset (the CI debug export
+          # is not a gradle build and Godot refuses the combination).
+          sed -i '/^gradle_build\/use_gradle_build=true/a gradle_build/compress_native_libraries=true' export_presets.cfg
+          grep -n 'gradle_build/' export_presets.cfg
           grep -n "keystore/release=" export_presets.cfg
 
       - name: Import project (headless)

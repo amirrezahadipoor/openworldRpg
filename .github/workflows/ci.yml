@@ -21,6 +21,9 @@ jobs:
       - name: Repo size budget gate (<= 120 MB)
         run: bash tools/check_repo_size.sh
 
+      - name: Release gate self-test (the APK artefact checker)
+        run: python3 tools/check_apk_test.py
+
       - name: Validate authored data (items/enemies/talents/quests/dialogues + world maps)
         run: |
           python3 - <<'EOF'

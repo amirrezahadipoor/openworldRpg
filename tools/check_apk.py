@@ -5,20 +5,19 @@ Two things are worth failing a release over, and both are invisible from the
 outside once the file is uploaded:
 
 1. **Are the engine binaries compressed?** An uncompressed
-   ``libgodot_android.so`` is ~70 MB per ABI, and two ABIs make a side-loadable
-   APK of ~175 MB - for a game whose own assets are ~25 MB. With
-   ``gradle_build/compress_native_libraries=true`` the loader reads them from a
-   deflated entry, which cuts the download roughly in half.
-2. **Does the manifest still let Android extract them?** That only works while
-   the merged manifest carries ``android:extractNativeLibs="true"``; without it
-   the platform maps the library straight from the APK and a compressed entry
-   fails at load, on the device, after publication.
+   ``libgodot_android.so`` is ~70 MB per ABI, and two ABIs made a side-loadable
+   APK of ~175 MB for a game whose own assets are ~25 MB. With
+   ``gradle_build/compress_native_libraries=true`` the same APK is ~65 MB (#91).
+2. **Can Android still load them?** That only works while the merged manifest
+   carries ``android:extractNativeLibs="true"``; without it the platform maps the
+   library straight out of the APK, and a *compressed* entry fails at load - on a
+   device, after publication, as a crash on launch. Nothing in the test suite can
+   see that, which is why a release gate looks for it.
 
-The second check is deliberately a targeted scan rather than a full AXML parser:
-it looks up the attribute name in the binary string pool and then finds the
-attribute record that follows the same name index. That is enough to answer the
-question a release gate needs answered ("is the flag there, and is it true"),
-without a general-purpose parser in the repo.
+The manifest inside an APK is binary AXML, so this parses the string pool and the
+``<application>`` element's attribute records. A bundle's manifest is protobuf
+instead - and Play rewrites it per split - so for an ``.aab`` only the compression
+question is asked, and the tool says so rather than pretending.
 
 Usage: python3 tools/check_apk.py build/OpenWorldRPG-v0.6.2.apk
 Exit code 0 = publishable, 1 = do not publish.
@@ -26,129 +25,134 @@ Exit code 0 = publishable, 1 = do not publish.
 
 from __future__ import annotations
 
-import re
 import struct
 import sys
 import zipfile
 
-
-def string_pool(data: bytes) -> tuple[int, int]:
-    """Return (offset, count) of the first string pool chunk in an AXML file."""
-    # AXML header: 0x0003 (XML), header size, file size. First chunk after it is
-    # a string pool: type 0x0001, header size 0x001C.
-    if len(data) < 16 or struct.unpack_from("<H", data, 0)[0] != 0x0003:
-        raise ValueError("not a binary Android XML file")
-    off = struct.unpack_from("<H", data, 2)[0]
-    while off + 8 <= len(data):
-        ctype, hsize, csize = struct.unpack_from("<HHI", data, off)
-        if ctype == 0x0001:
-            count = struct.unpack_from("<I", data, off + 8)[0]
-            return off, count
-        if csize == 0:
-            break
-        off += csize
-    raise ValueError("no string pool chunk found")
+TYPE_STRING_POOL = 0x0001
+TYPE_START_ELEMENT = 0x0102
+TYPE_INT_BOOLEAN = 0x12
+NO_INDEX = 0xFFFFFFFF
 
 
-def pool_strings(data: bytes) -> list[str]:
-    """Decode every string in the pool (both UTF-8 and UTF-16 flavours)."""
-    base, count = string_pool(data)
-    flags, _, string_start = struct.unpack_from("<III", data, base + 8)
+class NotBinaryXml(ValueError):
+    pass
+
+
+def _string_pool(data: bytes, off: int) -> list[str]:
+    """Decode an AXML string pool chunk at ``off`` (UTF-8 and UTF-16 flavours)."""
+    count, _style_count, flags, strings_start = struct.unpack_from("<IIII", data, off + 8)
     utf8 = bool(flags & (1 << 8))
-    offsets = [struct.unpack_from("<I", data, base + 0x1C + 4 * i)[0] for i in range(count)]
     out: list[str] = []
-    for off in offsets:
-        pos = base + string_start + off
+    for i in range(count):
+        pos = off + strings_start + struct.unpack_from("<I", data, off + 0x1C + 4 * i)[0]
         if utf8:
-            # length is u8/u16, then the byte length, then the bytes
-            n = data[pos]
+            length = data[pos]
             pos += 1
-            if n & 0x80:
-                n = ((n & 0x7F) << 8) | data[pos]
+            if length & 0x80:  # two-byte length
+                length = ((length & 0x7F) << 8) | data[pos]
                 pos += 1
-            blen = data[pos]
+            byte_len = data[pos]
             pos += 1
-            if blen & 0x80:
-                blen = ((blen & 0x7F) << 8) | data[pos]
+            if byte_len & 0x80:
+                byte_len = ((byte_len & 0x7F) << 8) | data[pos]
                 pos += 1
-            out.append(data[pos:pos + blen].decode("utf-8", "replace"))
+            out.append(data[pos:pos + byte_len].decode("utf-8", "replace"))
         else:
-            n = struct.unpack_from("<H", data, pos)[0]
+            length = struct.unpack_from("<H", data, pos)[0]
             pos += 2
-            if n & 0x8000:
-                n = ((n & 0x7FFF) << 16) | struct.unpack_from("<H", data, pos)[0]
+            if length & 0x8000:
+                length = ((length & 0x7FFF) << 16) | struct.unpack_from("<H", data, pos)[0]
                 pos += 2
-            out.append(data[pos:pos + 2 * n].decode("utf-16-le", "replace"))
+            out.append(data[pos:pos + 2 * length].decode("utf-16-le", "replace"))
     return out
 
 
-def boolean_attribute(data: bytes, wanted: str) -> bool | None:
-    """True/False if the manifest sets the named boolean attribute, else None."""
-    try:
-        names = pool_strings(data)
-    except ValueError:
-        return None
-    if wanted not in names:
-        return None
-    index = names.index(wanted)
-    # Attribute record (20 bytes): ns, name, rawValue, then a typed value
-    # (size u16, res0 u8, dataType u8, data i32). TYPE_INT_BOOLEAN = 0x12.
-    pattern = struct.pack("<I", index) + b"\xff\xff\xff\xff" + struct.pack("<HBBI", 8, 0, 0x12, 1)
-    return pattern in data
+def element_attributes(data: bytes, element: str) -> dict[str, object]:
+    """Every attribute of the first ``element`` in a binary AXML document."""
+    if len(data) < 16 or struct.unpack_from("<H", data, 0)[0] != 0x0003:
+        raise NotBinaryXml("not a binary Android XML document")
+    strings: list[str] = []
+    off = struct.unpack_from("<H", data, 2)[0]
+    while off + 8 <= len(data):
+        ctype, _hsize, csize = struct.unpack_from("<HHI", data, off)
+        if csize == 0:
+            break
+        if ctype == TYPE_STRING_POOL:
+            strings = _string_pool(data, off)
+        elif ctype == TYPE_START_ELEMENT and strings:
+            name_idx = struct.unpack_from("<I", data, off + 20)[0]
+            attr_start, attr_size, attr_count = struct.unpack_from("<HHH", data, off + 24)
+            if name_idx < len(strings) and strings[name_idx] == element:
+                found: dict[str, object] = {}
+                base = off + 16 + attr_start  # attrExt starts 16 bytes into the node
+                for k in range(attr_count):
+                    _ns, an, raw, _size, _res0, dtype, dval = struct.unpack_from(
+                        "<IIIHBBI", data, base + k * attr_size
+                    )
+                    if an >= len(strings):
+                        continue
+                    if raw != NO_INDEX and raw < len(strings):
+                        found[strings[an]] = strings[raw]
+                    elif dtype == TYPE_INT_BOOLEAN:
+                        found[strings[an]] = bool(dval)
+                    else:
+                        found[strings[an]] = dval
+                return found
+        off += csize
+    return {}
 
 
 def check(path: str) -> int:
     problems: list[str] = []
+    notes: list[str] = []
     with zipfile.ZipFile(path) as z:
-        libs = [i for i in z.infolist() if i.filename.startswith("lib/") and i.filename.endswith(".so")]
-        if not libs:
-            # A bundle keeps them in a module rather than at the root; report it.
-            libs = [i for i in z.infolist() if i.filename.endswith(".so")]
-        stored = [i for i in libs if i.compress_type == zipfile.ZIP_STORED]
-        deflated = [i for i in libs if i.compress_type == zipfile.ZIP_DEFLATED]
-        raw_mb = sum(i.file_size for i in libs) / 1e6
-        stored_mb = sum(i.compress_size for i in libs) / 1e6
-        print(f"  native libraries: {len(libs)} files, {raw_mb:.1f} MB raw, {stored_mb:.1f} MB in the artefact")
+        names = z.namelist()
+        info = [(n, z.getinfo(n)) for n in names if n.endswith(".so")]
+        stored = [n for n, i in info if i.compress_type == zipfile.ZIP_STORED]
+        deflated = [n for n, i in info if i.compress_type == zipfile.ZIP_DEFLATED]
+        raw_mb = sum(i.file_size for _, i in info) / 1e6
+        packed_mb = sum(i.compress_size for _, i in info) / 1e6
+        print(f"  native libraries: {len(info)} files, {raw_mb:.1f} MB raw, {packed_mb:.1f} MB in the artefact")
         if deflated:
-            saved = sum(i.file_size - i.compress_size for i in deflated) / 1e6
-            print(f"  compressed: {len(deflated)} of {len(libs)} (saves {saved:.1f} MB)")
+            saved = sum(i.file_size - i.compress_size for _, i in info if i.compress_type == zipfile.ZIP_DEFLATED) / 1e6
+            print(f"  compressed: {len(deflated)} of {len(info)} (saves {saved:.1f} MB)")
         if stored:
             problems.append(
                 f"{len(stored)} native library file(s) are stored uncompressed "
-                f"({sum(i.file_size for i in stored) / 1e6:.1f} MB): "
+                f"({sum(z.getinfo(n).file_size for n in stored) / 1e6:.1f} MB): "
                 "set gradle_build/compress_native_libraries=true"
             )
 
-        manifest = None
-        for name in z.namelist():
-            if name.endswith("AndroidManifest.xml") and ("manifest" in name or name == "AndroidManifest.xml"):
-                manifest = z.read(name)
-                break
-        if manifest is None:
-            problems.append("no AndroidManifest.xml inside the artefact")
-        else:
-            flag = boolean_attribute(manifest, "extractNativeLibs")
-            if flag is None:
+        if "AndroidManifest.xml" in names:
+            attrs = element_attributes(z.read("AndroidManifest.xml"), "application")
+            flag = attrs.get("extractNativeLibs")
+            print(f"  manifest: android:extractNativeLibs={flag!r}")
+            if packed_mb and deflated and flag is not True:
                 problems.append(
-                    "the merged manifest does not set android:extractNativeLibs - "
-                    "compressed libraries would fail to load on device"
+                    "libraries are compressed but the merged manifest does not set "
+                    "android:extractNativeLibs=true - the app would fail to load them on device"
                 )
-            elif not flag:
-                print("  manifest: extractNativeLibs is present but false")
-                problems.append("android:extractNativeLibs is false, which contradicts compressed libraries")
-            else:
-                print("  manifest: android:extractNativeLibs=true")
+        elif "base/manifest/AndroidManifest.xml" in names:
+            notes.append(
+                "bundle manifest is protobuf and Play rewrites it per split; "
+                "only the compression question applies"
+            )
+        else:
+            notes.append("no AndroidManifest.xml found in the artefact")
 
+    for n in notes:
+        print(f"  note: {n}")
+    for p in problems:
+        print(f"APK CHECK: FAIL - {p}")
     if problems:
-        for p in problems:
-            print(f"APK CHECK: FAIL - {p}")
         return 1
-    print(f"APK CHECK: PASS ({re.sub(r'^.*/', '', path)})")
+    print(f"APK CHECK: PASS ({path.rsplit('/', 1)[-1]})")
     return 0
 
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(__doc__.strip().splitlines()[-2])
+        print("usage: python3 tools/check_apk.py <apk-or-aab>")
         sys.exit(2)
     sys.exit(check(sys.argv[1]))
