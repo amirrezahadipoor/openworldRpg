@@ -189,31 +189,41 @@ func _test_monster_roster() -> void:
 			missing.append(String(m))
 	check(sheeted, "every monster has composed art (missing: %s)" % str(missing))
 
-	# H5.5: the idle-only frames pasted into those sheets have to be real art, not
-	# an empty column, a copy of frame 0, or a pose spilling into its neighbour.
+	# H5.5/H7.2: the pose art pasted into those sheets has to be real art, not an
+	# empty column, a copy of frame 0, or a pose spilling into its neighbour.
 	# (tools/make_idle_frames.py --check proves the same thing offline.)
-	var manifest: Dictionary = Enemy.patched_idle_sheets()
-	check(not manifest.is_empty(), "idle frame manifest lists patched sheets (%d)" % manifest.size())
+	var manifest: Dictionary = PoseArt.all()
+	check(not manifest.is_empty(), "pose art manifest lists patched sheets (%d)" % manifest.size())
 	var bad_geometry := []
 	var copies := []
 	var overflow := []
+	var idle_sheets := 0
+	var attack_sheets := 0
 	for stem in manifest:
+		var entry: Dictionary = manifest[stem]
 		var img := Image.load_from_file("res://assets/lpc/%s.png" % stem)
 		if img == null or img.get_width() != 13 * 64 or img.get_height() != 20 * 64:
 			bad_geometry.append(String(stem))
 			continue
-		var frames := int(manifest[stem])
-		for d in 4:
-			for c in range(1, frames):
-				if not _cell_has_art(img, d, c):
-					bad_geometry.append("%s/%d/%d empty" % [stem, d, c])
-				elif _cell_difference(img, d, 0, c) < 4.0:
-					copies.append("%s/%d/%d" % [stem, d, c])
-			if _cell_has_art(img, d, frames):
-				overflow.append("%s/%d" % [stem, d])
-	check(bad_geometry.is_empty(), "every patched idle frame has art (%s)" % str(bad_geometry))
-	check(copies.is_empty(), "no patched idle frame is a copy of frame 0 (%s)" % str(copies))
-	check(overflow.is_empty(), "idle blocks stay inside their four columns (%s)" % str(overflow))
+		for anim in entry:
+			var block := 0 if String(anim) == "idle" else 2
+			var frames := int(entry[anim])
+			if String(anim) == "idle":
+				idle_sheets += 1
+			else:
+				attack_sheets += 1
+			for d in 4:
+				for c in range(1, frames):
+					if not _cell_has_art(img, block * 4 + d, c):
+						bad_geometry.append("%s/%s/%d/%d empty" % [stem, anim, d, c])
+					elif _cell_difference(img, block * 4 + d, 0, c) < 4.0:
+						copies.append("%s/%s/%d/%d" % [stem, anim, d, c])
+				if _cell_has_art(img, block * 4 + d, frames):
+					overflow.append("%s/%s/%d" % [stem, anim, d])
+	check(idle_sheets > 0, "generated idle frames exist (%d sheets)" % idle_sheets)
+	check(bad_geometry.is_empty(), "every generated pose frame has art (%s)" % str(bad_geometry))
+	check(copies.is_empty(), "no generated pose is a copy of frame 0 (%s)" % str(copies))
+	check(overflow.is_empty(), "generated pose blocks stay inside their frames (%s)" % str(overflow))
 
 	# "The enemies should have fight animations too." Every archetype that deals
 	# physical damage must animate an attack, in all four directions, that is not

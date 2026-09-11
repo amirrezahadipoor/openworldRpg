@@ -124,6 +124,15 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
       attack in all four directions. Beasts claw and casters cast by design.
       `lpc_compose.py --check` + two `items_test` checks hold it.
 
+- [x] **H7.2** *"Now that you build everything for the enemies with art, build the
+      hero and his attack animations too."* Done: `PoseArt` owns one manifest for
+      the whole game (`assets/lpc/pose_frames.json`), generated idle **and**
+      attack poses are pasted into the composed sheets, and all four hero armour
+      looks swing through a four-pose attack (wind-up, swing, impact, recovery)
+      in all four directions. Sheets without attack art fall back to the LPC
+      slash plus a rotation tween, so the hero never stands still mid-swing.
+      `combat_test` verifies the hero path per armour look (219 checks).
+
 ## Field reports folded into this pass
 
 - [x] **NPCs standing inside each other** — deterministic seats

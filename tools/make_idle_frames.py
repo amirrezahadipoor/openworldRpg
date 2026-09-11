@@ -1,51 +1,51 @@
 #!/usr/bin/env python3
-"""Pastes generated idle-only frames into the composed LPC character sheets (H5.5).
+"""Pastes generated pose art into the composed LPC sheets (H5.5 idle, H7.2 attack).
 
 Why this exists
 ---------------
-An enemy that holds IDLE for 18-32 s (H5.1) used to stand on two 4 fps breathing
-frames, i.e. it read as a statue with a twitch. The LPC layer library that the
-rest of the sprites are composed from only ships those two idle frames, so more
-idle art has to come from the image generator.
+An enemy that holds IDLE for 18-32 s used to stand on two 4 fps breathing frames
+— a statue with a twitch. The LPC layer library this project vendors only ships
+those two idle frames per direction, so more idle art has to be generated. The
+same is true of an attack a character "owns": LPC ships one shared slash block,
+so a hero's swing could not be his own. Both are generated art.
 
-Input: `assets/lpc/_idle_src/<sheet>.png` — one generated sheet per character on
-the magenta chroma screen the art pipeline keys against, laid out as a grid of
-eight poses: four columns in LPC's own direction order (n, w, s, e) and two rows
-(weight shifted onto one leg, then a look-around pose with the head turned).
+Inputs (on the magenta chroma screen the art pipeline keys against, as a grid of
+equal cells — four columns in LPC's own direction order n, w, s, e):
 
-Output: idle columns 2 and 3 of every direction row of `assets/lpc/<sheet>.png`
-are filled with those poses, so the idle block becomes four frames:
+    assets/lpc/_idle_src/<sheet>.png    2 rows  (weight shift, look-around)
+    assets/lpc/_attack_src/<sheet>.png  4 rows  (the poses of one swing)
 
-    column  0      1       2        3
-            base   breath  shift    look-around
-    loop    0      2       1        3        (IDLE_LOOP in scripts/enemies/enemy.gd)
+Outputs (into the composed sheet `assets/lpc/<sheet>.png`):
+
+    idle   columns 2-3 of every direction row   -> loop [base, shift, breath, look]
+    slash  columns 0-3 of every direction row   -> a four-pose attack
+           (columns 4+ of those rows are cleared, so the block holds exactly the
+            frames that will be played)
+
+`assets/lpc/pose_frames.json` is the manifest: which sheets carry which art, and
+how many frames. `scripts/data/pose_art.gd` is the only thing at runtime that
+reads it, and a sheet that is not in it keeps its original LPC frames.
+`lpc_compose.py` calls `patch_sheet()` after composing, so recomposing a sheet
+cannot throw the generated art away.
 
 The pasted frames are not dropped in as-is. Each pose is
 
-  * keyed off the chroma screen (with a despill pass, the same way the UI icons
-    in tools/make_ui_icons.py are),
-  * cut out by empty-projection runs, so a pose is never mixed with its
-    neighbour even if the generator spaced them unevenly,
+  * keyed off the chroma screen (with a despill pass, as tools/make_ui_icons.py),
+  * cut out by empty-projection runs, so a pose is never mixed with its neighbour
+    even if the generator spaced them unevenly,
   * mirrored back if the generator drew a side profile facing the wrong way
     (silhouette IoU against the frame the sheet already has for that direction),
   * scaled uniformly to the height of that same reference frame and pasted onto
-    its baseline and horizontal centre, so an idle frame cannot float, sink or
-    change size between frames,
-  * palette-snapped to the colours of the reference frame, so the generated art
-    inherits the composed sheet's palette instead of arriving with its own.
-
-Files that were never patched are simply not in `assets/lpc/idle_frames.json`,
-and the runtime falls back to the sheet's own two-frame idle for them.
+    its baseline and horizontal centre, so a frame cannot float, sink or change
+    size,
+  * palette-snapped to the colours of the reference frame, so generated art
+    arrives in the sheet's palette instead of its own.
 
 Usage
 -----
     python3 tools/make_idle_frames.py                 # patch every source
     python3 tools/make_idle_frames.py enemy_wolf ...  # patch named sheets
     python3 tools/make_idle_frames.py --check         # verify, exit 1 on problems
-
-Re-run tools/lpc_compose.py first if the sheet itself was recomposed (that
-overwrites the idle columns); `lpc_compose.py` calls `patch_sheet()` itself when
-a source exists, so in practice `python3 tools/lpc_compose.py` is enough.
 """
 import json
 import os
@@ -56,22 +56,24 @@ from PIL import Image
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 SHEET_DIR = os.path.join(ROOT, "assets", "lpc")
-SRC_DIR = os.path.join(SHEET_DIR, "_idle_src")
-MANIFEST = os.path.join(SHEET_DIR, "idle_frames.json")
+SRC_DIRS = {
+    "idle": os.path.join(SHEET_DIR, "_idle_src"),
+    "slash": os.path.join(SHEET_DIR, "_attack_src"),
+}
+MANIFEST = os.path.join(SHEET_DIR, "pose_frames.json")
 
 FRAME = 64
 COLS = 13
 ROWS = 20
 DIRS = ["n", "w", "s", "e"]          # LPC row order inside an animation block
-IDLE_BLOCK_ROW = 0                   # block 0 of the composed sheet
-FIRST_EXTRA_COL = 2                  # columns 0 and 1 are the sheet's own frames
-EXTRA_COLS = [2, 3]
-POSE_ROWS = ["shift", "look"]
+BLOCK_ROW = {"idle": 0, "slash": 2}  # animation block index of each patched anim
+POSE_ROWS = {"idle": 2, "slash": 4}  # rows in the generated source
+FIRST_COL = {"idle": 2, "slash": 0}
+KEEP_COLS = {"idle": 4, "slash": 4}  # columns the block is left holding
 KEY_TOLERANCE = 96
 ALPHA_CUTOFF = 120
-# Below this mean per-channel difference a "new" idle frame is really frame 0.
+# Below this mean per-channel difference a "new" frame is really frame 0 again.
 MIN_FRAME_DIFFERENCE = 4.0
-
 EXIT_OK, EXIT_PROBLEM = 0, 1
 
 
@@ -85,21 +87,18 @@ def key_out(img: Image.Image) -> Image.Image:
                    & (np.abs(g - 0) < KEY_TOLERANCE)
                    & (np.abs(b - 255) < KEY_TOLERANCE))
     fringed = (r > 120) & (b > 110) & (g < 110) & ((r + b) > (2.1 * g).astype(np.int16))
-    cut = near_screen | fringed
     out = np.asarray(img.convert("RGBA"), dtype=np.uint8).copy()
-    out[cut] = (0, 0, 0, 0)
-    # Despill: nothing in these palettes is purple, so red-blue dominance at a
-    # surviving pixel is still screen bleed from the antialiased edge.
-    rr, gg, bb, aa = (out[..., 0].astype(np.int16), out[..., 1].astype(np.int16),
-                      out[..., 2].astype(np.int16), out[..., 3])
-    spill = (aa > 0) & (rr > 100) & (bb > 100) & (gg < 0.55 * np.minimum(rr, bb))
+    out[near_screen | fringed] = (0, 0, 0, 0)
+    rr, gg, bb = (out[..., 0].astype(np.int16), out[..., 1].astype(np.int16),
+                  out[..., 2].astype(np.int16))
+    spill = (out[..., 3] > 0) & (rr > 100) & (bb > 100) & (gg < 0.55 * np.minimum(rr, bb))
     out[spill] = (0, 0, 0, 0)
     return Image.fromarray(out, "RGBA")
 
 
 # --- cutting the generated grid into poses ----------------------------------
 
-def _runs(occupied: np.ndarray, min_size: int = 4) -> list:
+def _runs(occupied, min_size: int = 4) -> list:
     """Group an occupied/empty projection into (start, end) runs of occupied."""
     runs = []
     start = None
@@ -115,12 +114,10 @@ def _runs(occupied: np.ndarray, min_size: int = 4) -> list:
     return runs
 
 
-def split_poses(img: Image.Image) -> dict:
-    """Cut eight poses out by empty-projection runs; returns {(dir, pose): box}."""
+def split_poses(img: Image.Image, rows: int) -> dict:
+    """Cut the generated grid into poses; returns {(dir, row_index): box}."""
     alpha = np.asarray(img.getchannel("A"), dtype=np.uint8) > 0
-    col_runs = _runs(alpha.any(axis=0).tolist())
-    # Drop slivers (stray specks) — a column of a real pose is always wide.
-    col_runs = [r for r in col_runs if r[1] - r[0] >= 8]
+    col_runs = [r for r in _runs(alpha.any(axis=0).tolist()) if r[1] - r[0] >= 8]
     if len(col_runs) != len(DIRS):
         raise ValueError("expected %d pose columns, found %d %s"
                          % (len(DIRS), len(col_runs), col_runs))
@@ -128,15 +125,14 @@ def split_poses(img: Image.Image) -> dict:
     for d_i, (x0, x1) in enumerate(col_runs):
         band = alpha[:, x0:x1]
         row_runs = [r for r in _runs(band.any(axis=1).tolist()) if r[1] - r[0] >= 8]
-        if len(row_runs) != len(POSE_ROWS):
+        if len(row_runs) != rows:
             raise ValueError("column %s: expected %d poses, found %d %s"
-                             % (DIRS[d_i], len(POSE_ROWS), len(row_runs), row_runs))
+                             % (DIRS[d_i], rows, len(row_runs), row_runs))
         for p_i, (y0, y1) in enumerate(row_runs):
             sub = band[y0:y1, :]                 # band is already column-cropped
             ys, xs = np.nonzero(sub)
-            boxes[(DIRS[d_i], POSE_ROWS[p_i])] = (
-                x0 + int(xs.min()), y0 + int(ys.min()),
-                x0 + int(xs.max()) + 1, y0 + int(ys.max()) + 1)
+            boxes[(DIRS[d_i], p_i)] = (x0 + int(xs.min()), y0 + int(ys.min()),
+                                       x0 + int(xs.max()) + 1, y0 + int(ys.max()) + 1)
     return boxes
 
 
@@ -183,13 +179,13 @@ def normalise_pose(pose: Image.Image, ref: Image.Image) -> Image.Image:
     arr[arr[..., 3] < ALPHA_CUTOFF] = (0, 0, 0, 0)
     pose = Image.fromarray(arr, "RGBA")
 
-    ref_mask = np.asarray(ref.getchannel("A"), dtype=np.uint8) > ALPHA_CUTOFF
     ref_box = ref.getbbox() or (0, 0, FRAME, FRAME)
+    ref_mask = np.asarray(ref.getchannel("A"), dtype=np.uint8) > ALPHA_CUTOFF
     ref_mask = ref_mask[ref_box[1]:ref_box[3], ref_box[0]:ref_box[2]]
     size = (ref_box[2] - ref_box[0], ref_box[3] - ref_box[1])
 
-    # Side profiles are the ones a generator is most likely to draw mirrored;
-    # pick whichever orientation actually matches the silhouette it must join.
+    # Side profiles are the ones a generator is most likely to draw mirrored; pick
+    # whichever orientation actually matches the silhouette it must join.
     flipped = pose.transpose(Image.FLIP_LEFT_RIGHT)
     score = {}
     for tag, cand in (("as-is", pose), ("flipped", flipped)):
@@ -203,14 +199,12 @@ def normalise_pose(pose: Image.Image, ref: Image.Image) -> Image.Image:
         raise ValueError("empty pose")
     pose = pose.crop(src_box)
     scale = size[1] / float(pose.height)
-    new_size = (max(1, int(round(pose.width * scale))), size[1])
-    pose = pose.resize(new_size, Image.LANCZOS)
+    pose = pose.resize((max(1, int(round(pose.width * scale))), size[1]), Image.LANCZOS)
     arr = np.asarray(pose, dtype=np.uint8).copy()
     arr[arr[..., 3] < ALPHA_CUTOFF] = (0, 0, 0, 0)
-    palette = _palette(ref)
     solid = arr[..., 3] > ALPHA_CUTOFF
     if solid.any():
-        arr[..., :3][solid] = _snap_to_palette(arr[..., :3][solid], palette)
+        arr[..., :3][solid] = _snap_to_palette(arr[..., :3][solid], _palette(ref))
     arr[..., 3] = np.where(solid, 255, 0).astype(np.uint8)
     return Image.fromarray(arr, "RGBA")
 
@@ -224,38 +218,81 @@ def paste_pose(sheet: Image.Image, row: int, col: int, pose: Image.Image,
     dy = int(ref_box[3] - pose.height)
     dx = max(0, min(FRAME - pose.width, dx))            # never spill the cell
     dy = max(0, min(FRAME - pose.height, dy))
-    cell = (col * FRAME, row * FRAME)
-    sheet.paste((0, 0, 0, 0), (cell[0], cell[1], cell[0] + FRAME, cell[1] + FRAME))
-    sheet.paste(pose, (cell[0] + dx, cell[1] + dy), pose)
+    x, y = col * FRAME, row * FRAME
+    sheet.paste((0, 0, 0, 0), (x, y, x + FRAME, y + FRAME))
+    sheet.paste(pose, (x + dx, y + dy), pose)
 
 
 # --- sheet-level driver -----------------------------------------------------
 
-def patch_sheet(name: str) -> dict:
-    """Patch one sheet from its source art. Returns the manifest entry."""
-    src_path = os.path.join(SRC_DIR, name + ".png")
-    sheet_path = os.path.join(SHEET_DIR, name + ".png")
+def patch_anim(sheet: Image.Image, name: str, anim: str) -> int:
+    """Paste one animation's generated poses into a sheet. Returns 0 if no art."""
+    src_path = os.path.join(SRC_DIRS[anim], name + ".png")
     if not os.path.exists(src_path):
-        raise FileNotFoundError("no idle source for %s (expected %s)" % (name, src_path))
+        return 0
+    rows = POSE_ROWS[anim]
     src = key_out(Image.open(src_path))
-    poses = split_poses(src)
+    poses = split_poses(src, rows)
+    pasted = 0
+    for d_i, d in enumerate(DIRS):
+        row = BLOCK_ROW[anim] * 4 + d_i
+        ref = _frame_rgba(sheet, row, 0)
+        for p_i in range(rows):
+            pose = normalise_pose(src.crop(poses[(d, p_i)]), ref)
+            paste_pose(sheet, row, FIRST_COL[anim] + p_i, pose, ref)
+            pasted += 1
+        # Leave the block holding exactly the frames that will be played, so a
+        # leftover LPC pose can never be reached by a future frame-count change.
+        for col in range(FIRST_COL[anim] + rows, COLS):
+            x, y = col * FRAME, row * FRAME
+            sheet.paste((0, 0, 0, 0), (x, y, x + FRAME, y + FRAME))
+    return pasted
+
+
+def patch_sheet(name: str) -> dict:
+    """Patch one sheet from whatever generated art exists. Returns its manifest entry."""
+    sheet_path = os.path.join(SHEET_DIR, name + ".png")
+    if not os.path.exists(sheet_path):
+        raise FileNotFoundError("no composed sheet %s" % sheet_path)
     sheet = Image.open(sheet_path).convert("RGBA")
     if sheet.size != (COLS * FRAME, ROWS * FRAME):
         raise ValueError("%s: unexpected sheet size %s" % (name, sheet.size))
-    for d_i, d in enumerate(DIRS):
-        row = IDLE_BLOCK_ROW * 4 + d_i
-        ref = _frame_rgba(sheet, row, 0)
-        for p_i, pose_id in enumerate(POSE_ROWS):
-            pose = normalise_pose(src.crop(poses[(d, pose_id)]), ref)
-            paste_pose(sheet, row, FIRST_EXTRA_COL + p_i, pose, ref)
-    sheet.save(sheet_path, optimize=True)
-    return name
+    entry = {}
+    for anim in ("idle", "slash"):
+        pasted = patch_anim(sheet, name, anim)
+        if pasted:
+            entry[anim] = KEEP_COLS[anim]
+    if entry:
+        sheet.save(sheet_path, optimize=True)
+    return entry
 
 
 def _sources() -> list:
-    if not os.path.isdir(SRC_DIR):
-        return []
-    return sorted(f[:-4] for f in os.listdir(SRC_DIR) if f.endswith(".png"))
+    names = set()
+    for d in SRC_DIRS.values():
+        if os.path.isdir(d):
+            names |= {f[:-4] for f in os.listdir(d) if f.endswith(".png")}
+    return sorted(names)
+
+
+def refresh_manifest(names: list) -> None:
+    """Rewrite the manifest entries for `names` from the sources on disk.
+
+    Called by lpc_compose.py after a recompose + re-patch, so the manifest can
+    never claim art that a recompose just wiped out.
+    """
+    manifest = {k: v for k, v in _load_manifest().items()
+                if os.path.exists(os.path.join(SHEET_DIR, k + ".png"))}
+    for name in names:
+        entry = {}
+        for anim in ("idle", "slash"):
+            if os.path.exists(os.path.join(SRC_DIRS[anim], name + ".png")):
+                entry[anim] = KEEP_COLS[anim]
+        if entry:
+            manifest[name] = entry
+        else:
+            manifest.pop(name, None)
+    _save_manifest(manifest)
 
 
 def _load_manifest() -> dict:
@@ -272,11 +309,7 @@ def _save_manifest(entries: dict) -> None:
 
 
 def _frame_difference(a: np.ndarray, b: np.ndarray) -> float:
-    """Mean per-channel difference over the union of two frames' silhouettes.
-
-    Catches the failure that matters: a "new" idle frame that is really the old
-    frame again (the two-frame idle would then just play faster).
-    """
+    """Mean per-channel difference over the union of two frames' silhouettes."""
     solid = (a[..., 3] > ALPHA_CUTOFF) | (b[..., 3] > ALPHA_CUTOFF)
     if not solid.any():
         return 0.0
@@ -285,12 +318,12 @@ def _frame_difference(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def check() -> bool:
-    """Verify every patched sheet really carries four distinct idle frames."""
+    """Verify every patched sheet really carries the frames it claims."""
     manifest = _load_manifest()
     problems = []
     if not manifest:
         problems.append("manifest %s is empty" % os.path.relpath(MANIFEST, ROOT))
-    for name, frames in sorted(manifest.items()):
+    for name, entry in sorted(manifest.items()):
         path = os.path.join(SHEET_DIR, name + ".png")
         if not os.path.exists(path):
             problems.append("%s: listed in the manifest but the sheet is gone" % name)
@@ -299,60 +332,71 @@ def check() -> bool:
         if sheet.size != (COLS * FRAME, ROWS * FRAME):
             problems.append("%s: sheet size %s" % (name, sheet.size))
             continue
-        for d_i, d in enumerate(DIRS):
-            row = IDLE_BLOCK_ROW * 4 + d_i
-            ref = np.asarray(_frame_rgba(sheet, row, 0), dtype=np.uint8)
-            if not (ref[..., 3] > ALPHA_CUTOFF).any():
-                problems.append("%s/%s: the sheet's own idle frame is empty" % (name, d))
+        if not isinstance(entry, dict):
+            problems.append("%s: manifest entry is not per-animation" % name)
+            continue
+        for anim, frames in sorted(entry.items()):
+            if anim not in BLOCK_ROW:
+                problems.append("%s: unknown animation '%s'" % (name, anim))
                 continue
-            for col in range(1, int(frames)):
-                cell = _frame_rgba(sheet, row, col)
-                if cell.getbbox() is None:
-                    problems.append("%s/%s: idle frame %d is empty" % (name, d, col))
+            frames = int(frames)
+            if frames != KEEP_COLS[anim]:
+                problems.append("%s/%s: %d frames, expected %d"
+                                % (name, anim, frames, KEEP_COLS[anim]))
+            for d_i, d in enumerate(DIRS):
+                row = BLOCK_ROW[anim] * 4 + d_i
+                ref = np.asarray(_frame_rgba(sheet, row, 0), dtype=np.uint8)
+                if not (ref[..., 3] > ALPHA_CUTOFF).any():
+                    problems.append("%s/%s: frame 0 is empty" % (name, d))
                     continue
-                arr = np.asarray(cell, dtype=np.uint8)
-                # A pasted frame that came out as a copy of frame 0 (a failed key,
-                # a mis-cut pose) would look like the old two-frame idle at 4 fps.
-                diff = _frame_difference(ref, arr)
-                if diff < MIN_FRAME_DIFFERENCE:
-                    problems.append("%s/%s: idle frame %d is a copy of frame 0 (%.1f)"
-                                    % (name, d, col, diff))
-            if _frame_rgba(sheet, row, int(frames)).getbbox() is not None:
-                problems.append("%s/%s: idle block overflows into column %d"
-                                % (name, d, int(frames)))
+                for col in range(1, frames):
+                    cell = _frame_rgba(sheet, row, col)
+                    if cell.getbbox() is None:
+                        problems.append("%s/%s: %s frame %d is empty" % (name, d, anim, col))
+                        continue
+                    diff = _frame_difference(ref, np.asarray(cell, dtype=np.uint8))
+                    if diff < MIN_FRAME_DIFFERENCE:
+                        problems.append("%s/%s: %s frame %d is a copy of frame 0"
+                                        % (name, d, anim, col, diff))
+                if _frame_rgba(sheet, row, frames).getbbox() is not None:
+                    problems.append("%s/%s: %s block overflows into column %d"
+                                    % (name, d, anim, frames))
     for p in problems:
         print("  PROBLEM: %s" % p)
     if problems:
-        print("IDLE ART: FAILED (%d problems)" % len(problems))
+        print("POSE ART: FAILED (%d problems)" % len(problems))
         return False
-    total = sum(int(v) for v in manifest.values())
-    print("IDLE ART: PASS (%d sheets, %d idle frames each)" % (len(manifest),
-                                                              total // max(1, len(manifest))))
+    idle = sum(1 for e in manifest.values() if int(e.get("idle", 0)))
+    attack = sum(1 for e in manifest.values() if int(e.get("slash", 0)))
+    print("POSE ART: PASS (%d sheets: %d with idle frames, %d with attack poses)"
+          % (len(manifest), idle, attack))
     return True
 
 
 def main() -> None:
-    args = [a for a in sys.argv[1:] if a != "--check"]
     if "--check" in sys.argv[1:]:
         sys.exit(EXIT_OK if check() else EXIT_PROBLEM)
 
-    want = args or _sources()
+    want = [a for a in sys.argv[1:] if not a.startswith("-")] or _sources()
     if not want:
-        sys.exit("no idle sources in %s" % os.path.relpath(SRC_DIR, ROOT))
-    # Prune entries whose source art is gone (an armed character's stale
-    # unarmed poses, say): a sheet must never claim idle frames it does not
-    # have, or the runtime would animate four columns with two empty ones.
+        sys.exit("no generated pose art in %s" % ", ".join(
+            os.path.relpath(d, ROOT) for d in SRC_DIRS.values()))
+    # Drop entries whose source art is gone (an armed character's stale unarmed
+    # poses, say): a sheet must never claim frames it does not have.
     manifest = {k: v for k, v in _load_manifest().items()
-                if os.path.exists(os.path.join(SRC_DIR, k + ".png"))}
+                if os.path.exists(os.path.join(SRC_DIRS["idle"], k + ".png"))
+                or os.path.exists(os.path.join(SRC_DIRS["slash"], k + ".png"))}
     failed = []
     for name in want:
         try:
-            patch_sheet(name)
+            entry = patch_sheet(name)
         except (FileNotFoundError, ValueError) as exc:
             failed.append("%s: %s" % (name, exc))
             continue
-        manifest[name] = 4
-        print("  %-24s idle frames patched (shift + look-around x 4 directions)" % name)
+        if entry:
+            manifest[name] = entry
+            print("  %-24s patched %s" % (name, ", ".join(
+                "%s x%d poses" % (a, KEEP_COLS[a]) for a in sorted(entry))))
     _save_manifest(manifest)
     if failed:
         for f in failed:

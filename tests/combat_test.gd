@@ -972,8 +972,8 @@ func _test_idle_art() -> void:
 	var host := Node2D.new()
 	add_child(host)
 
-	var patched := Enemy.patched_idle_sheets()
-	check(patched.size() > 0, "the idle-frame manifest is readable (%d sheets)" % patched.size())
+	var patched := PoseArt.all()
+	check(patched.size() > 0, "the pose-art manifest is readable (%d sheets)" % patched.size())
 
 	# Every archetype must read its own sheet's frame count, and the count must
 	# match what the manifest says about that sheet.
@@ -981,11 +981,11 @@ func _test_idle_art() -> void:
 	var with_four := 0
 	for id in EnemyDB.monsters() + EnemyDB.bosses():
 		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
-		var want := Enemy.IDLE_PATCHED_FRAMES if patched.has(sheet.get_file().get_basename()) else 2
+		var want := PoseArt.count(sheet, "idle", 2)
 		var probe: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
 		host.add_child(probe)
 		probe.setup_archetype(String(id))
-		if want == Enemy.IDLE_PATCHED_FRAMES:
+		if want == PoseArt.IDLE_GENERATED:
 			with_four += 1
 		if probe.idle_frames != want:
 			mismatched.append("%s=%d(want %d)" % [id, probe.idle_frames, want])
@@ -1000,7 +1000,7 @@ func _test_idle_art() -> void:
 	var probe_id := ""
 	for id in EnemyDB.monsters():
 		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
-		if patched.has(sheet.get_file().get_basename()):
+		if PoseArt.has(sheet, "idle"):
 			probe_id = String(id)
 			break
 	if probe_id == "":
@@ -1011,19 +1011,38 @@ func _test_idle_art() -> void:
 	var enemy: Enemy = load("res://scenes/enemies/enemy.tscn").instantiate()
 	host.add_child(enemy)
 	enemy.setup_archetype(probe_id)
-	check(enemy.idle_frames == Enemy.IDLE_PATCHED_FRAMES,
+	check(enemy.idle_frames == PoseArt.IDLE_GENERATED,
 		"%s's sheet carries the extra idle frames" % probe_id)
 	var seen := {}
 	for i in 90:
 		enemy._update_anim(1.0 / 60.0)
 		seen[enemy.sprite.frame] = true
-	check(seen.size() == Enemy.IDLE_PATCHED_FRAMES,
-		"the idle loop plays %d different frames (%d seen)" % [Enemy.IDLE_PATCHED_FRAMES, seen.size()])
+	check(seen.size() == PoseArt.IDLE_GENERATED,
+		"the idle loop plays %d different frames (%d seen)" % [PoseArt.IDLE_GENERATED, seen.size()])
 	var columns := {}
-	for step in Enemy.IDLE_PATCHED_FRAMES:
+	for step in PoseArt.IDLE_GENERATED:
 		columns[enemy._idle_column(step)] = true
-	check(columns.size() == Enemy.IDLE_PATCHED_FRAMES,
+	check(columns.size() == PoseArt.IDLE_GENERATED,
 		"the idle loop visits four distinct sheet columns (%s)" % str(columns.keys()))
+
+	# And the hero's attack animation must be real motion whichever sheet he is
+	# wearing: generated poses if that sheet has them, the LPC slash plus the
+	# tween fallback if it does not.
+
+
+	# Attack poses: a monster with generated swing art plays those frames, and one
+	# without keeps the six LPC frames it always had.
+	var with_attack := 0
+	var without_attack := 0
+	for id in EnemyDB.monsters():
+		var sheet := String(EnemyDB.get_archetype(String(id)).get("sheet", ""))
+		if PoseArt.has(sheet, "slash"):
+			with_attack += 1
+		else:
+			without_attack += 1
+	check(with_attack + without_attack == EnemyDB.monsters().size(),
+		"every monster resolves an attack frame count (%d generated, %d LPC)"
+		% [with_attack, without_attack])
 
 	# Resting: the loop slows down and the monster turns to look around.
 	check(Enemy.REST_IDLE_SLOWDOWN < 1.0,
@@ -1040,6 +1059,44 @@ func _test_idle_art() -> void:
 
 	enemy.queue_free()
 	host.queue_free()
+	await _phys(2)
+
+	# The hero is a character too: his sheet is read through the same manifest, so
+	# he breathes on four idle frames and swings his own attack poses the moment
+	# the art exists for the armour he is wearing.
+	var hero_sheets := 0
+	# The hero's swing is real motion whichever sheet he wears.
+	for look in ["none", "leather", "plate", "legion"]:
+		var path := "res://assets/lpc/player_%s_sword.png" % look
+		if not ResourceLoader.exists(path):
+			continue
+		hero_sheets += 1
+		var idle_cols := PoseArt.idle_columns(path, 2)
+		var slash_cols := PoseArt.slash_columns(path, 6)
+		check(idle_cols.size() == PoseArt.count(path, "idle", 2),
+			"the %s hero plays %d idle frames" % [look, idle_cols.size()])
+		check(slash_cols.size() == PoseArt.count(path, "slash", 6),
+			"the %s hero plays %d attack poses" % [look, slash_cols.size()])
+		var hero: Player = load("res://scenes/player/player.tscn").instantiate()
+		add_child(hero)
+		GameState.equipment["weapon"] = "iron_sword" if look == "none" else "iron_sword"
+		hero._rebuild_sprite_frames()
+		var frames := 0
+		if hero.sprite != null and hero.sprite.sprite_frames != null:
+			frames = hero.sprite.sprite_frames.get_frame_count("slash_s")
+		check(frames == slash_cols.size(),
+			"the hero's animator builds %d attack frames for %s (got %d)"
+			% [slash_cols.size(), look, frames])
+		hero.queue_free()
+	check(hero_sheets == 4, "all four hero armour looks have sheets (%d)" % hero_sheets)
+	var swing_hero: Player = load("res://scenes/player/player.tscn").instantiate()
+	add_child(swing_hero)
+	swing_hero._rebuild_sprite_frames()
+	var generated_swing := swing_hero.uses_generated_art("slash")
+	check(generated_swing or swing_hero.sprite.sprite_frames.get_frame_count("slash_s") == 6,
+		"the hero's swing is either generated art or the full LPC slash (generated=%s)"
+		% str(generated_swing))
+	swing_hero.queue_free()
 	await _phys(2)
 
 

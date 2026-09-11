@@ -69,6 +69,7 @@ const LPC_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, "
 const LPC_DIRS := ["n", "w", "s", "e"]
 
 var sprite: AnimatedSprite2D
+var _sheet_path := ""
 var _cast_anim := 0.0
 var _hurt_anim := 0.0
 var _dead := false
@@ -171,6 +172,19 @@ func _read_move_input() -> Vector2:
 	return Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
 
+func _tween_swing_fallback() -> void:
+	## Used only for a sheet without generated attack art: rotate the whole sprite
+	## through the swing so the hero still visibly hits, instead of standing still
+	## through eight frames of an 6 fps slideshow.
+	if sprite == null or uses_generated_art("slash"):
+		return
+	var tw := create_tween()
+	var dir := -1.0 if facing.x < 0.0 else 1.0
+	tw.tween_property(sprite, "rotation", deg_to_rad(13.0) * dir, 0.07)
+	tw.tween_property(sprite, "rotation", deg_to_rad(-16.0) * dir, 0.12)
+	tw.tween_property(sprite, "rotation", 0.0, 0.13)
+
+
 func _start_attack() -> void:
 	## Three-hit chain. The first two swings are quick jabs; the third is a heavy
 	## finisher that reaches further, hits for COMBO_FINISHER_MULT and shoves what
@@ -190,6 +204,7 @@ func _start_attack() -> void:
 		(attack_shape.shape as CircleShape2D).radius = 26.0 if finisher else 18.0
 	EventBus.attack_swung.emit(self)
 	AudioManager.play_sfx("attack_swing")
+	_tween_swing_fallback()
 	if finisher:
 		_finisher_flash()
 	_sample_attack_hits()   # first sample now; the rest come from _physics_process
@@ -374,6 +389,12 @@ func take_hit(amount: float, _dir: Vector2) -> void:
 
 # --- LPC animation (Phase 3) -------------------------------------------------
 
+func uses_generated_art(anim: String) -> bool:
+	## Does the hero's CURRENT sheet carry generated poses for this animation?
+	## (The equipment decides the sheet, and not every sheet has art yet.)
+	return PoseArt.has(_sheet_path, anim)
+
+
 func _update_anim() -> void:
 	if sprite == null or sprite.sprite_frames == null:
 		return
@@ -381,7 +402,10 @@ func _update_anim() -> void:
 	if _dead or _hurt_anim > 0.0:
 		anim = "hurt"
 	elif _attack_active > 0.0:
-		anim = "slash"
+		# A swing that only advances a frame every 0.17 s (the LPC block's 6 fps)
+		# reads as a slideshow. When the art is not there yet, the hero's visible
+		# wind-up rides the arm-swing tween instead (see _start_attack).
+		anim = "slash" if uses_generated_art("slash") else "idle"
 	elif _cast_anim > 0.0:
 		anim = "spellcast"
 	elif velocity.length_squared() > 4.0:
@@ -426,26 +450,48 @@ func _armor_look(armor_id: String) -> String:
 
 
 func _rebuild_sprite_frames() -> void:
+	## The hero's sheet is chosen by equipment (see _variant_key) and read the
+	## same way a monster's is: PoseArt says whether this sheet carries generated
+	## pose art, so the hero breathes on four idle frames and swings through his
+	## own attack poses exactly like the enemies do, and falls back to the LPC
+	## frames for anything that has not been generated yet.
 	_last_variant = _variant_key()
-	var tex := load(LPC_SHEET % [_last_variant.split("_")[1], _last_variant.split("_")[2]])
+	_sheet_path = LPC_SHEET % [_last_variant.split("_")[1], _last_variant.split("_")[2]]
+	var tex := load(_sheet_path)
 	if tex == null:
 		return
 	var sf := SpriteFrames.new()
 	for a_i in LPC_ANIMS.size():
 		var anim: String = LPC_ANIMS[a_i]
+		var columns: Array = _columns_for(anim, _sheet_path)
+		var speed: float = float(LPC_FPS[anim])
+		if columns.size() < int(LPC_FRAMES[anim]):
+			# Generated attack art replaces six LPC frames with four larger poses:
+			# hold the animation's wall-clock length so the swing still lands
+			# inside the attack window. More frames than the block (idle) plays at
+			# the block's own rate.
+			speed *= float(LPC_FRAMES[anim]) / float(columns.size())
 		for d_i in LPC_DIRS.size():
 			var name := "%s_%s" % [anim, LPC_DIRS[d_i]]
 			sf.add_animation(name)
-			sf.set_animation_speed(name, LPC_FPS[anim])
+			sf.set_animation_speed(name, speed)
 			sf.set_animation_loop(name, anim in ["idle", "walk"])
-			for f in LPC_FRAMES[anim]:
+			for col in columns:
 				var at := AtlasTexture.new()
 				at.atlas = tex
-				at.region = Rect2(f * 64.0, (a_i * 4 + d_i) * 64.0, 64.0, 64.0)
+				at.region = Rect2(float(col) * 64.0, (a_i * 4 + d_i) * 64.0, 64.0, 64.0)
 				sf.add_frame(name, at)
 	sprite.sprite_frames = sf
 	sprite.centered = true
 	sprite.offset = Vector2(0, -10)  # LPC frames are taller than the body pivot
+
+
+func _columns_for(anim: String, sheet: String) -> Array:
+	if anim == "idle":
+		return PoseArt.idle_columns(sheet, int(LPC_FRAMES["idle"]))
+	if anim == "slash":
+		return PoseArt.slash_columns(sheet, int(LPC_FRAMES["slash"]))
+	return range(int(LPC_FRAMES[anim]))
 
 
 func _on_died() -> void:

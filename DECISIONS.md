@@ -1013,3 +1013,43 @@ Also: the new art step failed its first CI run with `ModuleNotFoundError: No mod
 named 'PIL'` — the GitHub runner's Python ships no imaging library, so the workflow
 now installs Pillow + numpy before the art checks (with a `--break-system-packages`
 fallback). Any future check that reads a PNG from the runner needs the same step.
+
+**#69 — The hero is a character too: generated swing + idle poses (H7.2)** · 2026-09-11
+The enemies got real swings (H7.1) and the hero did not: his attack was whatever
+the shared LPC slash block shows at 6 fps, which reads as a slideshow rather than
+"this is my sword". It is not fixed in the hero's code but in the same pose-art
+pipeline the monsters use, because the hero's sprite is built exactly the way a
+monster's is (equipment -> composed sheet -> frames). `PoseArt`
+(`scripts/data/pose_art.gd`) now owns the manifest the whole game reads
+(`assets/lpc/pose_frames.json`, written by `tools/make_idle_frames.py`):
+`{"sheet": {"idle": 4, "slash": 4}}`, so a sheet without generated art keeps the
+LPC frames and nothing has to guess. Generated art is pasted per animation —
+idle into columns 2-3, attack into columns 0-3 of the slash block, **clearing the
+rest of that row**, so a block only ever contains frames that will be played.
+Four hero sheets (all four armour looks) got a four-pose swing: wind-up, begun
+swing, impact, recovery, drawn in all four directions with the sword in hand, and
+the loop/variant is picked per worn equipment like everything else. The generator
+returned the poses *already matching LPC's own geometry* (frame-for-frame
+comparable to the preset slash), which is why the alignment pass could scale them
+to the reference frame without a custom offset. Two rules fell out of it:
+  * a block made of generated art must not also composite the LPC weapon film, or
+    the sword would be drawn twice — `lpc_compose.weapon_skips()` decides that
+    from the same source folders the patcher reads, so the two cannot drift;
+  * frame rate compensates only when the generated block is *shorter* than the LPC
+    one (attack 4 vs 6) so the swing still lands inside `ATTACK_ACTIVE_TIME`; the
+    idle loop, which is longer (4 vs 2), plays at the block's own rate rather than
+    dragging.
+For a hero sheet still without attack art the swing does not disappear: the
+attack animation falls back to idle and a short rotation tween (`_tween_swing_fallback`)
+carries the wind-up instead of an 8-frame slideshow. `combat_test` now checks the
+hero path directly — per armour look: idle frames, attack poses, and the frame
+count the animator really built — and the suite is 219 checks.
+
+**Workspace hygiene (user request).** The workspace was over 100 MB, so the
+scratch/prototype directory (`art-work/`, incl. all reference sheets) and the
+`before_after.png` were moved to `/tmp/ws-scratch/`, the generated `.godot`
+import cache (29 MB, regenerate with `--import`) was deleted and the pack was
+repacked (`git gc`); the workspace is now 104 MB with the repo at 118 MB total
+including `.git`. Rule going forward: only things the build needs (art sources
+that `lpc_compose.py` regenerates from, generators, tests, docs) live in the
+repo; scratch and exploration live in `/tmp`.

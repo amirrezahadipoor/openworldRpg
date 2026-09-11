@@ -1,0 +1,45 @@
+{
+ "enemy_archon": {
+  "idle": 4
+ },
+ "enemy_goblin": {
+  "idle": 4
+ },
+ "enemy_husk": {
+  "idle": 4
+ },
+ "enemy_legion": {
+  "idle": 4
+ },
+ "enemy_lizard": {
+  "idle": 4
+ },
+ "enemy_minotaur": {
+  "idle": 4
+ },
+ "enemy_orc": {
+  "idle": 4
+ },
+ "enemy_raider": {
+  "idle": 4
+ },
+ "enemy_raider2": {
+  "idle": 4
+ },
+ "enemy_revenant": {
+  "idle": 4
+ },
+ "player_leather_sword": {
+  "idle": 4,
+  "slash": 4
+ },
+ "player_legion_sword": {
+  "slash": 4
+ },
+ "player_none_sword": {
+  "slash": 4
+ },
+ "player_plate_sword": {
+  "slash": 4
+ }
+}

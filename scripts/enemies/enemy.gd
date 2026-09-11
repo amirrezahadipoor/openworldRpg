@@ -34,13 +34,10 @@ const DIR_ROW := {"n": 0, "w": 1, "s": 2, "e": 3}
 const ANIM_FRAMES := {"idle": 2, "walk": 9, "slash": 6, "spellcast": 7, "hurt": 6}
 const ANIM_FPS := {"idle": 4.0, "walk": 12.0, "slash": 14.0, "spellcast": 12.0, "hurt": 10.0}
 const ANIM_BLOCK := {"idle": 0, "walk": 1, "slash": 2, "spellcast": 3, "hurt": 4}
-## H5.5: extra idle-only frames (weight shift, look-around) pasted into idle
-## columns 2 and 3 of a sheet by tools/make_idle_frames.py. Sheets that still
-## carry only their own two frames fall back to a plain two-frame loop, so this
-## is additive — nothing breaks while the rest of the roster is being patched.
-const IDLE_LOOP := [0, 2, 1, 3]          # base, shift, breath, look-around
-const IDLE_PATCHED_FRAMES := 4
-const IDLE_MANIFEST := "res://assets/lpc/idle_frames.json"
+## Generated pose art (H5.5 idle frames, H7.2 attack frames) pasted into the
+## composed sheet by tools/make_idle_frames.py. Which sheets have it, and how
+## many frames, lives in PoseArt's manifest — a sheet without the art falls back
+## to the frames the LPC layers ship, so this is additive for the whole roster.
 const REST_IDLE_SLOWDOWN := 0.62         # a resting monster breathes slower
 const REST_GLANCE_MIN := 2.5             # and looks around every few seconds
 const REST_GLANCE_MAX := 6.0
@@ -49,18 +46,15 @@ static var _idle_sheets: Dictionary = {}
 
 
 static func patched_idle_sheets() -> Dictionary:
-	## Sheet stem -> idle frame count, written by tools/make_idle_frames.py.
-	if _idle_sheets.is_empty() and FileAccess.file_exists(IDLE_MANIFEST):
-		var fh := FileAccess.open(IDLE_MANIFEST, FileAccess.READ)
-		if fh:
-			var parsed: Variant = JSON.parse_string(fh.get_as_text())
-			if parsed is Dictionary:
-				_idle_sheets = parsed
-	return _idle_sheets
+	## Sheet stem -> {anim: frame count} (see PoseArt).
+	return PoseArt.all()
 
 var telegraph_time := DEFAULT_TELEGRAPH
-## Idle frames this sheet actually has (2 composed, 4 once patched, see H5.5).
+## Frames this sheet actually has per animation: the LPC count, or the generated
+## count once tools/make_idle_frames.py has patched art in (see PoseArt).
 var idle_frames := 2
+var attack_frames := 6
+var _sheet_path := ""
 var _glance_timer := 0.0
 ## Movement/attack style, read from the archetype ("melee", "skirmish",
 ## "charger", "caster"). Before this every non-ranged enemy in the game fought
@@ -338,9 +332,8 @@ func _awake() -> bool:
 func _idle_column(step: int) -> int:
 	## Which sheet column the nth idle step shows: [base, weight shift, breath,
 	## look-around] on a patched sheet, [base, breath] on one that is not.
-	if idle_frames < IDLE_PATCHED_FRAMES:
-		return step % 2
-	return int(IDLE_LOOP[step % IDLE_LOOP.size()])
+	var cols := PoseArt.idle_columns(_sheet_path, 2)
+	return int(cols[step % cols.size()])
 
 
 func _resting() -> bool:
@@ -386,16 +379,25 @@ func _update_anim(delta: float) -> void:
 	elif absf(face.y) > 1.0:
 		_anim_dir = "s" if face.y > 0.0 else "n"
 
-	var count: int = idle_frames if _anim_name == "idle" else int(ANIM_FRAMES[_anim_name])
+	var base: int = ANIM_FRAMES[_anim_name]
+	var count: int = idle_frames if _anim_name == "idle" else (attack_frames if _anim_name == "slash" else base)
 	var fps: float = float(ANIM_FPS[_anim_name])
 	if _anim_name == "idle" and _resting():
 		fps *= REST_IDLE_SLOWDOWN
+	if count < base:
+		# Generated attack art has fewer, bigger poses than the LPC block it
+		# replaces; keep the animation's wall-clock length so the swing still
+		# lands when the damage window does. (More frames than the block — the
+		# idle loop — plays at the block's own rate, not slower.)
+		fps *= float(base) / float(count)
 	_anim_frame += delta * fps
 	while _anim_frame >= float(count):
 		_anim_frame -= float(count)
 	var column := int(_anim_frame)
 	if _anim_name == "idle":
 		column = _idle_column(column)
+	elif _anim_name == "slash" and attack_frames < base:
+		column = int(PoseArt.slash_columns(_sheet_path, base)[column])
 	var row: int = int(ANIM_BLOCK[_anim_name]) * 4 + int(DIR_ROW[_anim_dir])
 	sprite.frame = row * SHEET_COLS + column
 
@@ -403,9 +405,11 @@ func _update_anim(delta: float) -> void:
 func _apply_sheet(path: String) -> void:
 	## Attach the archetype's composed LPC sheet, or clear back to the single
 	## placeholder sprite when an archetype has no art.
+	_sheet_path = path
 	if path == "" or not ResourceLoader.exists(path):
 		_sheet_ready = false
 		idle_frames = 2
+		attack_frames = int(ANIM_FRAMES["slash"])
 		sprite.hframes = 1
 		sprite.vframes = 1
 		sprite.frame = 0
@@ -414,13 +418,15 @@ func _apply_sheet(path: String) -> void:
 	if tex == null:
 		_sheet_ready = false
 		idle_frames = 2
+		attack_frames = int(ANIM_FRAMES["slash"])
 		return
 	sprite.texture = tex
 	sprite.hframes = SHEET_COLS
 	sprite.vframes = SHEET_ROWS
 	sprite.offset = Vector2(0, -10)   # LPC frames sit above the body pivot
 	_sheet_ready = true
-	idle_frames = IDLE_PATCHED_FRAMES if patched_idle_sheets().has(path.get_file().get_basename()) else 2
+	idle_frames = PoseArt.count(path, "idle", PoseArt.IDLE_BASE)
+	attack_frames = PoseArt.count(path, "slash", int(ANIM_FRAMES["slash"]))
 	_glance_timer = 1.0
 	_anim_name = "idle"
 	_anim_dir = "s"

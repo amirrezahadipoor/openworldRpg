@@ -12,10 +12,13 @@ bakes layered characters into assets/lpc/<name>.png — one RGBA sheet each:
           rows 12-15 spellcast (abilities)
           rows 16-19 hurt
 
-Idle-only frames: if a generated source exists in assets/lpc/_idle_src/<name>.png,
-make_idle_frames.patch_sheet() fills idle columns 2-3 of every direction row with
-a weight-shift and a look-around pose (H5.5). Recomposing a sheet therefore does
-not silently throw that art away.
+Generated pose art: if a source exists in assets/lpc/_idle_src/<name>.png (idle
+frames, H5.5) or assets/lpc/_attack_src/<name>.png (a four-pose attack, H7.2),
+make_idle_frames.patch_sheet() fills the matching block of every direction row.
+Recomposing a sheet therefore does not silently throw that art away, and because
+the block ends up entirely made of generated art, the weapon films are skipped
+for that block (SKIP_WEAPON_BLOCKS) — otherwise the LPC sword would be drawn on
+top of the sword baked into the generated pose.
 
 Layer stack (z order): body -> pants -> shirt/armor -> boots -> hair -> weapon.
 
@@ -239,6 +242,18 @@ def load_layer(rel: str, adjust: dict | None = None):
     return img
 
 
+def weapon_skips(name: str, anim: str) -> bool:
+    """True when this sheet's block is generated art that already draws the weapon.
+
+    A generated pose is drawn with the character's weapon in hand (that is what
+    the generator is asked for), so compositing the LPC weapon film over it too
+    would draw two swords. Detected from the source folders, which is also what
+    make_idle_frames.patch_sheet() consumes — the two cannot drift apart.
+    """
+    src_dir = os.path.join(OUT, "_idle_src" if anim == "idle" else "_attack_src")
+    return os.path.exists(os.path.join(src_dir, name + ".png"))
+
+
 def paste_weapon(sheet: Image.Image, kind: str, part: str, anim: str, d_i: int,
                  row: int, frames: int) -> int:
     """Composite one weapon film into a block. Returns frames actually pasted.
@@ -324,6 +339,7 @@ def assert_complete(name: str, layers: list[str]) -> None:
 
 
 def compose(layers: list[str], out_path: str) -> int:
+    name = os.path.basename(out_path)[:-4]      # for weapon_skips()
     rows = len(ANIMS) * 4
     sheet = Image.new("RGBA", (COLS * W, rows * H), (0, 0, 0, 0))
     missing: list[str] = []
@@ -338,8 +354,11 @@ def compose(layers: list[str], out_path: str) -> int:
     for a_i, (anim, frames) in enumerate(ANIMS):
         for d_i in range(4):
             row = a_i * 4 + d_i
+            skip_weapon = weapon_skips(name, anim)
             for spec in behind + body + weapon_fg:
                 if _is_weapon(spec):
+                    if skip_weapon:
+                        continue
                     paste_weapon(sheet, spec[1], _weapon_part(spec), anim, d_i, row, frames)
                     continue
                 template, adjust = spec if isinstance(spec, tuple) else (spec, None)
@@ -461,14 +480,21 @@ def main() -> None:
 
     os.makedirs(OUT, exist_ok=True)
     idle = _idle_patcher()
+    patched: list = []
     for name in want:
         assert_complete(name, ARCHETYPES[name])
         size = compose(ARCHETYPES[name], os.path.join(OUT, name + ".png"))
         note = ""
-        if idle is not None and os.path.exists(os.path.join(idle.SRC_DIR, name + ".png")):
-            idle.patch_sheet(name)
-            note = "  + idle frames"
+        if idle is not None:
+            entry = idle.patch_sheet(name) if any(
+                os.path.exists(os.path.join(d, name + ".png")) for d in idle.SRC_DIRS.values()
+            ) else {}
+            if entry:
+                note = "  + generated " + "/".join(sorted(entry)) + " art"
+        patched.append(name)
         print(f"  {name:24s} {size // 1024:4d} KB{note}")
+    if idle is not None:
+        idle.refresh_manifest(patched)
 
 
 if __name__ == "__main__":
