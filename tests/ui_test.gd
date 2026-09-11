@@ -38,6 +38,7 @@ func _ready() -> void:
 	_test_toast_queue()
 	_test_safe_insets()
 	await _test_audit_fixes()
+	await _test_pause_owner()
 	_report()
 
 
@@ -87,6 +88,71 @@ func _bare_interactable(pos: Vector2) -> WorldInteractable:
 	var n := WorldInteractable.new()
 	n.position = pos
 	return n
+
+
+func _test_pause_owner() -> void:
+	print("[ui_test] one owner for the paused flag")
+
+	# C6: the state is a set of holds, so a second screen closing cannot unpause a
+	# world the first screen is still holding still.
+	var a := Node.new()
+	var b := Node.new()
+	add_child(a)
+	add_child(b)
+	PauseManager.release_all()
+	check(not PauseManager.is_paused(), "nothing holding means the world runs")
+	PauseManager.hold(a, "screen a")
+	check(PauseManager.is_paused() and get_tree().paused, "one hold pauses the world")
+	PauseManager.hold(b, "screen b")
+	PauseManager.release(a)
+	check(PauseManager.is_paused(),
+		"the second screen closing does not unpause under the first (C6)")
+	PauseManager.release(b)
+	check(not PauseManager.is_paused() and not get_tree().paused,
+		"and the world runs again when the last hold lets go")
+
+	# A screen freed while it is holding (scene change, quit to title) must not be
+	# able to strand the pause.
+	PauseManager.hold(b, "screen b")
+	check(PauseManager.is_paused(), "the doomed screen holds")
+	remove_child(b)
+	b.free()
+	check(not PauseManager.is_paused(), "a freed holder drops its hold (C6)")
+
+	# And the flag itself must have exactly one writer left in the code base.
+	var offenders := _pause_flag_writers("res://scripts")
+	check(offenders.is_empty(),
+		"only PauseManager writes get_tree().paused (%s)" % ", ".join(offenders))
+	remove_child(a)
+	a.free()
+	PauseManager.release_all()
+
+
+func _pause_flag_writers(root: String) -> Array:
+	## Every script that assigns the tree's paused flag directly.
+	var out: Array = []
+	var dir := DirAccess.open(root)
+	if dir == null:
+		return ["<unreadable: %s>" % root]
+	dir.list_dir_begin()
+	var name := dir.get_next()
+	while name != "":
+		var path := "%s/%s" % [root, name]
+		if dir.current_is_dir():
+			if name != "." and name != "..":
+				out.append_array(_pause_flag_writers(path))
+		elif name.ends_with(".gd") and not path.ends_with("pause_manager.gd"):
+			var f := FileAccess.open(path, FileAccess.READ)
+			if f != null:
+				var n := 1
+				while not f.eof_reached():
+					var line := f.get_line().strip_edges()
+					if not line.begins_with("#") and line.contains("paused ="):
+						out.append("%s:%d" % [path.get_file(), n])
+					n += 1
+		name = dir.get_next()
+	dir.list_dir_end()
+	return out
 
 
 func _report() -> void:

@@ -39,12 +39,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func open() -> void:
 	_refresh()
 	visible = true
-	get_tree().paused = true
+	PauseManager.hold(self, "inventory")
 
 
 func close() -> void:
 	visible = false
-	get_tree().paused = false
+	PauseManager.release(self)
 	closed.emit()
 
 

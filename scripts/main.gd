@@ -469,8 +469,12 @@ func _on_quest_completed(qid: String) -> void:
 		_show_ending()
 
 
+var _ending: CanvasLayer = null   # the epilogue, while it is on screen
+
+
 func _show_ending() -> void:
 	var ending := CanvasLayer.new()
+	_ending = ending
 	ending.layer = 80
 	ending.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(ending)
@@ -512,7 +516,7 @@ func _show_ending() -> void:
 	credits.text = "Credits"
 	credits.custom_minimum_size = Vector2(200, 40)
 	credits.pressed.connect(func() -> void:
-		get_tree().paused = false
+		PauseManager.release(ending)
 		GameState.pending_credits = true
 		get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
 	)
@@ -520,12 +524,18 @@ func _show_ending() -> void:
 	var btn := Button.new()
 	btn.text = "Keep exploring"
 	btn.custom_minimum_size = Vector2(260, 46)
-	btn.pressed.connect(func() -> void:
-		ending.queue_free()
-		get_tree().paused = false
-	)
+	btn.pressed.connect(dismiss_ending)
 	box.add_child(btn)
-	get_tree().paused = true
+	PauseManager.hold(ending, "ending")
+
+
+func dismiss_ending() -> void:
+	## Close the epilogue and hand the world back (so the end screen is not a
+	## dead end). The button above and the playthrough test both come through here.
+	if _ending != null and is_instance_valid(_ending):
+		PauseManager.release(_ending)
+		_ending.queue_free()
+	_ending = null
 
 
 func _epilogue_text() -> String:
@@ -665,13 +675,13 @@ func _on_respawn() -> void:
 
 
 func _on_load_last() -> void:
-	get_tree().paused = false
+	PauseManager.release_all()
 	GameState.pending_load = true
 	Transition.go_to("res://scenes/main.tscn")
 
 
 func _on_quit_title() -> void:
-	get_tree().paused = false
+	PauseManager.release_all()
 	GameState.pending_load = false
 	Transition.go_to("res://scenes/menus/main_menu.tscn")
 

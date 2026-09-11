@@ -35,12 +35,12 @@ func open(vendor_name: String, stock: Array, market: float = 1.0) -> void:
 	_market_label.text = _market_blurb()
 	_refresh()
 	visible = true
-	get_tree().paused = true
+	PauseManager.hold(self, "shop")
 
 
 func close() -> void:
 	visible = false
-	get_tree().paused = false
+	PauseManager.release(self)
 	closed.emit()
 
 

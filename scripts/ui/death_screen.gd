@@ -18,12 +18,12 @@ func _ready() -> void:
 
 func show_death() -> void:
 	visible = true
-	get_tree().paused = true
+	PauseManager.hold(self, "death")
 
 
 func _hide_screen() -> void:
 	visible = false
-	get_tree().paused = false
+	PauseManager.release(self)
 
 
 func _build() -> void:

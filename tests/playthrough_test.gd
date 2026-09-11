@@ -210,14 +210,19 @@ func _act5_secrets() -> void:
 	# Acts 3-4 leave the player standing in the warden's arena, so the tree can be
 	# paused on the death screen. Take the game's own respawn path rather than
 	# writing around it: same code the button runs.
+	# Act 4 shows the epilogue, which holds the pause; a player leaves it through
+	# its own button, so the test does the same (audit C6).
+	if main_node.has_method("dismiss_ending"):
+		main_node.dismiss_ending()
 	var death: DeathScreen = main_node.get_node_or_null("DeathScreen")
 	if get_tree().paused:
 		if death != null:
 			death._hide_screen()
 			death.respawn_requested.emit()
 		else:
-			get_tree().paused = false
-		check(not get_tree().paused, "the world is running again (respawned at camp)")
+			# No death screen was ever built: drop whatever is holding the pause.
+			PauseManager.release_all()
+	check(not get_tree().paused, "the world is running again (respawned at camp)")
 	await get_tree().physics_frame
 
 	var streamer: ChunkStreamer = main_node.get_node_or_null("World/ChunkStreamer")

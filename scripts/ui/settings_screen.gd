@@ -33,14 +33,15 @@ var _was_paused := false
 
 func open() -> void:
 	_load_into_ui()
-	_was_paused = get_tree().paused
 	visible = true
-	get_tree().paused = true
+	PauseManager.hold(self, "settings")
 
 
 func close() -> void:
 	visible = false
-	get_tree().paused = _was_paused  # keep pause menu paused if opened from it
+	# Whoever else was holding it is still holding it: opening the settings from
+	# the pause menu and closing them lands back on a paused world (audit C6).
+	PauseManager.release(self)
 	closed.emit()
 
 

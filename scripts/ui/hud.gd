@@ -422,8 +422,8 @@ func _load_icon(n: String) -> Texture2D:
 func _tick_interact_button() -> void:
 	if _interact_btn == null:
 		return
-	if get_tree().paused:
-		# A screen is open: this button is "continue".
+	if PauseManager.is_paused():
+		# A screen is open: this button is "continue" (audit C6 - ask the owner).
 		_interact_btn.set_caption("Continue")
 		_interact_btn.set_dimmed(false)
 		_interact_btn.set_glow(false)
@@ -452,7 +452,7 @@ func nearest_interactable() -> Node2D:
 
 func _on_interact_pressed() -> void:
 	AudioManager.play_sfx("ui_click")
-	if get_tree().paused:
+	if PauseManager.is_paused():
 		# Let the open screen hear a normal interact tap.
 		_interact_btn.tap_action()
 		return

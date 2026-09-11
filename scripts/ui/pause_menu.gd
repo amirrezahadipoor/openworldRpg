@@ -28,7 +28,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func toggle() -> void:
 	visible = not visible
-	get_tree().paused = visible
+	# The menu holds the pause while it is on screen; nothing else decides this
+	# for it (audit C6).
+	if visible:
+		PauseManager.hold(self, "pause menu")
+	else:
+		PauseManager.release(self)
 	_status.text = ""
 
 
@@ -97,12 +102,12 @@ func _save() -> void:
 
 
 func _quit_to_save() -> void:
-	get_tree().paused = false
+	PauseManager.release(self)
 	GameState.pending_load = true  # reload the game scene from the slot save
 	Transition.go_to("res://scenes/main.tscn")
 
 
 func _quit_to_title() -> void:
-	get_tree().paused = false
+	PauseManager.release(self)
 	GameState.pending_load = false
 	Transition.go_to("res://scenes/menus/main_menu.tscn")

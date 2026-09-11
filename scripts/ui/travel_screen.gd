@@ -81,8 +81,7 @@ func _build_ui() -> void:
 func open(current_wp_id: String, from: Vector2 = Vector2.ZERO) -> void:
 	_current_id = current_wp_id
 	_from = from
-	_was_paused = get_tree().paused
-	get_tree().paused = true
+	PauseManager.hold(self, "travel")
 	_rebuild()
 	visible = true
 
@@ -121,4 +120,4 @@ func _name_of(wp_id: String) -> String:
 
 func close() -> void:
 	visible = false
-	get_tree().paused = _was_paused
+	PauseManager.release(self)

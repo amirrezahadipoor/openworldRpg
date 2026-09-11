@@ -22,7 +22,7 @@ func _ready() -> void:
 func _gui_input(event: InputEvent) -> void:
 	# A paused game has no movement to give: dragging the stick during a
 	# conversation must not queue up a direction for the moment it closes.
-	if get_tree().paused:
+	if PauseManager.is_paused():
 		return
 	if event is InputEventScreenTouch:
 		var t := event as InputEventScreenTouch

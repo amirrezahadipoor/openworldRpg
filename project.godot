@@ -27,6 +27,7 @@ SaveSystem="*res://scripts/autoload/save_system.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 SettingsManager="*res://scripts/autoload/settings_manager.gd"
 Transition="*res://scripts/autoload/transition.gd"
+PauseManager="*res://scripts/autoload/pause_manager.gd"
 
 [display]
 

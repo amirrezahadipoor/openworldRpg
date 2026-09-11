@@ -121,7 +121,7 @@ func start(dialogue: Dictionary) -> void:
 	if dialogue.is_empty():
 		return
 	_dialogue = dialogue
-	get_tree().paused = true
+	PauseManager.hold(self, "dialogue")
 	visible = true
 	if not get_tree().root.size_changed.is_connected(_relayout):
 		get_tree().root.size_changed.connect(_relayout)
@@ -205,7 +205,7 @@ func _finish() -> void:
 	for a in _dialogue.get("on_complete", []):
 		_execute_action(a)
 	visible = false
-	get_tree().paused = false
+	PauseManager.release(self)
 	EventBus.dialogue_open = false
 	EventBus.dialogue_closed.emit()
 	dialogue_finished.emit()
