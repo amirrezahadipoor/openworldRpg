@@ -1252,3 +1252,59 @@ second copy cannot drift. And one fix changed a data file that had never been
 audited: enforcing the `stack` field (G6) immediately made three-quarters of the
 materials un-stackable and MQ002 unfillable, because nothing had ever read the
 field. Enforcing a decorative field *is* the audit of it.
+
+**#84 — A talent node may change behaviour, not just a number** · 2026-09-11
+All 60 talent nodes were numeric, so every point bought was a bigger number and the
+tree had no choice that felt different in kind. Three tier-4 nodes now carry a
+`behaviour` key in data and the combat code asks for it by name
+(`GameState.has_behaviour()`): the chain finisher ignites, a talented whirlwind
+hurls, a dodge leaves a speed surge. The nodes keep their ids, tiers, point gates
+and level gates and keep their numeric half, so the tree is still 60 nodes in the
+same 3/4/5 shape and the UI is untouched.
+The lock is the interesting part: a key is a string in a JSON file and doing
+nothing is indistinguishable from working until someone plays it, so `CombatTest`
+concatenates every `.gd` under `scripts/` and fails if an authored key does not
+appear in code, and asserts that nothing is live before the node is bought. A
+value that is authored but unread has burned this project twice (the `stack` field
+in #83's pass, the hardcoded spawner table before it), so behaviour keys are
+checked at both ends.
+`Enemy.apply_burn()` lives on the enemy, which is what makes it apply to every
+archetype including both boss scripts (each chains to `super._physics_process`).
+It ticks in 0.25 s steps rather than per frame — a burn is four hp-bar redraws, not
+sixty — refreshes instead of stacking (a fast chain cannot multiply itself), and
+emits `enemy_hurt` so the existing Juice bursts show the fire without new art.
+
+**#85 — The gold sink is priced off the item, not off the level** · 2026-09-11
+Gold pooled up in the second half because there was one vendor and the F7 pass had
+priced gear against a level's income: past the midpoint there was nothing left to
+buy. The smith's bench charges a fraction of the *item's own value*
+(0.35 + 0.22 per level) plus a rarity-matched material, which makes the sink scale
+with the gear the money was pooling around — a legendary's first step costs more
+than an entire common set — and gives the 23 materials a use beyond selling.
+Two rules keep it honest: the upgrade is keyed by slot and thrown away when a
+different item is equipped there (the gold went into the item that was there;
+otherwise a freshly found legendary would inherit a +10 for free, which is a bigger
+hole than the one being filled), and a refused upgrade spends nothing and says why
+("1,240 g needed", "3 x Choir Sigil needed") instead of silently doing nothing.
+`equipment_bonus()` applies the multiplier, so every stat path honours an upgrade
+at once rather than each call site remembering.
+
+**#86 — Decor is a separate axis from collision, and the gid arithmetic is one
+constant** · 2026-09-11
+The world carried 0.17% decor tiles, so biomes read as flat colour. Three decor
+columns per biome were added to the atlas (8-10; 0-7 untouched, so no chunk needed
+rewriting) and the generator scatters them. Two lessons came out of doing it by
+measurement rather than by eye: the spawner filter and the settlement-clearing pass
+both decoded gids with the old literal column count (`% 8`), so with an 11-column
+atlas a decor tile decoded as a hazard and five chunks silently lost spawners on
+the first regeneration — the column count is now one constant (`COLS`) in the
+generator and one exported constant (`ChunkRenderer.ATLAS_COLS`) in the game, and
+a test asserts the atlas and the renderer agree. And decor must never be
+load-bearing: it is drawn, never collided with, spawners ignore it, village
+clearings clear it, and the minimap paints it as ordinary ground.
+Object placement is provably unchanged by the pass — the generator consumes no RNG
+anywhere in it, and diffing the 35 regenerated chunks against the previous world
+shows every object layer byte-identical. That property is the reason the scatter is
+built from noise fields plus a per-tile hash rather than from the RNG stream: the
+stream is the world's contract for where things stand, and art has no business
+touching it.

@@ -97,7 +97,9 @@ Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
   6-frame LPC film.
 
 Art parity is machine-checked: **POSE ART PASS = 49 sheets / 49 idle / 21 attack /
-3 cast**, ANIM CHECK = 2 weapons + 16 armed 4-direction characters.
+3 cast**, ANIM CHECK = 2 weapons + 16 armed 4-direction characters. World art:
+the atlas is 11 columns (3 decor variants per biome) and the shipped map is
+4.73% decorated.
 Size: sheets ship as exact-palette indexed PNGs (5.64 MB → 2.05 MB, pixel-identical).
 
 ---
@@ -208,6 +210,29 @@ whose run (and every later one) carries the same code.
 Ui 36 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 — all PASS, with
 `balance_report.py --check` PASSED and POSE ART 49/49/21/3.
 
+## 2.1b What the audit pass left behind, since built
+
+The three weaknesses the v3 evaluation still listed after the audit were picked up
+straight after it, so they are no longer open:
+
+- [x] **World decor density** (v3 §2). The atlas grew three decor columns per
+  biome (8-10, 0-7 unchanged) and the generator scatters them from a spatial
+  density field with a uniform per-tile hash picking the variant: **0.17% ->
+  4.73%** of the map. Object placement is provably untouched (no RNG consumed;
+  every object layer diffs byte-identical). — `ec07c3e`
+- [x] **Three engine-key talents** (v3 §3). Three tier-4 nodes now pay out in
+  behaviour rather than numbers: the chain finisher sets what it hits alight
+  (`finisher_ignites`, 35% of attack per second for 4 s), a talented whirlwind
+  hurls enemies away (`whirl_knockback`, 460 px/s), and a dodge leaves a 1.2 s
+  speed surge (`dodge_dust`, 1.3x). The tree keeps its 60 nodes, tiers, gates and
+  ids; the data marks them with a `behaviour` key and a test fails if any authored
+  key has no handler in code. — `824a317`
+- [x] **Second-half gold sink** (v3 §4). The shop carries a smith's bench: gold
+  plus the item's regional material pushes an equipped item to +10, each step
+  +8% of that item's own stats, priced at a fraction of its value — so the sink
+  scales with the gear the money was pooling around. Swapping the item in a slot
+  throws the level away, and a refused upgrade spends nothing. — `0c3b8d5`
+
 ## 2.2 Still open
 
 - [ ] **The device playtest** (Phase G / `PLAYTEST.md`). The one thing that cannot
@@ -217,17 +242,8 @@ Ui 36 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 — all P
   here as new items.
 - [ ] **Android performance numbers.** Folded into `PLAYTEST.md` §1; no trustworthy
   FPS/thermals figure exists until the device pass runs.
-- [ ] **World decor density** (v3 §2: 0.17 % decor tiles, biomes read flat). Fix
-  path: 2–3 decor columns in the atlas + scatter in the generator.
-- [ ] **Three engine-key talent nodes** (v3 §3: 60 nodes, all numeric). Candidates
-  from the report: a chain finisher that ignites, a dodge that leaves dust/breath,
-  a whirlwind that knocks back.
-- [~] **Second-half gold sink** (v3 §4). Partly answered — fast travel is priced by
-  distance and gear is priced against level income — but an item upgrade or a
-  simple craft using the 23 materials is still the stronger answer and is not
-  built.
 - [ ] **Cut the release tag** for this pass (the workflow publishes 0.x as a
-  prerelease with signed APK/AAB; `project.godot` is at **0.5.0**).
+  prerelease with signed APK/AAB; `project.godot` is at **0.6.0**).
 
 ---
 
@@ -235,7 +251,7 @@ Ui 36 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 — all P
 
 | Gate | Command |
 |---|---|
-| Full gameplay suites (9) | `godot --headless --path . tests/<Suite>.tscn` → Combat 229 · Items 63 · WorldMap 72 · Ui 36 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 |
+| Full gameplay suites (9) | `godot --headless --path . tests/<Suite>.tscn` → Combat 250 · Items 82 · WorldMap 84 · Ui 45 · Npc 43 · Quest 61 · Secret 45 · Audio 56 · Playthrough 52 |
 | Balance band | `python3 tools/balance_report.py --check` |
 | Art parity | `python3 tools/make_idle_frames.py --check` (49 sheets / 49 idle / 21 attack / 3 cast) |
 | Repo budget | `tools/check_repo_size.sh` (< 120 MB repo) |
