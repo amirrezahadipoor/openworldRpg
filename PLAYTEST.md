@@ -103,3 +103,35 @@ you expected, what happened**, plus the device and — if you can get it — a
 logcat capture (`adb logcat | grep -i godot`). Performance findings are worth
 more than anything else here; balance findings are worth a lot; typos are worth
 a note.
+
+---
+
+## 3. Touch controls (Android) — added with the v4 UI pass (2026-09-11)
+
+The on-screen buttons were rebuilt because the Talk button never worked at all
+(`ActionButton` only set polled input state; every interactable listens for a
+real event). Please check these on the device:
+
+- [ ] **Talk / Use** — stand next to an NPC: the button lights up and reads
+      *Talk* (or *Trade* for a vendor). Tapping it opens the conversation.
+      Standing between two NPCs must open only the closer one.
+- [ ] **Talk while a screen is open** — with the shop or bag open the same button
+      reads *Continue* and advances/closes the screen.
+- [ ] **Talk with nothing in reach** — the button dims, and tapping it does
+      nothing but a refusal sound.
+- [ ] **Attack (hold)** — holding it keeps swinging at the chain's pace.
+- [ ] **Cooldown dials** — Whirl/Bolt darken and sweep while they cool, show a
+      countdown, and read *MP* when you cannot afford them.
+- [ ] **Safe-area** — on a notched or gesture-nav device, confirm nothing (HP/MP
+      block, quest tracker, minimap, joystick, buttons) sits under the cutout or
+      the gesture bar, and that the same is true in landscape both ways.
+- [ ] **Fight clarity** — an enemy's health bar appears when you hit it and fades
+      a few seconds later; a winding-up attack draws a ring (melee) or a line
+      (ranged) on the ground; a boss shows its name, health and phase pips.
+- [ ] **Safe ground** — walk into a town: the boundary ring is visible on the
+      ground, and a monster that was chasing you turns around at it instead of
+      following you in. Same while a conversation is open: no damage lands.
+- [ ] **NPC spacing** — no two townspeople should stand inside each other, and
+      nobody should be permanently pacing in a tight circle.
+- [ ] **Frame rate** — note FPS in a town (many NPCs) versus open country, and
+      whether the touch dials animate smoothly.
