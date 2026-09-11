@@ -80,3 +80,41 @@ absent from CI).
 کوچک‌شدن متن عادی، از بین رفتن دراگت فینیکس با لود، بُرد یکسان فینیشر با ضربهٔ
 ساده، و غایب بودن نوار جان باس نهایی. همه با ۶۶۹ تست سبز و بدون هیچ خطای اسکریپت
 تأیید شدند.
+
+---
+
+## Addendum — after integrating the parallel session's work
+
+While this pass was being pushed, another session landed eight commits on
+`main`. They were rebased on top of (no force-push) and the merge reconciled by
+hand:
+
+- **The three "still open" items above are now shipped.** The late-game gold
+  sink is the **Smith's Bench** (`shop_screen.gd`, `GameState.upgrade_*`,
+  +10 per slot, gold + regional material); **behaviour talents** landed
+  (`finisher_ignites`, `whirl_knockback`, `dodge_dust` + `Enemy.apply_burn`);
+  **world decoration** went from 0.17% to ~4.7% by growing the tile atlas from
+  8 to 11 columns (`ChunkRenderer.ATLAS_COLS`, decor columns 8–10).
+- The minimap biome decode (item 9) now reads `(gid - 1) /
+  ChunkRenderer.ATLAS_COLS` instead of a hard-coded `/8`, keeping the clamp so
+  a future atlas row can never index the palette out of range.
+- The remote session's freed-player fix (re-look-up the live player via the
+  `player` group each physics tick, in both the HUD and `Enemy._find_player`)
+  supersedes the local validity checks; those were taken verbatim. The public
+  `QuestManager.sync_collect_objectives()` wrapper and the private
+  `_sync_collect()` it calls both remain. The HUD touch art/cooldown dials,
+  shop full-stack guard, and rectangle-finisher hitbox merged cleanly with the
+  new bench/talent/burn code.
+
+### Re-verified gate after the rebase (Godot 4.4.1, headless, 0 script errors)
+
+| Suite | Result | Suite | Result |
+|---|---|---|---|
+| Combat | PASS 252 | Quest | PASS 69 |
+| Playthrough | PASS 52 | Items | PASS 84 |
+| NPC | PASS 43 | Secret | PASS 45 |
+| WorldMap | PASS 84 | Audio | PASS 56 |
+| UI | PASS 46 | **total** | **731 checks** |
+
+Both smoke scenes are clean; `balance_report.py --check` PASSED; all 72 tracked
+JSON data files validate; tracked repository size stays 26 MB.
