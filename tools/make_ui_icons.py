@@ -33,6 +33,9 @@ BANNER_SIZE = (192, 64)
 # background; the icons themselves are warm browns/greys and never hit it.
 KEY = (255, 0, 255)
 KEY_TOLERANCE = 96
+# Sources are kept at half the generated resolution: they are only ever keyed and
+# shrunk to 32 px, and the full-size sheets cost 8.6 MB of the repo budget for
+# pixels no output can show (see the workspace size rule in DECISIONS #69).
 
 
 def key_out(img):
