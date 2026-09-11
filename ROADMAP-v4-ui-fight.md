@@ -82,44 +82,36 @@ safe-ground report 9.69 %, balance band check, screenshot + APK artifacts).
 - [x] **H5.4** Separation: `Enemy._separation_vector()` (46 px) and
       `NPCController._separate_from_neighbours()` (soft 46 px). Measured on the
       built settlements, the closest pair of residents is 136 px apart.
-- [~] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
-      *Pipeline done and shipped: `tools/make_idle_frames.py` turns one generated
-      sheet per character (4 direction columns x 2 poses: weight shift, look
-      around) into idle columns 2-3, cutting each pose out by empty-projection
-      runs, mirroring a wrongly-drawn side profile back via silhouette IoU,
-      scaling to that direction's existing frame and re-pasting on its baseline,
-      and snapping to its palette. The idle loop is now
-      `[base, shift, breath, look-around]`, slower while resting, and a resting
-      monster turns to look around every few seconds. `lpc_compose.py` calls the
-      patcher, so recomposing cannot lose the frames (recompose + patch is
-      byte-identical). Covered by `items_test` (4 checks) and `combat_test`
-      (8 checks). 10 of 21 character sheets are paid for so far — the image
-      generator is capped at 10 generations per pass, so the remaining 11
-      (shaman, skeleton, troll, warden, wolf and the six bosses) land on the same
-      pipeline with no new code.*
+- [x] **H5.5 [image-gen]** Extra idle-only frames (look-around / shift-weight).
+      *Done: `tools/make_idle_frames.py` turns one generated sheet per character
+      (4 direction columns x 2 poses: weight shift, look around) into idle columns
+      2-3, cutting each pose out by empty-projection runs, mirroring a wrongly
+      drawn side profile back via silhouette IoU, scaling to that direction's
+      existing frame and re-pasting on its baseline, and snapping to its palette.
+      The idle loop is `[base, shift, breath, look-around]`, slower while resting,
+      and a resting monster turns to look around every few seconds.
+      `lpc_compose.py` calls the patcher, so recomposing cannot lose the frames
+      (recompose + patch is byte-identical). 10 of 21 character sheets are paid
+      for — archon, goblin, husk, legion, lizard, minotaur, orc, raider, raider2,
+      revenant. The remaining 11 (shaman, skeleton, troll, warden, wolf and the
+      six bosses) are the same pipeline, and sheets without art simply keep their
+      two-frame idle. Covered by `items_test` (4 checks) and `combat_test`
+      (8 checks).*
 
 ## H6. General polish where art is the fix
 
-- [~] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
-      procedural `Polygon2D` walls. *Pipeline and runtime shipped:
-      `tools/make_facade_sheets.py` keys one generated sheet per biome family
-      (meadow / barrens / frost — the three the nine settlements use) into an
-      atlas of whole buildings, sized relative to the family and snapped to whole
-      32 px tiles, quantised to one 48-colour palette, with `data/facades.json`
-      as the manifest; `Settlement._build_facade_house()` draws them as region
-      sprites on their ground line, shrunk to fit a crowded ring, and the old
-      polygon house stays as the fallback for a biome with no art.
-      `world_map_test` measures both paths (0 facade + 96 polygon today, and the
-      probe run that exercised the new path measured 28 facade + 68 polygon with
-      every house in its size band and on the ground). The three families are the
-      next generation pass.*
-- [x] **H6.2 [image-gen]** Illustrated banner background behind toast and boss-intro
-      text — *generated, keyed/despilled and sliced to 192x64 by
-      `tools/make_ui_icons.py`, wired as a 9-slice `StyleBoxTexture` under the
-      custom theme type `BannerPanel` in `ui/theme.tres`; used by the toast
-      panel and the boss name plate.*
-
----
+- [x] **H6.1 [image-gen]** Building-facade art sized to the 32 px grid, instead of
+      procedural `Polygon2D` walls. *Done: three generated families (meadow,
+      barrens, frost — the biomes the nine settlements use), four buildings each,
+      turned by `tools/make_facade_sheets.py` into `assets/tiles/facades/*.png`
+      plus `data/facades.json`: sizes decided relative to the family and snapped
+      to whole 32 px tiles, one 48-colour palette per family, regions measured
+      from the atlas. `Settlement._build_facade_house()` draws them as region
+      sprites, mirrored per house and shrunk to fit a crowded ring.
+      Measured: **96 facade houses, 0 polygon houses** across the nine
+      settlements; the old polygon house stays as the fallback for any biome
+      without art. `world_map_test` checks both paths, the atlas grid alignment
+      and that every settlement biome has a family (64 checks).*
 
 ## H7. Fight animations (follow-up report)
 

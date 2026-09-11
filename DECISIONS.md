@@ -996,3 +996,16 @@ which is what their spellcast block draws. Guarded by `lpc_compose.py --check`
 composed sheet's attack block is just its walk) plus two checks in `items_test`
 driven from the data: every physical archetype animates an attack in all four
 directions, and it differs from the walk cycle.
+
+**#68 — H6.1 landed: the settlements are drawn from generated facades** · 2026-09-11
+The three families the nine settlements need (meadow, barrens, frost) are
+generated, four buildings each, and every house in the game is now one of them:
+**96 facade houses, 0 polygon houses**, measured by `world_map_test`. The
+pipeline built for #66 did the work without changes — poses cut out by
+empty-projection runs, sizes set relative to the family and snapped to whole
+32 px tiles, one 48-colour palette per family — which is what "the art pass is
+the only thing left" was supposed to mean. `_facade_src/` holds the raw sheets
+(5.9 MB, `.gdignore`d so they are never imported or shipped).
+Also of note: the image generator failed one request with `MAX_TOKENS` (it
+returned text instead of an image); re-issuing the same prompt worked, so a
+generation failure is worth one retry before it is treated as a dead end.

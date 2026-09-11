@@ -1,7 +1,12 @@
 {
  "enemy_archon": 4,
+ "enemy_goblin": 4,
  "enemy_husk": 4,
+ "enemy_legion": 4,
  "enemy_lizard": 4,
+ "enemy_minotaur": 4,
  "enemy_orc": 4,
+ "enemy_raider": 4,
+ "enemy_raider2": 4,
  "enemy_revenant": 4
 }

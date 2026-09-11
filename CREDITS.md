@@ -80,6 +80,12 @@ Authors: the Liberated Pixel Cup contributors, via the Universal LPC Spritesheet
 Character Generator (generator GPL-3.0; art CC-BY-SA 3.0 / GPL). Credit list as
 published on the generator repository.
 
+**Building facades (H6.1).** `assets/tiles/facades/*.png` are **AI-generated**
+(this project, via the development-time image generator), one family per biome
+(meadow / barrens / frost), cut to the 32 px grid by
+`tools/make_facade_sheets.py`; raw sources stay in `assets/tiles/_facade_src/`
+(git-ignored for import/ship, kept in-repo for regeneration).
+
 **Idle-only frames (H5.5).** Idle columns 2-3 of the enemy and boss sheets are
 **AI-generated** (this project, via the development-time image generator) from
 those composed sheets as the reference, then keyed, scaled, palette-snapped and
