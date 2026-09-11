@@ -770,6 +770,10 @@ func to_dict() -> Dictionary:
 		"talents": talents.duplicate(),
 		"ledger": ledger.duplicate(true),
 		"dialogue_history": dialogue_history.duplicate(true),
+		# A Phoenix Draught is consumed when used and pays out only on a later
+		# death; unlike momentary buffs it must survive a save, or the player
+		# loses a paid item by loading.
+		"revive_armed": revive_armed,
 	}
 
 
@@ -795,6 +799,9 @@ func from_dict(d: Dictionary) -> void:
 	talents = (d.get("talents", {"combat": 0, "magic": 0, "utility": 0}) as Dictionary).duplicate()
 	ledger = (d.get("ledger", []) as Array).duplicate(true)
 	dialogue_history = (d.get("dialogue_history", []) as Array).duplicate(true)
+	# Defaults to false on older saves (the field post-dates the save version),
+	# which is the safe behaviour for a one-shot consumable.
+	revive_armed = bool(d.get("revive_armed", false))
 	hp = clampf(float(d.get("hp", max_hp())), 0.0, max_hp())
 	mp = clampf(float(d.get("mp", max_mp())), 0.0, max_mp())
 	stats_changed.emit()

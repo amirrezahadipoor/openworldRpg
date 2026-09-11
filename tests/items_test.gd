@@ -34,6 +34,7 @@ func _ready() -> void:
 	_test_audit_economy()
 	_test_starter_shelf()
 	_test_upgrade_sink()
+	_test_revive_persistence()
 	_report()
 
 
@@ -163,6 +164,20 @@ func _test_upgrade_sink() -> void:
 	GameState.upgrades.clear()
 	GameState.equipment = {"weapon": "", "armor": "", "accessory": ""}
 	GameState.gold = 0
+func _test_revive_persistence() -> void:
+	print("[items_test] armed revive survives a save round-trip")
+	var was := GameState.revive_armed
+	GameState.revive_armed = true
+	var snap := GameState.to_dict()
+	GameState.revive_armed = false
+	GameState.from_dict(snap)
+	check(GameState.revive_armed == true, "an armed Phoenix Draught survives save/load")
+	# A save written before this field existed must load unarmed, not armed.
+	var legacy: Dictionary = snap.duplicate()
+	legacy.erase("revive_armed")
+	GameState.from_dict(legacy)
+	check(GameState.revive_armed == false, "old saves without the field default to unarmed")
+	GameState.revive_armed = was
 
 
 func _report() -> void:
