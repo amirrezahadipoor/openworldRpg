@@ -85,6 +85,23 @@ jobs:
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
+      - name: Sync the app's own version with the release tag
+        run: |
+          # version/name and version/code in export_presets.cfg are what Android
+          # reports for the installed app - they are not read from project.godot.
+          # They sat at 0.4.2 / 6 while releases went to v0.6.0, so a device
+          # install claimed to be a build three releases old. Derive both from the
+          # tag instead: versionCode is major*10000 + minor*100 + patch, which is
+          # monotonic across every tag this repository will plausibly cut.
+          VERSION="${TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
+          sed -i "s|^version/code=.*|version/code=${CODE}|" export_presets.cfg
+          sed -i "s|^version/name=.*|version/name=\"${VERSION}\"|" export_presets.cfg
+          grep -n "^version/" export_presets.cfg
+        env:
+          TAG: ${{ steps.ver.outputs.tag }}
+
       # Gradle builds need the build template *inside* the project (res://android/);
       # --install-android-build-template must ride along with the export command.
       - name: Export signed release APK (Gradle, ARM64 + ARMv7)

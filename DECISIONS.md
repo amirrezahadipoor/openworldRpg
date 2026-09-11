@@ -1344,3 +1344,14 @@ measured 250 px of the 260 px it wanted. The check now waits on the *condition*
 (up to 1200 frames) and reports how long the walk took, so it fails when the
 behaviour is wrong and not when the hardware is. Same class as #84's lesson from
 the decor count: assert the property, not the machine.
+
+## #90 — A built artefact takes its version from the tag, not from a file
+
+`export_presets.cfg` carries the Android `versionName` / `versionCode`, and nothing
+read them - so the shipped APKs reported 0.4.2 while the release was v0.6.0, and the
+mismatch was invisible from the outside until someone looked at an installed app.
+The fix is not "remember to bump it": the release workflow now derives both numbers
+from the tag being built, which is the one place a release version is authored, and
+the preset's committed values are kept current for local exports. The general rule,
+learned twice in this project (also with the CI count in #84): a number that can be
+derived must never be maintained by hand.
