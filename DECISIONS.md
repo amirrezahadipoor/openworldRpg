@@ -1355,3 +1355,20 @@ from the tag being built, which is the one place a release version is authored, 
 the preset's committed values are kept current for local exports. The general rule,
 learned twice in this project (also with the CI count in #84): a number that can be
 derived must never be maintained by hand.
+
+## #91 — The artefact gate: compressed libraries, and proof the manifest can load them
+
+The published APK was 175 MB, and 157 MB of that was the engine: two ABIs of
+`libgodot_android.so`, stored raw, sitting next to 25 MB of game. Godot's gradle
+path can deflate them (`gradle_build/compress_native_libraries`), which roughly
+halves the download — but the option is only safe while the merged manifest carries
+`android:extractNativeLibs="true"`, because a compressed library cannot be mapped
+straight out of the APK. Get that wrong and the failure happens on a device, after
+publication, as a crash on launch.
+
+So the release workflow now runs `tools/check_apk.py` on every artefact it is about
+to publish, and refuses the release if any library is stored uncompressed or if the
+manifest does not ask Android to extract them. The manifest check is a targeted scan
+(the attribute name in the binary string pool, then the attribute record that
+follows that index) rather than a general AXML parser: a release gate should answer
+one question, definitively, and not grow into a subsystem.

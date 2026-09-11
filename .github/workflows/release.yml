@@ -138,6 +138,13 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
+      - name: Gate the artefacts (compressed libraries, extractable manifest)
+        run: |
+          for f in build/*.apk build/*.aab; do
+            [ -e "$f" ] || continue
+            python3 tools/check_apk.py "$f"
+          done
+
       - name: Create GitHub Release with artifacts
         uses: softprops/action-gh-release@v2
         with:

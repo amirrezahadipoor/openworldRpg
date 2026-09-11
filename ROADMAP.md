@@ -122,6 +122,12 @@ Legend: `[x]` done & pushed · `[~]` in progress · `[ ]` todo
   regional material push an equipped item to +10 (+8 % of its own stats per step),
   priced at a fraction of the item's value so the sink scales with the gear the
   money pooled around. `0c3b8d5`
+- [x] **The side-loadable APK was 175 MB** — 157 MB of that was two ABIs of
+  *uncompressed* engine binary (`libgodot_android.so`, 69 MB + 76 MB) next to
+  ~25 MB of actual game. `compress_native_libraries` halves the download, and a
+  new release gate (`tools/check_apk.py`) refuses to publish an artefact whose
+  libraries are stored raw or whose manifest cannot extract them. `v0.6.2`
+
 
 ---
 
@@ -219,11 +225,11 @@ a regression test and were run through the full suite.
 - [ ] **Android performance profile** — folded into `PLAYTEST.md` §1; there is no
   trustworthy FPS/thermals number until the device pass runs.
 - [x] **Cut the release tag** for this pass — **`v0.6.0`** (run 34613095209) published
-  signed APK/AAB as a prerelease five minutes after the roadmap landed. That build
-  then failed a check the tag itself made visible: the installed app reported
-  `versionName 0.4.2 / versionCode 6`, because `export_presets.cfg` carries its own
-  version fields that nothing kept in step with the tag. The workflow now derives
-  both from the tag, and **`v0.6.1`** is the first build that says what it is. `2f5b9a9`
+  signed APK/AAB as a prerelease. That build then failed a check the tag itself made
+  visible: the installed app reported `versionName 0.4.2 / versionCode 6`, because
+  `export_presets.cfg` carries its own version fields that nothing kept in step with
+  the tag. **`v0.6.1`** derives both from the tag (`2f5b9a9`). **`v0.6.2`** is the
+  build worth side-loading: 175 MB → ~90 MB, with the artefact gate above.
 
 ---
 
