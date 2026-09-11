@@ -1,5 +1,8 @@
 # ROADMAP v4 — UI/UX, HUD, Fight Feedback, Safe Zones, NPC/Monster Movement
 
+> **Consolidated.** Every H1–H7 item below is done and is summarised in
+> [ROADMAP.md](ROADMAP.md) Part 1.5; this file stays as the item-level record.
+
 > **Status (2026-09-11):** H1–H4 complete, H5 complete except the optional
 > idle-frame art, H6 open (art polish). Everything below was verified on the
 > commit named in each item and is covered by a suite where a suite can cover it.

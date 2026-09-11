@@ -9,7 +9,7 @@ with branching dialogue, loot, shops, and full save/load. Built to ship: signed 
 > biome and level, 6 escalating bosses, a 100-step main chain, 100 side quests, 40 secrets and a
 > full economy/power balance pass (`tools/balance_report.py`) — and every one of those is guarded
 > in CI. What remains is the part nobody can do from a CI runner: **playing it on a real device**
-> and profiling it there (see `PLAYTEST.md`, ROADMAP Phase G). See [ROADMAP.md](ROADMAP.md) for
+> and profiling it there (see `PLAYTEST.md`, ROADMAP Phase G). See [ROADMAP.md](ROADMAP.md) (Part 1 = shipped, Part 2 = what is left) for
 > the current state, [DECISIONS.md](DECISIONS.md) for design decisions, and
 > [CREDITS.md](CREDITS.md) for third-party licenses (attribution also ships in the in-game
 > credits screen). Signed APK/AAB are produced by the `release` workflow on `v*` tags.

@@ -1214,3 +1214,41 @@ sources themselves stay disposable by design: the composed sheets are committed 
 are what the game reads, and `lpc_compose.py` refuses to recompose a sheet whose art
 source is missing rather than dropping the animation — so the worst case after a
 wipe is a refused recompose with an explicit message, never silent art loss.
+
+**#82 — The pause is a set of holds, not a boolean** · 2026-09-11
+`get_tree().paused` had six writers. Each screen set it on open and cleared it on
+close, which is correct exactly until two screens overlap: open the inventory, open
+the pause menu, close the inventory, and the world starts moving behind the pause
+menu. The symptoms this produced were all the same bug seen from different angles —
+the settings screen and the travel screen had each grown a private `_was_paused`
+copy, which only covers the ordering its author happened to hit (settings opened
+*from* the pause menu) and does nothing for a dialogue finishing while a shop is up,
+or the death screen appearing under the pause menu. Nothing could see the whole
+picture, so nothing could be right.
+The flag now has one owner (`PauseManager`, an autoload) and its state is a
+dictionary of holds keyed by the object that wants one. The tree is paused exactly
+while at least one hold is outstanding, so "who may unpause" is no longer a question
+any screen can answer wrongly. Holds are pruned against `is_instance_valid()`, which
+is what makes the design survive scene changes: a screen freed while holding — quit
+to title from the pause menu, a load mid-conversation — drops its hold on the next
+query instead of stranding the world paused. Every holder is therefore a node, and a
+test asserts no script outside `pause_manager.gd` assigns the flag at all; that scan
+is the real lock, because the failure mode was never a wrong value, it was one more
+writer.
+
+**#83 — The closing audit was cut into four commits by severity, not by file** · 2026-09-11
+The 25-finding audit was fixed in the order the findings were ranked (critical →
+serious → medium → low) rather than file by file, so a commit always ends with a
+whole class of defect closed and its regression test in place: `d9479b6` (C1–C5),
+`811b8b7` (G1–G7), `1522335` (M1–M5, L1, L3–L5), `11d5b31` (C6). The alternative —
+grouping by the file each fix touches — reads tidier in `git log` and makes it
+impossible to answer "is the exploit closed yet", which is the only question that
+mattered here.
+Two findings were really one bug wearing two coats: C1's arena and the keep's third
+floor are the same mistake (a boss that is placed but never gated), and M1's two
+interaction paths were two copies of a rule that only the touch path had learned.
+Both are fixed at the shared point — `may_summon()` and `nearest_in_range()` — so the
+second copy cannot drift. And one fix changed a data file that had never been
+audited: enforcing the `stack` field (G6) immediately made three-quarters of the
+materials un-stackable and MQ002 unfillable, because nothing had ever read the
+field. Enforcing a decorative field *is* the audit of it.
